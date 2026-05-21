@@ -1,0 +1,166 @@
+---
+import { slide } from "astro:transitions";
+
+const slides = [
+  {
+    id: 1,
+    sub: "ELEVATE YOUR TRAVEL JOURNEY",
+    title: "Discover Your Perfect Route",
+    desc: "Nikmati perjalanan rutin antar jemput Ciamis - Jakarta dengan armada eksekutif, ternyaman, dan via jalan tol.",
+    btnText: "Book Route Now",
+    btnLink: "#services",
+    bgImage:
+      "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&q=80&w=1200",
+  },
+  {
+    id: 2,
+    sub: "ELEVATE YOUR TRAVEL JOURNEY",
+    title: "Your Private Journey Awaits",
+    desc: "Sewa satu mobil utuh (booking armada) untuk perjalanan keluarga atau dinas Anda dengan alokasi supir profesional.",
+    btnText: "Rent Private Car",
+    btnLink: "#booking",
+    bgImage:
+      "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&q=80&w=1200",
+  },
+  {
+    id: 3,
+    sub: "FAST & RELIABLE DELIVERY",
+    title: "Safe & Fast Parcel Courier",
+    desc: "Titip paket kilat super aman. Kiriman barang berharga Anda sampai ke tujuan dalam hitungan jam, kapan saja.",
+    btnText: "Send Package",
+    btnLink: "#courier",
+    bgImage:
+      "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=1200",
+  },
+];
+---
+
+<div class="relative max-w-full mx-auto px-6 py-6 font-main">
+  <div
+    class="relative w-full h-[500px] md:h-[600px] rounded-bg overflow-hidden shadow-soft bg-slate-900"
+  >
+    {
+      slides.map((slide, index) => (
+        <div
+          class={`hero-slide absolute inset-0 w-full h-full  grid md:grid-cols-12 items-center p-8 md:p-16 transition-all duration-700  ease-in-out ${index === 0 ? "opacity-100 z-10" : "opacity-0 z-0"}`}
+          data-index={index}
+        >
+          <div class="absolute inset-0 z-0">
+            <img
+              src={slide.bgImage}
+              alt="silde.title"
+              class="w-full h-full object-cover"
+            />
+            <div class="absolute inset-0 bg-gradient-to-r from-bg-light/95 via-bg-light/80 to-transparent" />
+          </div>
+
+          <div class="relative z-10 md:col-span-7 space-y-4 md:space-y-6">
+            <span class="text-xs font-secondary font-bold text-secondary tracking-widest block uppercase">
+              {slide.sub}
+            </span>
+            <h1 class="text-3xl md:text-5xl lg:text-6xl font-black text-primary leading-tight">
+              {slide.title}
+            </h1>
+            <p class="text-sm md:text-base text-text-secondary font-secondary font-normal max-w-xl leading-relaxed">
+              {slide.desc}
+            </p>
+            <div class="pt-2">
+              <a
+                href={slide.btnLink}
+                class="inline-block bg-btn-linear text-white px-8 py-3.5 rounded-full font-semibold shadow-md hover:opacity-90 transition-opacity"
+              >
+                {slide.btnText}
+              </a>
+            </div>
+          </div>
+        </div>
+      ))
+    }
+
+    <!-- round-btn-slider -->
+    <div
+      class="absolute left-6 md:left-12 top-1/2 -translate-y-1/2 z-20 flex flex-col gap-6 items-center"
+    >
+      <div class="absolute w-[2px] bg-primary/20 h-full -z-10"></div>
+      {
+        slides.map((_, index) => (
+          <button
+            class={`slide-indicator w-8 h-8 rounded-full flex items-center justify-center font-main font-bold text-xs border-2 transition-all duration-300 cursor-pointer ${index === 0 ? "bg-primary border-primary text-white scale-110 shadow-md" : "bg-white border-primary/20  text-text-secondary hover:border-primary"}`}
+            data-target={index}
+          >
+            {index + 1}
+          </button>
+        ))
+      }
+    </div>
+  </div>
+</div>
+
+<script>
+  const initSlider = () => {
+    const slides = document.querySelectorAll(".hero-slide");
+    const indicators = document.querySelectorAll(".slide-indicator");
+    let currentIndex = 0;
+    const slideInterval = 10000;
+
+    const changeSlide = (nextIndex: number) => {
+      slides[currentIndex].classList.replace("opacity-100", "opacity-0");
+      slides[currentIndex].classList.replace("z-10", "z-0");
+      indicators[currentIndex].classList.remove(
+        "bg-primary",
+        "border-primary",
+        "text-white",
+        "scale-110",
+        "shadow-md",
+      );
+      indicators[currentIndex].classList.add(
+        "bg-white",
+        "border-primary/20",
+        "text-text-secondary",
+      );
+
+      slides[nextIndex].classList.replace("opacity-0", "opacity-100");
+      slides[nextIndex].classList.replace("z-0", "z-10");
+      indicators[nextIndex].classList.remove(
+        "bg-white",
+        "border-primary/20",
+        "text-text-secondary",
+      );
+      indicators[nextIndex].classList.add(
+        "bg-primary",
+        "border-primary",
+        "text-white",
+        "scale-110",
+        "shadow-md",
+      );
+
+      currentIndex = nextIndex;
+    };
+
+    // logika untuk slider otomatis
+    const nextSlides = () => {
+      let next = (currentIndex + 1) % slides.length;
+      changeSlide(next);
+    };
+
+    let timer = setInterval(nextSlides, slideInterval);
+
+    // event button slinder
+    indicators.forEach((indicator) => {
+      indicator.addEventListener("click", (e) => {
+        clearInterval(timer);
+
+        const targetIndex = parseInt(
+          indicator.getAttribute("data-target") || "0",
+        );
+        if (targetIndex !== currentIndex) {
+          changeSlide(targetIndex);
+        }
+
+        timer = setInterval(nextSlides, slideInterval);
+      });
+    });
+  };
+
+  initSlider();
+</script>
