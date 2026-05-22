@@ -1,162 +1,92 @@
 ---
-const promos = [
-    {
-        image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&q=80&w=800",
-        discount: "10% OFF",
-        noteTitle: "Khusus Minggu Ini",
-        noteDesc: "Rute Ciamis - Jakarta",
-        textRow1: "Nikmati",
-        textDesc1:
-            "Perjalanan rutin antar-jemput Ciamis - Jakarta dengan layanan premium, armada eksekutif, dan supir profesional.",
-        textRow2: "Perjalanan Premium",
-        textDesc2:
-            "Perjalanan rutin antar-jemput Ciamis - Jakarta dengan layanan premium, armada eksekutif, dan supir profesional.",
-        textRow3: "Bersama Kami",
-        btnLink: "#booking",
-        btnText: "Pesan Tiket Sekarang",
-    },
-    {
-        image: "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&q=80&w=800",
-        discount: "15% OFF",
-        noteTitle: "Promo Sewa Mobil",
-        noteDesc: "Booking Satu Armada",
-        textRow1: "Sewa",
-        textDesc1:
-            "Butuh perjalanan privasi untuk keluarga atau dinas kantor? Sewa satu mobil utuh jauh lebih hemat dan efisien.",
-        textRow2: "Satu Mobil Utuh",
-        textDesc2:
-            "Alokasi supir berpengalaman yang siap menjemput tepat di depan rumah dan mengantar sampai titik tujuan.",
-        textRow3: "Lebih Nyaman",
-        btnLink: "#booking-armada",
-        btnText: "Sewa Mobil Sekarang",
-    },
-];
+const promo = {
+    image: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&q=80&w=800",
+    discount: "10% OFF",
+    noteTitle: "Khusus Minggu Ini",
+    noteDesc: "Rute Ciamis - Jakarta",
+    textRow1: "Nikmati",
+    textDesc1: "Perjalanan rutin antar-jemput Ciamis - Jakarta dengan layanan premium, armada eksekutif, dan supir profesional.",
+    textRow2: "Perjalanan Premium",
+    textDesc2: "Dapatkan kenyamanan ekstra via jalan tol penuh dengan fasilitas AC, reclining seat, dan ruang bagasi yang luas.",
+    textRow3: "Bersama Kami",
+    btnLink: "#booking",
+    btnText: "Pesan Tiket Sekarang",
+};
 ---
 
-<section class="max-w-5xl mx-auto px-6 py-16 font-main overflow-hidden relative">
-    <div id="promo-slider-wrapper" class="relative w-full">
-        {
-            promos.map((promo, index) => (
-                <div
-                    class={`promo-slide w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch transition-all duration-1000 ease-in-out ${index === 0 ? "opacity-100 relative z-10" : "opacity-0 absolute inset-0 z-0 pointer-events-none"}`}
-                    data-index={index}
-                >
-                    <div class="lg:col-span-4 flex flex-col gap-6">
-                        <div class="w-full h-[350px] md:h-[400px] rounded-bg overflow-hidden shadow-md">
-                            <img
-                                src={promo.image}
-                                alt="Promo Rini Trans Putri"
-                                class="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
-                            />
-                        </div>
+<section class="max-w-5xl mx-auto px-6 py-16 font-main">
+    <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+        
+        <div class="lg:col-span-4 flex flex-col gap-6">
+            <div class="w-full h-[350px] md:h-[400px] rounded-bg overflow-hidden shadow-md">
+                <img
+                    src={promo.image}
+                    alt="Promo Rini Trans Putri"
+                    class="w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                />
+            </div>
 
-                        <div class="bg-slate-50 border border-slate-100 rounded-bg p-6 flex items-center justify-between shadow-xs">
-                            <div class="text-2xl md:text-3xl font-black text-sky-500 tracking-tight leading-none">
-                                {promo.discount}
-                            </div>
-
-                            <div class="text-right font-secondary text-xs text-text-secondary leading-tight">
-                                <p class="font-bold text-primary">
-                                    {promo.noteTitle}
-                                </p>
-                                <p>
-                                    {promo.noteDesc}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="lg:col-span-8 flex flex-col justify-between gap-8 py-2">
-                        
-                        <div class="grid grid-cols-2 md:grid-cols-12 gap-y-4 gap-x-3 items-center">
-                            
-                            <div class="col-span-1 md:col-span-6">
-                                <h2 class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-primary uppercase tracking-tight leading-none">
-                                    {promo.textRow1}
-                                </h2>
-                            </div>
-
-                            <div class="col-span-1 md:col-span-6">
-                                <p class="font-secondary text-[10px] sm:text-xs text-text-secondary leading-tight md:leading-relaxed max-w-xs">
-                                    {promo.textDesc1}
-                                </p>
-                            </div>
-
-                            <div class="col-span-2 md:col-span-12 my-1">
-                                <h2 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-primary uppercase tracking-tight leading-none">
-                                    {promo.textRow2}
-                                </h2>
-                            </div>
-
-                            <div class="col-span-1 md:col-span-6">
-                                <p class="font-secondary text-[10px] sm:text-xs text-text-secondary leading-tight md:leading-relaxed max-w-xs">
-                                    {promo.textDesc2}
-                                </p>
-                            </div>
-
-                            <div class="col-span-1 md:col-span-6 text-right">
-                                <h2 class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-primary uppercase tracking-tight leading-none">
-                                    {promo.textRow3}
-                                </h2>
-                            </div>
-                        </div>
-
-                        <a href={promo.btnLink}
-                            class="relative w-full py-6 rounded-bg overflow-hidden flex items-center justify-center gap-3 font-main font-bold text-lg text-white shadow-md group border border-sky-100/50"
-                        >
-                            <div class="absolute inset-0 z-0 bg-btn-linear">
-                                <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1534088568595-a066f410bcda?auto=format&fit=crop&q=80&w=600')] bg-cover bg-center opacity-10 mix-blend-overlay"></div>
-                            </div>
-                            <span class="relative z-10 transition-transform duration-300 group-hover:translate-x-[-4px]">{promo.btnText}</span>
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5 relative z-10 text-white transition-transform duration-300 group-hover:translate-x-2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                            </svg>
-                        </a>
-                    </div>
+            <div class="bg-slate-50 border border-slate-100 rounded-bg p-6 flex items-center justify-between shadow-xs">
+                <div class="text-2xl md:text-3xl font-black text-sky-500 tracking-tight leading-none">
+                    {promo.discount}
                 </div>
-            ))
-        }
+
+                <div class="text-right font-secondary text-xs text-text-secondary leading-tight">
+                    <p class="font-bold text-primary">
+                        {promo.noteTitle}
+                    </p>
+                    <p>
+                        {promo.noteDesc}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="lg:col-span-8 flex flex-col justify-between gap-8 py-2">
+            
+            <div class="grid grid-cols-2 md:grid-cols-12 gap-y-4 gap-x-3 items-center">
+                <div class="col-span-1 md:col-span-6">
+                    <h2 class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-primary uppercase tracking-tight leading-none">
+                        {promo.textRow1}
+                    </h2>
+                </div>
+
+                <div class="col-span-1 md:col-span-6">
+                    <p class="font-secondary text-[10px] sm:text-xs text-text-secondary leading-tight md:leading-relaxed max-w-xs">
+                        {promo.textDesc1}
+                    </p>
+                </div>
+
+                <div class="col-span-2 md:col-span-12 my-1">
+                    <h2 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-primary uppercase tracking-tight leading-none">
+                        {promo.textRow2}
+                    </h2>
+                </div>
+
+                <div class="col-span-1 md:col-span-6">
+                    <p class="font-secondary text-[10px] sm:text-xs text-text-secondary leading-tight md:leading-relaxed max-w-xs">
+                        {promo.textDesc2}
+                    </p>
+                </div>
+
+                <div class="col-span-1 md:col-span-6 text-right">
+                    <h2 class="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-primary uppercase tracking-tight leading-none">
+                        {promo.textRow3}
+                    </h2>
+                </div>
+            </div>
+
+            <a href={promo.btnLink}
+                class="relative w-full py-6 rounded-bg overflow-hidden flex items-center justify-center gap-3 font-main font-bold text-lg text-white shadow-md group border border-sky-100/50"
+            >
+                <div class="absolute inset-0 z-0 bg-btn-linear">
+                    <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1534088568595-a066f410bcda?auto=format&fit=crop&q=80&w=600')] bg-cover bg-center opacity-10 mix-blend-overlay"></div>
+                </div>
+                <span class="relative z-10 transition-transform duration-300 group-hover:translate-x-[-4px]">{promo.btnText}</span>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5 relative z-10 text-white transition-transform duration-300 group-hover:translate-x-2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                </svg>
+            </a>
+        </div>
     </div>
 </section>
-
-<script>
-  const initPromoSlider = () => {
-    const slides = document.querySelectorAll('.promo-slide') as NodeListOf<HTMLElement>;
-    
-    // ATURAN 1: Jika jumlah data promo kurang dari atau sama dengan 1, skrip langsung berhenti (DIAM)
-    if (slides.length <= 1) {
-      console.log("Info: Hanya ada 1 promo. Slider dinonaktifkan.");
-      return; 
-    }
-
-    let currentIndex = 0;
-    // ATURAN 2: Durasi tunggu diatur menjadi 8000ms (8 detik) agar cukup waktu untuk dibaca utuh
-    const slideDuration = 8000; 
-
-    const nextPromoSlide = () => {
-      const currentSlide = slides[currentIndex];
-      const nextIndex = (currentIndex + 1) % slides.length;
-      const nextSlide = slides[nextIndex];
-
-      // Sembunyikan slide yang sekarang secara halus (Fade Out)
-      currentSlide.classList.replace('opacity-100', 'opacity-0');
-      currentSlide.classList.replace('relative', 'absolute');
-      currentSlide.classList.add('pointer-events-none');
-      currentSlide.style.zIndex = '0';
-
-      // Tampilkan slide berikutnya secara halus (Fade In)
-      nextSlide.classList.replace('opacity-0', 'opacity-100');
-      nextSlide.classList.replace('absolute', 'relative');
-      nextSlide.classList.remove('pointer-events-none');
-      nextSlide.style.zIndex = '10';
-
-      currentIndex = nextIndex;
-    };
-
-    // Jalankan perputaran otomatis berdasarkan durasi yang sudah ditentukan
-    setInterval(nextPromoSlide, slideDuration);
-  };
-
-  // Jalankan logika setelah DOM selesai dimuat browser
-  document.addEventListener('DOMContentLoaded', initPromoSlider);
-</script>
