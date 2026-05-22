@@ -1,0 +1,45 @@
+---
+interface Props {
+    isLoggedIn?: boolean;
+}
+
+const { isLoggedIn = false } = Astro.props;
+---
+
+<nav class="w-full bg-white border-b border-slate-100 shadow-sm sticky top-0 z-50 font-main">
+    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+        
+        <a href="/" class="text-2xl font-black text-primary tracking-tight flex items-center gap-2 hover:opacity-90 transition-opacity">
+            Rini Trans <span class="text-sky-500">Putri</span>
+        </a>
+
+        <ul class="hidden md:flex items-center gap-8 font-secondary text-sm font-medium text-text-secondary">
+            <li><a href="/" class="hover:text-sky-500 transition-colors">Beranda</a></li>
+            <li><a href="/layanan" class="hover:text-sky-500 transition-colors">Layanan</a></li>
+            <li><a href="/tentang-kami" class="hover:text-sky-500 transition-colors">Tentang Kami</a></li>
+            
+            {isLoggedIn && (
+                <li><a href="/riwayat-pemesanan" class="hover:text-sky-500 transition-colors">Riwayat Pesanan</a></li>
+            )}
+        </ul>
+
+        <div class="hidden md:block">
+            {isLoggedIn ? (
+                <a href="/profil" class="px-6 py-2.5 bg-slate-50 text-primary border border-slate-200 rounded-lg font-bold hover:bg-slate-100 transition-colors">
+                    Profil Saya
+                </a>
+            ) : (
+                <a href="/login" class="px-6 py-2.5 bg-btn-linear text-white rounded-lg font-bold shadow-md hover:opacity-90 transition-opacity flex items-center gap-2">
+                    Masuk
+                </a>
+            )}
+        </div>
+
+        <button class="md:hidden text-primary p-2 focus:outline-none" aria-label="Buka Menu">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-7 h-7">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+            </svg>
+        </button>
+
+    </div>
+</nav>
