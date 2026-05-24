@@ -1,9 +1,5 @@
 ---
-interface Props {
-    isLoggedIn?: boolean;
-}
-
-const { isLoggedIn = false } = Astro.props;
+// Kita hapus Astro.props isLoggedIn karena kita akan mengeceknya lewat JavaScript di browser.
 ---
 
 <nav class="w-full bg-white border-b border-slate-100 shadow-sm sticky top-0 z-50 font-main">
@@ -18,21 +14,24 @@ const { isLoggedIn = false } = Astro.props;
             <li><a href="/layanan" class="hover:text-sky-500 transition-colors">Layanan</a></li>
             <li><a href="/tentangkami" class="hover:text-sky-500 transition-colors">Tentang Kami</a></li>
             
-            {isLoggedIn && (
-                <li><a href="/riwayat-pemesanan" class="hover:text-sky-500 transition-colors">Riwayat Pesanan</a></li>
-            )}
+            <li id="nav-riwayat" class="hidden">
+                <a href="/riwayat-pemesanan" class="hover:text-sky-500 transition-colors font-bold text-sky-600">Riwayat Pesanan</a>
+            </li>
         </ul>
 
         <div class="hidden md:block">
-            {isLoggedIn ? (
+            <a href="/login" id="btn-login" class="px-6 py-2.5 bg-btn-linear text-white rounded-lg font-bold shadow-md hover:opacity-90 transition-opacity flex items-center gap-2 block">
+                Masuk
+            </a>
+            
+            <div id="btn-profile-group" class="hidden items-center gap-3">
                 <a href="/profil" class="px-6 py-2.5 bg-slate-50 text-primary border border-slate-200 rounded-lg font-bold hover:bg-slate-100 transition-colors">
                     Profil Saya
                 </a>
-            ) : (
-                <a href="/login" class="px-6 py-2.5 bg-btn-linear text-white rounded-lg font-bold shadow-md hover:opacity-90 transition-opacity flex items-center gap-2">
-                    Masuk
-                </a>
-            )}
+                <button id="btn-logout" class="px-4 py-2.5 text-rose-500 hover:bg-rose-50 rounded-lg font-bold transition-colors">
+                    Keluar
+                </button>
+            </div>
         </div>
 
         <button class="md:hidden text-primary p-2 focus:outline-none" aria-label="Buka Menu">
@@ -43,3 +42,46 @@ const { isLoggedIn = false } = Astro.props;
 
     </div>
 </nav>
+
+<script>
+    // Script ini akan berjalan secara otomatis di browser pengguna
+    document.addEventListener('DOMContentLoaded', () => {
+        
+        // 1. Ambil status login dari brankas browser (localStorage)
+        const isLoggedIn = localStorage.getItem('is_logged_in') === 'true';
+
+        // 2. Tangkap elemen-elemen Navbar
+        const navRiwayat = document.getElementById('nav-riwayat');
+        const btnLogin = document.getElementById('btn-login');
+        const btnProfileGroup = document.getElementById('btn-profile-group');
+        const btnLogout = document.getElementById('btn-logout');
+
+        // 3. Logika pergantian tampilan UI
+        if (isLoggedIn) {
+            // Buka gembok menu riwayat pesanan
+            if (navRiwayat) navRiwayat.classList.remove('hidden');
+            
+            // Sembunyikan tombol Masuk
+            if (btnLogin) btnLogin.classList.add('hidden');
+            
+            // Munculkan grup tombol Profil & Keluar
+            if (btnProfileGroup) {
+                btnProfileGroup.classList.remove('hidden');
+                btnProfileGroup.classList.add('flex');
+            }
+        }
+
+        // 4. Fitur Logout (Keluar)
+        if (btnLogout) {
+            btnLogout.addEventListener('click', () => {
+                // Hapus status login dari brankas
+                localStorage.removeItem('is_logged_in');
+                
+                alert('Anda telah berhasil keluar.');
+                
+                // Refresh halaman untuk mereset tampilan Navbar
+                window.location.reload(); 
+            });
+        }
+    });
+</script>
