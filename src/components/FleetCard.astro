@@ -1,0 +1,70 @@
+---
+interface Props {
+    name: string;
+    capacity: string;
+    description: string;
+    price: string;
+    image: string;
+}
+
+// Menangkap data dari komponen induk
+const { name, capacity, description, price, image } = Astro.props;
+---
+
+<div
+    class="bg-slate-50 border border-slate-100 rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition-shadow group flex flex-col h-full"
+>
+    <figure class="relative h-48 overflow-hidden bg-slate-200">
+        <span
+            class="absolute top-4 left-4 z-10 bg-white/90 backdrop-blur-sm text-primary text-xs font-bold px-3 py-2 rounded-full shadow-sm"
+        >
+            {capacity}</span
+        >
+        <img
+            src={image}
+            alt={name}
+            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+        />
+    </figure>
+
+    <div class="p-5 flex flex-col flex-grow">
+        <h3 class="text-lg font-black text-primary mb-1">{name}</h3>
+        <p
+            class="font-secondary text-xs text-text-secondary leading-relaxed mb-4 flex-grow"
+        >
+            {description}
+        </p>
+        <footer
+            class="flex items-center justify-between border-t border-slate-200 pt-4 mt-auto"
+        >
+            <div>
+                <span
+                    class="block text-[10px] text-slate-500 font-bold uppercase tracking-wider mb0.5"
+                    >Mulai Dari</span
+                >
+                <div class="font-main font-black text-text-sky-600">
+                    Rp. {price}
+                    <span class="text-xs font-medium text-slate400">/Hari</span>
+                </div>
+            </div>
+            <button
+                class="w-8 h-8 rounded-full bg-slate-200 text-primary flex items-center justify-center group-hover:bg-sky-500 group-hover:text-white transition-colors"
+                aria-label={`Pilih ${name}`}
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="2.5"
+                    stroke="currentColor"
+                    class="w-4 h-4"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M8.25 4.5l7.5 7.5-7.5 7.5"></path>
+                </svg>
+            </button>
+        </footer>
+    </div>
+</div>
