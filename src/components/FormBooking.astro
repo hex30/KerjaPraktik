@@ -116,4 +116,18 @@ const fleetData = [
     </aside>
 </article>
 
-
+<script>
+    const setupBookingListener = () => {
+        const form = document.getElementById('form-booking-travel');
+        if (form) {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const formData = new FormData(form as HTMLFormElement);
+                const data = Object.fromEntries(formData.entries());
+                console.log("Data Booking:", data);
+                alert(`Permintaan Booking ke ${data.tujuan} pada ${data.tanggal_sewa} telah di proses.`);
+            });
+        }
+    };
+    document.addEventListener('DOMContentLoaded', setupBookingListener);
+</script>
