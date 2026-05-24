@@ -1,0 +1,124 @@
+---
+// File: src/pages/riwayat-pemesanan.astro
+import UserLayout from '../layouts/userLayout.astro';
+
+// Mock data riwayat pesanan pelanggan untuk keperluan UI/UX Frontend
+const orderHistory = [
+    {
+        id: "RTP-2026-001",
+        date: "24 Mei 2026",
+        type: "Perjalanan Rute",
+        title: "Tasikmalaya → Jakarta Barat",
+        details: "Penumpang: Fahri Ramdhani (1 Kursi) | Keberangkatan: 09:00 WIB",
+        price: "250.000",
+        status: "APPROVED", // Sudah di-acc
+    },
+    {
+        id: "RTP-2026-002",
+        date: "23 Mei 2026",
+        type: "Booking Travel (Charter)",
+        title: "Sewa Toyota Hiace Commuter",
+        details: "Tujuan: Bandung (City Tour) | Tanggal: 30 Mei 2026",
+        price: "1.500.000",
+        status: "PENDING", // Belum di-acc / Menunggu Konfirmasi
+    },
+    {
+        id: "RTP-2026-003",
+        date: "20 Mei 2026",
+        type: "Antar Paket",
+        title: "Pengiriman Paket (12 Kg)",
+        details: "Pengirim: Cikondang → Penerima: Sukamaju | Dimensi: Sedang",
+        price: "85.000",
+        status: "REJECTED", // Ditolak / Dibatalkan
+    }
+];
+---
+
+<UserLayout title="Riwayat Pesanan | Rini Trans Putri">
+    
+    <section class="py-12 bg-slate-50 min-h-screen font-main">
+        <div class="max-w-5xl mx-auto px-6">
+            
+            <header class="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <h1 class="text-3xl font-black text-primary tracking-tight mb-2">Riwayat Pesanan</h1>
+                    <p class="font-secondary text-sm text-text-secondary">Pantau status persetujuan tiket dan pengiriman paket Anda secara real-time.</p>
+                </div>
+                
+                <div class="flex gap-2 bg-white p-1.5 rounded-xl border border-slate-200 w-max text-xs font-bold font-secondary shadow-xs">
+                    <button class="px-4 py-2 bg-primary text-white rounded-lg">Semua</button>
+                    <button class="px-4 py-2 text-text-secondary hover:bg-slate-100 rounded-lg">Menunggu</button>
+                    <button class="px-4 py-2 text-text-secondary hover:bg-slate-100 rounded-lg">Disetujui</button>
+                </div>
+            </header>
+
+            <div class="flex flex-col gap-6">
+                {orderHistory.map((order) => {
+                    // Logika penentuan warna badge berdasarkan status dari database
+                    let statusClass = "";
+                    let statusText = "";
+                    
+                    if (order.status === "APPROVED") {
+                        statusClass = "bg-emerald-50 text-emerald-600 border-emerald-100";
+                        statusText = "Disetujui (ACC)";
+                    } else if (order.status === "PENDING") {
+                        statusClass = "bg-amber-50 text-amber-600 border-amber-100";
+                        statusText = "Menunggu Persetujuan";
+                    } else {
+                        statusClass = "bg-rose-50 text-rose-600 border-rose-100";
+                        statusText = "Ditolak / Batal";
+                    }
+
+                    return (
+                        <div class="bg-white border border-slate-100 rounded-[1.5rem] shadow-xs p-6 md:p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 hover:shadow-md transition-shadow">
+                            
+                            <div class="flex flex-col gap-3 w-full md:w-3/4">
+                                <div class="flex flex-wrap items-center gap-3">
+                                    <span class="text-xs font-bold font-secondary px-3 py-1 bg-slate-100 text-slate-600 rounded-md">
+                                        {order.type}
+                                    </span>
+                                    <span class="text-xs text-slate-400 font-secondary font-medium">
+                                        ID: #{order.id}
+                                    </span>
+                                    <span class="text-xs text-slate-400 font-secondary font-medium hidden sm:inline">
+                                        • {order.date}
+                                    </span>
+                                </div>
+                                
+                                <div>
+                                    <h2 class="text-xl font-black text-primary mb-1 tracking-tight">
+                                        {order.title}
+                                    </h2>
+                                    <p class="font-secondary text-sm text-text-secondary leading-relaxed">
+                                        {order.details}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="flex flex-row md:flex-col justify-between md:justify-center items-center md:items-end w-full md:w-1/4 border-t md:border-t-0 border-slate-100 pt-4 md:pt-0 gap-4">
+                                <div class="text-left md:text-right">
+                                    <span class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">Total Biaya</span>
+                                    <span class="font-main font-black text-primary text-lg">Rp {order.price}</span>
+                                </div>
+                                
+                                <span class={`px-4 py-1.5 rounded-full text-xs font-black tracking-wide border ${statusClass} font-main whitespace-nowrap`}>
+                                    {statusText}
+                                </span>
+                            </div>
+
+                        </div>
+                    );
+                })}
+            </div>
+
+            <footer class="mt-12 text-center">
+                <p class="font-secondary text-xs text-slate-400 leading-relaxed">
+                    Pesanan Anda belum berubah status dalam 1x24 jam? <br />
+                    Silakan hubungi admin via <a href="#" class="text-sky-500 font-bold hover:underline">WhatsApp CS Kami</a> untuk konfirmasi kilat.
+                </p>
+            </footer>
+
+        </div>
+    </section>
+
+</UserLayout>

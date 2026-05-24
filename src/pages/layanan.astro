@@ -1,34 +1,103 @@
 ---
-import UserLayout from '../layouts/userLayout.astro';
-import ServiceTabs from '../components/ServiceTabs.astro';
-import FormRute from '../components/FormRute.astro';
+import UserLayout from "../layouts/userLayout.astro";
+import ServiceTabs from "../components/ServiceTabs.astro";
+import FormRute from "../components/FormRute.astro";
+import FormBooking from "../components/FormBooking.astro";
+import FormPaket from '../components/FormPackage.astro';
 ---
 
 <UserLayout title="Layanan | Rini Trans Putri">
-    
     <section class="max-w-7xl mx-auto px-6 mt-8 font-main">
-        <div class="relative w-full h-64 md:h-80 rounded-[2rem] overflow-hidden shadow-sm group">
-            <img 
-                src="/assets/images/contoh.jpg" 
-                alt="Promo Liburan Rini Trans Putri" 
-                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" 
+        <div
+            class="relative w-full h-64 md:h-80 rounded-[2rem] overflow-hidden shadow-sm group"
+        >
+            <img
+                src="/assets/images/contoh.jpg"
+                alt="Promo Liburan Rini Trans Putri"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
             />
-            
-            <div class="absolute inset-0 bg-gradient-to-r from-slate-900/90 via-slate-900/50 to-transparent flex flex-col justify-center px-8 md:px-16">
-                <span class="inline-block bg-sky-500 text-white text-xs font-bold px-4 py-1.5 rounded-full w-max mb-4 uppercase tracking-wider">
+
+            <div
+                class="absolute inset-0 bg-gradient-to-r from-slate-900/90 via-slate-900/50 to-transparent flex flex-col justify-center px-8 md:px-16"
+            >
+                <span
+                    class="inline-block bg-sky-500 text-white text-xs font-bold px-4 py-1.5 rounded-full w-max mb-4 uppercase tracking-wider"
+                >
                     Penawaran Spesial
                 </span>
-                <h1 class="text-3xl md:text-5xl lg:text-6xl font-black text-white max-w-lg leading-tight tracking-tight">
+                <h1
+                    class="text-3xl md:text-5xl lg:text-6xl font-black text-white max-w-lg leading-tight tracking-tight"
+                >
                     Diskon 20% Liburan Keluarga
                 </h1>
             </div>
         </div>
     </section>
 
+    <section class="max-w-7xl mx-auto px-6 mt-8 font-main"></section>
+
     <ServiceTabs />
 
     <section id="service-content" class="pb-24">
-        <FormRute />
+        <div id="view-rute" class="tab-content block">
+            <FormRute />
+        </div>
+
+        <div id="view-booking" class="tab-content hidden">
+            <FormBooking />
+        </div>
+
+        <div id="view-package" class="tab-content hidden">
+            <FormPaket />
+        </div>
     </section>
 
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const tabs = document.querySelectorAll(".nav-btn");
+            const contents = document.querySelectorAll(".tab-content");
+
+            tabs.forEach((tab) => {
+                tab.addEventListener("click", () => {
+                    // 1. Ambil nama target dari atribut data-view (misal: 'rute', 'booking', 'package')
+                    const targetView = tab.getAttribute("data-view");
+
+                    // 2. Reset semua gaya tombol menjadi tidak aktif (abu-abu)
+                    tabs.forEach((t) => {
+                        t.classList.remove(
+                            "bg-btn-linear",
+                            "text-white",
+                            "shadow-md",
+                            "active",
+                        );
+                        t.classList.add("text-text-secondary");
+                    });
+
+                    // 3. Beri gaya warna biru/linear pada tombol yang sedang diklik
+                    tab.classList.add(
+                        "bg-btn-linear",
+                        "text-white",
+                        "shadow-md",
+                        "active",
+                    );
+                    tab.classList.remove("text-text-secondary");
+
+                    // 4. Sembunyikan semua konten form
+                    contents.forEach((content) => {
+                        content.classList.add("hidden");
+                        content.classList.remove("block");
+                    });
+
+                    // 5. Munculkan form yang sesuai dengan tombol yang diklik
+                    const activeContent = document.getElementById(
+                        `view-${targetView}`,
+                    );
+                    if (activeContent) {
+                        activeContent.classList.remove("hidden");
+                        activeContent.classList.add("block");
+                    }
+                });
+            });
+        });
+    </script>
 </UserLayout>

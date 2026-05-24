@@ -1,0 +1,99 @@
+---
+// File: src/pages/tentang-kami.astro
+import UserLayout from '../layouts/userLayout.astro';
+---
+
+<UserLayout title="Tentang Kami | Rini Trans Putri">
+    
+    <section class="bg-slate-950 text-white py-20 md:py-32 font-main relative overflow-hidden">
+        <div class="absolute top-0 right-0 -translate-y-1/4 translate-x-1/4 w-96 h-96 bg-sky-500/20 rounded-full blur-3xl"></div>
+        <div class="absolute bottom-0 left-0 translate-y-1/4 -translate-x-1/4 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl"></div>
+        
+        <div class="max-w-7xl mx-auto px-6 relative z-10 text-center">
+            <h1 class="text-4xl md:text-5xl lg:text-6xl font-black mb-6 tracking-tight leading-tight">
+                Menghubungkan Kota,<br />
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-500">Mendekatkan Keluarga.</span>
+            </h1>
+            <p class="font-secondary text-slate-300 max-w-2xl mx-auto leading-relaxed md:text-lg">
+                PT Rini Trans Putri hadir sebagai solusi transportasi modern yang mengutamakan kenyamanan, keamanan, dan ketepatan waktu untuk setiap perjalanan Anda.
+            </p>
+        </div>
+    </section>
+
+    <section class="py-20 md:py-28 font-main bg-white">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col lg:flex-row gap-16 items-center">
+            
+            <div class="w-full lg:w-1/2 flex flex-col gap-6">
+                <div class="flex items-center gap-4 mb-2">
+                    <div class="w-12 h-1 bg-sky-500 rounded-full"></div>
+                    <h2 class="text-sky-600 font-bold uppercase tracking-wider text-sm">Cerita Kami</h2>
+                </div>
+                <h3 class="text-3xl md:text-4xl font-black text-primary leading-tight">
+                    Dedikasi Dalam Setiap Kilometer Perjalanan.
+                </h3>
+                <div class="font-secondary text-text-secondary leading-relaxed space-y-4 text-sm md:text-base">
+                    <p>
+                        Berawal dari komitmen untuk memberikan layanan transportasi darat yang andal, Rini Trans Putri terus berkembang menjadi pilihan utama masyarakat dalam melakukan mobilitas antarkota.
+                    </p>
+                    <p>
+                        Kami memahami bahwa perjalanan bukan sekadar berpindah dari titik A ke titik B. Ini tentang memastikan Anda tiba dengan selamat untuk bertemu orang-orang tercinta, menghadiri urusan bisnis yang krusial, atau sekadar menikmati waktu luang. Oleh karena itu, armada kami dirawat dengan standar dealer resmi dan dikemudikan oleh tenaga profesional.
+                    </p>
+                </div>
+            </div>
+
+            <div class="w-full lg:w-1/2">
+                <figure class="relative rounded-[2.5rem] overflow-hidden shadow-xl aspect-[4/3] group">
+                    <img 
+                        src="/assets/images/contoh.jpg" 
+                        alt="Armada Rini Trans Putri" 
+                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
+                    <div class="absolute inset-0 bg-primary/10 group-hover:bg-transparent transition-colors duration-500"></div>
+                </figure>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="py-20 bg-slate-50 font-main border-y border-slate-100">
+        <div class="max-w-7xl mx-auto px-6">
+            
+            <div class="text-center mb-16">
+                <h2 class="text-3xl md:text-4xl font-black text-primary mb-4">Visi & Misi</h2>
+                <p class="font-secondary text-text-secondary max-w-2xl mx-auto">Landasan utama yang menjadi kompas bagi kami dalam melayani pelanggan setiap harinya.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+                <div class="bg-white p-8 md:p-12 rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                    <div class="w-16 h-16 bg-sky-50 text-sky-600 rounded-2xl flex items-center justify-center mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-black text-primary mb-4">Visi</h3>
+                    <p class="font-secondary text-text-secondary leading-relaxed">
+                        Menjadi perusahaan layanan transportasi darat dan pengiriman paket terdepan yang paling diandalkan di Indonesia, dengan standar pelayanan ekselen dan inovasi berkelanjutan.
+                    </p>
+                </div>
+
+                <div class="bg-white p-8 md:p-12 rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-md transition-shadow">
+                    <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-6">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-8 h-8">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-black text-primary mb-4">Misi</h3>
+                    <ul class="font-secondary text-text-secondary leading-relaxed space-y-3 list-disc list-inside marker:text-blue-500">
+                        <li>Mengutamakan keselamatan dengan pemeliharaan armada yang ketat.</li>
+                        <li>Memberikan kenyamanan maksimal layaknya kendaraan pribadi.</li>
+                        <li>Meningkatkan kualitas SDM yang ramah dan profesional.</li>
+                        <li>Berinovasi dalam sistem pemesanan yang mudah dan responsif.</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+</UserLayout>
