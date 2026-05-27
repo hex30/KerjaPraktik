@@ -1,0 +1,176 @@
+---
+// File: src/pages/login.astro
+import UserLayout from "../layouts/userLayout.astro";
+
+// Panggil kedua komponen form dari folder auth
+import LoginForm from "../components/LoginForm.astro";
+import RegisterForm from "../components/RegisterForm.astro";
+---
+
+<UserLayout title="Masuk / Daftar | Rini Trans Putri">
+    <section
+        class="min-h-screen bg-slate-50 flex items-center justify-center py-12 px-4 sm:px-6 font-main"
+    >
+        <div
+            class="max-w-5xl w-full bg-white rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col md:flex-row relative"
+        >
+            <div
+                class="hidden md:flex md:w-1/2 relative bg-slate-900 items-center justify-center p-12 overflow-hidden group"
+            >
+                <img
+                    src="/assets/images/contoh.jpg"
+                    alt="Armada Mewah Rini Trans Putri"
+                    class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:scale-105 transition-transform duration-1000"
+                />
+                <div
+                    class="absolute inset-0 bg-gradient-to-br from-primary/90 via-primary/70 to-transparent"
+                >
+                </div>
+
+                <div class="relative z-10 text-white text-left mt-auto">
+                    <span
+                        class="inline-block px-3 py-1 mb-4 rounded-full bg-sky-500/20 border border-sky-400/30 text-sky-300 text-xs font-bold uppercase tracking-widest backdrop-blur-sm"
+                    >
+                        Member Portal
+                    </span>
+                    <h2 class="text-4xl font-black mb-4 leading-tight">
+                        Langkah Awal Menuju <br />
+                        <span class="text-sky-400">Perjalanan Eksklusif.</span>
+                    </h2>
+                    <p
+                        class="font-secondary text-sm text-slate-300 leading-relaxed max-w-sm"
+                    >
+                        Masuk untuk mengelola tiket perjalanan Anda, melacak
+                        pengiriman paket, dan nikmati promo khusus member.
+                    </p>
+                </div>
+            </div>
+
+            <div
+                class="w-full md:w-1/2 p-8 sm:p-12 lg:p-16 relative flex flex-col justify-center"
+            >
+                <LoginForm />
+                <RegisterForm />
+            </div>
+        </div>
+    </section>
+</UserLayout>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        // ================================================================
+        // 1. LOGIKA SWITCHER (GANTI FORM LOGIN & REGISTER)
+        // ================================================================
+        const toggleLinks = document.querySelectorAll(".auth-toggle-link");
+        const authForms = document.querySelectorAll(".auth-form");
+
+        toggleLinks.forEach((link) => {
+            link.addEventListener("click", () => {
+                const targetId = link.getAttribute("data-target");
+
+                authForms.forEach((form) => {
+                    form.classList.add("hidden");
+                    form.classList.remove("block");
+                });
+
+                const activeForm = document.getElementById(targetId);
+                if (activeForm) {
+                    activeForm.classList.remove("hidden");
+                    activeForm.classList.add("block");
+                }
+            });
+        });
+
+        // ================================================================
+        // 2. SIMULASI DATABASE MENGGUNAKAN LOCALSTORAGE
+        // ================================================================
+
+        // Menangani Form Register (Daftar)
+        const registerForm = document.querySelector("#form-register form");
+        if (registerForm) {
+            registerForm.addEventListener("submit", (e) => {
+                e.preventDefault(); // Mencegah halaman reload
+
+                const nama = (
+                    document.getElementById("reg_nama") as HTMLInputElement
+                ).value;
+                const email = (
+                    document.getElementById("reg_email") as HTMLInputElement
+                ).value;
+                const password = (
+                    document.getElementById("reg_password") as HTMLInputElement
+                ).value;
+
+                const userData = {
+                    nama: nama,
+                    email: email,
+                    password: password,
+                };
+
+                // Simpan data ke browser
+                localStorage.setItem(
+                    "dummy_user_rini_trans",
+                    JSON.stringify(userData),
+                );
+
+                alert(
+                    `Pendaftaran berhasil, ${nama}! Silakan klik "Masuk" untuk melanjutkan.`,
+                );
+                registerForm.reset();
+
+                // Otomatis klik tombol/link "Masuk" agar form kembali ke form Login
+                const loginLink = document.querySelector(
+                    '[data-target="form-login"]',
+                ) as HTMLElement;
+                if (loginLink) loginLink.click();
+            });
+        }
+
+        // Menangani Form Login (Masuk)
+        const loginForm = document.querySelector("#form-login form");
+        if (loginForm) {
+            loginForm.addEventListener("submit", (e) => {
+                e.preventDefault();
+
+                const inputEmail = (
+                    document.getElementById("login_email") as HTMLInputElement
+                ).value;
+                const inputPassword = (
+                    document.getElementById(
+                        "login_password",
+                    ) as HTMLInputElement
+                ).value;
+
+                // Ambil data dari browser
+                const savedDataString = localStorage.getItem(
+                    "dummy_user_rini_trans",
+                );
+
+                if (!savedDataString) {
+                    alert(
+                        "Akun tidak ditemukan. Silakan daftar terlebih dahulu!",
+                    );
+                    return;
+                }
+
+                const savedUser = JSON.parse(savedDataString);
+
+                // Cek kecocokan
+                if (
+                    inputEmail === savedUser.email &&
+                    inputPassword === savedUser.password
+                ) {
+                    alert(`Selamat datang kembali, ${savedUser.nama}!`);
+
+                    // Set status login
+                    localStorage.setItem("is_logged_in", "true");
+
+                    // Arahkan ke halaman riwayat pesanan
+                    window.location.href = "/";
+                } else {
+                    alert("Email atau Kata Sandi salah!");
+                }
+            });
+        }
+    });
+</script>

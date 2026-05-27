@@ -1,0 +1,37 @@
+---
+// File: src/components/auth/RegisterForm.astro
+import InputGroup from '../components/InputGroup.astro';
+---
+
+<div id="form-register" class="auth-form hidden transition-opacity duration-500">
+    <h3 class="text-2xl font-black text-primary mb-2">Buat Akun Baru</h3>
+    <p class="font-secondary text-sm text-text-secondary mb-8">Daftar sekarang untuk kemudahan pemesanan.</p>
+    
+    <form class="flex flex-col gap-5">
+        <InputGroup label="Nama Lengkap" id="reg_nama" name="nama" placeholder="Sesuai KTP" required={true} />
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <InputGroup label="Email" id="reg_email" name="email" type="email" placeholder="nama@email.com" required={true} />
+            <InputGroup label="No. WhatsApp" id="reg_telp" name="telp" type="number" placeholder="08..." required={true} />
+        </div>
+
+        <InputGroup label="Kata Sandi" id="reg_password" name="password" type="password" placeholder="Minimal 8 karakter" required={true} />
+
+        <div class="flex items-start gap-3 mt-2">
+            <input type="checkbox" id="syarat" required class="mt-1 w-4 h-4 rounded border-slate-300 text-sky-500 focus:ring-sky-500" />
+            <label for="syarat" class="font-secondary text-xs text-text-secondary leading-relaxed">
+                Saya setuju dengan <a href="#" class="text-sky-500 font-bold hover:underline">Syarat & Ketentuan</a> serta <a href="#" class="text-sky-500 font-bold hover:underline">Kebijakan Privasi</a> yang berlaku.
+            </label>
+        </div>
+
+        <button type="submit" class="w-full mt-2 py-4 bg-slate-900 text-white font-main font-bold rounded-xl shadow-lg hover:bg-slate-800 transition-all transform hover:-translate-y-0.5">
+            Daftarkan Akun
+        </button>
+
+        <div class="mt-2 text-center">
+            <button type="button" class="auth-toggle-link text-sm font-secondary text-slate-500 hover:text-sky-600 transition-colors focus:outline-none" data-target="form-login">
+                Sudah punya akun? <span class="font-bold text-sky-500">Masuk</span>
+            </button>
+        </div>
+    </form>
+</div>

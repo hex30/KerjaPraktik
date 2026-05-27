@@ -1,0 +1,29 @@
+---
+// File: src/components/auth/LoginForm.astro
+import InputGroup from '../components/InputGroup.astro';
+---
+
+<div id="form-login" class="auth-form block transition-opacity duration-500">
+    <h3 class="text-2xl font-black text-primary mb-2">Selamat Datang Kembali!</h3>
+    <p class="font-secondary text-sm text-text-secondary mb-8">Silakan masukkan email dan kata sandi Anda.</p>
+    
+    <form class="flex flex-col gap-5">
+        <InputGroup label="Alamat Email" id="login_email" name="email" type="email" placeholder="nama@email.com" required={true} />
+        
+        <div class="flex flex-col gap-2">
+            <InputGroup label="Kata Sandi" id="login_password" name="password" type="password" placeholder="••••••••" required={true} />
+            
+            <div class="flex items-center justify-between mt-1">
+                <button type="button" class="auth-toggle-link text-xs font-secondary text-slate-500 hover:text-sky-600 transition-colors text-left focus:outline-none" data-target="form-register">
+                    Belum punya akun? <span class="font-bold text-sky-500">Daftar</span>
+                </button>
+                
+                <a href="#" class="text-xs font-bold text-sky-500 hover:underline font-secondary">Lupa Sandi?</a>
+            </div>
+        </div>
+
+        <button type="submit" class="w-full mt-4 py-4 bg-btn-linear text-white font-main font-bold rounded-xl shadow-lg hover:shadow-sky-500/30 hover:opacity-90 transition-all transform hover:-translate-y-0.5">
+            Masuk ke Dashboard
+        </button>
+    </form>
+</div>
