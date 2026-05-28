@@ -25,7 +25,7 @@ import InputGroup from "../InputGroup.astro";
                 </h3>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <label for="#" class="relative cursor-pointer group">
+                    <label class="relative cursor-pointer group">
                         <input
                             type="radio"
                             name="rute"
@@ -34,9 +34,9 @@ import InputGroup from "../InputGroup.astro";
                             required
                         />
                         <div
-                            class="p-4 rounded-xl border-2 border-slate-200 peer-checked:border-sky-50 peer-checked:bg-sky-50 hover:border-sky-300 transition-all"
+                            class="p-4 rounded-xl text-primary peer-checked:text-black border-2 border-slate-200 peer-checked:border-primary/50 peer-checked:bg-primary/20 hover:border-primary/100 transition-all"
                         >
-                            <span class="block font-bold text-primary mb-1">
+                            <span class="block font-bold mb-1">
                                 Jakarta ➔ Panawangan
                             </span>
                             <span
@@ -45,7 +45,7 @@ import InputGroup from "../InputGroup.astro";
                             >
                         </div>
                         <div
-                            class="absolute top-4 right-4 text-sky-500 opacity-0 peer-checked:opacity-100 transition-opacity"
+                            class="absolute top-4 right-4 text-primary opacity-0 peer-checked:opacity-100 transition-opacity"
                         >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -63,7 +63,7 @@ import InputGroup from "../InputGroup.astro";
                         </div>
                     </label>
 
-                    <label for="#" class="relative cursor-pointer group">
+                    <label class="relative cursor-pointer group">
                         <input
                             type="radio"
                             name="rute"
@@ -71,9 +71,9 @@ import InputGroup from "../InputGroup.astro";
                             class="peer sr-only"
                         />
                         <div
-                            class="p-4 rounded-xl border-2 border-slate-200 peer-checked:border-sky-500 peer-checked:bg-sky-50 hover:border-sky-300 transition-all"
+                            class="p-4 rounded-xl text-primary peer-checked:text-black border-2 border-slate-200 peer-checked:border-primary/50 peer-checked:bg-primary/20 hover:border-primary/100 transition-all"
                         >
-                            <span class="block font-bold text-primary mb-1">
+                            <span class="block font-bold mb-1">
                                 Panawangan ➔ Jakarta
                             </span>
                             <span
@@ -82,7 +82,7 @@ import InputGroup from "../InputGroup.astro";
                             >
                         </div>
                         <div
-                            class="absolute top-4 right-4 text-sky-500 opacity-0 peer-checked:opacity-100 transition-opacity"
+                            class="absolute top-4 right-4 text-primary opacity-0 peer-checked:opacity-100 transition-opacity"
                         >
                             <svg
                                 xmlns="http://www.w3.org/2000/svg"
@@ -198,7 +198,7 @@ import InputGroup from "../InputGroup.astro";
                         id="patokan"
                         rows="2"
                         placeholder="Contoh : Sebelah Masjid Aagung"
-                        class="resize-none w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 font-secondary text-sm text-text-secondary focos:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all placeholder:text-slate-400"
+                        class="resize-none w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-slate-400"
                     ></textarea>
                 </div>
             </section>
@@ -219,7 +219,7 @@ import InputGroup from "../InputGroup.astro";
                             <select
                                 name="ukuran_bagasi"
                                 id="ukuran_bagasi"
-                                class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all appearance-none"
+                                class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all appearance-none"
                             >
                                 <option value="tidak_ada"
                                     >Hanya tas/Ransel</option
@@ -257,7 +257,7 @@ import InputGroup from "../InputGroup.astro";
                             Jumlah Barang (Pcs)
                         </label>
                         <div
-                            class="flex items-center w-full bg-slate-50 border border-slate-200 rounded-lg h-[46px] overflow-hidden focus-within:border-sky-500 focus-within:ring-1 focus-within:ring-sky-500"
+                            class="flex items-center w-full bg-slate-50 border border-slate-200 rounded-lg h-[46px] overflow-hidden focus-within:border-primary focus-within:ring-1 focus-within:ring-primary"
                         >
                             <button
                                 type="button"
@@ -288,7 +288,7 @@ import InputGroup from "../InputGroup.astro";
             <div class="pt-6 mt-2">
                 <button
                     type="submit"
-                    class="w-full md:w-auto px-8 py-4 bg-sky-600 text-white
+                    class="w-full md:w-auto px-8 py-4 bg-btn-linear text-white
                  font-main font-bold rounded-xl shadow-md
                  hover:bg-sky-700 hover:shadow-lg transition-all
                  transform hover:-translate-y-0.5"
@@ -330,4 +330,129 @@ import InputGroup from "../InputGroup.astro";
     </aside>
 </article>
 
+<script>
+    const JADWAL_RUTE = {
+        jakarta_panawangan: [1, 3, 0], // Senin, Rabu, Minggu
+        panawangan_jakarta: [2, 4, 5], // Selasa, Kamis, Jumat
+    };
 
+    function generateAvailableDates(allowedDays, count = 7) {
+        const dates = [];
+        let currentDate = new Date();
+
+        while (dates.length < count) {
+            if (allowedDays.includes(currentDate.getDay())) {
+                const dayName = new Intl.DateTimeFormat("id-ID", {
+                    weekday: "short",
+                }).format(currentDate);
+                const dateNum = new Intl.DateTimeFormat("id-ID", {
+                    day: "2-digit",
+                }).format(currentDate);
+                const monthName = new Intl.DateTimeFormat("id-ID", {
+                    month: "short",
+                }).format(currentDate);
+                const isoDate = currentDate.toISOString().split("T")[0];
+
+                dates.push({ dayName, dateNum, monthName, isoDate });
+            }
+            currentDate.setDate(currentDate.getDate() + 1);
+        }
+        return dates;
+    }
+
+    const setupReservasiLogic = () => {
+        const form = document.getElementById("form-reservasi");
+        const containerTanggal = document.getElementById("date-container");
+        const hiddenInputTanggal = document.getElementById("tanggal_hidden");
+        const ruteRadios = document.querySelectorAll('input[name="rute"]');
+
+        if (
+            !form ||
+            !containerTanggal ||
+            !hiddenInputTanggal ||
+            !ruteRadios.length
+        )
+            return;
+
+        // 1. Handler Perubahan Rute
+        ruteRadios.forEach((radio) => {
+            radio.addEventListener("change", (e) => {
+                const target = e.target;
+                if (!target) return;
+
+                const allowedDays = JADWAL_RUTE[target.value];
+                if (!allowedDays) return;
+
+                const availableDates = generateAvailableDates(allowedDays);
+                containerTanggal.innerHTML = "";
+                hiddenInputTanggal.value = "";
+
+                availableDates.forEach((date) => {
+                    const cardHTML = `
+                        <label class="relative cursor-pointer snap-start shrink-0 group">
+                            <input 
+                                type="radio" 
+                                name="pilihan_tanggal" 
+                                value="${date.isoDate}" 
+                                class="peer sr-only"
+                            >
+                            <div class="flex flex-col items-center justify-center min-w-[80px] p-3 mt-3 rounded-xl border-2 border-slate-200 text-primary peer-checked:text-black peer-checked:border-primary peer-checked:bg-primary/20 hover:border-primary hover:-translate-y-2 transition-all">
+                                <span class="text-xs text-slate-500 font-secondary mb-1 uppercase tracking-wider">${date.dayName}</span>
+                                <span class="text-2xl font-black leading-none">${date.dateNum}</span>
+                                <span class="text-xs text-slate-500 font-secondary mt-1">${date.monthName}</span>
+                            </div>
+                        </label>
+                    `;
+                    containerTanggal.insertAdjacentHTML("beforeend", cardHTML);
+                });
+            });
+        });
+
+        // 2. Handler Pilihan Tanggal
+        containerTanggal.addEventListener("change", (e) => {
+            const target = e.target;
+            if (target && target.name === "pilihan_tanggal") {
+                hiddenInputTanggal.value = target.value;
+            }
+        });
+
+        // 3. Stepper Jumlah Bagasi
+        const inputBagasi = document.getElementById("jumlah_bagasi");
+        const btnTambah = document.getElementById("btn-tambah-bagasi");
+        const btnKurang = document.getElementById("btn-kurang-bagasi");
+
+        if (inputBagasi && btnTambah && btnKurang) {
+            btnTambah.onclick = () => {
+                let val = parseInt(inputBagasi.value) || 0;
+                if (val < 15) inputBagasi.value = (val + 1).toString();
+            };
+
+            btnKurang.onclick = () => {
+                let val = parseInt(inputBagasi.value) || 0;
+                if (val > 0) inputBagasi.value = (val - 1).toString();
+            };
+        }
+
+        // 4. Form Submit Handler
+        form.onsubmit = (e) => {
+            e.preventDefault();
+
+            if (!hiddenInputTanggal.value) {
+                alert("Mohon pilih tanggal keberangkatan terlebih dahulu.");
+                return;
+            }
+
+            const formData = new FormData(form);
+            formData.delete("pilihan_tanggal");
+            const data = Object.fromEntries(formData.entries());
+
+            console.log("Payload siap dikirim:", data);
+            alert(
+                `Sukses!\nNama: ${data.nama_lengkap}\nTanggal Perjalanan: ${data.tanggal_keberangkatan}`,
+            );
+        };
+    };
+
+    setupReservasiLogic();
+    document.addEventListener("astro:page-load", setupReservasiLogic);
+</script>
