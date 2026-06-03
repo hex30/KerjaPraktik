@@ -5,21 +5,21 @@
    ========================================= */
 @font-face {
   font-family: "Manrope";
-  src: url("../../public/assets/fonts/Manrope-VariableFont_wght.ttf") format("truetype");
+  src: url("../assets/fonts/Manrope-VariableFont_wght.ttf") format("truetype");
   font-weight: 100 900;
   font-style: normal;
 }
 
 @font-face {
   font-family: "jakarta";
-  src: url("../../public/assets/fonts/PlusJakartaSans-VariableFont_wght.ttf") format("truetype");
+  src: url("../assets/fonts/PlusJakartaSans-VariableFont_wght.ttf") format("truetype");
   font-weight: 100 900;
   font-style: normal;
 }
 
 @font-face {
   font-family: "jakarta-italic";
-  src: url("../../public/assets/fonts/PlusJakartaSans-Italic-VariableFont_wght.ttf") format("truetype");
+  src: url("../assets/fonts/PlusJakartaSans-Italic-VariableFont_wght.ttf") format("truetype");
   font-weight: 100 900;
   font-style: italic;
 }

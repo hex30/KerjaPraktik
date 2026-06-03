@@ -1,10 +1,10 @@
 ---
 // File: src/pages/login.astro
-import UserLayout from "../layouts/userLayout.astro";
+import UserLayout from "../../layouts/MainLayout.astro";
 
 // Panggil kedua komponen form dari folder auth
-import LoginForm from "../components/auth/LoginForm.astro";
-import RegisterForm from "../components/auth/RegisterForm.astro";
+import LoginForm from "../../components/features/auth/LoginForm.astro";
+import RegisterForm from "../../components/features/auth/RegisterForm.astro";
 ---
 
 <UserLayout title="Masuk / Daftar | Rini Trans Putri">
@@ -86,7 +86,7 @@ import RegisterForm from "../components/auth/RegisterForm.astro";
         // ================================================================
 
         // Menangani Form Register (Daftar)
-        const registerForm = document.querySelector("#form-register form");
+        const registerForm = document.querySelector("#form-register form") as HTMLFormElement;
         if (registerForm) {
             registerForm.addEventListener("submit", (e) => {
                 e.preventDefault(); // Mencegah halaman reload
@@ -127,7 +127,7 @@ import RegisterForm from "../components/auth/RegisterForm.astro";
         }
 
         // Menangani Form Login (Masuk)
-        const loginForm = document.querySelector("#form-login form");
+        const loginForm = document.querySelector("#form-login form") as HTMLFormElement;
         if (loginForm) {
             loginForm.addEventListener("submit", (e) => {
                 e.preventDefault();
