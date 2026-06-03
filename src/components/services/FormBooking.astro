@@ -1,9 +1,8 @@
 ---
 // File: src/components/layanan/FormBooking.astro
 import InputGroup from "../InputGroup.astro";
-
-// 1. Panggil komponen anak yang baru saja dibuat
 import FleetCard from "./FleetCard.astro";
+import FormDataDiriPenumpang from "./FormData.astro"; // Pastikan path import benar
 
 const fleetData = [
     {
@@ -23,111 +22,234 @@ const fleetData = [
 ];
 ---
 
-<article
-    class="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 md:p-10 flex flex-col lg:flex-row gap-10 max-w-7xl mx-auto font-main"
->
-    <section class="w-full lg:w-2/3 flex flex-col gap-6">
-        <header>
-            <h2 class="text-2-xl md:text-3xl font-black text-primary mb-2">
-                Pilihan armada
-            </h2>
-            <p class="font-secondary text-sm text-text-secondary">
-                Kendaraan terawat untuk kenyamanan maksimal perjalanan Anda.
-            </p>
-        </header>
+<div class="w-full relative">
+    <article class="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 md:p-10 flex flex-col lg:flex-row gap-10 max-w-7xl mx-auto font-main">
+        
+        <aside class="w-full lg:w-1/3">
+            
+            <div id="left-step-1" class="block animate-fade-in">
+                <div class="bg-slate-50 border border-slate-100 rounded-2xl p-6 md:p-8 sticky top-28">
+                    <header class="mb-6">
+                        <h2 class="text-xl font-black text-primary mb-1">
+                            Detail Booking
+                        </h2>
+                        <p class="font-secondary text-xs text-text-secondary">
+                            Pesan armada khusus (Charter) untuk Anda.
+                        </p>
+                    </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {
-                fleetData.map((unit) => (
-                    <FleetCard
-                        name={unit.name}
-                        capacity={unit.capacity}
-                        description={unit.description}
-                        price={unit.price}
-                        image={unit.image}
-                    />
-                ))
-            }
-        </div>
-    </section>
+                    <form action="" id="form-booking-travel" class="flex flex-col gap-5">
+                        <div class="flex flex-col gap-2 w-full">
+                            <label for="jenis_armada" class="font-secondary text-sm font-bold text-primary">
+                                Pilih Jenis Armada
+                            </label>
+                            <select name="jenis_armada" id="jenis_armada" required class="w-full bg-white border border-slate-200 rounded-lg px-4 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all appearance-none">
+                                <option value="" disabled selected>Pilih kendaraan...</option>
+                                <option value="elf">Isuzu ELF Giga</option>
+                                <option value="hiace">Toyota Hiace Commuter</option>
+                            </select>
+                        </div>
 
-    <aside class="w-full lg:w-1/3">
-        <div
-            class="bg-slate-50 border border-slate-100 rounded-2xl p-6 md:pd-8 sticky toop-28"
-        >
-            <header class="mb-6">
-                <h2 class="text-xl font-black text-primary mb-1">
-                    Detail Booking
-                </h2>
-                <p class="font-secondary text-xs text-text-secondary">
-                    Pesan armada khusus (Charter) untuk Anda.
-                </p>
-            </header>
+                        <InputGroup
+                            label="Tanggal Keberangkatan"
+                            id="tanggal_sewa"
+                            name="tanggal_sewa"
+                            type="date"
+                            required={true}
+                        />
+                        <InputGroup
+                            label="Area Tujuan"
+                            id="tujuan"
+                            name="tujuan"
+                            placeholder="Masukkan kota tujuan"
+                            required={true}
+                        />
 
-            <form
-                action=""
-                id="form-booking-travel"
-                class="flex flex-col gap-5"
-            >
-                <div class="flex flex-col gap-2 w-full">
-                    <label
-                        for="jenis_armada"
-                        class="font-secondary text-sm font-bold text-primary"
-                        >Pilih Jenis Armada</label
-                    >
-                    <select
-                        name="jenis_armada"
-                        id="jenis_armada"
-                        required
-                        class="w-full bg-white border border-slate-200 rounded-lg px-4 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all appearance-none"
-                    >
-                        <option value="" disabled selected
-                            >Pilih kendaraan...</option
-                        >
-                        <option value="elf">Isuzu ELF Giga</option>
-                        <option value="hiace">Toyota Hiace Commuter</option>
-                    </select>
+                        <button type="submit" class="w-full mt-2 px-6 py-4 bg-sky-500 text-white font-main font-bold rounded-xl shadow-md hover:bg-sky-600 transition-all">
+                            Lanjutkan Isi Data Diri
+                        </button>
+                    </form>
                 </div>
+            </div>
 
-                <InputGroup
-                    label="Tanggal Keberangkatan"
-                    id="tanggal_sewa"
-                    name="tanggal_sewa"
-                    type="date"
-                    required={true}
-                />
-                <InputGroup
-                    label="Area Tujuan"
-                    id="tujuan"
-                    name="tujuan"
-                    placeholder="Masukkan kota tujuan"
-                    required={true}
-                />
-
-                <button
-                    type="submit"
-                    class="w-full mt-2 px-6 py-4 bg-btn-linear text-white font-main font-bold rounded-xl shadow-md hover:opacity-90 transition-opacity"
-                >
-                    Pesan Sekarang
+            <div id="left-step-2" class="hidden animate-fade-in">
+                <button type="button" id="btn-kembali-booking" class="mb-6 flex items-center gap-2 text-slate-500 hover:text-primary font-secondary font-bold transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                    </svg>
+                    Kembali Ubah Pesanan
                 </button>
 
-            </form>
-        </div>
-    </aside>
-</article>
+                <div class="bg-slate-50 rounded-2xl border border-slate-100 p-6 md:p-8 sticky top-28">
+                    <h3 class="text-xl font-black text-primary mb-5">Ringkasan Pesanan</h3>
+                    
+                    <div class="flex flex-col gap-4">
+                        <div class="pb-4 border-b border-slate-200">
+                            <p class="font-secondary text-xs text-slate-500 mb-1">Armada Terpilih</p>
+                            <p id="summary-armada" class="font-bold text-slate-800">-</p>
+                        </div>
+                        <div class="pb-4 border-b border-slate-200">
+                            <p class="font-secondary text-xs text-slate-500 mb-1">Tanggal Keberangkatan</p>
+                            <p id="summary-tanggal" class="font-bold text-slate-800">-</p>
+                        </div>
+                        <div>
+                            <p class="font-secondary text-xs text-slate-500 mb-1">Area Tujuan</p>
+                            <p id="summary-tujuan" class="font-bold text-slate-800">-</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </aside>
+
+        <section class="w-full lg:w-2/3">
+            
+            <div id="right-step-1" class="flex flex-col gap-6 animate-fade-in">
+                <header>
+                    <h2 class="text-2xl md:text-3xl font-black text-primary mb-2">
+                        Pilihan Armada
+                    </h2>
+                    <p class="font-secondary text-sm text-text-secondary">
+                        Kendaraan terawat untuk kenyamanan maksimal perjalanan Anda.
+                    </p>
+                </header>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {fleetData.map((unit) => (
+                        <FleetCard
+                            name={unit.name}
+                            capacity={unit.capacity}
+                            description={unit.description}
+                            price={unit.price}
+                            image={unit.image}
+                        />
+                    ))}
+                </div>
+            </div>
+
+            <div id="right-step-2" class="hidden animate-fade-in w-full">
+                <FormDataDiriPenumpang formId="form-data-diri-booking" />
+            </div>
+
+        </section>
+        
+    </article>
+</div>
 
 <script>
-    const setupBookingListener = () => {
-        const form = document.getElementById('form-booking-travel');
-        if (form) {
-            form.addEventListener('submit', (e) => {
-                e.preventDefault();
-                const formData = new FormData(form as HTMLFormElement);
-                const data = Object.fromEntries(formData.entries());
-                console.log("Data Booking:", data);
-                alert(`Permintaan Booking ke ${data.tujuan} pada ${data.tanggal_sewa} telah di proses.`);
+    let dataBookingSementara = {};
+
+    // Kamus untuk mengubah value select menjadi nama armada yang bagus
+    const kamusArmada = {
+        "elf": "Isuzu ELF Giga (14-19 Kursi)",
+        "hiace": "Toyota Hiace Commuter (15 Kursi)"
+    };
+
+    const setupAlurBooking = () => {
+        // Ambil elemen DOM Layout Kiri & Kanan
+        const leftStep1 = document.getElementById('left-step-1');
+        const leftStep2 = document.getElementById('left-step-2');
+        const rightStep1 = document.getElementById('right-step-1');
+        const rightStep2 = document.getElementById('right-step-2');
+
+        const formStep1 = document.getElementById('form-booking-travel');
+        const formStep2 = document.getElementById('form-data-diri-booking');
+        const btnKembali = document.getElementById('btn-kembali-booking');
+
+        // Ambil elemen DOM Ringkasan Pesanan
+        const elSummaryArmada = document.getElementById('summary-armada');
+        const elSummaryTanggal = document.getElementById('summary-tanggal');
+        const elSummaryTujuan = document.getElementById('summary-tujuan');
+
+        // Validasi elemen
+        if (!leftStep1 || !leftStep2 || !rightStep1 || !rightStep2 || !formStep1 || !formStep2) {
+            console.error("Setup Booking Gagal: Ada elemen DOM yang hilang.");
+            return;
+        }
+
+        // 1. Submit Step 1 -> Buka Step 2 (Ubah kolom kiri & kanan)
+        formStep1.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(formStep1 as HTMLFormElement);
+            dataBookingSementara = Object.fromEntries(formData.entries());
+
+            // Tembak data ke Kartu Ringkasan (Kiri Step 2)
+            if (elSummaryArmada) {
+                const armadaValue = dataBookingSementara.jenis_armada as keyof typeof kamusArmada;
+                elSummaryArmada.textContent = kamusArmada[armadaValue] || armadaValue;
+            }
+            if (elSummaryTanggal) {
+                const rawDate = new Date(dataBookingSementara.tanggal_sewa as string);
+                const formattedDate = new Intl.DateTimeFormat('id-ID', { dateStyle: 'full' }).format(rawDate);
+                elSummaryTanggal.textContent = formattedDate;
+            }
+            if (elSummaryTujuan) {
+                elSummaryTujuan.textContent = (dataBookingSementara.tujuan as string).toUpperCase();
+            }
+
+            // Manipulasi Transisi DOM
+            // Kiri
+            leftStep1.classList.add("hidden");
+            leftStep1.classList.remove("block");
+            leftStep2.classList.remove("hidden");
+            leftStep2.classList.add("block");
+
+            // Kanan
+            rightStep1.classList.add("hidden");
+            rightStep1.classList.remove("flex");
+            rightStep2.classList.remove("hidden");
+            rightStep2.classList.add("block");
+
+            // Scroll ke atas dengan halus agar user fokus ke ringkasan
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // 2. Tombol Kembali di Step 2 -> Buka Step 1
+        if (btnKembali) {
+            btnKembali.addEventListener('click', () => {
+                // Kiri
+                leftStep2.classList.add("hidden");
+                leftStep2.classList.remove("block");
+                leftStep1.classList.remove("hidden");
+                leftStep1.classList.add("block");
+
+                // Kanan
+                rightStep2.classList.add("hidden");
+                rightStep2.classList.remove("block");
+                rightStep1.classList.remove("hidden");
+                rightStep1.classList.add("flex");
             });
         }
+
+        // 3. Submit Final di Step 2
+        formStep2.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const formData2 = new FormData(formStep2 as HTMLFormElement);
+            const dataPenumpang = Object.fromEntries(formData2.entries());
+
+            const payloadFinal = {
+                layanan: "Booking Charter",
+                ...dataBookingSementara,
+                ...dataPenumpang
+            };
+
+            console.log("PAYLOAD FINAL BOOKING CHARTER:", payloadFinal);
+            alert("Booking Charter berhasil! Cek Console Browser (F12).");
+        });
     };
-    document.addEventListener('DOMContentLoaded', setupBookingListener);
+
+    document.addEventListener('DOMContentLoaded', setupAlurBooking);
+    document.addEventListener('astro:page-load', setupAlurBooking);
 </script>
+
+<style>
+    .animate-fade-in {
+        animation: fadeIn 0.4s ease-in-out;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
