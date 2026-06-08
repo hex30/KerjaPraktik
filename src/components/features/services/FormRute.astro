@@ -251,7 +251,7 @@ import Seat from "./seat.astro";
                 </button>
 
                 <form id="form-data-diri-travel">
-                    <FormDataDiriPenumpang formId="form-data-diri-travel" />
+                    <FormDataDiriPenumpang />
 
                     <div class="pt-4 border-t border-slate-100">
                         <button
@@ -296,44 +296,16 @@ import Seat from "./seat.astro";
 
 <script>
     import { apiFetch } from "../../../services/api";
+    import FormData from "./FormData.astro";
 
-    // Jadwal Rute (Bisa disesuaikan dari Database API nantinya)
-    const JADWAL_RUTE = {
-        jakarta_panawangan: [1, 3, 0], // Senin, Rabu, Minggu
-        panawangan_jakarta: [2, 4, 5], // Selasa, Kamis, Jumat
-    };
-
-    // Variabel penampung data step 1
-    let dataTravelSementara = {};
-
-    function generateAvailableDates(allowedDays: number[], count = 7) {
-        const dates = [];
-        let currentDate = new Date();
-
-        while (dates.length < count) {
-            if (allowedDays.includes(currentDate.getDay())) {
-                const dayName = new Intl.DateTimeFormat("id-ID", {
-                    weekday: "short",
-                }).format(currentDate);
-                const dateNum = new Intl.DateTimeFormat("id-ID", {
-                    day: "2-digit",
-                }).format(currentDate);
-                const monthName = new Intl.DateTimeFormat("id-ID", {
-                    month: "short",
-                }).format(currentDate);
-                const isoDate = currentDate.toISOString().split("T")[0];
-
-                dates.push({ dayName, dateNum, monthName, isoDate });
-            }
-            currentDate.setDate(currentDate.getDate() + 1);
-        }
-        return dates;
-    }
+    let selectedScheduleId = "";
 
     const setupAlurTravel = () => {
         // Ambil Elemen Step 1
         const wrapperStep1 = document.getElementById("travel-step-1");
-        const formStep1 = document.getElementById("form-reservasi-travel");
+        const formStep1 = document.getElementById(
+            "form-reservasi-travel",
+        ) as HTMLFormElement;
 
         const ruteRadios = formStep1?.querySelectorAll('input[name="rute"]');
         const containerTanggal = document.getElementById(
@@ -343,99 +315,148 @@ import Seat from "./seat.astro";
             "tanggal_hidden_travel",
         ) as HTMLInputElement;
 
-        const inputBagasi = document.getElementById(
-            "jumlah_bagasi",
-        ) as HTMLInputElement;
-        const btnTambah = document.getElementById("btn-tambah-bagasi");
-        const btnKurang = document.getElementById("btn-kurang-bagasi");
-
         // Ambil Elemen Step 2
         const wrapperStep2 = document.getElementById("travel-step-2");
-        const formStep2 = document.getElementById("form-data-diri-travel");
+        const formStep2 = document.getElementById(
+            "form-data-diri-travel",
+        ) as HTMLFormElement;
         const btnKembali = document.getElementById("btn-kembali-travel");
 
         // Jika komponen tidak terender di halaman, hentikan script
         if (!wrapperStep1 || !wrapperStep2 || !formStep1 || !formStep2) return;
 
-        // 1. Logika Interaksi Rute & Tanggal
+        // =================================================================
+        // 1. Logika Pengambilan Jadwal Asli dari Server
+        // =================================================================
         if (ruteRadios && containerTanggal && hiddenInputTanggal) {
             ruteRadios.forEach((radio) => {
-                radio.addEventListener("change", (e) => {
+                radio.addEventListener("change", async (e) => {
                     const target = e.target as HTMLInputElement;
-                    const allowedDays =
-                        JADWAL_RUTE[target.value as keyof typeof JADWAL_RUTE];
 
-                    if (!allowedDays) return;
-
-                    const availableDates = generateAvailableDates(allowedDays);
-                    containerTanggal.innerHTML = "";
+                    // Tampilkan indikator loading
+                    containerTanggal.innerHTML =
+                        '<div class="w-full p-4 border border-dashed border-slate-300 rounded-xl bg-slate-50 text-center text-sm text-slate-400 font-secondary animate-pulse">Sedang mencari jadwal keberangkatan...</div>';
                     hiddenInputTanggal.value = "";
+                    selectedScheduleId = "";
 
-                    availableDates.forEach((date) => {
-                        const cardHTML = `
-                            <label class="relative cursor-pointer snap-start shrink-0 group">
-                                <input type="radio" name="pilihan_tanggal" value="${date.isoDate}" class="peer sr-only">
-                                <div class="flex flex-col items-center justify-center min-w-[80px] p-3 mt-3 rounded-xl border-2 border-slate-200 text-primary peer-checked:text-black peer-checked:border-primary peer-checked:bg-primary/20 hover:border-primary hover:-translate-y-2 transition-all">
-                                    <span class="text-xs text-slate-500 font-secondary mb-1 uppercase tracking-wider">${date.dayName}</span>
-                                    <span class="text-2xl font-black leading-none">${date.dateNum}</span>
-                                    <span class="text-xs text-slate-500 font-secondary mt-1">${date.monthName}</span>
-                                </div>
-                            </label>
-                        `;
-                        containerTanggal.insertAdjacentHTML(
-                            "beforeend",
-                            cardHTML,
+                    // Konversi nilai radio button ke format query parameter API
+                    let origin = "";
+                    let destination = "";
+                    if (target.value === "jakarta_panawangan") {
+                        origin = "Jakarta";
+                        destination = "Panawangan";
+                    } else if (target.value === "panawangan_jakarta") {
+                        origin = "Panawangan";
+                        destination = "Jakarta";
+                    }
+
+                    try {
+                        // Memanggil API GET Schedules
+                        const response = await apiFetch(
+                            `/api/travel/schedules?origin=${origin}&destination=${destination}`,
                         );
-                    });
+                        const schedules = response.data;
+
+                        containerTanggal.innerHTML = ""; // Hapus loading
+
+                        if (!schedules || schedules.length === 0) {
+                            containerTanggal.innerHTML =
+                                '<div class="w-full p-4 border border-red-200 rounded-xl bg-red-50 text-center text-sm text-red-500 font-secondary">Maaf, tidak ada jadwal untuk rute tersebut saat ini.</div>';
+                            return;
+                        }
+
+                        // Render jadwal-jadwal asli ke layar
+                        schedules.forEach((schedule: any) => {
+                            const dateObj = new Date(schedule.departure_time);
+                            const dayName = new Intl.DateTimeFormat("id-ID", {
+                                weekday: "short",
+                            }).format(dateObj);
+                            const dateNum = new Intl.DateTimeFormat("id-ID", {
+                                day: "2-digit",
+                            }).format(dateObj);
+                            const monthName = new Intl.DateTimeFormat("id-ID", {
+                                month: "short",
+                            }).format(dateObj);
+                            const timeStr = new Intl.DateTimeFormat("id-ID", {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                            }).format(dateObj);
+
+                            // Format harga ke Rupiah
+                            const priceStr = new Intl.NumberFormat("id-ID", {
+                                style: "currency",
+                                currency: "IDR",
+                                maximumFractionDigits: 0,
+                            }).format(schedule.base_price);
+
+                            const cardHTML = `
+                                <label class="relative cursor-pointer snap-start shrink-0 group">
+                                    <input type="radio" name="pilihan_jadwal" value="${schedule.id}" class="peer sr-only">
+                                    <div class="flex flex-col items-center justify-center min-w-[120px] p-3 mt-3 rounded-xl border-2 border-slate-200 text-primary peer-checked:text-black peer-checked:border-primary peer-checked:bg-primary/20 hover:border-primary hover:-translate-y-2 transition-all">
+                                        <span class="text-[10px] text-slate-500 font-secondary mb-1 uppercase tracking-wider">${dayName}, ${timeStr} WIB</span>
+                                        <span class="text-2xl font-black leading-none">${dateNum}</span>
+                                        <span class="text-xs text-slate-500 font-secondary mt-1">${monthName}</span>
+                                        <span class="text-[9px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full mt-2 font-bold whitespace-nowrap">Sisa ${schedule.available_seats} Kursi</span>
+                                        <span class="text-[10px] text-slate-400 mt-1 font-bold">${priceStr}</span>
+                                    </div>
+                                </label>
+                            `;
+                            containerTanggal.insertAdjacentHTML(
+                                "beforeend",
+                                cardHTML,
+                            );
+                        });
+                    } catch (error) {
+                        console.error("Gagal mengambil jadwal:", error);
+                        containerTanggal.innerHTML =
+                            '<div class="w-full p-4 border border-red-200 rounded-xl bg-red-50 text-center text-sm text-red-500 font-secondary">Terjadi kesalahan. Gagal menghubungi server.</div>';
+                    }
                 });
             });
 
+            // Simpan ID Jadwal yang dipilih
             containerTanggal.addEventListener("change", (e) => {
                 const target = e.target as HTMLInputElement;
-                if (target && target.name === "pilihan_tanggal") {
+                if (target && target.name === "pilihan_jadwal") {
                     hiddenInputTanggal.value = target.value;
+                    selectedScheduleId = target.value;
                 }
             });
         }
 
-        // 2. Logika Stepper Bagasi
-        if (inputBagasi && btnTambah && btnKurang) {
-            btnTambah.addEventListener("click", () => {
-                let val = parseInt(inputBagasi.value) || 0;
-                if (val < 15) inputBagasi.value = (val + 1).toString();
-            });
-
-            btnKurang.addEventListener("click", () => {
-                let val = parseInt(inputBagasi.value) || 0;
-                if (val > 0) inputBagasi.value = (val - 1).toString();
-            });
-        }
-
-        // 3. Submit Step 1 -> Buka Step 2
+        // =================================================================
+        // 2. Transisi Antar Step
+        // =================================================================
         formStep1.addEventListener("submit", (e) => {
             e.preventDefault();
 
+            // Validasi Step 1
             if (!hiddenInputTanggal.value) {
-                alert("Mohon pilih tanggal keberangkatan terlebih dahulu.");
+                alert("Mohon pilih jadwal keberangkatan terlebih dahulu.");
                 return;
             }
 
-            // Simpan data
-            const formData = new FormData(formStep1 as HTMLFormElement);
-            formData.delete("pilihan_tanggal"); // Bersihkan data kotor
-            dataTravelSementara = Object.fromEntries(formData.entries());
+            // Ambil nomor kursi dari komponen Seat
+            const inputKursiElement = document.getElementById(
+                "input-selected-seats",
+            ) as HTMLInputElement;
+            const nomorKursiString = inputKursiElement
+                ? inputKursiElement.value
+                : "";
 
-            // Manipulasi DOM
+            if (!nomorKursiString) {
+                alert("Mohon pilih satu kursi pada denah yang tersedia.");
+                return;
+            }
+
+            // Lanjut ke Step 2 (Data Diri Tambahan)
             wrapperStep1.classList.add("hidden");
             wrapperStep1.classList.remove("block");
             wrapperStep2.classList.remove("hidden");
             wrapperStep2.classList.add("block");
-
-            // Scroll ke atas halaman
             window.scrollTo({ top: 0, behavior: "smooth" });
         });
 
-        // 4. Tombol Kembali di Step 2 -> Buka Step 1
         if (btnKembali) {
             btnKembali.addEventListener("click", () => {
                 wrapperStep2.classList.add("hidden");
@@ -445,40 +466,74 @@ import Seat from "./seat.astro";
             });
         }
 
-        // 5. Submit Final di Step 2
+        // =================================================================
+        // 3. Final Submit ke Backend Asli
+        // =================================================================
         formStep2.addEventListener("submit", async (e) => {
             e.preventDefault();
+
+            const token = localStorage.getItem("jwt_token");
+            if (!token) {
+                alert(
+                    "Sesi Anda telah habis atau Anda belum login. Silakan login kembali.",
+                );
+                window.location.href = "/login";
+                return;
+            }
 
             const btnSubmit = formStep2.querySelector(
                 'button[type="submit"]',
             ) as HTMLButtonElement | null;
-            const originalText = btnSubmit ? btnSubmit.textContent : "";
+            const originalText = btnSubmit
+                ? btnSubmit.textContent
+                : "Selesaikan Pemesanan";
+
             if (btnSubmit) {
                 btnSubmit.disabled = true;
-                btnSubmit.textContent = "sedang menyimpan";
+                btnSubmit.textContent = "Memproses Pesanan...";
             }
 
-            const formData2 = new FormData(formStep2 as HTMLFormElement);
-            const dataPenumpang = Object.fromEntries(formData2.entries());
+            // Mengambil data dari form data diri
+            const formData2 = new window.FormData(formStep2 as HTMLFormElement);
+            const dataDiri = Object.fromEntries(formData2.entries());
+            const alamatLengkap = `${dataDiri.hamlet}, RT ${dataDiri.rt}/RW ${dataDiri.rw}, Desa ${dataDiri.village}, Kec. ${dataDiri.sub_district}. Patokan: ${dataDiri.landmark}`;
 
-            const payloadfinal = {
-                layanan: "Travel Reguler",
-                ...dataTravelSementara,
-                ...dataPenumpang,
-                timestamp: new Date().toISOString(),
+            // Konversi nomor kursi ke format Integer
+            const inputKursiElement = document.getElementById(
+                "input-selected-seats",
+            ) as HTMLInputElement;
+            const nomorKursi = inputKursiElement
+                ? parseInt(inputKursiElement.value)
+                : 0;
+
+            // Payload disesuaikan KETAT dengan dokumen API PT. Rini Trans Putri
+            const payloadFinal = {
+                schedule_id: selectedScheduleId,
+                seat_number: nomorKursi,
+                pickup_adress: alamatLengkap,
             };
 
             try {
-                const result = await apiFetch("/layanan", {
+                // Tembak API Booking
+                const response = await apiFetch("/api/travel/bookings", {
                     method: "POST",
-                    body: JSON.stringify(payloadfinal),
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify(payloadFinal),
                 });
 
-                console.log("hasil dari mockapi", result);
-                alert("Pemesanan telah berhasil silahkan tunggu sampe acc.");
-            } catch (error) {
-                console.error("gagal mengirim data", error);
-                alert("Pemesanan telah gagal silahkan tunggu sampe acc.");
+                console.log("Response sukses:", response);
+                alert("Booking berhasil! " + response.message);
+
+                // Jika aplikasi Anda memiliki halaman riwayat pesanan, arahkan ke sana.
+                // window.location.href = "/history";
+            } catch (error: any) {
+                console.error("Gagal booking:", error);
+                alert(
+                    error.message ||
+                        "Pemesanan gagal. Kursi mungkin sudah dipesan atau jadwal telah kedaluwarsa.",
+                );
             } finally {
                 if (btnSubmit) {
                     btnSubmit.disabled = false;
