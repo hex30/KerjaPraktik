@@ -19,7 +19,7 @@ import InputGroup from "../../ui/InputGroup.astro"; // Sesuaikan path
             <InputGroup
                 label="Nama Lengkap"
                 id="nama-lengkap"
-                name="nama_lengkap"
+                name="full_name"
                 placeholder="Masukan Nama Lengkap Anda"
                 required={true}
             />
@@ -29,14 +29,14 @@ import InputGroup from "../../ui/InputGroup.astro"; // Sesuaikan path
             <InputGroup
                 label="Kecamatan"
                 id="kecamatan"
-                name="Kecamatan"
+                name="sub_district"
                 placeholder="Contoh : Panawangan"
                 required={true}
             />
             <InputGroup
                 label="Desa"
                 id="desa"
-                name="Desa"
+                name="village"
                 placeholder="Contoh : Nagarajaya"
                 required={true}
             />
@@ -47,7 +47,7 @@ import InputGroup from "../../ui/InputGroup.astro"; // Sesuaikan path
                 <InputGroup
                     label="Nama Dusun"
                     id="dusun"
-                    name="Dusun"
+                    name="hamlet"
                     placeholder="Contoh : Cikodang"
                     required={true}
                 />
@@ -80,7 +80,7 @@ import InputGroup from "../../ui/InputGroup.astro"; // Sesuaikan path
                 Patokan Bangunan
             </label>
             <textarea
-                name="patokan"
+                name="landmark"
                 id="patokan"
                 rows="3"
                 placeholder="Contoh : Sebelah Masjid Agung"
