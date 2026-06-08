@@ -165,9 +165,9 @@ const boxClassBase = "relative w-14 h-14 max-h-[4rem] max-w-[4rem] flex flex-col
     const badgeContainer = document.getElementById('seat-badge-container');
     const hiddenInput = document.getElementById('input-selected-seats') as HTMLInputElement;
     
-    let selectedSeats: string[] = [];
+    // UBAH: Sekarang hanya menyimpan satu string/angka tunggal, bukan Array
+    let selectedSeat: string | null = null; 
 
-    // Menghindari duplikasi event listener (penting jika menggunakan Astro ViewTransitions)
     seatButtons.forEach(seat => {
       seat.replaceWith(seat.cloneNode(true)); 
     });
@@ -181,11 +181,18 @@ const boxClassBase = "relative w-14 h-14 max-h-[4rem] max-w-[4rem] flex flex-col
 
         if (!seatNum) return;
 
-        if (selectedSeats.includes(seatNum)) {
-          selectedSeats = selectedSeats.filter(s => s !== seatNum);
+        // Jika mengklik kursi yang sama, batalkan pilihan
+        if (selectedSeat === seatNum) {
+          selectedSeat = null;
           target.setAttribute('data-selected', 'false');
         } else {
-          selectedSeats.push(seatNum);
+          // Batalkan pilihan kursi sebelumnya (jika ada)
+          if (selectedSeat) {
+            const prevBtn = document.querySelector(`.seat-btn[data-seat="${selectedSeat}"]`);
+            if (prevBtn) prevBtn.setAttribute('data-selected', 'false');
+          }
+          // Pilih kursi baru
+          selectedSeat = seatNum;
           target.setAttribute('data-selected', 'true');
         }
 
@@ -194,22 +201,19 @@ const boxClassBase = "relative w-14 h-14 max-h-[4rem] max-w-[4rem] flex flex-col
     });
 
     const updateUI = () => {
-      // Nilai ini siap disubmit ke Database via Form
-      if(hiddenInput) hiddenInput.value = selectedSeats.join(',');
+      if(hiddenInput) hiddenInput.value = selectedSeat || "";
 
       if (badgeContainer) {
-        if (selectedSeats.length === 0) {
+        if (!selectedSeat) {
           badgeContainer.innerHTML = '<span class="text-sm font-third text-text-secondary">Belum ada kursi dipilih</span>';
           return;
         }
 
-        badgeContainer.innerHTML = selectedSeats
-          .sort((a, b) => parseInt(a) - parseInt(b))
-          .map(s => `
+        badgeContainer.innerHTML = `
             <span class="px-3 py-1.5 bg-badge-bg text-primary font-main text-xs font-bold rounded-lg shadow-sm">
-              Kursi ${s}
+              Kursi ${selectedSeat}
             </span>
-          `).join('');
+        `;
       }
     };
   };
