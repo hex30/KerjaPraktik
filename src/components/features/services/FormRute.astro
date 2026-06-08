@@ -1,64 +1,141 @@
 ---
 import FormDataDiriPenumpang from "./FormData.astro";
+import Seat from "./seat.astro";
 ---
 
 <div class="w-full relative">
-    <article class="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 md:p-10 flex flex-col lg:flex-row gap-10 max-w-7xl mx-auto font-main">
-        
+    <article
+        class="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 md:p-10 flex flex-col lg:flex-row gap-10 max-w-7xl mx-auto font-main"
+    >
         <div class="w-full lg:w-3/5 flex flex-col gap-8">
-            
             <div id="travel-step-1" class="block animate-fade-in">
                 <header class="mb-8">
-                    <h2 class="text-2xl md:text-3xl font-black text-primary mb-2">
+                    <h2
+                        class="text-2xl md:text-3xl font-black text-primary mb-2"
+                    >
                         Detail Perjalanan Travel
                     </h2>
-                    <p class="font-secondary text-sm text-text-secondary leading-relaxed">
+                    <p
+                        class="font-secondary text-sm text-text-secondary leading-relaxed"
+                    >
                         Lengkapi rute, jadwal keberangkatan, dan bagasi Anda.
                     </p>
                 </header>
 
-                <form action="#" id="form-reservasi-travel" class="flex flex-col gap-8">
-                    <section class="flex flex-col gap-5 border-b border-slate-100 pb-8">
+                <form
+                    action="#"
+                    id="form-reservasi-travel"
+                    class="flex flex-col gap-8"
+                >
+                    <section
+                        class="flex flex-col gap-5 border-b border-slate-100 pb-8"
+                    >
                         <h3 class="text-lg text-primary font-bold">
                             1. Rute dan Jadwal Perjalanan
                         </h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <label class="relative cursor-pointer group">
-                                <input type="radio" name="rute" value="jakarta_panawangan" class="peer sr-only" required />
-                                <div class="p-4 rounded-xl text-primary peer-checked:text-black border-2 border-slate-200 peer-checked:border-primary/50 peer-checked:bg-primary/20 hover:border-primary/100 transition-all">
-                                    <span class="block font-bold mb-1">Jakarta ➔ Panawangan</span>
-                                    <span class="inline-block bg-slate-100 text-slate-600 text-xs px-2 py-1 rounded font-secondary">Senin, Rabu dan Minggu</span>
+                                <input
+                                    type="radio"
+                                    name="rute"
+                                    value="jakarta_panawangan"
+                                    class="peer sr-only"
+                                    required
+                                />
+                                <div
+                                    class="p-4 rounded-xl text-primary peer-checked:text-black border-2 border-slate-200 peer-checked:border-primary/50 peer-checked:bg-primary/20 hover:border-primary/100 transition-all"
+                                >
+                                    <span class="block font-bold mb-1"
+                                        >Jakarta ➔ Panawangan</span
+                                    >
+                                    <span
+                                        class="inline-block bg-slate-100 text-slate-600 text-xs px-2 py-1 rounded font-secondary"
+                                        >Senin, Rabu dan Minggu</span
+                                    >
                                 </div>
-                                <div class="absolute top-4 right-4 text-primary opacity-0 peer-checked:opacity-100 transition-opacity">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                <div
+                                    class="absolute top-4 right-4 text-primary opacity-0 peer-checked:opacity-100 transition-opacity"
+                                >
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        class="h-6 w-6"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M5 13l4 4L19 7"></path>
                                     </svg>
                                 </div>
                             </label>
 
                             <label class="relative cursor-pointer group">
-                                <input type="radio" name="rute" value="panawangan_jakarta" class="peer sr-only" />
-                                <div class="p-4 rounded-xl text-primary peer-checked:text-black border-2 border-slate-200 peer-checked:border-primary/50 peer-checked:bg-primary/20 hover:border-primary/100 transition-all">
-                                    <span class="block font-bold mb-1">Panawangan ➔ Jakarta</span>
-                                    <span class="inline-block bg-slate-100 text-slate-600 text-xs px-2 py-1 rounded font-secondary">Selasa Kamis dan Juma'at</span>
+                                <input
+                                    type="radio"
+                                    name="rute"
+                                    value="panawangan_jakarta"
+                                    class="peer sr-only"
+                                />
+                                <div
+                                    class="p-4 rounded-xl text-primary peer-checked:text-black border-2 border-slate-200 peer-checked:border-primary/50 peer-checked:bg-primary/20 hover:border-primary/100 transition-all"
+                                >
+                                    <span class="block font-bold mb-1"
+                                        >Panawangan ➔ Jakarta</span
+                                    >
+                                    <span
+                                        class="inline-block bg-slate-100 text-slate-600 text-xs px-2 py-1 rounded font-secondary"
+                                        >Selasa Kamis dan Juma'at</span
+                                    >
                                 </div>
-                                <div class="absolute top-4 right-4 text-primary opacity-0 peer-checked:opacity-100 transition-opacity">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                                <div
+                                    class="absolute top-4 right-4 text-primary opacity-0 peer-checked:opacity-100 transition-opacity"
+                                >
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        class="h-6 w-6"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M5 13l4 4L19 7"></path>
                                     </svg>
                                 </div>
                             </label>
                         </div>
 
                         <div class="flex flex-col gap-3 mt-2">
-                            <label class="font-secondary text-sm font-bold text-primary">Pilih tanggal keberangkatan anda</label>
-                            <div id="date-container-travel" class="flex gap-3 overflow-x-auto pb-4 snap-x hide-scrollbar">
-                                <div class="w-full p-4 border border-dashed border-slate-300 rounded-xl bg-slate-50 text-center text-sm text-slate-400 font-secondary">
+                            <label
+                                class="font-secondary text-sm font-bold text-primary"
+                                >Pilih tanggal keberangkatan anda</label
+                            >
+                            <div
+                                id="date-container-travel"
+                                class="flex gap-3 overflow-x-auto pb-4 snap-x hide-scrollbar"
+                            >
+                                <div
+                                    class="w-full p-4 border border-dashed border-slate-300 rounded-xl bg-slate-50 text-center text-sm text-slate-400 font-secondary"
+                                >
                                     Silahkan Pilih Rute Terlebih Dahulu.
                                 </div>
                             </div>
-                            <input type="hidden" name="tanggal_keberangkatan" id="tanggal_hidden_travel" required />
+                            <input
+                                type="hidden"
+                                name="tanggal_keberangkatan"
+                                id="tanggal_hidden_travel"
+                                required
+                            />
                         </div>
+                    </section>
+
+                    <section>
+                        <Seat />
                     </section>
 
                     <section class="flex flex-col gap-5">
@@ -67,34 +144,86 @@ import FormDataDiriPenumpang from "./FormData.astro";
                         </h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             <div class="flex flex-col gap-2">
-                                <label for="ukuran_bagasi" class="font-secondary text-sm font-bold text-primary">Ukuran dominan</label>
+                                <label
+                                    for="ukuran_bagasi"
+                                    class="font-secondary text-sm font-bold text-primary"
+                                    >Ukuran dominan</label
+                                >
                                 <div class="relative">
-                                    <select name="ukuran_bagasi" id="ukuran_bagasi" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all appearance-none">
-                                        <option value="tidak_ada">Hanya tas/Ransel</option>
-                                        <option value="sedang">Sedang (Kardus Mie)</option>
-                                        <option value="besar">Besar (Koper/Karung)</option>
+                                    <select
+                                        name="ukuran_bagasi"
+                                        id="ukuran_bagasi"
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all appearance-none"
+                                    >
+                                        <option value="tidak_ada"
+                                            >Hanya tas/Ransel</option
+                                        >
+                                        <option value="sedang"
+                                            >Sedang (Kardus Mie)</option
+                                        >
+                                        <option value="besar"
+                                            >Besar (Koper/Karung)</option
+                                        >
                                     </select>
-                                    <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-slate-400">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                    <div
+                                        class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-slate-400"
+                                    >
+                                        <svg
+                                            class="w-4 h-4"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                        >
+                                            <path
+                                                stroke-linecap="round"
+                                                stroke-linejoin="round"
+                                                stroke-width="2"
+                                                d="M19 9l-7 7-7-7"></path>
                                         </svg>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="flex flex-col gap-2">
-                                <label class="font-secondary text-sm font-bold text-primary">Jumlah Barang (Pcs)</label>
-                                <div class="flex items-center w-full bg-slate-50 border border-slate-200 rounded-lg h-[46px] overflow-hidden focus-within:border-primary focus-within:ring-1 focus-within:ring-primary">
-                                    <button type="button" id="btn-kurang-bagasi" class="px-5 h-full text-slate-500 hover:bg-slate-200 hover:text-primary transition-colors font-bold select-none">-</button>
-                                    <input type="number" name="jumlah_bagasi" id="jumlah_bagasi" value="0" min="0" max="15" readonly class="flex-1 w-full text-center bg-transparent border-none focus:ring-0 text-sm font-bold text-primary p-0 outline-none select-none" />
-                                    <button type="button" id="btn-tambah-bagasi" class="px-5 h-full text-slate-500 hover:bg-slate-200 hover:text-primary transition-colors font-bold select-none">+</button>
+                                <label
+                                    class="font-secondary text-sm font-bold text-primary"
+                                    >Jumlah Barang (Pcs)</label
+                                >
+                                <div
+                                    class="flex items-center w-full bg-slate-50 border border-slate-200 rounded-lg h-[46px] overflow-hidden focus-within:border-primary focus-within:ring-1 focus-within:ring-primary"
+                                >
+                                    <button
+                                        type="button"
+                                        id="btn-kurang-bagasi"
+                                        class="px-5 h-full text-slate-500 hover:bg-slate-200 hover:text-primary transition-colors font-bold select-none"
+                                        >-</button
+                                    >
+                                    <input
+                                        type="number"
+                                        name="jumlah_bagasi"
+                                        id="jumlah_bagasi"
+                                        value="0"
+                                        min="0"
+                                        max="15"
+                                        readonly
+                                        class="flex-1 w-full text-center bg-transparent border-none focus:ring-0 text-sm font-bold text-primary p-0 outline-none select-none"
+                                    />
+                                    <button
+                                        type="button"
+                                        id="btn-tambah-bagasi"
+                                        class="px-5 h-full text-slate-500 hover:bg-slate-200 hover:text-primary transition-colors font-bold select-none"
+                                        >+</button
+                                    >
                                 </div>
                             </div>
                         </div>
                     </section>
 
                     <div class="pt-6 mt-2">
-                        <button type="submit" class="w-full md:w-auto px-8 py-4 bg-btn-linear text-white font-main font-bold rounded-xl shadow-md  hover:shadow-lg transition-all transform hover:-translate-y-0.5">
+                        <button
+                            type="submit"
+                            class="w-full md:w-auto px-8 py-4 bg-btn-linear text-white font-main font-bold rounded-xl shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5"
+                        >
                             Lanjutkan Isi Data Diri
                         </button>
                     </div>
@@ -102,35 +231,72 @@ import FormDataDiriPenumpang from "./FormData.astro";
             </div>
 
             <div id="travel-step-2" class="hidden animate-fade-in w-full">
-                <button type="button" id="btn-kembali-travel" class="mb-6 flex items-center gap-2 text-slate-500 hover:text-primary font-secondary font-bold transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                <button
+                    type="button"
+                    id="btn-kembali-travel"
+                    class="mb-6 flex items-center gap-2 text-slate-500 hover:text-primary font-secondary font-bold transition-colors"
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-5 w-5"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                    >
+                        <path
+                            fill-rule="evenodd"
+                            d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
+                            clip-rule="evenodd"></path>
                     </svg>
                     Kembali ke Pilihan Jadwal
                 </button>
-                
-                <FormDataDiriPenumpang formId="form-data-diri-travel" />
-            </div>
 
+                <form id="form-data-diri-travel">
+                    <FormDataDiriPenumpang formId="form-data-diri-travel" />
+
+                    <div class="pt-4 border-t border-slate-100">
+                        <button
+                            type="submit"
+                            class="w-full md:w-auto px-8 py-4 bg-btn-linear text-white font-main font-bold rounded-xl shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5"
+                        >
+                            Selesaikan Pemesanan
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
 
-        <aside class="w-full lg:w-2/5 hidden lg:block  top-8 h-fit">
-            <figure class="relative w-full h-[600px] rounded-2xl overflow-hidden group shadow-lg">
-                <img src="/assets/images/contoh.jpg" alt="Visual Rute" class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-                <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-800/40 to-transparent"></div>
+        <aside class="w-full sticky lg:w-2/5 hidden lg:block top-8 h-fit">
+            <figure
+                class="relative w-full h-[600px] rounded-2xl overflow-hidden group shadow-lg"
+            >
+                <img
+                    src="/assets/images/contoh.jpg"
+                    alt="Visual Rute"
+                    class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div
+                    class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-800/40 to-transparent"
+                >
+                </div>
                 <figcaption class="absolute bottom-0 left-0 right-0 p-8">
-                    <h3 class="text-2xl font-black text-white mb-2">Perjalanan Nyaman & Aman</h3>
-                    <p class="font-secondary text-sm text-slate-200 leading-relaxed">
-                        Armada premium kami dirancang dengan bagasi luas untuk kepuasan Anda.
+                    <h3 class="text-2xl font-black text-white mb-2">
+                        Perjalanan Nyaman & Aman
+                    </h3>
+                    <p
+                        class="font-secondary text-sm text-slate-200 leading-relaxed"
+                    >
+                        Armada premium kami dirancang dengan bagasi luas untuk
+                        kepuasan Anda.
                     </p>
                 </figcaption>
             </figure>
         </aside>
-
     </article>
 </div>
 
 <script>
+    import { apiFetch } from "../../../services/api";
+
     // Jadwal Rute (Bisa disesuaikan dari Database API nantinya)
     const JADWAL_RUTE = {
         jakarta_panawangan: [1, 3, 0], // Senin, Rabu, Minggu
@@ -140,15 +306,21 @@ import FormDataDiriPenumpang from "./FormData.astro";
     // Variabel penampung data step 1
     let dataTravelSementara = {};
 
-    function generateAvailableDates(allowedDays, count = 7) {
+    function generateAvailableDates(allowedDays: number[], count = 7) {
         const dates = [];
         let currentDate = new Date();
 
         while (dates.length < count) {
             if (allowedDays.includes(currentDate.getDay())) {
-                const dayName = new Intl.DateTimeFormat("id-ID", { weekday: "short" }).format(currentDate);
-                const dateNum = new Intl.DateTimeFormat("id-ID", { day: "2-digit" }).format(currentDate);
-                const monthName = new Intl.DateTimeFormat("id-ID", { month: "short" }).format(currentDate);
+                const dayName = new Intl.DateTimeFormat("id-ID", {
+                    weekday: "short",
+                }).format(currentDate);
+                const dateNum = new Intl.DateTimeFormat("id-ID", {
+                    day: "2-digit",
+                }).format(currentDate);
+                const monthName = new Intl.DateTimeFormat("id-ID", {
+                    month: "short",
+                }).format(currentDate);
                 const isoDate = currentDate.toISOString().split("T")[0];
 
                 dates.push({ dayName, dateNum, monthName, isoDate });
@@ -162,12 +334,18 @@ import FormDataDiriPenumpang from "./FormData.astro";
         // Ambil Elemen Step 1
         const wrapperStep1 = document.getElementById("travel-step-1");
         const formStep1 = document.getElementById("form-reservasi-travel");
-        
+
         const ruteRadios = formStep1?.querySelectorAll('input[name="rute"]');
-        const containerTanggal = document.getElementById("date-container-travel");
-        const hiddenInputTanggal = document.getElementById("tanggal_hidden_travel") as HTMLInputElement;
-        
-        const inputBagasi = document.getElementById("jumlah_bagasi") as HTMLInputElement;
+        const containerTanggal = document.getElementById(
+            "date-container-travel",
+        );
+        const hiddenInputTanggal = document.getElementById(
+            "tanggal_hidden_travel",
+        ) as HTMLInputElement;
+
+        const inputBagasi = document.getElementById(
+            "jumlah_bagasi",
+        ) as HTMLInputElement;
         const btnTambah = document.getElementById("btn-tambah-bagasi");
         const btnKurang = document.getElementById("btn-kurang-bagasi");
 
@@ -180,12 +358,13 @@ import FormDataDiriPenumpang from "./FormData.astro";
         if (!wrapperStep1 || !wrapperStep2 || !formStep1 || !formStep2) return;
 
         // 1. Logika Interaksi Rute & Tanggal
-        if(ruteRadios && containerTanggal && hiddenInputTanggal) {
+        if (ruteRadios && containerTanggal && hiddenInputTanggal) {
             ruteRadios.forEach((radio) => {
                 radio.addEventListener("change", (e) => {
                     const target = e.target as HTMLInputElement;
-                    const allowedDays = JADWAL_RUTE[target.value as keyof typeof JADWAL_RUTE];
-                    
+                    const allowedDays =
+                        JADWAL_RUTE[target.value as keyof typeof JADWAL_RUTE];
+
                     if (!allowedDays) return;
 
                     const availableDates = generateAvailableDates(allowedDays);
@@ -203,7 +382,10 @@ import FormDataDiriPenumpang from "./FormData.astro";
                                 </div>
                             </label>
                         `;
-                        containerTanggal.insertAdjacentHTML("beforeend", cardHTML);
+                        containerTanggal.insertAdjacentHTML(
+                            "beforeend",
+                            cardHTML,
+                        );
                     });
                 });
             });
@@ -250,7 +432,7 @@ import FormDataDiriPenumpang from "./FormData.astro";
             wrapperStep2.classList.add("block");
 
             // Scroll ke atas halaman
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo({ top: 0, behavior: "smooth" });
         });
 
         // 4. Tombol Kembali di Step 2 -> Buka Step 1
@@ -264,21 +446,45 @@ import FormDataDiriPenumpang from "./FormData.astro";
         }
 
         // 5. Submit Final di Step 2
-        formStep2.addEventListener("submit", (e) => {
+        formStep2.addEventListener("submit", async (e) => {
             e.preventDefault();
+
+            const btnSubmit = formStep2.querySelector(
+                'button[type="submit"]',
+            ) as HTMLButtonElement | null;
+            const originalText = btnSubmit ? btnSubmit.textContent : "";
+            if (btnSubmit) {
+                btnSubmit.disabled = true;
+                btnSubmit.textContent = "sedang menyimpan";
+            }
 
             const formData2 = new FormData(formStep2 as HTMLFormElement);
             const dataPenumpang = Object.fromEntries(formData2.entries());
 
-            // Gabungkan data travel dan data penumpang
-            const payloadFinal = {
-                layanan: "Travel Reguler", // Penanda untuk database/WA
+            const payloadfinal = {
+                layanan: "Travel Reguler",
                 ...dataTravelSementara,
-                ...dataPenumpang
+                ...dataPenumpang,
+                timestamp: new Date().toISOString(),
             };
 
-            console.log("PAYLOAD FINAL TRAVEL:", payloadFinal);
-            alert("Booking berhasil! Silakan cek Console (F12) untuk melihat data lengkapnya.");
+            try {
+                const result = await apiFetch("/layanan", {
+                    method: "POST",
+                    body: JSON.stringify(payloadfinal),
+                });
+
+                console.log("hasil dari mockapi", result);
+                alert("Pemesanan telah berhasil silahkan tunggu sampe acc.");
+            } catch (error) {
+                console.error("gagal mengirim data", error);
+                alert("Pemesanan telah gagal silahkan tunggu sampe acc.");
+            } finally {
+                if (btnSubmit) {
+                    btnSubmit.disabled = false;
+                    btnSubmit.textContent = originalText;
+                }
+            }
         });
     };
 
