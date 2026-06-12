@@ -1,4 +1,5 @@
 ---
+// File: src/components/layanan/FleetCard.astro
 interface Props {
     name: string;
     capacity: string;
@@ -7,19 +8,18 @@ interface Props {
     image: string;
 }
 
-// Menangkap data dari komponen induk
 const { name, capacity, description, price, image } = Astro.props;
 ---
 
 <div
-    class="bg-slate-50 border border-slate-100 rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition-shadow group flex flex-col h-full"
+    class="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group flex flex-col h-full w-full"
 >
     <figure class="relative h-48 overflow-hidden bg-slate-200">
         <span
             class="absolute top-4 left-4 z-10 bg-white/90 backdrop-blur-sm text-primary text-xs font-bold px-3 py-2 rounded-full shadow-sm"
         >
-            {capacity}</span
-        >
+            {capacity}
+        </span>
         <img
             src={image}
             alt={name}
@@ -35,16 +35,18 @@ const { name, capacity, description, price, image } = Astro.props;
             {description}
         </p>
         <footer
-            class="flex items-center justify-between border-t border-slate-200 pt-4 mt-auto"
+            class="flex items-center justify-between border-t border-slate-100 pt-4 mt-auto"
         >
             <div>
                 <span
-                    class="block text-[10px] text-slate-500 font-bold uppercase tracking-wider mb0.5"
-                    >Mulai Dari</span
+                    class="block text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-0.5"
                 >
-                <div class="font-main font-black text-text-sky-600">
+                    Mulai Dari
+                </span>
+                <div class="font-main font-black text-primary">
                     Rp. {price}
-                    <span class="text-xs font-medium text-slate400">/Hari</span>
+                    <span class="text-xs font-medium text-slate-400">/Hari</span
+                    >
                 </div>
             </div>
         </footer>
