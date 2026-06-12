@@ -1,0 +1,18 @@
+---
+// File: src/components/ui/NavLink.astro
+interface Props {
+    href: string;
+    class?: string;
+    active?: boolean;
+}
+
+const { href, class: className = "", active = false } = Astro.props;
+
+const baseClass = "relative py-1 flex items-center gap-2 hover:text-primary transition-colors duration-300 after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-primary hover:after:w-full after:transition-all after:duration-300 font-secondary text-sm font-medium text-text-secondary";
+const activeClass = "text-primary after:w-full";
+---
+
+<a href={href} class:list={[baseClass, active ? activeClass : "", className]}>
+    <slot name="icon" />
+    <slot />
+</a>

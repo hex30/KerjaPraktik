@@ -1,5 +1,6 @@
 ---
 import { slide } from "astro:transitions";
+import Button from "../../ui/Button.astro";
 
 const slides = [
   {
@@ -65,11 +66,10 @@ const slides = [
               {slide.desc}
             </p>
             <div class="pt-2">
-              <a
-                href={slide.btnLink}
-                class="inline-block bg-btn-linear text-white px-8 py-3.5 rounded-full font-semibold shadow-md hover:opacity-90 transition-opacity"
-              >
-                {slide.btnText}
+              <a href={slide.btnLink}>
+                <Button size="lg">
+                  {slide.btnText}
+                </Button>
               </a>
             </div>
           </div>

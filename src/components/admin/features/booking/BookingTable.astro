@@ -1,0 +1,189 @@
+---
+// File: src/components/admin/features/booking/BookingTable.astro
+import AdminBadge from "../../ui/AdminBadge.astro";
+import Button from "../../../ui/Button.astro";
+
+interface Props {
+    type: "RUTE" | "CHARTER";
+    data: any[];
+}
+
+const { type, data } = Astro.props;
+---
+
+<div class="overflow-x-auto">
+    <table class="w-full text-left border-separate border-spacing-y-3">
+        <thead>
+            <tr class="text-slate-400 text-[10px] font-bold uppercase tracking-widest px-6">
+                <th class="pb-2 px-6">Pemesan</th>
+                <th class="pb-2 px-6">Detail Perjalanan</th>
+                <th class="pb-2 px-6">Status</th>
+                <th class="pb-2 px-6 text-right">Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+            {data.map((item) => (
+                <tr class="bg-white group hover:shadow-md transition-all duration-300">
+                    <td class="py-5 px-6 rounded-l-2xl border-y border-l border-slate-100">
+                        <div class="flex flex-col">
+                            <span class="font-bold text-slate-900">{item.user.name}</span>
+                            <span class="text-xs text-slate-500 font-secondary">{item.user.phone}</span>
+                        </div>
+                    </td>
+                    <td class="py-5 px-6 border-y border-slate-100">
+                        <div class="flex flex-col gap-1">
+                            <div class="flex items-center gap-2 text-xs font-bold text-primary">
+                                <span>{item.origin}</span>
+                                <span>➔</span>
+                                <span>{item.destination}</span>
+                            </div>
+                            <span class="text-[10px] text-slate-400 font-secondary">
+                                {item.date} {item.time && `| ${item.time}`}
+                            </span>
+                            {item.fleet && (
+                                <span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded w-fit font-bold">
+                                    {item.fleet}
+                                </span>
+                            )}
+                        </div>
+                    </td>
+                    <td class="py-5 px-6 border-y border-slate-100">
+                        <AdminBadge status={item.status} />
+                    </td>
+                    <td class="py-5 px-6 rounded-r-2xl border-y border-r border-slate-100 text-right">
+                        <button 
+                            class="manage-booking-btn bg-slate-50 text-slate-600 px-4 py-2 rounded-xl text-xs font-bold hover:bg-primary hover:text-white transition-all"
+                            data-id={item.id}
+                            data-type={type}
+                            data-user={item.user.name}
+                        >
+                            Kelola
+                        </button>
+                    </td>
+                </tr>
+            ))}
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal Manage Booking (Hidden by default) -->
+<div id="booking-modal" class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm hidden">
+    <div class="bg-white w-full max-w-lg rounded-[2.5rem] shadow-2xl overflow-hidden animate-fade-in">
+        <header class="p-8 border-b border-slate-50 flex justify-between items-center">
+            <div>
+                <h3 class="text-xl font-black text-slate-900">Kelola Pemesanan</h3>
+                <p id="modal-subtitle" class="text-xs text-slate-400 font-secondary mt-1">Pemesan: <span class="font-bold text-primary">Nama User</span></p>
+            </div>
+            <button id="close-modal" class="text-slate-400 hover:text-rose-500 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+        </header>
+
+        <form id="manage-booking-form" class="p-8 flex flex-col gap-6">
+            <input type="hidden" name="booking_id" id="modal-booking-id" />
+            
+            <div class="flex flex-col gap-2">
+                <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Tentukan Harga Perjalanan (IDR)</label>
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">Rp</span>
+                    <input 
+                        type="number" 
+                        name="price" 
+                        id="modal-price"
+                        placeholder="Contoh: 1500000" 
+                        required
+                        class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-12 pr-4 py-4 font-main font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                    />
+                </div>
+            </div>
+
+            <div id="driver-assignment" class="flex flex-col gap-4">
+                <label class="text-xs font-black text-slate-400 uppercase tracking-widest">Penugasan Supir</label>
+                
+                <div class="grid grid-cols-1 gap-4">
+                    <div class="flex flex-col gap-1.5">
+                        <span class="text-[10px] font-bold text-slate-400">Supir Utama (Wajib)</span>
+                        <select name="driver_1" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium text-slate-600 focus:outline-none">
+                            <option value="">Pilih Supir...</option>
+                            <option value="driver1">Budi Santoso</option>
+                            <option value="driver2">Agus Setiawan</option>
+                            <option value="driver3">Iwan Fals</option>
+                        </select>
+                    </div>
+
+                    <div class="flex flex-col gap-1.5">
+                        <span class="text-[10px] font-bold text-slate-400">Supir Cadangan (Opsional)</span>
+                        <select name="driver_2" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium text-slate-600 focus:outline-none">
+                            <option value="">Tanpa Supir Cadangan</option>
+                            <option value="driver1">Budi Santoso</option>
+                            <option value="driver2">Agus Setiawan</option>
+                            <option value="driver3">Iwan Fals</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-4">
+                <Button type="submit" class="w-full" size="lg">
+                    Verifikasi & Kirim Tagihan
+                </Button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const setupBookingLogic = () => {
+        const modal = document.getElementById('booking-modal');
+        const closeModal = document.getElementById('close-modal');
+        const manageBtns = document.querySelectorAll('.manage-booking-btn');
+        const modalSubtitle = document.querySelector('#modal-subtitle span');
+        const modalIdInput = document.getElementById('modal-booking-id') as HTMLInputElement;
+        const driverSection = document.getElementById('driver-assignment');
+        const form = document.getElementById('manage-booking-form') as HTMLFormElement;
+
+        manageBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const id = btn.getAttribute('data-id');
+                const type = btn.getAttribute('data-type');
+                const user = btn.getAttribute('data-user');
+
+                if (modalIdInput) modalIdInput.value = id || '';
+                if (modalSubtitle) modalSubtitle.textContent = user || '';
+                
+                // Jika type RUTE, sembunyikan driver assignment karena biasanya supir rute sudah fix per jadwal
+                // Tapi user minta: "khusus untuk bagian booking admin dapat menugaskan supir"
+                // Saya asumsikan booking = charter
+                if (type === 'RUTE') {
+                    driverSection?.classList.add('hidden');
+                } else {
+                    driverSection?.classList.remove('hidden');
+                }
+
+                modal?.classList.remove('hidden');
+            });
+        });
+
+        closeModal?.addEventListener('click', () => {
+            modal?.classList.add('hidden');
+        });
+
+        window.addEventListener('click', (e) => {
+            if (e.target === modal) modal?.classList.add('hidden');
+        });
+
+        form?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            
+            console.log("Saving Admin Decision:", data);
+            alert(`Berhasil! Harga Rp ${data.price} telah ditetapkan. Status user berubah ke: MENUNGGU PEMBAYARAN.`);
+            modal?.classList.add('hidden');
+            // Logic update UI actual (reload or remove row)
+        });
+    };
+
+    setupBookingLogic();
+    document.addEventListener('astro:page-load', setupBookingLogic);
+</script>

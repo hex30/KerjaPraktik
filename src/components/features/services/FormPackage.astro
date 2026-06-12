@@ -1,19 +1,20 @@
 ---
-// File: src/components/layanan/FormPaket.astro
+// File: src/components/layanan/FormPackage.astro
 import InputGroup from "../../ui/InputGroup.astro";
-import PackageAdress from './PackageAdress.astro'; // Ganti penamaan import sesuai file Anda
+import PackageAdress from './PackageAdress.astro'; 
+import SectionHeader from "../../ui/SectionHeader.astro";
+import Button from "../../ui/Button.astro";
+import HeroAside from "../../ui/HeroAside.astro";
 ---
 
 <article class="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 md:p-10 flex flex-col lg:flex-row gap-10 max-w-7xl mx-auto font-main">
     
     <div class="w-full lg:w-3/5 flex flex-col gap-8">
         
-        <header>
-            <h2 class="text-2xl md:text-3xl font-black text-primary font-main mb-2">Detail Pengiriman Paket</h2>
-            <p class="font-secondary text-sm text-text-secondary leading-relaxed">
-                Lengkapi data pengirim, penerima, dan detail barang dengan akurat.
-            </p>
-        </header>
+        <SectionHeader 
+            title="Detail Pengiriman Paket"
+            subtitle="Lengkapi data pengirim, penerima, dan detail barang dengan akurat."
+        />
 
         <form id="form-package-detail" class="flex flex-col gap-10">
             
@@ -61,31 +62,19 @@ import PackageAdress from './PackageAdress.astro'; // Ganti penamaan import sesu
             </fieldset>
 
             <div class="pt-2">
-                <button type="submit" class="w-full md:w-auto px-8 py-4 bg-btn-linear text-white font-main font-bold rounded-xl shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
+                <Button type="submit" size="lg">
                     Pesan Pengiriman Sekarang
-                </button>
+                </Button>
             </div>
             
         </form>
     </div>
 
-    <aside class="w-full lg:w-2/5 hidden lg:block">
-        <figure class="relative w-full h-full min-h-[500px] rounded-2xl overflow-hidden group sticky top-28 shadow-lg">
-            <img 
-                src="/assets/images/contoh.jpg" 
-                alt="Pengiriman Aman" 
-                class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-            />
-            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-800/40 to-transparent"></div>
-            
-            <figcaption class="absolute bottom-0 left-0 right-0 p-8">
-                <h3 class="text-2xl font-black text-white font-main mb-2">Pengiriman Aman & Terlindungi</h3>
-                <p class="font-secondary text-sm text-slate-200 leading-relaxed max-w-sm">
-                    Setiap paket ditangani dengan standar profesional untuk memastikan barang Anda tiba di tujuan dengan utuh dan selamat.
-                </p>
-            </figcaption>
-        </figure>
-    </aside>
+    <HeroAside 
+        image="/assets/images/contoh.jpg"
+        title="Pengiriman Aman & Terlindungi"
+        description="Setiap paket ditangani dengan standar profesional untuk memastikan barang Anda tiba di tujuan dengan utuh dan selamat."
+    />
 
 </article>
 

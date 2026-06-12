@@ -1,0 +1,38 @@
+---
+// File: src/components/features/services/molecules/ServicePromo.astro
+import Badge from "../../../ui/Badge.astro";
+
+interface Props {
+    image: string;
+    badge: string;
+    title: string;
+    highlight: string;
+}
+
+const { image, badge, title, highlight } = Astro.props;
+---
+
+<section class="max-w-7xl mx-auto px-6 mt-8 font-main">
+    <div
+        class="relative w-full h-64 md:h-80 rounded-[2rem] overflow-hidden shadow-sm group"
+    >
+        <img
+            src={image}
+            alt={title}
+            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+        />
+
+        <div
+            class="absolute inset-0 bg-gradient-to-r from-slate-900/90 via-slate-900/50 to-transparent flex flex-col justify-center px-8 md:px-16"
+        >
+            <Badge variant="sky" class="w-max mb-4">
+                {badge}
+            </Badge>
+            <h1
+                class="text-3xl md:text-5xl lg:text-6xl font-black text-white max-w-lg leading-tight tracking-tight"
+            >
+                {title} <span class="text-sky-400">{highlight}</span>
+            </h1>
+        </div>
+    </div>
+</section>

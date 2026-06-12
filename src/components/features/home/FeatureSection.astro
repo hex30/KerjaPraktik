@@ -1,5 +1,6 @@
 ---
 import FeatureItems from "./FeatureItems.astro";
+import SectionHeader from "../../ui/SectionHeader.astro";
 
 const features = [
     {
@@ -21,17 +22,12 @@ const features = [
 ---
 
 <section class="max-w-7xl mx-auto px-6 py-20 font-main">
-    <div class="text-center max-w-2xl mx-auto mb-16 space-y-4">
-        <h2
-            class="text-3xl md:text-4xl lg:text-5xl font-black text-primary leading-tight"
-        >
-            Mengapa Memilih Kami
-        </h2>
-        <p class="font-secondary text-text-secondary leading-relaxed">
-            Prioritas kami adalah memastikan setiap perjalanan Anda aman,
-            nyaman, dan sampai di tujuan dengan senyuman.
-        </p>
-    </div>
+    <SectionHeader 
+        title="Mengapa Memilih Kami"
+        subtitle="Prioritas kami adalah memastikan setiap perjalanan Anda aman, nyaman, dan sampai di tujuan dengan senyuman."
+        align="center"
+        titleClass="text-3xl md:text-4xl lg:text-5xl font-black text-primary leading-tight mb-4"
+    />
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-8">
         {

@@ -1,0 +1,53 @@
+---
+// File: src/components/ui/RadioCard.astro
+interface Props {
+    name: string;
+    value: string;
+    id?: string;
+    required?: boolean;
+    class?: string;
+}
+
+const { 
+    name, 
+    value, 
+    id, 
+    required = false,
+    class: className = ""
+} = Astro.props;
+---
+
+<label class:list={["relative cursor-pointer group block", className]}>
+    <input
+        type="radio"
+        name={name}
+        value={value}
+        id={id}
+        class="peer sr-only"
+        required={required}
+    />
+    <div
+        class="p-4 rounded-xl border-2 border-slate-200 peer-checked:border-primary/50 peer-checked:bg-primary/20 hover:border-primary/100 transition-all"
+    >
+        <slot />
+    </div>
+    
+    <!-- Checked Indicator -->
+    <div
+        class="absolute top-4 right-4 text-primary opacity-0 peer-checked:opacity-100 transition-opacity"
+    >
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+        >
+            <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 13l4 4L19 7"></path>
+        </svg>
+    </div>
+</label>

@@ -1,0 +1,24 @@
+---
+// File: src/components/admin/layout/SidebarItem.astro
+interface Props {
+    href: string;
+    label: string;
+    icon: string;
+    active?: boolean;
+}
+
+const { href, label, icon, active = false } = Astro.props;
+---
+
+<a 
+    href={href} 
+    class:list={[
+        "flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-300",
+        active 
+            ? "bg-primary text-white shadow-md shadow-primary/20" 
+            : "text-slate-500 hover:bg-slate-50 hover:text-primary"
+    ]}
+>
+    <div class="w-5 h-5 flex items-center justify-center" fragment set:html={icon} />
+    <span class="text-sm">{label}</span>
+</a>

@@ -1,0 +1,23 @@
+---
+// File: src/components/ui/Badge.astro
+interface Props {
+    variant?: "info" | "success" | "warning" | "error" | "sky";
+    class?: string;
+}
+
+const { variant = "info", class: className = "" } = Astro.props;
+
+const variants = {
+    info: "bg-slate-100 text-slate-600",
+    success: "bg-green-100 text-green-700",
+    warning: "bg-yellow-100 text-yellow-700",
+    error: "bg-red-100 text-red-700",
+    sky: "bg-sky-500 text-white"
+};
+
+const baseClass = "inline-block text-[10px] md:text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider font-secondary";
+---
+
+<span class:list={[baseClass, variants[variant], className]}>
+    <slot />
+</span>

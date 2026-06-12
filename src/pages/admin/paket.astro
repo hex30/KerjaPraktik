@@ -1,0 +1,87 @@
+---
+// File: src/pages/admin/paket.astro
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import AdminBadge from "../../components/admin/ui/AdminBadge.astro";
+
+// Mock Data Paket
+const packageData = [
+    {
+        id: "P-001",
+        sender: { name: "Febi Yulianti", phone: "0812-3456-7890" },
+        receiver: { name: "Agus Salim", phone: "0852-1111-2222" },
+        origin: "Ciamis",
+        destination: "Jakarta",
+        weight: "12 Kg",
+        type: "Elektronik",
+        status: "PENDING"
+    },
+    {
+        id: "P-002",
+        sender: { name: "Budi Santoso", phone: "0877-6655-4433" },
+        receiver: { name: "Dewi Sartika", phone: "0811-0099-8877" },
+        origin: "Jakarta",
+        destination: "Ciamis",
+        weight: "5 Kg",
+        type: "Dokumen",
+        status: "APPROVED"
+    }
+];
+---
+
+<AdminLayout title="Manajemen Paket">
+    <section>
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h2 class="text-xl font-black text-slate-900">Data Penitipan Paket</h2>
+                <p class="text-xs text-slate-400 font-secondary mt-1">Daftar kiriman barang kilat dari pelanggan.</p>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-separate border-spacing-y-3">
+                <thead>
+                    <tr class="text-slate-400 text-[10px] font-bold uppercase tracking-widest px-6">
+                        <th class="pb-2 px-6">Pengirim & Penerima</th>
+                        <th class="pb-2 px-6">Detail Barang</th>
+                        <th class="pb-2 px-6">Rute</th>
+                        <th class="pb-2 px-6 text-right">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {packageData.map((pkg) => (
+                        <tr class="bg-white group hover:shadow-md transition-all duration-300">
+                            <td class="py-5 px-6 rounded-l-2xl border-y border-l border-slate-100">
+                                <div class="flex flex-col gap-2">
+                                    <div>
+                                        <span class="text-[8px] font-bold uppercase text-sky-500 block">DARI</span>
+                                        <span class="font-bold text-slate-900 text-sm">{pkg.sender.name}</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-[8px] font-bold uppercase text-amber-500 block">UNTUK</span>
+                                        <span class="font-bold text-slate-900 text-sm">{pkg.receiver.name}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="py-5 px-6 border-y border-slate-100">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold text-slate-700">{pkg.type}</span>
+                                    <span class="text-xs text-slate-400 font-secondary">Berat: {pkg.weight}</span>
+                                </div>
+                            </td>
+                            <td class="py-5 px-6 border-y border-slate-100">
+                                <div class="flex items-center gap-2 text-xs font-bold text-primary">
+                                    <span>{pkg.origin}</span>
+                                    <span>➔</span>
+                                    <span>{pkg.destination}</span>
+                                </div>
+                            </td>
+                            <td class="py-5 px-6 rounded-r-2xl border-y border-r border-slate-100 text-right">
+                                <AdminBadge status={pkg.status as any} />
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</AdminLayout>

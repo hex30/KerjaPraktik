@@ -1,5 +1,23 @@
 ---
+import FooterNav from "./molecules/FooterNav.astro";
+import SocialIcon from "./molecules/SocialIcon.astro";
 
+const companyLinks = [
+    { label: "Tentang Kami", href: "/tentang-kami" },
+    { label: "Kontak", href: "/kontak" }
+];
+
+const serviceLinks = [
+    { label: "Antar Jemput", href: "/layanan/antar-jemput" },
+    { label: "Sewa Armada", href: "/layanan/sewa-armada" },
+    { label: "Titip Paket", href: "/layanan/titip-paket" }
+];
+
+const helpLinks = [
+    { label: "Syarat & Ketentuan", href: "/syarat-ketentuan" },
+    { label: "Kebijakan Privasi", href: "/kebijakan-privasi" },
+    { label: "FAQ", href: "/faq" }
+];
 ---
 
 <footer class="w-full bg-slate-950 text-slate-400 pt-16 pb-12 font-main border-t border-slate-900">
@@ -15,50 +33,28 @@
                     Penyedia layanan transportasi terpercaya yang menghubungkan kota dengan kenyamanan dan keamanan sebagai prioritas utama.
                 </p>
 
-                 <div class="flex items-center gap-5">
-                <a href="https://instagram.com/rinitransputri" aria-label="Kunjungi Instagram Rini Trans Putri" target="_blank" rel="noopener noreferrer" class="hover:scale-110 transition-transform text-slate-400 hover:text-sky-400">
-                    <img src="/assets/icons/instagram.svg" alt="Instagram" width="22" height="22" class="opacity-80 hover:opacity-100 transition-opacity">
-                </a>
-                <a href="https://facebook.com/rinitransputri" aria-label="Kunjungi Facebook Rini Trans Putri" target="_blank" rel="noopener noreferrer" class="hover:scale-110 transition-transform text-slate-400 hover:text-sky-400">
-                    <img src="/assets/icons/facebook.svg" alt="Facebook" width="22" height="22" class="opacity-80 hover:opacity-100 transition-opacity">
-                </a>
-                <a href="mailto:info@rinitransputri.com" aria-label="Kirim Email ke Rini Trans Putri" class="hover:scale-110 transition-transform text-slate-400 hover:text-sky-400">
-                    <img src="/assets/icons/email.svg" alt="Email" width="22" height="22" class="opacity-80 hover:opacity-100 transition-opacity">
-                </a>
+                <div class="flex items-center gap-5">
+                    <SocialIcon 
+                        href="https://instagram.com/rinitransputri" 
+                        icon="/assets/icons/instagram.svg" 
+                        label="Instagram"
+                    />
+                    <SocialIcon 
+                        href="https://facebook.com/rinitransputri" 
+                        icon="/assets/icons/facebook.svg" 
+                        label="Facebook"
+                    />
+                    <SocialIcon 
+                        href="mailto:info@rinitransputri.com" 
+                        icon="/assets/icons/email.svg" 
+                        label="Email"
+                    />
+                </div>
             </div>
-            </div>
 
-            <nav class="flex flex-col gap-4" aria-label="Menu Perusahaan">
-                <h3 class="text-sm font-bold text-white uppercase tracking-wider font-main">
-                    Perusahaan
-                </h3>
-                <ul class="flex flex-col gap-2.5 font-secondary text-sm">
-                    <li><a href="/tentang-kami" class="hover:text-sky-400 transition-colors">Tentang Kami</a></li>
-                    <li><a href="/kontak" class="hover:text-sky-400 transition-colors">Kontak</a></li>
-                </ul>
-            </nav>
-
-            <nav class="flex flex-col gap-4" aria-label="Menu Layanan">
-                <h3 class="text-sm font-bold text-white uppercase tracking-wider font-main">
-                    Layanan
-                </h3>
-                <ul class="flex flex-col gap-2.5 font-secondary text-sm">
-                    <li><a href="/layanan/antar-jemput" class="hover:text-sky-400 transition-colors">Antar Jemput</a></li>
-                    <li><a href="/layanan/sewa-armada" class="hover:text-sky-400 transition-colors">Sewa Armada</a></li>
-                    <li><a href="/layanan/titip-paket" class="hover:text-sky-400 transition-colors">Titip Paket</a></li>
-                </ul>
-            </nav>
-
-            <nav class="flex flex-col gap-4" aria-label="Menu Bantuan">
-                <h3 class="text-sm font-bold text-white uppercase tracking-wider font-main">
-                    Bantuan
-                </h3>
-                <ul class="flex flex-col gap-2.5 font-secondary text-sm">
-                    <li><a href="/syarat-ketentuan" class="hover:text-sky-400 transition-colors">Syarat & Ketentuan</a></li>
-                    <li><a href="/kebijakan-privasi" class="hover:text-sky-400 transition-colors">Kebijakan Privasi</a></li>
-                    <li><a href="/faq" class="hover:text-sky-400 transition-colors">FAQ</a></li>
-                </ul>
-            </nav>
+            <FooterNav title="Perusahaan" links={companyLinks} />
+            <FooterNav title="Layanan" links={serviceLinks} />
+            <FooterNav title="Bantuan" links={helpLinks} />
 
         </div>
     </div>

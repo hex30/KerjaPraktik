@@ -3,36 +3,17 @@ import UserLayout from "../layouts/MainLayout.astro";
 import ServiceTabs from "../components/features/services/ServiceTabs.astro";
 import FormRute from "../components/features/services/FormRute.astro";
 import FormBooking from "../components/features/services/FormBooking.astro";
-import FormPaket from '../components/features/services/FormPackage.astro';
+import FormPaket from "../components/features/services/FormPackage.astro";
+import ServicePromo from "../components/features/services/molecules/ServicePromo.astro";
 ---
 
 <UserLayout title="Layanan | Rini Trans Putri">
-    <section class="max-w-7xl mx-auto px-6 mt-8 font-main">
-        <div
-            class="relative w-full h-64 md:h-80 rounded-[2rem] overflow-hidden shadow-sm group"
-        >
-            <img
-                src="/assets/images/contoh.jpg"
-                alt="Promo Liburan Rini Trans Putri"
-                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-            />
-
-            <div
-                class="absolute inset-0 bg-gradient-to-r from-slate-900/90 via-slate-900/50 to-transparent flex flex-col justify-center px-8 md:px-16"
-            >
-                <span
-                    class="inline-block bg-sky-500 text-white text-xs font-bold px-4 py-1.5 rounded-full w-max mb-4 uppercase tracking-wider"
-                >
-                    Penawaran Spesial
-                </span>
-                <h1
-                    class="text-3xl md:text-5xl lg:text-6xl font-black text-white max-w-lg leading-tight tracking-tight"
-                >
-                    Diskon <span class="text-sky-400">20% </span>Liburan Keluarga
-                </h1>
-            </div>
-        </div>
-    </section>
+    <ServicePromo 
+        image="/assets/images/contoh.jpg"
+        badge="Penawaran Spesial"
+        title="Diskon"
+        highlight="20% Liburan Keluarga"
+    />
 
     <section class="max-w-7xl mx-auto px-6 mt-8 font-main"></section>
 
@@ -53,16 +34,17 @@ import FormPaket from '../components/features/services/FormPackage.astro';
     </section>
 
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
+        const initTabsAndRouting = () => {
             const tabs = document.querySelectorAll(".nav-btn");
             const contents = document.querySelectorAll(".tab-content");
 
+            // ==========================================
+            // 1. LOGIKA KLIK MANUAL (Kode Anda yang sudah ada)
+            // ==========================================
             tabs.forEach((tab) => {
                 tab.addEventListener("click", () => {
-                    // 1. Ambil nama target dari atribut data-view (misal: 'rute', 'booking', 'package')
                     const targetView = tab.getAttribute("data-view");
 
-                    // 2. Reset semua gaya tombol menjadi tidak aktif (abu-abu)
                     tabs.forEach((t) => {
                         t.classList.remove(
                             "bg-btn-linear",
@@ -73,7 +55,6 @@ import FormPaket from '../components/features/services/FormPackage.astro';
                         t.classList.add("text-text-secondary");
                     });
 
-                    // 3. Beri gaya warna biru/linear pada tombol yang sedang diklik
                     tab.classList.add(
                         "bg-btn-linear",
                         "text-white",
@@ -82,13 +63,11 @@ import FormPaket from '../components/features/services/FormPackage.astro';
                     );
                     tab.classList.remove("text-text-secondary");
 
-                    // 4. Sembunyikan semua konten form
                     contents.forEach((content) => {
                         content.classList.add("hidden");
                         content.classList.remove("block");
                     });
 
-                    // 5. Munculkan form yang sesuai dengan tombol yang diklik
                     const activeContent = document.getElementById(
                         `view-${targetView}`,
                     );
@@ -98,6 +77,35 @@ import FormPaket from '../components/features/services/FormPackage.astro';
                     }
                 });
             });
-        });
+
+            // ==========================================
+            // 2. LOGIKA AUTO-OPEN DARI URL (Wajib ditambahkan!)
+            // ==========================================
+            const handleAutoOpenTab = () => {
+                const hashTarget = window.location.hash;
+                const params = new URLSearchParams(window.location.search);
+                const adaTujuan = params.has("tujuan");
+
+                // Cek apakah URL meminta tab Booking (Charter)
+                // Jika ada hash #booking-component ATAU membawa parameter ?tujuan=
+                if (hashTarget === "#booking-component" || adaTujuan) {
+                    // Cari tombol tab Booking menggunakan ID yang ada di ServiceTabs.astro
+                    const tabBooking =
+                        document.getElementById("tab-btn-booking");
+
+                    if (tabBooking) {
+                        // Simulasikan klik pada tombol tab tersebut
+                        tabBooking.click();
+                    }
+                }
+            };
+
+            // Jalankan pengecekan URL segera setelah halaman dan skrip dimuat
+            handleAutoOpenTab();
+        };
+
+        // Gunakan listener ganda agar aman dengan fitur SPA/ViewTransitions Astro
+        document.addEventListener("DOMContentLoaded", initTabsAndRouting);
+        document.addEventListener("astro:page-load", initTabsAndRouting);
     </script>
 </UserLayout>

@@ -1,6 +1,7 @@
 ---
 // File: src/components/layanan/PackageAdress.astro
 import InputGroup from '../../ui/InputGroup.astro';
+import AddressGrid from './molecules/AddressGrid.astro';
 
 interface Props {
     title: string;
@@ -13,7 +14,6 @@ const { title, type } = Astro.props;
 // ==========================================
 // SIMULASI AUTENTIKASI & DATA USER
 // ==========================================
-// Ganti dengan logic auth Anda (misal: Astro.locals.user)
 const session = {
     isLoggedIn: true,
     user: {
@@ -22,12 +22,10 @@ const session = {
     }
 };
 
-// Logika dinamis untuk label dan placeholder
 const isPengirim = type === 'pengirim';
 const labelNama = isPengirim ? 'Nama Pengirim' : 'Nama Penerima';
 const placeholderNama = isPengirim ? 'Nama lengkap Anda' : 'Nama lengkap tujuan';
 
-// Auto-fill value hanya jika tipe form adalah "pengirim" dan user sedang login
 const defaultName = (isPengirim && session.isLoggedIn) ? session.user.fullName : "";
 const defaultPhone = (isPengirim && session.isLoggedIn) ? session.user.phone : "";
 ---
@@ -72,15 +70,5 @@ const defaultPhone = (isPengirim && session.isLoggedIn) ? session.user.phone : "
         </div>
     </div>
     
-    <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-end">
-        <div class="md:col-span-6">
-            <InputGroup label="Nama Dusun/Jalan" id={`dusun_${type}`} name={`dusun_${type}`} placeholder="Contoh: Sukamaju" required={true} />
-        </div>
-        <div class="md:col-span-3">
-            <InputGroup label="RT" id={`rt_${type}`} name={`rt_${type}`} type="number" placeholder="00" />
-        </div>
-        <div class="md:col-span-3">
-            <InputGroup label="RW" id={`rw_${type}`} name={`rw_${type}`} type="number" placeholder="00" />
-        </div>
-    </div>
+    <AddressGrid type={type} dusunLabel="Nama Dusun/Jalan" />
 </fieldset>

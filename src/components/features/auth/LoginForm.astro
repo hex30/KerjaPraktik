@@ -1,11 +1,14 @@
 ---
 // File: src/components/auth/LoginForm.astro
 import InputGroup from '../../ui/InputGroup.astro';
+import Button from '../../ui/Button.astro';
 ---
 
 <div id="form-login" class="auth-form block transition-opacity duration-500">
-    <h3 class="text-2xl font-black text-primary mb-2">Selamat Datang Kembali!</h3>
-    <p class="font-secondary text-sm text-text-secondary mb-8">Silakan masukkan email dan kata sandi Anda.</p>
+    <header class="mb-8">
+        <h3 class="text-2xl font-black text-primary mb-2">Selamat Datang Kembali!</h3>
+        <p class="font-secondary text-sm text-text-secondary">Silakan masukkan email dan kata sandi Anda.</p>
+    </header>
     
     <form class="flex flex-col gap-5">
         <InputGroup label="Alamat Email" id="login_email" name="email" type="email" placeholder="nama@email.com" required={true} />
@@ -22,8 +25,8 @@ import InputGroup from '../../ui/InputGroup.astro';
             </div>
         </div>
 
-        <button type="submit" class="w-full mt-4 py-4 bg-btn-linear text-white font-main font-bold rounded-xl shadow-lg hover:shadow-sky-500/30 hover:opacity-90 transition-all transform hover:-translate-y-0.5">
+        <Button type="submit" class="w-full mt-4" size="lg">
             Masuk ke Dashboard
-        </button>
+        </Button>
     </form>
 </div>

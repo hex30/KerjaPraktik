@@ -1,0 +1,26 @@
+---
+// File: src/components/layout/molecules/SocialIcon.astro
+interface Props {
+    href: string;
+    icon: string;
+    label: string;
+}
+
+const { href, icon, label } = Astro.props;
+---
+
+<a 
+    href={href} 
+    aria-label={label} 
+    target="_blank" 
+    rel="noopener noreferrer" 
+    class="hover:scale-110 transition-transform text-slate-400 hover:text-sky-400"
+>
+    <img 
+        src={icon} 
+        alt={label} 
+        width="22" 
+        height="22" 
+        class="opacity-80 hover:opacity-100 transition-opacity"
+    />
+</a>

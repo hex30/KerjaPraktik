@@ -1,0 +1,39 @@
+---
+// File: src/components/features/services/molecules/FleetSelectionItem.astro
+import FleetCard from "../FleetCard.astro";
+
+interface Props {
+    name: string;
+    value: string;
+    capacity: string;
+    description: string;
+    price: string;
+    image: string;
+    isHidden?: boolean;
+}
+
+const { name, value, capacity, description, price, image, isHidden = false } = Astro.props;
+---
+
+<div 
+    class:list={[
+        "fleet-card-wrapper cursor-pointer rounded-2xl transition-all duration-300 relative group/wrapper select-none",
+        isHidden ? "hidden extra-card" : ""
+    ]} 
+    data-value={value} 
+    data-name={name}
+>
+    <FleetCard 
+        name={name} 
+        capacity={capacity} 
+        description={description} 
+        price={price} 
+        image={image} 
+    />
+    <div class="absolute inset-0 pointer-events-none rounded-2xl transition-all duration-300 border-2 border-transparent group-hover/wrapper:border-primary/40 selected-ring"></div>
+    <div class="absolute top-4 right-4 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center opacity-0 scale-50 transition-all duration-300 selected-check">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+        </svg>
+    </div>
+</div>

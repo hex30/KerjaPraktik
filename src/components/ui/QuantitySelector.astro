@@ -1,0 +1,77 @@
+---
+// File: src/components/ui/QuantitySelector.astro
+interface Props {
+    id: string;
+    name: string;
+    label?: string;
+    min?: number;
+    max?: number;
+    value?: number;
+}
+
+const { 
+    id, 
+    name, 
+    label, 
+    min = 0, 
+    max = 99, 
+    value = 0 
+} = Astro.props;
+---
+
+<div class="flex flex-col gap-2">
+    {label && <label class="font-secondary text-sm font-bold text-primary">{label}</label>}
+    <div
+        class="flex items-center w-full bg-slate-50 border border-slate-200 rounded-lg h-[46px] overflow-hidden focus-within:border-primary focus-within:ring-1 focus-within:ring-primary"
+    >
+        <button
+            type="button"
+            id={`${id}-decrement`}
+            class="px-5 h-full text-slate-500 hover:bg-slate-200 hover:text-primary transition-colors font-bold select-none"
+            >-</button
+        >
+        <input
+            type="number"
+            name={name}
+            id={id}
+            value={value}
+            min={min}
+            max={max}
+            readonly
+            class="flex-1 w-full text-center bg-transparent border-none focus:ring-0 text-sm font-bold text-primary p-0 outline-none select-none"
+        />
+        <button
+            type="button"
+            id={`${id}-increment`}
+            class="px-5 h-full text-slate-500 hover:bg-slate-200 hover:text-primary transition-colors font-bold select-none"
+            >+</button
+        >
+    </div>
+</div>
+
+<script define:vars={{ id, min, max }}>
+    const setupQuantity = () => {
+        const input = document.getElementById(id);
+        const btnMinus = document.getElementById(`${id}-decrement`);
+        const btnPlus = document.getElementById(`${id}-increment`);
+
+        if (!input || !btnMinus || !btnPlus) return;
+
+        btnMinus.addEventListener("click", () => {
+            const current = parseInt(input.value) || 0;
+            if (current > min) {
+                input.value = (current - 1).toString();
+            }
+        });
+
+        btnPlus.addEventListener("click", () => {
+            const current = parseInt(input.value) || 0;
+            if (current < max) {
+                input.value = (current + 1).toString();
+            }
+        });
+    }
+
+    setupQuantity();
+    document.addEventListener("astro:page-load", setupQuantity);
+</script>

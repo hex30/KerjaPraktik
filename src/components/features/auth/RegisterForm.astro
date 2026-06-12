@@ -1,11 +1,14 @@
 ---
 // File: src/components/auth/RegisterForm.astro
 import InputGroup from '../../ui/InputGroup.astro';
+import Button from '../../ui/Button.astro';
 ---
 
 <div id="form-register" class="auth-form hidden transition-opacity duration-500">
-    <h3 class="text-2xl font-black text-primary mb-2">Buat Akun Baru</h3>
-    <p class="font-secondary text-sm text-text-secondary mb-8">Daftar sekarang untuk kemudahan pemesanan.</p>
+    <header class="mb-8">
+        <h3 class="text-2xl font-black text-primary mb-2">Buat Akun Baru</h3>
+        <p class="font-secondary text-sm text-text-secondary">Daftar sekarang untuk kemudahan pemesanan.</p>
+    </header>
     
     <form class="flex flex-col gap-5">
         <InputGroup label="Nama Lengkap" id="reg_nama" name="nama" placeholder="Sesuai KTP" required={true} />
@@ -24,9 +27,9 @@ import InputGroup from '../../ui/InputGroup.astro';
             </label>
         </div>
 
-        <button type="submit" class="w-full mt-2 py-4 bg-slate-900 text-white font-main font-bold rounded-xl shadow-lg hover:bg-slate-800 transition-all transform hover:-translate-y-0.5">
+        <Button type="submit" class="w-full mt-2 bg-slate-900 hover:bg-slate-800" size="lg">
             Daftarkan Akun
-        </button>
+        </Button>
 
         <div class="mt-2 text-center">
             <button type="button" class="auth-toggle-link text-sm font-secondary text-slate-500 hover:text-sky-600 transition-colors focus:outline-none" data-target="form-login">
