@@ -1,0 +1,40 @@
+---
+// File: src/pages/auth/register.astro
+import UserLayout from "../../layouts/MainLayout.astro";
+import RegisterForm from "../../components/features/auth/RegisterForm.astro";
+---
+
+<UserLayout title="Daftar Akun | Rini Trans Putri">
+    <section class="max-w-7xl mx-auto px-6 py-16 font-main min-h-[80vh] flex items-center justify-center">
+        
+        <div class="w-full max-w-5xl bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden flex flex-col md:flex-row-reverse">
+            
+            <!-- Sisi Kanan (Background Visual) -->
+            <div class="hidden md:flex md:w-1/2 bg-slate-900 relative p-12 flex-col justify-between overflow-hidden">
+                <div class="absolute top-0 left-0 -translate-y-1/4 -translate-x-1/4 w-64 h-64 bg-sky-500/20 rounded-full blur-3xl"></div>
+                <div class="absolute bottom-0 right-0 translate-y-1/4 translate-x-1/4 w-64 h-64 bg-primary/10 rounded-full blur-3xl"></div>
+                
+                <div class="relative z-10 text-right">
+                    <h2 class="text-3xl font-black text-white leading-tight">Mulai Perjalanan <br /> <span class="text-sky-400 text-4xl">Bersama Kami.</span></h2>
+                    <p class="text-slate-400 mt-2 font-secondary text-sm">Daftarkan diri Anda untuk pengalaman perjalanan terbaik.</p>
+                </div>
+
+                <div class="relative z-10 flex flex-col gap-4 items-end">
+                    <div class="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10 w-fit">
+                        <p class="text-white font-bold text-sm">✓ Reservasi Cepat</p>
+                    </div>
+                    <div class="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10 w-fit">
+                        <p class="text-white font-bold text-sm">✓ Pantau Riwayat Tiket</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sisi Kiri (Form) -->
+            <div class="w-full md:w-1/2 p-8 md:p-12 lg:p-16 flex flex-col justify-center">
+                <RegisterForm />
+            </div>
+
+        </div>
+
+    </section>
+</UserLayout>

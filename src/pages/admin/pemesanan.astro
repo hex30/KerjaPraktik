@@ -7,33 +7,93 @@ import BookingTable from "../../components/admin/features/booking/BookingTable.a
 const ruteData = [
     {
         id: "R-001",
-        user: { name: "Fahri Ramdhani", phone: "0812-3456-7890" },
+        user: { 
+            name: "Fahri Ramdhani", 
+            phone: "0812-3456-7890",
+            address_detail: {
+                kecamatan: "Ciamis",
+                desa: "Benteng",
+                dusun: "Benteng Hilir",
+                rt_rw: "04/02",
+                patokan: "Depan Masjid Agung"
+            },
+            destination_detail: {
+                kecamatan: "Kemang",
+                desa: "Bangka",
+                dusun: "-",
+                rt_rw: "01/03",
+                patokan: "Samping Indomaret"
+            },
+            seat_number: "5",
+            luggage: "1 Koper Besar, 1 Tas Ransel"
+        },
         origin: "Ciamis",
         destination: "Jakarta",
         date: "25 Juni 2026",
         time: "09:00 WIB",
-        status: "PENDING"
+        status: "PENDING",
+        price: null
     },
     {
         id: "R-002",
-        user: { name: "Siti Aminah", phone: "0852-1122-3344" },
+        user: { 
+            name: "Siti Aminah", 
+            phone: "0852-1122-3344",
+            address_detail: {
+                kecamatan: "Panawangan",
+                desa: "Sukajadi",
+                dusun: "Sukajadi",
+                rt_rw: "02/05",
+                patokan: "Bengkel Motor Jaya"
+            },
+            destination_detail: {
+                kecamatan: "Grogol",
+                desa: "Grogol",
+                dusun: "-",
+                rt_rw: "05/02",
+                patokan: "Pool RTP Grogol"
+            },
+            seat_number: "12",
+            luggage: "2 Kardus Sedang"
+        },
         origin: "Jakarta",
         destination: "Panawangan",
         date: "26 Juni 2026",
         time: "20:00 WIB",
-        status: "WAITING_PAYMENT"
+        status: "WAITING_PAYMENT",
+        price: 150000
     }
 ];
 
 const charterData = [
     {
         id: "C-001",
-        user: { name: "PT Global Tech", phone: "021-998877" },
-        origin: "Ciamis",
-        destination: "Bandung (City Tour)",
+        user: { 
+            name: "PT Global Tech", 
+            phone: "021-998877",
+            address_detail: {
+                kecamatan: "Kuningan",
+                desa: "Karet",
+                dusun: "-",
+                rt_rw: "03/01",
+                patokan: "Gedung Cyber 2"
+            },
+            destination_detail: {
+                kecamatan: "Ciamis",
+                desa: "Kertasari",
+                dusun: "-",
+                rt_rw: "02/02",
+                patokan: "Hotel Aston"
+            },
+            departure_date: "30 Juni 2026",
+            return_date: "02 Juli 2026"
+        },
+        origin: "Jakarta",
+        destination: "Ciamis (City Tour)",
         date: "30 Juni 2026",
         fleet: "Toyota Hiace Commuter",
-        status: "PENDING"
+        status: "PENDING",
+        price: null
     }
 ];
 ---

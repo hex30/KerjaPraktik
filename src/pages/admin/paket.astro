@@ -7,23 +7,65 @@ import AdminBadge from "../../components/admin/ui/AdminBadge.astro";
 const packageData = [
     {
         id: "P-001",
-        sender: { name: "Febi Yulianti", phone: "0812-3456-7890" },
-        receiver: { name: "Agus Salim", phone: "0852-1111-2222" },
+        sender: { 
+            name: "Febi Yulianti", 
+            phone: "0812-3456-7890",
+            address_detail: {
+                kecamatan: "Ciamis",
+                desa: "Benteng",
+                dusun: "Benteng Hilir",
+                rt_rw: "04/02",
+                patokan: "Depan Masjid Agung"
+            }
+        },
+        receiver: { 
+            name: "Agus Salim", 
+            phone: "0852-1111-2222",
+            address_detail: {
+                kecamatan: "Duren Sawit",
+                desa: "Klender",
+                dusun: "-",
+                rt_rw: "01/05",
+                patokan: "Perumahan Indah Kav. 12"
+            }
+        },
         origin: "Ciamis",
         destination: "Jakarta",
         weight: "12 Kg",
         type: "Elektronik",
-        status: "PENDING"
+        status: "PENDING",
+        price: null
     },
     {
         id: "P-002",
-        sender: { name: "Budi Santoso", phone: "0877-6655-4433" },
-        receiver: { name: "Dewi Sartika", phone: "0811-0099-8877" },
+        sender: { 
+            name: "Budi Santoso", 
+            phone: "0877-6655-4433",
+            address_detail: {
+                kecamatan: "Setiabudi",
+                desa: "Kuningan Timur",
+                dusun: "-",
+                rt_rw: "03/01",
+                patokan: "Gedung Cyber 2"
+            }
+        },
+        receiver: { 
+            name: "Dewi Sartika", 
+            phone: "0811-0099-8877",
+            address_detail: {
+                kecamatan: "Kawali",
+                desa: "Kawali",
+                dusun: "Kawali Mukti",
+                rt_rw: "02/02",
+                patokan: "Alun-alun Kawali"
+            }
+        },
         origin: "Jakarta",
         destination: "Ciamis",
         weight: "5 Kg",
         type: "Dokumen",
-        status: "APPROVED"
+        status: "APPROVED",
+        price: 50000
     }
 ];
 ---
@@ -49,39 +91,208 @@ const packageData = [
                 </thead>
                 <tbody>
                     {packageData.map((pkg) => (
-                        <tr class="bg-white group hover:shadow-md transition-all duration-300">
-                            <td class="py-5 px-6 rounded-l-2xl border-y border-l border-slate-100">
-                                <div class="flex flex-col gap-2">
-                                    <div>
-                                        <span class="text-[8px] font-bold uppercase text-sky-500 block">DARI</span>
-                                        <span class="font-bold text-slate-900 text-sm">{pkg.sender.name}</span>
+                        <>
+                            <!-- Main Row -->
+                            <tr 
+                                class="package-main-row bg-white group cursor-pointer transition-all duration-300 relative" 
+                                style="border-radius: 24px;"
+                            >
+                                <td class="py-5 px-6 border-y border-l border-slate-100" style="border-top-left-radius: inherit; border-bottom-left-radius: inherit;">
+                                    <div class="flex flex-col gap-2">
+                                        <div>
+                                            <span class="text-[8px] font-bold uppercase text-sky-500 block">DARI</span>
+                                            <span class="font-bold text-slate-900 text-sm">{pkg.sender.name}</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-[8px] font-bold uppercase text-amber-500 block">UNTUK</span>
+                                            <span class="font-bold text-slate-900 text-sm">{pkg.receiver.name}</span>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <span class="text-[8px] font-bold uppercase text-amber-500 block">UNTUK</span>
-                                        <span class="font-bold text-slate-900 text-sm">{pkg.receiver.name}</span>
+                                </td>
+                                <td class="py-5 px-6 border-y border-slate-100">
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-bold text-slate-700">{pkg.type}</span>
+                                        <span class="text-xs text-slate-400 font-secondary">Berat: {pkg.weight}</span>
                                     </div>
-                                </div>
-                            </td>
-                            <td class="py-5 px-6 border-y border-slate-100">
-                                <div class="flex flex-col">
-                                    <span class="text-sm font-bold text-slate-700">{pkg.type}</span>
-                                    <span class="text-xs text-slate-400 font-secondary">Berat: {pkg.weight}</span>
-                                </div>
-                            </td>
-                            <td class="py-5 px-6 border-y border-slate-100">
-                                <div class="flex items-center gap-2 text-xs font-bold text-primary">
-                                    <span>{pkg.origin}</span>
-                                    <span>➔</span>
-                                    <span>{pkg.destination}</span>
-                                </div>
-                            </td>
-                            <td class="py-5 px-6 rounded-r-2xl border-y border-r border-slate-100 text-right">
-                                <AdminBadge status={pkg.status as any} />
-                            </td>
-                        </tr>
+                                </td>
+                                <td class="py-5 px-6 border-y border-slate-100">
+                                    <div class="flex items-center gap-2 text-xs font-bold text-primary">
+                                        <span>{pkg.sender.address_detail.kecamatan}</span>
+                                        <span>➔</span>
+                                        <span>{pkg.destination}</span>
+                                    </div>
+                                </td>
+                                <td class="py-5 px-6 border-y border-r border-slate-100 text-right" style="border-top-right-radius: inherit; border-bottom-right-radius: inherit;">
+                                    <div class="flex flex-col items-end gap-2">
+                                        {pkg.price ? (
+                                            <AdminBadge status="WAITING_PAYMENT" />
+                                        ) : (
+                                            <span class="px-3 py-1 rounded-full text-[10px] font-black bg-amber-100 text-amber-600">MENUNGGU</span>
+                                        )}
+                                        <span class="text-[10px] font-bold text-slate-300 group-hover:text-primary transition-colors flex items-center gap-1">
+                                            Kelola
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="w-3 h-3"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                                        </span>
+                                    </div>
+                                </td>
+                            </tr>
+                            <!-- Expanded Row -->
+                            <tr class="package-detail-row hidden bg-white overflow-hidden relative" style="border-radius: 0 0 24px 24px;">
+                                <td colspan="4" class="px-6 pb-6 pt-0 border-x border-b border-slate-100" style="border-bottom-left-radius: inherit; border-bottom-right-radius: inherit;">
+                                    <div class="border-t border-dashed border-slate-200 pt-6 mt-1 animate-fade-in">
+                                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                                            <!-- Detailed Addresses -->
+                                            <div class="flex flex-col gap-6">
+                                                <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                                    <div class="w-1 h-1 rounded-full bg-primary"></div>
+                                                    Detail Alamat Pengirim & Penerima
+                                                </h4>
+                                                
+                                                <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100/50 space-y-3">
+                                                    <div>
+                                                        <span class="text-[8px] font-bold text-slate-400 uppercase block">ALAMAT PENGIRIM</span>
+                                                        <p class="text-xs text-slate-600 leading-relaxed mt-1">
+                                                            Kec. {pkg.sender.address_detail.kecamatan}, Desa {pkg.sender.address_detail.desa}, 
+                                                            Dusun {pkg.sender.address_detail.dusun || '-'}, RT/RW {pkg.sender.address_detail.rt_rw}
+                                                            <br/>
+                                                            <span class="font-bold text-slate-900">Patokan: {pkg.sender.address_detail.patokan}</span>
+                                                        </p>
+                                                    </div>
+                                                    <div class="border-t border-slate-200/50 pt-3">
+                                                        <span class="text-[8px] font-bold text-slate-400 uppercase block">ALAMAT PENERIMA</span>
+                                                        <p class="text-xs text-slate-600 leading-relaxed mt-1">
+                                                            Kec. {pkg.receiver.address_detail.kecamatan}, Desa {pkg.receiver.address_detail.desa}, 
+                                                            RT/RW {pkg.receiver.address_detail.rt_rw}
+                                                            <br/>
+                                                            <span class="font-bold text-slate-900">Patokan: {pkg.receiver.address_detail.patokan}</span>
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Actions: Unit & Price -->
+                                            <div class="flex flex-col gap-6">
+                                                <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                                    <div class="w-1 h-1 rounded-full bg-amber-500"></div>
+                                                    Alokasi Armada & Harga Ongkir
+                                                </h4>
+                                                <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-5">
+                                                    <div class="flex flex-col gap-3">
+                                                        <label class="text-[10px] font-bold text-slate-500 uppercase">Alokasi ke Unit (Armada)</label>
+                                                        <select class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-primary/10 transition-all">
+                                                            <option value="">Pilih Unit Armada...</option>
+                                                            <option value="H01">Hiace Commuter (Z 1234 XX)</option>
+                                                            <option value="H02">Hiace Premio (Z 5678 YY)</option>
+                                                            <option value="E01">Elf Long (Z 9012 ZZ)</option>
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="flex flex-col gap-3">
+                                                        <label class="text-[10px] font-bold text-slate-500 uppercase">Harga Ongkos Kirim (IDR)</label>
+                                                        <div class="relative">
+                                                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">Rp</span>
+                                                            <input 
+                                                                type="number" 
+                                                                placeholder="Tentukan harga..." 
+                                                                value={pkg.price}
+                                                                class="w-full bg-slate-50 border border-slate-100 rounded-xl pl-12 pr-4 py-3 text-sm font-black text-primary outline-none focus:ring-2 focus:ring-primary/10 transition-all"
+                                                            />
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="pt-2">
+                                                        <button class="w-full bg-primary text-white py-4 rounded-2xl text-[10px] font-black hover:shadow-xl hover:shadow-primary/20 transition-all active:scale-95 uppercase tracking-widest">
+                                                            Update Resi & Harga
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </>
                     ))}
                 </tbody>
             </table>
         </div>
     </section>
 </AdminLayout>
+
+<script>
+    const setupPackageAccordion = () => {
+        const mainRows = document.querySelectorAll('.package-main-row');
+        
+        mainRows.forEach(row => {
+            row.addEventListener('click', () => {
+                const detailRow = row.nextElementSibling as HTMLElement;
+                const isOpening = detailRow.classList.contains('hidden');
+
+                // Close all other rows
+                mainRows.forEach(otherRow => {
+                    const otherDetail = otherRow.nextElementSibling as HTMLElement;
+                    if (otherRow !== row) {
+                        otherDetail.classList.add('hidden');
+                        (otherRow as HTMLElement).style.borderRadius = '24px';
+                        otherRow.classList.remove('rounded-b-none');
+                        otherRow.classList.remove('active-card');
+                    }
+                });
+
+                // Toggle current row
+                if (isOpening) {
+                    detailRow.classList.remove('hidden');
+                    (row as HTMLElement).style.borderRadius = '24px 24px 0 0';
+                    row.classList.add('rounded-b-none');
+                    row.classList.add('active-card');
+                    detailRow.classList.add('active-card');
+                } else {
+                    detailRow.classList.add('hidden');
+                    (row as HTMLElement).style.borderRadius = '24px';
+                    row.classList.remove('rounded-b-none');
+                    row.classList.remove('active-card');
+                    detailRow.classList.remove('active-card');
+                }
+            });
+        });
+    };
+
+    setupPackageAccordion();
+    document.addEventListener('astro:page-load', setupPackageAccordion);
+</script>
+
+<style>
+    .animate-fade-in {
+        animation: fadeIn 0.3s ease-out;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    table {
+        border-collapse: separate;
+        border-spacing: 0 12px;
+    }
+
+    tr {
+        transition: all 0.3s ease;
+    }
+
+    .package-main-row {
+        box-shadow: none;
+    }
+
+    .active-card {
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        z-index: 10;
+    }
+
+    .package-main-row.active-card {
+        box-shadow: 0 -10px 25px -5px rgba(0, 0, 0, 0.05), 10px 0 25px -5px rgba(0, 0, 0, 0.05), -10px 0 25px -5px rgba(0, 0, 0, 0.05);
+    }
+
+    .package-detail-row.active-card {
+        box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.05), 10px 0 25px -5px rgba(0, 0, 0, 0.05), -10px 0 25px -5px rgba(0, 0, 0, 0.05);
+    }
+</style>
