@@ -1,9 +1,7 @@
 ---
 // File: src/components/layanan/FormPaket.astro
 import InputGroup from "../../ui/InputGroup.astro";
-
-// 1. Panggil komponen grup alamat
-import AlamatPaketGroup from './PackageAdress.astro';
+import PackageAdress from './PackageAdress.astro'; // Ganti penamaan import sesuai file Anda
 ---
 
 <article class="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 md:p-10 flex flex-col lg:flex-row gap-10 max-w-7xl mx-auto font-main">
@@ -19,9 +17,9 @@ import AlamatPaketGroup from './PackageAdress.astro';
 
         <form id="form-package-detail" class="flex flex-col gap-10">
             
-            <AlamatPaketGroup title="1. Data Pengirim" type="pengirim" />
+            <PackageAdress title="1. Data Pengirim" type="pengirim" />
 
-            <AlamatPaketGroup title="2. Data Penerima" type="penerima" />
+            <PackageAdress title="2. Data Penerima" type="penerima" />
 
             <fieldset class="flex flex-col gap-5 p-6 rounded-2xl bg-slate-50 border border-slate-100 relative">
                 <legend class="px-3 bg-slate-50 text-text-primary font-black text-sm uppercase tracking-wider rounded-lg border border-slate-100">
@@ -29,11 +27,30 @@ import AlamatPaketGroup from './PackageAdress.astro';
                 </legend>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <InputGroup label="Berat Barang (Kg)" id="berat_paket" name="berat_paket" type="number" placeholder="Contoh: 12" required={true} />
+                    
+                    <div class="flex flex-col gap-2 w-full">
+                        <label for="berat_paket" class="font-secondary text-sm font-bold text-primary">
+                            Berat Barang
+                        </label>
+                        <div class="relative flex items-center w-full">
+                            <input 
+                                type="number" 
+                                name="berat_paket" 
+                                id="berat_paket" 
+                                placeholder="Contoh: 12" 
+                                required 
+                                min="1"
+                                class="w-full bg-slate-100 border border-slate-200 rounded-lg pl-4 pr-16 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-slate-400"
+                            />
+                            <div class="absolute right-1 top-1 bottom-1 bg-white border border-slate-200 rounded-md px-3 flex items-center justify-center pointer-events-none shadow-sm">
+                                <span class="font-black text-primary text-xs tracking-wider">Kg</span>
+                            </div>
+                        </div>
+                    </div>
                     
                     <div class="flex flex-col gap-2 w-full">
                         <label for="dimensi_paket" class="font-secondary text-sm font-bold text-primary">Dimensi Kemasan</label>
-                        <select name="dimensi_paket" id="dimensi_paket" required class="w-full bg-white border border-slate-200 rounded-lg px-4 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all appearance-none">
+                        <select name="dimensi_paket" id="dimensi_paket" required class="w-full bg-slate-100 border border-slate-200 rounded-lg px-4 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all appearance-none cursor-pointer">
                             <option value="" disabled selected>Pilih Dimensi Paket Anda</option>
                             <option value="kecil">Kecil (Dokumen/Buku)</option>
                             <option value="sedang">Sedang (Kotak Sepatu/Pakaian)</option>
@@ -44,7 +61,7 @@ import AlamatPaketGroup from './PackageAdress.astro';
             </fieldset>
 
             <div class="pt-2">
-                <button type="submit" class="w-full md:w-auto px-8 py-4 bg-btn-linear text-white font-main font-bold rounded-xl shadow-md hover:opacity-90 transition-opacity">
+                <button type="submit" class="w-full md:w-auto px-8 py-4 bg-btn-linear text-white font-main font-bold rounded-xl shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
                     Pesan Pengiriman Sekarang
                 </button>
             </div>
@@ -53,13 +70,13 @@ import AlamatPaketGroup from './PackageAdress.astro';
     </div>
 
     <aside class="w-full lg:w-2/5 hidden lg:block">
-        <figure class="relative w-full h-full min-h-[500px] rounded-2xl overflow-hidden group sticky top-28">
+        <figure class="relative w-full h-full min-h-[500px] rounded-2xl overflow-hidden group sticky top-28 shadow-lg">
             <img 
                 src="/assets/images/contoh.jpg" 
                 alt="Pengiriman Aman" 
                 class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
             />
-            <div class="absolute inset-0 bg-gradient-to-t from-primary/90 via-primary/20 to-transparent"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-800/40 to-transparent"></div>
             
             <figcaption class="absolute bottom-0 left-0 right-0 p-8">
                 <h3 class="text-2xl font-black text-white font-main mb-2">Pengiriman Aman & Terlindungi</h3>
@@ -86,5 +103,7 @@ import AlamatPaketGroup from './PackageAdress.astro';
             });
         }
     };
+    
     document.addEventListener('DOMContentLoaded', setupPackageListener);
+    document.addEventListener('astro:page-load', setupPackageListener);
 </script>

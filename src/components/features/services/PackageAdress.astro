@@ -1,18 +1,35 @@
 ---
-// File: src/components/layanan/AlamatPaketGroup.astro
+// File: src/components/layanan/PackageAdress.astro
 import InputGroup from '../../ui/InputGroup.astro';
 
 interface Props {
     title: string;
-    // Tipe ini akan menentukan suffix id dan name secara otomatis (contoh: nama_pengirim atau nama_penerima)
+    // Tipe ini akan menentukan suffix id dan name secara otomatis
     type: 'pengirim' | 'penerima';
 }
 
 const { title, type } = Astro.props;
 
+// ==========================================
+// SIMULASI AUTENTIKASI & DATA USER
+// ==========================================
+// Ganti dengan logic auth Anda (misal: Astro.locals.user)
+const session = {
+    isLoggedIn: true,
+    user: {
+        fullName: "Febi Yulianti", 
+        phone: "081234567890"
+    }
+};
+
 // Logika dinamis untuk label dan placeholder
-const labelNama = type === 'pengirim' ? 'Nama Pengirim' : 'Nama Penerima';
-const placeholderNama = type === 'pengirim' ? 'Nama lengkap Anda' : 'Nama lengkap tujuan';
+const isPengirim = type === 'pengirim';
+const labelNama = isPengirim ? 'Nama Pengirim' : 'Nama Penerima';
+const placeholderNama = isPengirim ? 'Nama lengkap Anda' : 'Nama lengkap tujuan';
+
+// Auto-fill value hanya jika tipe form adalah "pengirim" dan user sedang login
+const defaultName = (isPengirim && session.isLoggedIn) ? session.user.fullName : "";
+const defaultPhone = (isPengirim && session.isLoggedIn) ? session.user.phone : "";
 ---
 
 <fieldset class="flex flex-col gap-5 p-6 rounded-2xl bg-slate-50 border border-slate-100 relative">
@@ -21,8 +38,38 @@ const placeholderNama = type === 'pengirim' ? 'Nama lengkap Anda' : 'Nama lengka
     </legend>
     
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-        <InputGroup label={labelNama} id={`nama_${type}`} name={`nama_${type}`} placeholder={placeholderNama} required={true} />
-        <InputGroup label="No. Telepon" id={`telp_${type}`} name={`telp_${type}`} type="number" placeholder="Contoh: 08123456789" required={true} />
+        <div class="relative w-full">
+            <InputGroup 
+                label={labelNama} 
+                id={`nama_${type}`} 
+                name={`nama_${type}`} 
+                placeholder={placeholderNama} 
+                required={true} 
+                value={defaultName}
+            />
+            {isPengirim && session.isLoggedIn && (
+                <span class="absolute right-4 top-10 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-200 pointer-events-none">
+                    Sesuai Profil
+                </span>
+            )}
+        </div>
+        
+        <div class="relative w-full">
+            <InputGroup 
+                label="No. Telepon" 
+                id={`telp_${type}`} 
+                name={`telp_${type}`} 
+                type="number" 
+                placeholder="Contoh: 08123456789" 
+                required={true} 
+                value={defaultPhone}
+            />
+            {isPengirim && session.isLoggedIn && (
+                <span class="absolute right-4 top-10 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-200 pointer-events-none">
+                    Sesuai Profil
+                </span>
+            )}
+        </div>
     </div>
     
     <div class="grid grid-cols-1 md:grid-cols-12 gap-5 items-end">
@@ -30,10 +77,10 @@ const placeholderNama = type === 'pengirim' ? 'Nama lengkap Anda' : 'Nama lengka
             <InputGroup label="Nama Dusun/Jalan" id={`dusun_${type}`} name={`dusun_${type}`} placeholder="Contoh: Sukamaju" required={true} />
         </div>
         <div class="md:col-span-3">
-            <InputGroup label="RT" id={`rt_${type}`} name={`rt_${type}`} placeholder="00" />
+            <InputGroup label="RT" id={`rt_${type}`} name={`rt_${type}`} type="number" placeholder="00" />
         </div>
         <div class="md:col-span-3">
-            <InputGroup label="RW" id={`rw_${type}`} name={`rw_${type}`} placeholder="00" />
+            <InputGroup label="RW" id={`rw_${type}`} name={`rw_${type}`} type="number" placeholder="00" />
         </div>
     </div>
 </fieldset>

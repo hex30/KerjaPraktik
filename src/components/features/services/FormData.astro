@@ -1,10 +1,22 @@
 ---
+// File: src/components/layanan/FormData.astro
 import InputGroup from "../../ui/InputGroup.astro"; // Sesuaikan path
+
+// ==========================================
+// SIMULASI AUTENTIKASI & DATA USER
+// ==========================================
+const session = {
+    isLoggedIn: true,
+    user: {
+        fullName: "Febi Yulianti", 
+    }
+};
+
+// Menentukan default value untuk nama lengkap
+const defaultName = session.isLoggedIn ? session.user.fullName : "";
 ---
 
-<div
-    class="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 md:p-10 flex flex-col gap-8 font-main"
->
+<div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 md:p-10 flex flex-col gap-8 font-main">
     <header>
         <h2 class="text-2xl font-black text-primary mb-2">
             Data Diri Penumpang
@@ -15,14 +27,21 @@ import InputGroup from "../../ui/InputGroup.astro"; // Sesuaikan path
     </header>
 
     <section class="flex flex-col gap-5">
-        <div class="w-full">
+        <div class="w-full relative">
             <InputGroup
                 label="Nama Lengkap"
                 id="nama-lengkap"
                 name="full_name"
                 placeholder="Masukan Nama Lengkap Anda"
                 required={true}
+                value={defaultName} 
             />
+            
+            {session.isLoggedIn && (
+                <span class="absolute right-4 top-10 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-200 pointer-events-none">
+                    Sesuai Profil
+                </span>
+            )}
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">

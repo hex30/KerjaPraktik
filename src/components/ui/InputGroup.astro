@@ -1,4 +1,5 @@
 ---
+// File: src/components/ui/InputGroup.astro
 interface Props {
     label: string;
     id: string;
@@ -6,6 +7,8 @@ interface Props {
     type?: "text" | "number" | "email" | "date" | "password"; 
     placeholder?: string;
     required?: boolean;
+    value?: string;
+    suffix?: string; // Tambahan prop untuk teks di ujung kanan input
 }
 
 const { 
@@ -14,7 +17,9 @@ const {
     name, 
     type = "text", 
     placeholder = "", 
-    required = false 
+    required = false,
+    value,
+    suffix
 } = Astro.props;
 ---
 
@@ -22,12 +27,22 @@ const {
     <label for={id} class="font-secondary text-sm font-bold text-primary">
         {label}
     </label>
-    <input 
-        type={type} 
-        name={name} 
-        id={id} 
-        placeholder={placeholder} 
-        required={required}
-        class="w-full bg-slate-100 border border-slate-200 rounded-lg px-4 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-slate-400"
-    />
+    
+    <div class="relative flex items-center w-full">
+        <input 
+            type={type} 
+            name={name} 
+            id={id} 
+            placeholder={placeholder} 
+            required={required}
+            value={value} 
+            class={`w-full bg-slate-100 border border-slate-200 rounded-lg pl-4 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-slate-400 ${suffix ? 'pr-14' : 'pr-4'}`}
+        />
+        
+        {suffix && (
+            <div class="absolute right-0 top-0 bottom-0 bg-white border border-slate-200 rounded-md px-3 flex items-center justify-center pointer-events-none">
+                <span class="font-black text-primary text-xs tracking-wider">{suffix}</span>
+            </div>
+        )}
+    </div>
 </div>
