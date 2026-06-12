@@ -3,7 +3,7 @@ import UserLayout from "../layouts/MainLayout.astro";
 import ServiceTabs from "../components/features/services/ServiceTabs.astro";
 import FormRute from "../components/features/services/FormRute.astro";
 import FormBooking from "../components/features/services/FormBooking.astro";
-import FormPaket from '../components/features/services/FormPackage.astro';
+import FormPaket from "../components/features/services/FormPackage.astro";
 ---
 
 <UserLayout title="Layanan | Rini Trans Putri">
@@ -28,7 +28,8 @@ import FormPaket from '../components/features/services/FormPackage.astro';
                 <h1
                     class="text-3xl md:text-5xl lg:text-6xl font-black text-white max-w-lg leading-tight tracking-tight"
                 >
-                    Diskon <span class="text-sky-400">20% </span>Liburan Keluarga
+                    Diskon <span class="text-sky-400">20% </span>Liburan
+                    Keluarga
                 </h1>
             </div>
         </div>
@@ -53,16 +54,17 @@ import FormPaket from '../components/features/services/FormPackage.astro';
     </section>
 
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
+        const initTabs = () => {
             const tabs = document.querySelectorAll(".nav-btn");
             const contents = document.querySelectorAll(".tab-content");
 
+            // 1. FUNGSI UTAMA UNTUK MENGGANTI TAB
             tabs.forEach((tab) => {
                 tab.addEventListener("click", () => {
-                    // 1. Ambil nama target dari atribut data-view (misal: 'rute', 'booking', 'package')
+                    // Ambil nama target dari atribut data-view (misal: 'rute', 'booking', 'package')
                     const targetView = tab.getAttribute("data-view");
 
-                    // 2. Reset semua gaya tombol menjadi tidak aktif (abu-abu)
+                    // Reset semua gaya tombol menjadi tidak aktif (abu-abu)
                     tabs.forEach((t) => {
                         t.classList.remove(
                             "bg-btn-linear",
@@ -73,7 +75,7 @@ import FormPaket from '../components/features/services/FormPackage.astro';
                         t.classList.add("text-text-secondary");
                     });
 
-                    // 3. Beri gaya warna biru/linear pada tombol yang sedang diklik
+                    // Beri gaya warna biru/linear pada tombol yang sedang diklik
                     tab.classList.add(
                         "bg-btn-linear",
                         "text-white",
@@ -82,13 +84,13 @@ import FormPaket from '../components/features/services/FormPackage.astro';
                     );
                     tab.classList.remove("text-text-secondary");
 
-                    // 4. Sembunyikan semua konten form
+                    // Sembunyikan semua konten form
                     contents.forEach((content) => {
                         content.classList.add("hidden");
                         content.classList.remove("block");
                     });
 
-                    // 5. Munculkan form yang sesuai dengan tombol yang diklik
+                    // Munculkan form yang sesuai dengan tombol yang diklik
                     const activeContent = document.getElementById(
                         `view-${targetView}`,
                     );
@@ -98,6 +100,46 @@ import FormPaket from '../components/features/services/FormPackage.astro';
                     }
                 });
             });
-        });
+
+            // 2. FUNGSI AUTO-OPEN TAB BOOKING DARI URL
+            const handleAutoOpenTab = () => {
+                const hashTarget = window.location.hash; // Mengecek apakah ada #booking-component
+                const params = new URLSearchParams(window.location.search);
+                const adaTujuan = params.has("tujuan"); // Mengecek parameter ?tujuan=
+
+                // Jika dari Destinasi (membawa hash atau parameter tujuan)
+                if (hashTarget === "#booking-component" || adaTujuan) {
+                    // Cari tombol tab yang data-view nya bernilai "booking"
+                    const tabBooking = Array.from(tabs).find(
+                        (t) => t.getAttribute("data-view") === "booking",
+                    ) as HTMLElement;
+
+                    if (tabBooking) {
+                        // Klik tab secara terprogram agar konten booking terbuka
+                        tabBooking.click();
+
+                        // Optional: Karena form booking ada di dalam tab, pastikan browser menggulir layar
+                        // tepat setelah tabnya terbuka
+                        setTimeout(() => {
+                            const targetElement =
+                                document.getElementById("booking-component");
+                            if (targetElement) {
+                                targetElement.scrollIntoView({
+                                    behavior: "smooth",
+                                    block: "start",
+                                });
+                            }
+                        }, 150); // Jeda sedikit lebih lama agar transisi tab selesai
+                    }
+                }
+            };
+
+            // Jalankan fungsi auto-open setelah event listener terpasang
+            handleAutoOpenTab();
+        };
+
+        // Gunakan wrapper function agar kompatibel dengan Astro ViewTransitions
+        document.addEventListener("DOMContentLoaded", initTabs);
+        document.addEventListener("astro:page-load", initTabs);
     </script>
 </UserLayout>

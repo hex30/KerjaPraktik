@@ -1,18 +1,24 @@
 ---
+// File: src/components/DestinationCard.astro
 interface Props {
     image: string;
     title: string;
     location: string;
+    description: string; // Tambahan prop deskripsi
 }
 
-const { image, title, location } = Astro.props;
+const { image, title, location, description } = Astro.props;
 ---
 
 <div
-    class="flex flex-col gap-5 group cursor-pointer transition-all duration-500 ease-out hover:-translate-y-3"
+    class="destination-card-trigger flex flex-col gap-5 group cursor-pointer transition-all duration-500 ease-out hover:-translate-y-3"
+    data-title={title}
+    data-location={location}
+    data-image={image}
+    data-description={description}
 >
     <div
-        class="relative my-5 w-full h-[220px] md:h-[280px] rounded-bg overflow-hidden shadow-md"
+        class="relative my-5 w-full h-[220px] md:h-[280px] rounded-[15px] overflow-hidden shadow-md bg-slate-200"
     >
         <img
             src={image}
@@ -20,7 +26,7 @@ const { image, title, location } = Astro.props;
             class="w-full h-full object-cover transition-transform duration-700 ease-in-out group-hover:scale-110 group-hover:rotate-2"
         />
         <div
-            class="absolute inset-0 bg-primary/10 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+            class="absolute inset-0 bg-primary/20 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
         >
         </div>
     </div>
