@@ -1,0 +1,108 @@
+---
+// File: src/pages/services.astro
+import Layout from "../layouts/MainLayout.astro";
+import ReservationTabs from "../components/features/reservation/shared/ReservationTabs.astro";
+import RouteBookingForm from "../components/features/reservation/route/RouteBookingForm.astro";
+import CharterBookingForm from "../components/features/reservation/charter/CharterBookingForm.astro";
+import PackageBookingForm from "../components/features/reservation/package/PackageBookingForm.astro";
+import ReservationPromotion from "../components/features/reservation/shared/ReservationPromotion.astro";
+---
+
+<Layout title="Layanan | Rini Trans Putri">
+    <!-- Service Promotional Banner -->
+    <ReservationPromotion 
+        image="/assets/images/contoh.jpg"
+        badge="Penawaran Spesial"
+        title="Diskon"
+        highlight="20% Liburan Keluarga"
+    />
+
+    <!-- Main Content Section -->
+    <section class="max-w-7xl mx-auto px-6 mt-8 font-main">
+        <ReservationTabs />
+
+        <div id="service-content" class="pb-24 mt-8">
+            <div id="view-route" class="tab-content block animate-fade-in">
+                <RouteBookingForm />
+            </div>
+
+            <div id="view-charter" class="tab-content hidden animate-fade-in">
+                <CharterBookingForm />
+            </div>
+
+            <div id="view-package" class="tab-content hidden animate-fade-in">
+                <PackageBookingForm />
+            </div>
+        </div>
+    </section>
+</Layout>
+
+<style>
+    .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<script>
+    const initTabsAndRouting = () => {
+        const tabs = document.querySelectorAll(".nav-btn");
+        const contents = document.querySelectorAll(".tab-content");
+
+        const switchTab = (targetView: string) => {
+            tabs.forEach((t) => {
+                t.classList.remove("bg-btn-linear", "text-white", "shadow-md", "active");
+                t.classList.add("text-text-secondary");
+            });
+
+            const activeTab = document.querySelector(`[data-view="${targetView}"]`);
+            if (activeTab) {
+                activeTab.classList.add("bg-btn-linear", "text-white", "shadow-md", "active");
+                activeTab.classList.remove("text-text-secondary");
+            }
+
+            contents.forEach((content) => {
+                content.classList.add("hidden");
+                content.classList.remove("block");
+            });
+
+            const activeContent = document.getElementById(`view-${targetView}`);
+            if (activeContent) {
+                activeContent.classList.remove("hidden");
+                activeContent.classList.add("block");
+            }
+        };
+
+        tabs.forEach((tab) => {
+            tab.addEventListener("click", () => {
+                const targetView = tab.getAttribute("data-view");
+                if (targetView) switchTab(targetView);
+            });
+        });
+
+        const handleAutoOpenTab = () => {
+            const hashTarget = window.location.hash;
+            const params = new URLSearchParams(window.location.search);
+            
+            if (hashTarget === "#booking-component" || hashTarget === "#charter-component" || params.has("tujuan")) {
+                const tabCharter = document.getElementById("tab-btn-charter");
+                if (tabCharter) tabCharter.click();
+            } else if (hashTarget === "#package-component") {
+                const tabPackage = document.getElementById("tab-btn-package");
+                if (tabPackage) tabPackage.click();
+            }
+        };
+
+        handleAutoOpenTab();
+    };
+
+    document.addEventListener("DOMContentLoaded", initTabsAndRouting);
+    document.addEventListener("astro:page-load", initTabsAndRouting);
+</script>
+
+
+
+
+
+

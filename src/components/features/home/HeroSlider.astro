@@ -1,6 +1,6 @@
 ---
 // File: src/components/features/home/HeroSlider.astro
-import HeroSlide from "./HeroSlide.astro";
+import HeroSlide from "../../ui/Button.astro";
 
 interface Slide {
   id: number;
@@ -156,6 +156,10 @@ const { slides = defaultSlides } = Astro.props;
   document.addEventListener("DOMContentLoaded", initSlider);
   document.addEventListener("astro:page-load", initSlider);
 </script>
+
+
+
+
 
 
 

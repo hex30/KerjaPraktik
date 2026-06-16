@@ -1,7 +1,7 @@
 ---
 // File: src/pages/admin/index.astro
 import AdminLayout from "../../layouts/AdminLayout.astro";
-import StatCard from "../../components/features/admin/StatCard.astro";
+import StatCard from "../../components/features/admin/dashboard/StatCard.astro";
 
 // Data Dummy Dashboard
 const stats = [
@@ -83,13 +83,16 @@ const bookingStats = [
                     <p class="text-white/80 text-sm leading-relaxed">Jangan lupa untuk memverifikasi harga pada riwayat pemesanan yang masih pending.</p>
                 </div>
 
-                <a href="/admin/pemesanan" class="mt-8 bg-white text-primary px-6 py-3 rounded-xl text-sm font-bold w-fit hover:scale-105 active:scale-95 transition-all">
+                <a href="/admin/bookings" class="mt-8 bg-white text-primary px-6 py-3 rounded-xl text-sm font-bold w-fit hover:scale-105 active:scale-95 transition-all">
                     Lihat Antrean
                 </a>
             </div>
         </div>
     </div>
 </AdminLayout>
+
+
+
 
 
 

@@ -1,0 +1,104 @@
+---
+// File: src/components/layanan/FormPackage.astro
+import InputGroup from "../../../ui/InputGroup.astro";
+import PackageAddressForm from '../package/PackageAddressForm.astro'; 
+import SectionHeader from "../../../ui/SectionHeader.astro";
+import Button from "../../../ui/Button.astro";
+import HeroAside from "../../../ui/HeroAside.astro";
+---
+
+<article class="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 md:p-10 flex flex-col lg:flex-row gap-10 max-w-7xl mx-auto font-main">
+    
+    <div class="w-full lg:w-3/5 flex flex-col gap-8">
+        
+        <SectionHeader 
+            title="Detail Pengiriman Paket"
+            subtitle="Lengkapi data pengirim, penerima, dan detail barang dengan akurat."
+        />
+
+        <form id="form-package-detail" class="flex flex-col gap-10">
+            
+            <PackageAddressForm title="1. Data Pengirim" type="pengirim" />
+
+            <PackageAddressForm title="2. Data Penerima" type="penerima" />
+
+            <fieldset class="flex flex-col gap-5 p-6 rounded-2xl bg-slate-50 border border-slate-100 relative">
+                <legend class="px-3 bg-slate-50 text-text-primary font-black text-sm uppercase tracking-wider rounded-lg border border-slate-100">
+                    3. Detail Paket
+                </legend>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    
+                    <div class="flex flex-col gap-2 w-full">
+                        <label for="berat_paket" class="font-secondary text-sm font-bold text-primary">
+                            Berat Barang
+                        </label>
+                        <div class="relative flex items-center w-full">
+                            <input 
+                                type="number" 
+                                name="berat_paket" 
+                                id="berat_paket" 
+                                placeholder="Contoh: 12" 
+                                required 
+                                min="1"
+                                class="w-full bg-slate-100 border border-slate-200 rounded-lg pl-4 pr-16 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-slate-400"
+                            />
+                            <div class="absolute right-1 top-1 bottom-1 bg-white border border-slate-200 rounded-md px-3 flex items-center justify-center pointer-events-none shadow-sm">
+                                <span class="font-black text-primary text-xs tracking-wider">Kg</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-col gap-2 w-full">
+                        <label for="dimensi_paket" class="font-secondary text-sm font-bold text-primary">Dimensi Kemasan</label>
+                        <select name="dimensi_paket" id="dimensi_paket" required class="w-full bg-slate-100 border border-slate-200 rounded-lg px-4 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all appearance-none cursor-pointer">
+                            <option value="" disabled selected>Pilih Dimensi Paket Anda</option>
+                            <option value="kecil">Kecil (Dokumen/Buku)</option>
+                            <option value="sedang">Sedang (Kotak Sepatu/Pakaian)</option>
+                            <option value="besar">Besar (Kardus Besar/Elektronik)</option>
+                        </select>
+                    </div>
+                </div>
+            </fieldset>
+
+            <div class="pt-2">
+                <Button type="submit" size="lg">
+                    Pesan Pengiriman Sekarang
+                </Button>
+            </div>
+            
+        </form>
+    </div>
+
+    <HeroAside 
+        image="/assets/images/contoh.jpg"
+        title="Pengiriman Aman & Terlindungi"
+        description="Setiap paket ditangani dengan standar profesional untuk memastikan barang Anda tiba di tujuan dengan utuh dan selamat."
+    />
+
+</article>
+
+<script>
+    const setupPackageListener = () => {
+        const form = document.getElementById('form-package-detail');
+        if (form) {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const formData = new FormData(form as HTMLFormElement);
+                const data = Object.fromEntries(formData.entries());
+                
+                console.log("Data Paket Berhasil Ditangkap:", data);
+                alert(`Pesanan paket dari ${data.nama_pengirim} ke ${data.nama_penerima} berhasil dicatat.`);
+            });
+        }
+    };
+    
+    document.addEventListener('DOMContentLoaded', setupPackageListener);
+    document.addEventListener('astro:page-load', setupPackageListener);
+</script>
+
+
+
+
+
+

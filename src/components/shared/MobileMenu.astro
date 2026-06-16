@@ -1,15 +1,15 @@
 ---
-// File: src/components/layout/molecules/MobileMenu.astro
-import NavLink from "../../ui/NavLink.astro";
-import Button from "../../ui/Button.astro";
+// File: src/components/shared/MobileMenu.astro
+import NavLink from "../ui/NavLink.astro";
+import Button from "../ui/Button.astro";
 ---
 
 <div id="mobile-menu" class="absolute top-20 left-0 w-full bg-white border-b border-slate-100 shadow-lg flex flex-col gap-4 p-6 hidden md:hidden transition-all transform origin-top duration-300">
     <ul class="flex flex-col gap-4">
         <li><NavLink href="/">Beranda</NavLink></li>
-        <li><NavLink href="/layanan">Layanan</NavLink></li>
-        <li><NavLink href="/tentang-kami">Tentang Kami</NavLink></li>
-        <li id="mobile-nav-riwayat" class="hidden border-t border-slate-100 pt-4"><NavLink href="/user/riwayat">Riwayat Pesanan</NavLink></li>
+        <li><NavLink href="/services">Layanan</NavLink></li>
+        <li><NavLink href="/about-us">Tentang Kami</NavLink></li>
+        <li id="mobile-nav-riwayat" class="hidden border-t border-slate-100 pt-4"><NavLink href="/user/booking-history">Riwayat Pesanan</NavLink></li>
         <li id="mobile-nav-notif" class="hidden border-t border-slate-100 pt-4"><NavLink href="/notifikasi">Notifikasi</NavLink></li>
         <li id="mobile-nav-chat" class="hidden border-t border-slate-100 pt-4"><NavLink href="/chat" class="text-primary font-bold">Chat Admin</NavLink></li>
     </ul>
@@ -35,6 +35,10 @@ import Button from "../../ui/Button.astro";
         </div>
     </div>
 </div>
+
+
+
+
 
 
 

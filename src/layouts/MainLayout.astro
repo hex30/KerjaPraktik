@@ -1,7 +1,7 @@
 ---
 import "../styles/global.css";
-import Navbar from "../components/shared/Navbar.astro";
-import Footer from "../components/shared/Footer.astro";
+import NavigationBar from "../components/shared/NavigationBar.astro";
+import PageFooter from "../components/shared/PageFooter.astro";
 
 interface Props {
 	title: string;
@@ -20,9 +20,9 @@ const { title } = Astro.props;
 		<title>{title}</title>
 	</head>
 	<body>
-		<Navbar />
+		<NavigationBar />
 		<slot />
-		<Footer />
+		<PageFooter />
 	</body>
 </html>
 
@@ -34,6 +34,3 @@ const { title } = Astro.props;
 		height: 100%;
 	}
 </style>
-
-
-

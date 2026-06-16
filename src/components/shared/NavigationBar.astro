@@ -1,0 +1,127 @@
+---
+// File: src/components/shared/NavigationBar.astro
+import DesktopMenu from "./DesktopMenu.astro";
+import UserProfile from "./UserProfile.astro";
+import MobileMenu from "./MobileMenu.astro";
+---
+
+<nav class="w-full bg-white border-b border-slate-100 shadow-sm sticky top-0 z-50 font-main">
+    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between relative">
+        
+        <!-- Logo -->
+        <a href="/" class="text-2xl font-black text-text-secondary tracking-tight flex items-center gap-2 hover:text-primary hover:scale-[1.02] transition-all duration-300">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6 text-primary"><path stroke-linecap="round" stroke-linejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498l4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 00-1.006 0L3.622 5.651A1.125 1.125 0 003 6.657v11.13c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.994 2.497c.317.158.69.158 1.006 0z" /></svg>
+            <span>Rini Trans <span class="text-text-secondary hover:text-primary transition-colors">Putri</span></span>
+        </a>
+
+        <DesktopMenu />
+        <UserProfile />
+
+        <button id="btn-hamburger" class="md:hidden text-text-secondary p-2 z-50" aria-label="Toggle menu">
+            <svg id="icon-hamburger" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-7 h-7 block"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
+            <svg id="icon-close" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-7 h-7 hidden"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+
+    </div>
+
+    <MobileMenu />
+</nav>
+
+<script>
+    const setupNavbar = () => {
+        const isLoggedIn = localStorage.getItem('is_logged_in') === 'true';
+        const savedDataString = localStorage.getItem('dummy_user_rini_trans');
+
+        if (isLoggedIn) {
+            const authElements = [
+                'nav-riwayat', 
+                'mobile-nav-riwayat', 
+                'mobile-nav-chat', 
+                'mobile-nav-notif', 
+                'btn-profile-group', 
+                'mobile-btn-profile-group'
+            ];
+
+            authElements.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.classList.remove('hidden');
+                    if (id.includes('group')) el.classList.add('flex');
+                }
+            });
+            
+            ['btn-login', 'mobile-btn-login'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
+
+            if (savedDataString) {
+                const user = JSON.parse(savedDataString);
+                const initial = user.nama ? user.nama.charAt(0).toUpperCase() : 'U';
+                
+                ['avatar-initial', 'mobile-avatar-initial'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = initial;
+                });
+                
+                const setContent = (id: string, text: string) => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = text;
+                };
+
+                setContent('dropdown-name', user.nama);
+                setContent('dropdown-email', user.email);
+                setContent('mobile-dropdown-name', user.nama);
+                setContent('mobile-dropdown-email', user.email);
+            }
+        }
+
+        // Profile Dropdown Logic
+        const btnAvatar = document.getElementById('btn-profile-avatar');
+        const profileDropdown = document.getElementById('profile-dropdown');
+
+        if (btnAvatar && profileDropdown) {
+            btnAvatar.addEventListener('click', (e) => {
+                e.stopPropagation();
+                profileDropdown.classList.toggle('hidden');
+            });
+
+            window.addEventListener('click', (e) => {
+                if (!profileDropdown.contains(e.target as Node) && !btnAvatar.contains(e.target as Node)) {
+                    profileDropdown.classList.add('hidden');
+                }
+            });
+        }
+
+        // Logout Logic
+        const handleLogout = () => {
+            localStorage.removeItem('is_logged_in');
+            alert('Anda telah berhasil keluar.');
+            window.location.reload();
+        };
+
+        document.getElementById('btn-logout')?.addEventListener('click', handleLogout);
+        document.getElementById('mobile-btn-logout')?.addEventListener('click', handleLogout);
+
+        // Mobile Menu Toggle
+        const btnHamburger = document.getElementById('btn-hamburger');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const iconHamburger = document.getElementById('icon-hamburger');
+        const iconClose = document.getElementById('icon-close');
+
+        if (btnHamburger && mobileMenu && iconHamburger && iconClose) {
+            btnHamburger.addEventListener('click', () => {
+                const isHidden = mobileMenu.classList.toggle('hidden');
+                iconHamburger.classList.toggle('hidden', !isHidden);
+                iconClose.classList.toggle('hidden', isHidden);
+            });
+        }
+    };
+
+    document.addEventListener('DOMContentLoaded', setupNavbar);
+    document.addEventListener('astro:page-load', setupNavbar);
+</script>
+
+
+
+
+
+
+

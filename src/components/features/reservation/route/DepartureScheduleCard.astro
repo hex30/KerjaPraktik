@@ -1,0 +1,56 @@
+---
+// File: src/components/features/reservation/molecules/ScheduleCard.astro
+interface Props {
+    id: string;
+    departureTime: string;
+    availableSeats: number;
+    basePrice: number;
+}
+
+const { id, departureTime, availableSeats, basePrice } = Astro.props;
+
+const dateObj = new Date(departureTime);
+const formatUang = new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    maximumFractionDigits: 0,
+});
+const formatHari = new Intl.DateTimeFormat("id-ID", { weekday: "short" });
+const formatTanggal = new Intl.DateTimeFormat("id-ID", { day: "2-digit" });
+const formatBulan = new Intl.DateTimeFormat("id-ID", { month: "short" });
+const formatJam = new Intl.DateTimeFormat("id-ID", {
+    hour: "2-digit",
+    minute: "2-digit",
+});
+---
+
+<label class="relative cursor-pointer snap-start shrink-0 group">
+    <input type="radio" name="pilihan_jadwal" value={id} class="peer sr-only">
+    <div class="flex flex-col items-center justify-center min-w-[120px] p-3 mt-3 rounded-xl border-2 border-slate-200 text-primary peer-checked:text-black peer-checked:border-primary peer-checked:bg-primary/20 hover:border-primary hover:-translate-y-2 transition-all">
+        <span class="text-[10px] text-slate-500 font-secondary mb-1 uppercase tracking-wider">
+            {formatHari.format(dateObj)}, {formatJam.format(dateObj)} WIB
+        </span>
+        <span class="text-2xl font-black leading-none">
+            {formatTanggal.format(dateObj)}
+        </span>
+        <span class="text-xs text-slate-500 font-secondary mt-1">
+            {formatBulan.format(dateObj)}
+        </span>
+        <span class:list={[
+            "text-[9px] px-2 py-0.5 rounded-full mt-2 font-bold whitespace-nowrap",
+            availableSeats > 0 ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+        ]}>
+            {availableSeats > 0 ? `Sisa ${availableSeats} Kursi` : 'Penuh'}
+        </span>
+        <span class="text-[10px] text-slate-400 mt-1 font-bold">
+            {formatUang.format(basePrice)}
+        </span>
+    </div>
+</label>
+
+
+
+
+
+
+

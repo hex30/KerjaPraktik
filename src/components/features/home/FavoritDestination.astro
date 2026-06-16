@@ -124,7 +124,7 @@ const {
                 if (detailDesc) detailDesc.textContent = desc;
 
                 if (detailCta) {
-                    detailCta.href = `/layanan?tujuan=${encodeURIComponent(title)}#booking-component`;
+                    detailCta.href = `/services?tujuan=${encodeURIComponent(title)}#booking-component`;
                 }
 
                 if (carouselSection && detailSection) {
@@ -149,5 +149,9 @@ const {
     document.addEventListener('DOMContentLoaded', initDestinationFeatures);
     document.addEventListener('astro:page-load', initDestinationFeatures);
 </script>
+
+
+
+
 
 
