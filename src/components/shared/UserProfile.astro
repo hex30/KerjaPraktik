@@ -1,0 +1,43 @@
+---
+// File: src/components/layout/molecules/UserProfile.astro
+import Button from "../../ui/Button.astro";
+---
+
+<div class="hidden md:flex items-center relative">
+    <a href="/auth/login" id="btn-login" class="px-6 py-2.5 border border-slate-200 text-text-secondary rounded-lg font-bold hover:text-primary hover:border-primary hover:bg-slate-50 hover:scale-105 transition-all duration-300 flex items-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" /></svg>
+        Masuk
+    </a>
+    
+    <div id="btn-profile-group" class="hidden items-center gap-4 relative">
+        <a href="/notifikasi" id="btn-notif-desktop" class="p-2 text-text-secondary hover:text-primary transition-all relative">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" /></svg>
+            <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full animate-pulse"></span>
+        </a>
+
+        <a href="/chat" id="btn-chat-desktop" class="p-2 text-text-secondary hover:text-primary transition-all">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501c1.153-.086 2.294-.213 3.423-.379 1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" /></svg>
+        </a>
+
+        <button id="btn-profile-avatar" class="w-10 h-10 rounded-full bg-slate-50 border-2 border-slate-200 text-text-secondary font-black flex items-center justify-center hover:text-primary hover:border-primary transition-all relative">
+            <span id="avatar-initial">U</span> 
+        </button>
+
+        <div id="profile-dropdown" class="hidden absolute right-0 top-14 w-64 bg-white border border-slate-100 shadow-xl rounded-2xl p-5 flex flex-col gap-3 z-50">
+            <div class="flex flex-col border-b border-slate-100 pb-4 mb-1">
+                <span id="dropdown-name" class="font-black text-text-secondary text-lg truncate">Nama Pengguna</span>
+                <span id="dropdown-email" class="font-secondary text-xs text-text-secondary truncate mt-0.5">email@domain.com</span>
+                <div class="flex items-center gap-1 mt-2 text-text-secondary font-secondary text-xs">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3.5 h-3.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-2.896-1.596-5.48-4.08-7.074-6.96l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" /></svg>
+                    <span id="dropdown-phone">08xxxxxxxxx</span>
+                </div>
+            </div>
+            <Button id="btn-logout" variant="secondary" class="w-full text-rose-600 hover:bg-rose-50" size="sm">
+                Keluar Akun
+            </Button>
+        </div>
+    </div>
+</div>
+
+
+

@@ -1,0 +1,41 @@
+---
+// File: src/components/admin/ui/StatCard.astro
+interface Props {
+    title: string;
+    value: string | number;
+    icon: string;
+    trend?: {
+        value: string;
+        isUp: boolean;
+    };
+    color?: "primary" | "emerald" | "amber" | "rose" | "sky";
+}
+
+const { title, value, icon, trend, color = "primary" } = Astro.props;
+
+const colors = {
+    primary: "bg-primary/10 text-primary",
+    emerald: "bg-emerald-100 text-emerald-600",
+    amber: "bg-amber-100 text-amber-600",
+    rose: "bg-rose-100 text-rose-600",
+    sky: "bg-sky-100 text-sky-600"
+};
+---
+
+<div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col gap-4">
+    <div class="flex items-center justify-between">
+        <div class:list={["p-3 rounded-xl", colors[color]]} fragment set:html={icon} />
+        {trend && (
+            <span class:list={["text-xs font-bold px-2 py-1 rounded-full", trend.isUp ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"]}>
+                {trend.isUp ? "↑" : "↓"} {trend.value}
+            </span>
+        )}
+    </div>
+    <div>
+        <p class="text-slate-500 text-sm font-medium">{title}</p>
+        <h3 class="text-2xl font-black text-slate-900 mt-1">{value}</h3>
+    </div>
+</div>
+
+
+

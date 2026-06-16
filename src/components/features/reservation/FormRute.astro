@@ -1,0 +1,320 @@
+---
+// File: src/components/features/reservation/FormRute.astro
+import FormDataDiriPenumpang from "./FormData.astro";
+import Seat from "./seat.astro";
+import SectionHeader from "../../ui/SectionHeader.astro";
+import RouteItem from "./RouteItem.astro";
+import QuantitySelector from "../../ui/QuantitySelector.astro";
+import Button from "../../ui/Button.astro";
+import HeroAside from "../../ui/HeroAside.astro";
+
+interface Props {
+    title?: string;
+    subtitle?: string;
+}
+
+const { 
+    title = "Detail Perjalanan Travel", 
+    subtitle = "Lengkapi rute, jadwal keberangkatan, dan bagasi Anda." 
+} = Astro.props;
+---
+
+<div class="w-full relative font-main">
+    <article class="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 md:p-10 flex flex-col lg:flex-row gap-10 max-w-7xl mx-auto">
+        <div class="w-full lg:w-3/5 flex flex-col gap-8">
+            
+            <!-- Step 1: Schedule & Route -->
+            <div id="travel-step-1" class="block animate-fade-in">
+                <SectionHeader 
+                    title={title} 
+                    subtitle={subtitle}
+                />
+
+                <form id="form-reservasi-travel" class="flex flex-col gap-8">
+                    <section class="flex flex-col gap-5 border-b border-slate-100 pb-8">
+                        <h3 class="text-lg text-primary font-bold flex items-center gap-2">
+                            <span class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm">1</span>
+                            Rute dan Jadwal Perjalanan
+                        </h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <RouteItem 
+                                value="jakarta_panawangan" 
+                                label="Jakarta ➔ Panawangan" 
+                                days="Senin, Rabu dan Minggu"
+                            />
+                            <RouteItem 
+                                value="panawangan_jakarta" 
+                                label="Panawangan ➔ Jakarta" 
+                                days="Selasa, Kamis dan Jum'at"
+                            />
+                        </div>
+
+                        <div class="flex flex-col gap-3 mt-2">
+                            <label class="font-secondary text-sm font-bold text-primary">Pilih tanggal keberangkatan anda</label>
+                            <div id="date-container-travel" class="flex gap-3 overflow-x-auto pb-4 snap-x hide-scrollbar min-h-[140px]">
+                                <div class="w-full flex items-center justify-center p-8 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 text-slate-400 text-sm font-medium">
+                                    Silahkan Pilih Rute Terlebih Dahulu.
+                                </div>
+                            </div>
+                            <input type="hidden" name="tanggal_keberangkatan" id="tanggal_hidden_travel" required />
+                        </div>
+                    </section>
+
+                    <section class="border-b border-slate-100 pb-8">
+                        <h3 class="text-lg text-primary font-bold flex items-center gap-2 mb-6">
+                            <span class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm">2</span>
+                            Pilih Kursi
+                        </h3>
+                        <Seat />
+                    </section>
+
+                    <section class="flex flex-col gap-5">
+                        <h3 class="text-lg text-primary font-bold flex items-center gap-2">
+                            <span class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm">3</span>
+                            Barang bawaan (Opsional)
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div class="flex flex-col gap-2">
+                                <label for="ukuran_bagasi" class="font-secondary text-sm font-bold text-primary">Ukuran dominan</label>
+                                <div class="relative">
+                                    <select
+                                        name="ukuran_bagasi"
+                                        id="ukuran_bagasi"
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all appearance-none"
+                                    >
+                                        <option value="tidak_ada">Hanya tas/Ransel</option>
+                                        <option value="sedang">Sedang (Kardus Mie)</option>
+                                        <option value="besar">Besar (Koper/Karung)</option>
+                                    </select>
+                                    <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-slate-400">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <QuantitySelector 
+                                id="jumlah_bagasi" 
+                                name="jumlah_bagasi" 
+                                label="Jumlah Barang (Pcs)" 
+                                max={15}
+                            />
+                        </div>
+                    </section>
+
+                    <div class="pt-6">
+                        <Button type="submit" size="lg" class="w-full md:w-auto">
+                            Lanjutkan Isi Data Diri
+                        </Button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Step 2: Passenger Data -->
+            <div id="travel-step-2" class="hidden animate-fade-in w-full">
+                <button
+                    type="button"
+                    id="btn-kembali-travel"
+                    class="mb-6 flex items-center gap-2 text-slate-500 hover:text-primary font-secondary font-bold transition-colors group"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform group-hover:-translate-x-1" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"></path>
+                    </svg>
+                    Kembali ke Pilihan Jadwal
+                </button>
+
+                <form id="form-data-diri-travel" class="flex flex-col gap-8">
+                    <FormDataDiriPenumpang />
+
+                    <div class="pt-4 border-t border-slate-100">
+                        <Button type="submit" size="lg" class="w-full md:w-auto">
+                            Selesaikan Pemesanan
+                        </Button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <HeroAside 
+            image="/assets/images/contoh.jpg"
+            title="Perjalanan Nyaman & Aman"
+            description="Armada premium kami dirancang dengan bagasi luas untuk kepuasan Anda."
+        />
+    </article>
+</div>
+
+<style>
+    .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+</style>
+
+<script>
+    import { apiFetch } from "../../../services/api";
+
+    let selectedScheduleId = "";
+
+    const formatters = {
+        currency: new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }),
+        day: new Intl.DateTimeFormat("id-ID", { weekday: "short" }),
+        date: new Intl.DateTimeFormat("id-ID", { day: "2-digit" }),
+        month: new Intl.DateTimeFormat("id-ID", { month: "short" }),
+        time: new Intl.DateTimeFormat("id-ID", { hour: "2-digit", minute: "2-digit" })
+    };
+
+    const createScheduleCard = (schedule: any) => {
+        const dateObj = new Date(schedule.departure_time);
+        const isFull = schedule.available_seats <= 0;
+        
+        return `
+            <label class="relative cursor-pointer snap-start shrink-0 group">
+                <input type="radio" name="pilihan_jadwal" value="${schedule.id}" class="peer sr-only" ${isFull ? 'disabled' : ''}>
+                <div class="flex flex-col items-center justify-center min-w-[120px] p-4 border-2 border-slate-200 rounded-2xl text-primary transition-all peer-checked:text-black peer-checked:border-primary peer-checked:bg-primary/10 hover:border-primary hover:-translate-y-1 ${isFull ? 'opacity-50 cursor-not-allowed grayscale' : ''}">
+                    <span class="text-[10px] text-slate-500 font-secondary mb-1 uppercase tracking-wider">
+                        ${formatters.day.format(dateObj)}, ${formatters.time.format(dateObj)} WIB
+                    </span>
+                    <span class="text-3xl font-black leading-none">${formatters.date.format(dateObj)}</span>
+                    <span class="text-xs text-slate-500 font-secondary mt-1">${formatters.month.format(dateObj)}</span>
+                    <span class="text-[10px] px-2.5 py-1 rounded-full mt-3 font-bold whitespace-nowrap ${isFull ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-700'}">
+                        ${isFull ? 'Penuh' : `Sisa ${schedule.available_seats} Kursi`}
+                    </span>
+                    <span class="text-xs text-slate-400 mt-2 font-bold">${formatters.currency.format(schedule.base_price)}</span>
+                </div>
+            </label>
+        `;
+    };
+
+    const setupTravelFlow = () => {
+        const step1 = document.getElementById("travel-step-1");
+        const step2 = document.getElementById("travel-step-2");
+        const form1 = document.getElementById("form-reservasi-travel") as HTMLFormElement;
+        const form2 = document.getElementById("form-data-diri-travel") as HTMLFormElement;
+        const dateContainer = document.getElementById("date-container-travel");
+        const hiddenDate = document.getElementById("tanggal_hidden_travel") as HTMLInputElement;
+        const ruteRadios = document.querySelectorAll('input[name="rute"]');
+        const btnBack = document.getElementById("btn-kembali-travel");
+
+        if (!step1 || !step2 || !form1 || !form2) return;
+
+        // Route Selection Logic
+        ruteRadios.forEach((radio) => {
+            radio.addEventListener("change", async (e) => {
+                const target = e.target as HTMLInputElement;
+                if (!dateContainer) return;
+
+                dateContainer.innerHTML = `
+                    <div class="w-full flex items-center justify-center p-8 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 text-slate-400 text-sm font-medium animate-pulse">
+                        Mencari jadwal tersedia...
+                    </div>
+                `;
+
+                hiddenDate.value = "";
+                selectedScheduleId = "";
+
+                const [origin, destination] = target.value === "jakarta_panawangan" 
+                    ? ["Jakarta", "Panawangan"] 
+                    : ["Panawangan", "Jakarta"];
+
+                try {
+                    const response = await apiFetch(`/api/travel/schedules?origin=${origin}&destination=${destination}`);
+                    const schedules = response.data;
+
+                    if (!schedules || schedules.length === 0) {
+                        dateContainer.innerHTML = `
+                            <div class="w-full flex items-center justify-center p-8 border-2 border-dashed border-red-200 rounded-2xl bg-red-50 text-red-500 text-sm font-medium">
+                                Maaf, tidak ada jadwal untuk rute ini.
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    dateContainer.innerHTML = schedules.map(createScheduleCard).join("");
+                } catch (error) {
+                    dateContainer.innerHTML = `
+                        <div class="w-full flex items-center justify-center p-8 border-2 border-dashed border-red-200 rounded-2xl bg-red-50 text-red-500 text-sm font-medium">
+                            Gagal memuat jadwal. Silakan coba lagi.
+                        </div>
+                    `;
+                }
+            });
+        });
+
+        dateContainer?.addEventListener("change", (e) => {
+            const target = e.target as HTMLInputElement;
+            if (target && target.name === "pilihan_jadwal") {
+                hiddenDate.value = target.value;
+                selectedScheduleId = target.value;
+            }
+        });
+
+        // Navigation Logic
+        form1.addEventListener("submit", (e) => {
+            e.preventDefault();
+            if (!hiddenDate.value) return alert("Pilih jadwal terlebih dahulu.");
+            
+            const selectedSeats = (document.getElementById("input-selected-seats") as HTMLInputElement)?.value;
+            if (!selectedSeats) return alert("Pilih minimal satu kursi.");
+
+            step1.classList.add("hidden");
+            step2.classList.remove("hidden");
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+
+        btnBack?.addEventListener("click", () => {
+            step2.classList.add("hidden");
+            step1.classList.remove("hidden");
+        });
+
+        // Final Submission
+        form2.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const token = localStorage.getItem("jwt_token");
+            if (!token) {
+                alert("Silakan login untuk melanjutkan.");
+                window.location.href = "/auth/login";
+                return;
+            }
+
+            const btnSubmit = form2.querySelector('button[type="submit"]') as HTMLButtonElement;
+            const originalText = btnSubmit.textContent;
+            
+            btnSubmit.disabled = true;
+            btnSubmit.textContent = "Sedang Memproses...";
+
+            try {
+                const formData = new FormData(form2);
+                const data = Object.fromEntries(formData.entries());
+                const address = `${data.hamlet}, RT ${data.rt}/RW ${data.rw}, Desa ${data.village}, Kec. ${data.sub_district}. Patokan: ${data.landmark}`;
+                const seat = parseInt((document.getElementById("input-selected-seats") as HTMLInputElement).value);
+
+                const response = await apiFetch("/api/travel/bookings", {
+                    method: "POST",
+                    headers: { "Authorization": `Bearer ${token}` },
+                    body: JSON.stringify({
+                        schedule_id: selectedScheduleId,
+                        seat_number: seat,
+                        pickup_address: address
+                    })
+                });
+
+                alert("Pemesanan Berhasil! " + response.message);
+                // window.location.href = "/user/riwayat";
+            } catch (error: any) {
+                alert(error.message || "Gagal melakukan pemesanan.");
+            } finally {
+                btnSubmit.disabled = false;
+                btnSubmit.textContent = originalText;
+            }
+        });
+    };
+
+    document.addEventListener("DOMContentLoaded", setupTravelFlow);
+    document.addEventListener("astro:page-load", setupTravelFlow);
+</script>
+
+
+

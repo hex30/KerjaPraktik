@@ -1,0 +1,76 @@
+---
+// File: src/components/layanan/PackageAdress.astro
+import InputGroup from '../../ui/InputGroup.astro';
+import AddressGrid from './AddressGrid.astro';
+
+interface Props {
+    title: string;
+    // Tipe ini akan menentukan suffix id dan name secara otomatis
+    type: 'pengirim' | 'penerima';
+}
+
+const { title, type } = Astro.props;
+
+// ==========================================
+// SIMULASI AUTENTIKASI & DATA USER
+// ==========================================
+const session = {
+    isLoggedIn: true,
+    user: {
+        fullName: "Febi Yulianti", 
+        phone: "081234567890"
+    }
+};
+
+const isPengirim = type === 'pengirim';
+const labelNama = isPengirim ? 'Nama Pengirim' : 'Nama Penerima';
+const placeholderNama = isPengirim ? 'Nama lengkap Anda' : 'Nama lengkap tujuan';
+
+const defaultName = (isPengirim && session.isLoggedIn) ? session.user.fullName : "";
+const defaultPhone = (isPengirim && session.isLoggedIn) ? session.user.phone : "";
+---
+
+<fieldset class="flex flex-col gap-5 p-6 rounded-2xl bg-slate-50 border border-slate-100 relative">
+    <legend class="px-3 bg-slate-50 text-text-primary font-black text-sm uppercase tracking-wider rounded-lg border border-slate-100">
+        {title}
+    </legend>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="relative w-full">
+            <InputGroup 
+                label={labelNama} 
+                id={`nama_${type}`} 
+                name={`nama_${type}`} 
+                placeholder={placeholderNama} 
+                required={true} 
+                value={defaultName}
+            />
+            {isPengirim && session.isLoggedIn && (
+                <span class="absolute right-4 top-10 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-200 pointer-events-none">
+                    Sesuai Profil
+                </span>
+            )}
+        </div>
+        
+        <div class="relative w-full">
+            <InputGroup 
+                label="No. Telepon" 
+                id={`telp_${type}`} 
+                name={`telp_${type}`} 
+                type="number" 
+                placeholder="Contoh: 08123456789" 
+                required={true} 
+                value={defaultPhone}
+            />
+            {isPengirim && session.isLoggedIn && (
+                <span class="absolute right-4 top-10 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-200 pointer-events-none">
+                    Sesuai Profil
+                </span>
+            )}
+        </div>
+    </div>
+    
+    <AddressGrid type={type} dusunLabel="Nama Dusun/Jalan" />
+</fieldset>
+
+

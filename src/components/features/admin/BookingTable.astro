@@ -1,0 +1,318 @@
+---
+// File: src/components/features/admin/BookingTable.astro
+import AdminBadge from "../../ui/AdminBadge.astro";
+import Button from "../../ui/Button.astro";
+
+/**
+ * DATA CONTRACT: The expected structure for a booking item from the Back-End.
+ */
+export interface BookingUser {
+    name: string;
+    phone: string;
+    seat_number?: number;
+    luggage?: string;
+    departure_date?: string;
+    return_date?: string;
+    address_detail: {
+        kecamatan: string;
+        desa: string;
+        dusun: string;
+        rt_rw: string;
+        patokan: string;
+    };
+    destination_detail: {
+        kecamatan: string;
+        desa: string;
+        rt_rw: string;
+        patokan: string;
+    };
+}
+
+export interface BookingItem {
+    id: string | number;
+    user: BookingUser;
+    destination: string;
+    date: string;
+    time?: string;
+    price?: number;
+    fleet?: string;
+}
+
+interface Props {
+    bookingType: "RUTE" | "CHARTER";
+    bookingData: BookingItem[];
+}
+
+const { bookingType, bookingData } = Astro.props;
+---
+
+<div class="overflow-x-auto">
+    <table class="w-full text-left border-separate border-spacing-y-3">
+        <thead>
+            <tr class="text-slate-400 text-[10px] font-bold uppercase tracking-widest px-6">
+                <th class="pb-2 px-6">Pemesan</th>
+                <th class="pb-2 px-6">Detail Perjalanan</th>
+                <th class="pb-2 px-6">Status</th>
+                <th class="pb-2 px-6 text-right">Aksi</th>
+            </tr>
+        </thead>
+        <tbody class="booking-tbody">
+            {bookingData.map((item) => (
+                <>
+                    <!-- Main Row -->
+                    <tr 
+                        class="booking-main-row bg-white group cursor-pointer transition-all duration-300 relative" 
+                        data-id={item.id}
+                        style="border-radius: 24px;"
+                    >
+                        <td class="py-5 px-6 border-y border-l border-slate-100" style="border-top-left-radius: inherit; border-bottom-left-radius: inherit;">
+                            <div class="flex flex-col">
+                                <span class="font-bold text-slate-900">{item.user.name}</span>
+                                <span class="text-xs text-slate-500 font-secondary">{item.user.phone}</span>
+                            </div>
+                        </td>
+                        <td class="py-5 px-6 border-y border-slate-100">
+                            <div class="flex flex-col gap-1">
+                                <div class="flex items-center gap-2 text-xs font-bold text-primary">
+                                    <span>{item.user.address_detail.kecamatan}</span>
+                                    <span>➔</span>
+                                    <span>{item.destination}</span>
+                                </div>
+                                <span class="text-[10px] text-slate-400 font-secondary">
+                                    {item.date} {bookingType === 'CHARTER' && item.time ? `| ${item.time}` : ''}
+                                </span>
+                            </div>
+                        </td>
+                        <td class="py-5 px-6 border-y border-slate-100">
+                            {item.price ? (
+                                <AdminBadge status="WAITING_PAYMENT" />
+                            ) : (
+                                <span class="px-3 py-1 rounded-full text-[10px] font-black bg-amber-100 text-amber-600">MENUNGGU</span>
+                            )}
+                        </td>
+                        <td class="py-5 px-6 border-y border-r border-slate-100 text-right" style="border-top-right-radius: inherit; border-bottom-right-radius: inherit;">
+                            <span class="text-[10px] font-bold text-slate-300 group-hover:text-primary flex items-center justify-end gap-1 transition-colors">
+                                Kelola & Detail
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="w-3 h-3"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                            </span>
+                        </td>
+                    </tr>
+                    
+                    <!-- Expanded Row -->
+                    <tr class="booking-detail-row hidden bg-white overflow-hidden relative" style="border-radius: 0 0 24px 24px;">
+                        <td colspan="4" class="px-6 pb-6 pt-0 border-x border-b border-slate-100" style="border-bottom-left-radius: inherit; border-bottom-right-radius: inherit;">
+                            <div class="border-t border-dashed border-slate-200 pt-6 mt-1 animate-fade-in">
+                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                                    <!-- Detail Column -->
+                                    <div class="flex flex-col gap-6">
+                                        <div class="grid grid-cols-2 gap-4">
+                                            {bookingType === 'RUTE' ? (
+                                                <>
+                                                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100/50">
+                                                        <span class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Nomor Kursi</span>
+                                                        <span class="text-sm font-black text-primary">{item.user.seat_number}</span>
+                                                    </div>
+                                                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100/50">
+                                                        <span class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Barang Bawaan</span>
+                                                        <span class="text-sm font-bold text-slate-700">{item.user.luggage}</span>
+                                                    </div>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100/50">
+                                                        <span class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Tgl Keberangkatan</span>
+                                                        <span class="text-sm font-black text-primary">{item.user.departure_date}</span>
+                                                    </div>
+                                                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100/50">
+                                                        <span class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Tgl Kepulangan</span>
+                                                        <span class="text-sm font-black text-primary">{item.user.return_date}</span>
+                                                    </div>
+                                                </>
+                                            )}
+                                        </div>
+
+                                        <div class="space-y-4">
+                                            <h5 class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                                <div class="w-1 h-1 rounded-full bg-primary"></div>
+                                                Detail Alamat Jemput & Tujuan
+                                            </h5>
+                                            
+                                            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100/50 space-y-3">
+                                                <div>
+                                                    <span class="text-[8px] font-bold text-slate-400 uppercase block">ALAMAT JEMPUT (START)</span>
+                                                    <p class="text-xs text-slate-600 leading-relaxed mt-1">
+                                                        Kec. {item.user.address_detail.kecamatan}, Desa {item.user.address_detail.desa}, 
+                                                        Dusun {item.user.address_detail.dusun}, RT/RW {item.user.address_detail.rt_rw}
+                                                        <br/>
+                                                        <span class="font-bold text-slate-900">Patokan: {item.user.address_detail.patokan}</span>
+                                                    </p>
+                                                </div>
+                                                <div class="border-t border-slate-200/50 pt-3">
+                                                    <span class="text-[8px] font-bold text-slate-400 uppercase block">ALAMAT TUJUAN (END)</span>
+                                                    <p class="text-xs text-slate-600 leading-relaxed mt-1">
+                                                        Kec. {item.user.destination_detail.kecamatan}, Desa {item.user.destination_detail.desa}, 
+                                                        RT/RW {item.user.destination_detail.rt_rw}
+                                                        <br/>
+                                                        <span class="font-bold text-slate-900">Patokan: {item.user.destination_detail.patokan}</span>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Action Column -->
+                                    <div class="flex flex-col gap-6">
+                                        <h5 class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                            <div class="w-1 h-1 rounded-full bg-amber-500"></div>
+                                            Alokasi Armada & Supir
+                                        </h5>
+
+                                        <form class="admin-action-form bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-5" data-booking-id={item.id}>
+                                            <div class="grid grid-cols-1 gap-4">
+                                                <div class="flex flex-col gap-2">
+                                                    <label class="text-[9px] font-bold text-slate-500 uppercase">Pilih Armada (Unit)</label>
+                                                    <select name="fleet_id" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-primary/10">
+                                                        <option value="">Pilih Armada...</option>
+                                                        <option value="H01" selected={item.fleet === "Toyota Hiace Commuter"}>Hiace Commuter (Z 1234 XX)</option>
+                                                        <option value="H02">Hiace Premio (Z 5678 YY)</option>
+                                                        <option value="E01">Elf Long (Z 9012 ZZ)</option>
+                                                    </select>
+                                                </div>
+
+                                                <div class="grid grid-cols-2 gap-4">
+                                                    <div class="flex flex-col gap-2">
+                                                        <label class="text-[9px] font-bold text-slate-500 uppercase">Supir 1 (Wajib)</label>
+                                                        <select name="driver_1" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2 text-xs font-bold text-slate-700 outline-none">
+                                                            <option value="">Pilih Supir...</option>
+                                                            <option value="D1">Budi Santoso</option>
+                                                            <option value="D2">Agus Setiawan</option>
+                                                            <option value="D3">Iwan Fals</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="flex flex-col gap-2">
+                                                        <label class="text-[9px] font-bold text-slate-500 uppercase">Supir 2 (Opsional)</label>
+                                                        <select name="driver_2" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2 text-xs font-bold text-slate-700 outline-none">
+                                                            <option value="">Tanpa Cadangan</option>
+                                                            <option value="D1">Budi Santoso</option>
+                                                            <option value="D2">Agus Setiawan</option>
+                                                            <option value="D3">Iwan Fals</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+
+                                                <div class="grid grid-cols-2 gap-4">
+                                                    <div class="flex flex-col gap-2">
+                                                        <label class="text-[9px] font-bold text-slate-500 uppercase">Harga (IDR)</label>
+                                                        <div class="relative">
+                                                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[10px]">Rp</span>
+                                                            <input 
+                                                                type="number" 
+                                                                name="price"
+                                                                placeholder="Harga..." 
+                                                                value={item.price}
+                                                                class="w-full bg-slate-50 border border-slate-100 rounded-xl pl-8 pr-3 py-3 text-xs font-black text-primary outline-none focus:ring-2 focus:ring-primary/10"
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    {bookingType === 'RUTE' && (
+                                                        <div class="flex flex-col gap-2">
+                                                            <label class="text-[9px] font-bold text-slate-500 uppercase">Est. Penjemputan</label>
+                                                            <input 
+                                                                type="time" 
+                                                                name="pickup_time"
+                                                                class="w-full bg-slate-50 border border-slate-100 rounded-xl px-3 py-3 text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-primary/10"
+                                                            />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <div class="pt-2">
+                                                <button type="submit" class="w-full bg-primary text-white py-4 rounded-2xl text-[10px] font-black hover:shadow-xl hover:shadow-primary/20 transition-all active:scale-95 uppercase tracking-widest">
+                                                    Simpan & Kirim Tagihan
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                </>
+            ))}
+        </tbody>
+    </table>
+</div>
+
+<script>
+    const setupAccordion = () => {
+        const mainRows = document.querySelectorAll('.booking-main-row');
+        
+        mainRows.forEach(row => {
+            row.addEventListener('click', () => {
+                const detailRow = row.nextElementSibling as HTMLElement;
+                const isOpening = detailRow.classList.contains('hidden');
+
+                mainRows.forEach(otherRow => {
+                    const otherDetail = otherRow.nextElementSibling as HTMLElement;
+                    if (otherRow !== row) {
+                        otherDetail.classList.add('hidden');
+                        (otherRow as HTMLElement).style.borderRadius = '24px';
+                        otherRow.classList.remove('rounded-b-none', 'active-card');
+                    }
+                });
+
+                if (isOpening) {
+                    detailRow.classList.remove('hidden');
+                    (row as HTMLElement).style.borderRadius = '24px 24px 0 0';
+                    row.classList.add('rounded-b-none', 'active-card');
+                    detailRow.classList.add('active-card');
+                } else {
+                    detailRow.classList.add('hidden');
+                    (row as HTMLElement).style.borderRadius = '24px';
+                    row.classList.remove('rounded-b-none', 'active-card');
+                    detailRow.classList.remove('active-card');
+                }
+            });
+        });
+    };
+
+    const setupActionForms = () => {
+        const forms = document.querySelectorAll('.admin-action-form');
+        forms.forEach(form => {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const bookingId = (form as HTMLElement).dataset.bookingId;
+                const formData = new FormData(form as HTMLFormElement);
+                const payload = Object.fromEntries(formData.entries());
+
+                console.log(`[API Ready] Sending update for Booking ID: ${bookingId}`, payload);
+                
+                // PLACEHOLDER: API Call logic for FE-BE separation
+                alert('Simulasi: Data booking berhasil disimpan!');
+            });
+        });
+    }
+
+    setupAccordion();
+    setupActionForms();
+    document.addEventListener('astro:page-load', () => {
+        setupAccordion();
+        setupActionForms();
+    });
+</script>
+
+<style>
+    .animate-fade-in { animation: fadeIn 0.3s ease-out; }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    table { border-collapse: separate; border-spacing: 0 12px; }
+    tr { transition: all 0.3s ease; }
+    .booking-main-row { box-shadow: none; }
+    .active-card { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); z-index: 10; }
+    .booking-main-row.active-card { box-shadow: 0 -10px 25px -5px rgba(0, 0, 0, 0.05), 10px 0 25px -5px rgba(0, 0, 0, 0.05), -10px 0 25px -5px rgba(0, 0, 0, 0.05); }
+    .booking-detail-row.active-card { box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.05), 10px 0 25px -5px rgba(0, 0, 0, 0.05), -10px 0 25px -5px rgba(0, 0, 0, 0.05); }
+</style>
+

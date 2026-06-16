@@ -1,0 +1,56 @@
+---
+// File: src/components/features/home/molecules/HeroSlide.astro
+import Button from "../../../ui/Button.astro";
+
+interface Props {
+  sub: string;
+  title: string;
+  desc: string;
+  btnText: string;
+  btnLink: string;
+  bgImage: string;
+  isActive?: boolean;
+  index: number;
+}
+
+const { sub, title, desc, btnText, btnLink, bgImage, isActive = false, index } = Astro.props;
+---
+
+<div
+  class:list={[
+    "hero-slide absolute inset-0 w-full h-full grid md:grid-cols-12 items-center p-8 md:p-16 transition-all duration-700 ease-in-out",
+    isActive ? "opacity-100 z-10" : "opacity-0 z-0"
+  ]}
+  data-index={index}
+>
+  <div class="absolute inset-0 z-0">
+    <img
+      src={bgImage}
+      alt={title}
+      class="w-full h-full object-cover"
+    />
+    <div class="absolute inset-0 bg-gradient-to-r from-white/95 via-white/80 to-transparent" />
+  </div>
+
+  <div class="relative z-10 md:col-span-7 pl-12 md:pl-16 space-y-4 md:space-y-6">
+    <span class="text-xs font-secondary font-bold text-secondary tracking-widest block uppercase">
+      {sub}
+    </span>
+    <h1 class="text-3xl md:text-5xl lg:text-6xl font-black text-primary leading-tight">
+      {title}
+    </h1>
+    <p class="text-sm md:text-base text-text-secondary font-secondary font-normal max-w-xl leading-relaxed">
+      {desc}
+    </p>
+    <div class="pt-2">
+      <a href={btnLink}>
+        <Button size="lg">
+          {btnText}
+        </Button>
+      </a>
+    </div>
+  </div>
+</div>
+
+
+

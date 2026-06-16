@@ -1,0 +1,63 @@
+---
+import FooterNav from "./FooterNav.astro";
+import SocialIcon from "./SocialIcon.astro";
+
+const companyLinks = [
+    { label: "Tentang Kami", href: "/tentang-kami" },
+    { label: "Kontak", href: "/kontak" }
+];
+
+const serviceLinks = [
+    { label: "Antar Jemput", href: "/layanan/antar-jemput" },
+    { label: "Sewa Armada", href: "/layanan/sewa-armada" },
+    { label: "Titip Paket", href: "/layanan/titip-paket" }
+];
+
+const helpLinks = [
+    { label: "Syarat & Ketentuan", href: "/syarat-ketentuan" },
+    { label: "Kebijakan Privasi", href: "/kebijakan-privasi" },
+    { label: "FAQ", href: "/faq" }
+];
+---
+
+<footer class="w-full bg-slate-950 text-slate-400 pt-16 pb-12 font-main border-t border-slate-900">
+    <div class="max-w-7xl mx-auto px-6">
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-10 mb-12">
+            
+            <div class="flex flex-col gap-4 sm:col-span-2 lg:col-span-2">
+                <h3 class="text-xl font-black text-white tracking-tight">
+                    Rini Trans <span class="text-sky-500">Putri</span>
+                </h3>
+                <p class="font-secondary text-sm leading-relaxed max-w-sm text-slate-400">
+                    Penyedia layanan transportasi terpercaya yang menghubungkan kota dengan kenyamanan dan keamanan sebagai prioritas utama.
+                </p>
+
+                <div class="flex items-center gap-5">
+                    <SocialIcon 
+                        href="https://instagram.com/rinitransputri" 
+                        icon="/assets/icons/instagram.svg" 
+                        label="Instagram"
+                    />
+                    <SocialIcon 
+                        href="https://facebook.com/rinitransputri" 
+                        icon="/assets/icons/facebook.svg" 
+                        label="Facebook"
+                    />
+                    <SocialIcon 
+                        href="mailto:info@rinitransputri.com" 
+                        icon="/assets/icons/email.svg" 
+                        label="Email"
+                    />
+                </div>
+            </div>
+
+            <FooterNav title="Perusahaan" links={companyLinks} />
+            <FooterNav title="Layanan" links={serviceLinks} />
+            <FooterNav title="Bantuan" links={helpLinks} />
+
+        </div>
+    </div>
+</footer>
+
+
