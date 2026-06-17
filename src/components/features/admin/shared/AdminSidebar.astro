@@ -22,9 +22,13 @@ const menuItems = [
         icon: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" /></svg>`
     },
     { 
-        href: "/admin/content", 
+        id: "menu-konten",
         label: "Kelola Konten", 
-        icon: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg>`
+        icon: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" /></svg>`,
+        subItems: [
+            { href: "/admin/content", label: "Kelola Promosi" },
+            { href: "/admin/fleet", label: "Kelola Armada" }
+        ]
     },
     { 
         href: "/admin/finance", 
@@ -32,6 +36,8 @@ const menuItems = [
         icon: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`
     }
 ];
+
+const isSubActive = (items: any[]) => items.some(item => pathname === item.href);
 ---
 
 <aside class="w-72 bg-white border-r border-slate-100 h-screen sticky top-0 flex flex-col p-6 overflow-y-auto">
@@ -42,7 +48,10 @@ const menuItems = [
 
     <nav class="flex flex-col gap-2 flex-grow">
         {menuItems.map(item => (
-            <AdminSidebarItem {...item} active={isActive(item.href)} />
+            <AdminSidebarItem 
+                {...item} 
+                active={item.subItems ? isSubActive(item.subItems) : isActive(item.href!)} 
+            />
         ))}
     </nav>
 

@@ -1,27 +1,107 @@
 ---
 // File: src/components/features/admin/shared/AdminSidebarItem.astro
-interface Props {
+interface SubItem {
     href: string;
+    label: string;
+}
+
+interface Props {
+    href?: string;
     label: string;
     icon: string;
     active?: boolean;
+    subItems?: SubItem[];
+    id?: string;
 }
 
-const { href, label, icon, active = false } = Astro.props;
+const { href, label, icon, active = false, subItems = [], id } = Astro.props;
+const isDropdown = subItems.length > 0;
 ---
 
-<a 
-    href={href} 
-    class:list={[
-        "flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-300",
-        active 
-            ? "bg-primary text-white shadow-md shadow-primary/20" 
-            : "text-slate-500 hover:bg-slate-50 hover:text-primary"
-    ]}
->
-    <div class="w-5 h-5 flex items-center justify-center" fragment set:html={icon} />
-    <span class="text-sm">{label}</span>
-</a>
+{isDropdown ? (
+    <div class="flex flex-col gap-1">
+        <button 
+            type="button"
+            class:list={[
+                "sidebar-dropdown-trigger w-full flex items-center justify-between px-4 py-3 rounded-xl font-medium transition-all duration-300",
+                active ? "text-primary bg-slate-50" : "text-slate-500 hover:bg-slate-50 hover:text-primary"
+            ]}
+            data-target={id}
+        >
+            <div class="flex items-center gap-3">
+                <div class="w-5 h-5 flex items-center justify-center" set:html={icon} />
+                <span class="text-sm">{label}</span>
+            </div>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform duration-300 chevron" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+            </svg>
+        </button>
+        <div id={id} class="sidebar-dropdown-content hidden flex-col gap-1 pl-12 pr-4 overflow-hidden transition-all duration-300">
+            {subItems.map(sub => (
+                <a 
+                    href={sub.href} 
+                    class:list={[
+                        "py-2 text-xs font-bold transition-all duration-300",
+                        active && Astro.url.pathname === sub.href ? "text-primary" : "text-slate-400 hover:text-primary"
+                    ]}
+                >
+                    {sub.label}
+                </a>
+            ))}
+        </div>
+    </div>
+) : (
+    <a 
+        href={href} 
+        class:list={[
+            "flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-300",
+            active 
+                ? "bg-primary text-white shadow-md shadow-primary/20" 
+                : "text-slate-500 hover:bg-slate-50 hover:text-primary"
+        ]}
+    >
+        <div class="w-5 h-5 flex items-center justify-center" set:html={icon} />
+        <span class="text-sm">{label}</span>
+    </a>
+)}
+
+<script>
+    const setupDropdowns = () => {
+        const triggers = document.querySelectorAll('.sidebar-dropdown-trigger');
+        triggers.forEach(trigger => {
+            trigger.addEventListener('click', () => {
+                const targetId = (trigger as HTMLElement).dataset.target;
+                const content = document.getElementById(targetId!);
+                const chevron = trigger.querySelector('.chevron');
+                
+                if (content) {
+                    const isHidden = content.classList.contains('hidden');
+                    if (isHidden) {
+                        content.classList.remove('hidden');
+                        content.classList.add('flex');
+                        chevron?.classList.add('rotate-180');
+                    } else {
+                        content.classList.remove('flex');
+                        content.classList.add('hidden');
+                        chevron?.classList.remove('rotate-180');
+                    }
+                }
+            });
+
+            // Auto open if active
+            const targetId = (trigger as HTMLElement).dataset.target;
+            const content = document.getElementById(targetId!);
+            if (content && trigger.classList.contains('text-primary')) {
+                content.classList.remove('hidden');
+                content.classList.add('flex');
+                trigger.querySelector('.chevron')?.classList.add('rotate-180');
+            }
+        });
+    }
+
+    setupDropdowns();
+    document.addEventListener('astro:page-load', setupDropdowns);
+</script>
 
 
 

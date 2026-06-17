@@ -1,100 +1,207 @@
 ---
 // File: src/pages/admin/fleet.astro
 import AdminLayout from "../../layouts/AdminLayout.astro";
+import InputGroup from "../../components/ui/InputGroup.astro";
+import Badge from "../../components/ui/Badge.astro";
+import Button from "../../components/ui/Button.astro";
 
 const fleets = [
-    { id: "elf", name: "Isuzu ELF Giga", plate: "Z 1234 XX", type: "Travel/Charter" },
-    { id: "hiace", name: "Toyota Hiace Commuter", plate: "Z 5678 YY", type: "Travel/Charter" },
-    { id: "avanza", name: "Toyota Avanza", plate: "Z 9012 ZZ", type: "Charter" },
-    { id: "innova", name: "Toyota Innova Reborn", plate: "Z 3456 AA", type: "Charter" },
+    { 
+        id: "elf", 
+        name: "Isuzu ELF Giga", 
+        capacity: "19 Kursi", 
+        description: "Cocok untuk rombongan menengah, nyaman dan tangguh.", 
+        image: "/assets/images/contoh.jpg",
+        status: "Tersedia"
+    },
+    { 
+        id: "hiace", 
+        name: "Toyota Hiace Commuter", 
+        capacity: "15 Kursi", 
+        description: "Eksekutif dan premium untuk perjalanan jarak jauh.", 
+        image: "/assets/images/contoh.jpg",
+        status: "Dalam Pemeliharaan"
+    },
+    { 
+        id: "avanza", 
+        name: "Toyota Avanza", 
+        capacity: "6 Kursi", 
+        description: "Pilihan ekonomis untuk perjalanan keluarga kecil.", 
+        image: "/assets/images/contoh.jpg",
+        status: "Sedang Disewa"
+    },
 ];
 ---
 
 <AdminLayout title="Manajemen Armada">
-    <div class="flex flex-col gap-8">
-        <header>
-            <h2 class="text-2xl font-black text-slate-900">Kontrol Status Armada</h2>
-            <p class="text-sm text-slate-500 mt-1">Atur armada yang aktif atau sedang dalam perawatan (Maintenance).</p>
-        </header>
+    <div class="flex flex-col gap-12">
+        <!-- Section A: Fleet Management Grid -->
+        <section>
+            <header class="mb-8">
+                <h2 class="text-2xl font-black text-slate-900 tracking-tight">Daftar Armada Terdaftar</h2>
+                <p class="text-sm text-slate-500 mt-1 font-secondary">Monitor status operasional dan edit data unit kendaraan Anda.</p>
+            </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {fleets.map(fleet => (
-                <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col gap-6">
-                    <div class="flex justify-between items-start">
-                        <div class="flex flex-col">
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{fleet.type}</span>
-                            <h3 class="text-lg font-black text-slate-800 mt-1">{fleet.name}</h3>
-                            <span class="text-xs font-bold text-primary bg-primary/5 px-2 py-1 rounded-md w-fit mt-2">{fleet.plate}</span>
-                        </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {fleets.map(fleet => (
+                    <div class="bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group flex flex-col h-full w-full fleet-card" 
+                         data-id={fleet.id} 
+                         data-name={fleet.name} 
+                         data-capacity={fleet.capacity} 
+                         data-description={fleet.description} 
+                         data-image={fleet.image}>
                         
-                        <!-- Toggle Switch -->
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" value={fleet.id} class="sr-only peer maintenance-toggle" data-fleet-id={fleet.id}>
-                            <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rose-500"></div>
-                        </label>
-                    </div>
+                        <figure class="relative h-48 overflow-hidden bg-slate-200">
+                            <div class="absolute top-4 left-4 z-10">
+                                <Badge variant="sky">{fleet.capacity}</Badge>
+                            </div>
+                            
+                            <!-- Edit Pen Icon Overlay -->
+                            <button class="edit-fleet-btn absolute top-4 right-4 z-10 w-10 h-10 bg-white/90 backdrop-blur-md text-primary rounded-full flex items-center justify-center shadow-sm hover:bg-primary hover:text-white transition-all transform hover:scale-110 active:scale-95">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                            </button>
 
-                    <div class="pt-4 border-t border-slate-50 flex items-center justify-between">
-                        <span class="text-xs font-bold text-slate-400 uppercase">Status Saat Ini</span>
-                        <div class="status-indicator flex items-center gap-2" data-fleet-id={fleet.id}>
-                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                            <span class="text-xs font-black text-emerald-600 uppercase">Aktif</span>
+                            <img
+                                src={fleet.image}
+                                alt={fleet.name}
+                                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            />
+                        </figure>
+
+                        <div class="p-6 flex flex-col flex-grow">
+                            <h3 class="text-lg font-black text-primary mb-1">{fleet.name}</h3>
+                            
+                            <!-- Admin Dropdown Toggle -->
+                            <div class="mt-2 mb-4">
+                                <select class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-600 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all cursor-pointer">
+                                    <option value="Tersedia" selected={fleet.status === "Tersedia"}>✅ Tersedia</option>
+                                    <option value="Dalam Pemeliharaan" selected={fleet.status === "Dalam Pemeliharaan"}>🔧 Dalam Pemeliharaan</option>
+                                    <option value="Sedang Disewa" selected={fleet.status === "Sedang Disewa"}>📅 Sedang Disewa</option>
+                                </select>
+                            </div>
+
+                            <p class="font-secondary text-xs text-text-secondary leading-relaxed flex-grow">
+                                {fleet.description}
+                            </p>
                         </div>
+                    </div>
+                ))}
+            </div>
+        </section>
+
+        <!-- Section B: Modern Add / Edit Fleet Form -->
+        <section id="fleet-form-section" class="bg-white p-8 md:p-12 rounded-[2.5rem] border border-slate-100 shadow-sm scroll-mt-28">
+            <div class="flex flex-col md:flex-row gap-12 items-start">
+                <div class="w-full lg:w-2/5">
+                    <header class="mb-8">
+                        <h2 id="form-title" class="text-2xl font-black text-slate-900 tracking-tight transition-all duration-300">Tambah Armada Baru</h2>
+                        <p id="form-desc" class="text-sm text-slate-400 mt-2 font-secondary leading-relaxed">
+                            Lengkapi informasi unit kendaraan untuk ditampilkan pada sistem pemesanan pelanggan.
+                        </p>
+                    </header>
+                    
+                    <div class="hidden lg:block p-6 bg-primary/5 border border-primary/10 rounded-2xl">
+                        <div class="flex items-center gap-3 mb-3 text-primary">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                            <span class="font-bold text-sm">Informasi Desain</span>
+                        </div>
+                        <p class="text-xs text-slate-500 leading-relaxed font-secondary">
+                            Gunakan gambar dengan aspek rasio 16:9 untuk hasil terbaik pada kartu tampilan pelanggan.
+                        </p>
                     </div>
                 </div>
-            ))}
-        </div>
+
+                <form id="fleet-form" class="w-full lg:w-3/5 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="md:col-span-2">
+                        <InputGroup label="Nama Armada" id="fleet_name" name="name" placeholder="Contoh: Toyota Hiace Premio" required={true} />
+                    </div>
+                    
+                    <InputGroup label="Kapasitas" id="fleet_capacity" name="capacity" placeholder="Contoh: 15 Kursi" required={true} />
+                    
+                    <div class="flex flex-col gap-2 w-full">
+                        <label for="fleet_image" class="font-secondary text-sm font-bold text-primary">Gambar Armada</label>
+                        <input type="file" id="fleet_image" name="image" class="w-full bg-slate-100 border border-slate-200 rounded-lg px-4 py-2.5 font-secondary text-xs text-text-secondary focus:outline-none focus:border-primary transition-all file:mr-4 file:py-1 file:px-3 file:rounded-full file:border-0 file:text-[10px] file:font-black file:bg-primary file:text-white hover:file:bg-primary/90" />
+                    </div>
+
+                    <div class="md:col-span-2 flex flex-col gap-2">
+                        <label for="fleet_description" class="font-secondary text-sm font-bold text-primary">Deskripsi Teks</label>
+                        <textarea id="fleet_description" name="description" rows="4" class="w-full bg-slate-100 border border-slate-200 rounded-lg px-4 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-none" placeholder="Jelaskan spesifikasi atau keunggulan unit ini..."></textarea>
+                    </div>
+
+                    <div class="md:col-span-2 pt-4 flex gap-4">
+                        <Button type="submit" size="lg" class="flex-grow shadow-lg shadow-primary/20">
+                            Simpan Data Armada
+                        </Button>
+                        <button type="reset" id="reset-form-btn" class="px-8 py-3 bg-slate-100 text-slate-500 font-bold text-sm rounded-xl hover:bg-slate-200 transition-all">
+                            Reset
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
     </div>
 </AdminLayout>
 
 <script>
-    const setupMaintenanceToggles = () => {
-        const toggles = document.querySelectorAll('.maintenance-toggle');
-        const indicators = document.querySelectorAll('.status-indicator');
+    const setupFleetFormLogic = () => {
+        const editButtons = document.querySelectorAll('.edit-fleet-btn');
+        const form = document.getElementById('fleet-form') as HTMLFormElement;
+        const formTitle = document.getElementById('form-title');
+        const formDesc = document.getElementById('form-desc');
+        const resetBtn = document.getElementById('reset-form-btn');
+        const section = document.getElementById('fleet-form-section');
 
-        // Sync initial state from localStorage
-        const maintenanceList = JSON.parse(localStorage.getItem('fleet_maintenance') || '[]');
-        
-        toggles.forEach(toggle => {
-            const input = toggle as HTMLInputElement;
-            const fleetId = input.dataset.fleetId;
-            if (maintenanceList.includes(fleetId)) {
-                input.checked = true;
-                updateIndicator(fleetId, true);
-            }
+        // Inputs
+        const inputName = document.getElementById('fleet_name') as HTMLInputElement;
+        const inputCapacity = document.getElementById('fleet_capacity') as HTMLInputElement;
+        const inputDescription = document.getElementById('fleet_description') as HTMLTextAreaElement;
 
-            input.addEventListener('change', () => {
-                const currentList = JSON.parse(localStorage.getItem('fleet_maintenance') || '[]');
-                if (input.checked) {
-                    if (!currentList.includes(fleetId)) currentList.push(fleetId);
-                    updateIndicator(fleetId, true);
-                } else {
-                    const index = currentList.indexOf(fleetId);
-                    if (index > -1) currentList.splice(index, 1);
-                    updateIndicator(fleetId, false);
+        editButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const card = btn.closest('.fleet-card') as HTMLElement;
+                if (!card) return;
+
+                const { name, capacity, description } = card.dataset;
+
+                // Populate Form
+                if (inputName) inputName.value = name || '';
+                if (inputCapacity) inputCapacity.value = capacity || '';
+                if (inputDescription) inputDescription.value = description || '';
+
+                // Change UI State
+                if (formTitle) formTitle.textContent = "Edit Data Armada";
+                if (formDesc) formDesc.textContent = `Anda sedang memperbarui data untuk unit "${name}". Klik simpan untuk menerapkan perubahan.`;
+                
+                // Highlight form section
+                if (section) {
+                    section.classList.add('ring-2', 'ring-primary', 'ring-offset-8');
+                    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    
+                    setTimeout(() => {
+                        section.classList.remove('ring-2', 'ring-primary', 'ring-offset-8');
+                    }, 2000);
                 }
-                localStorage.setItem('fleet_maintenance', JSON.stringify(currentList));
             });
         });
 
-        function updateIndicator(id: string, isMaintenance: boolean) {
-            const indicator = Array.from(indicators).find(i => (i as HTMLElement).dataset.fleetId === id);
-            if (indicator) {
-                if (isMaintenance) {
-                    indicator.innerHTML = `
-                        <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
-                        <span class="text-xs font-black text-rose-600 uppercase">Maintenance</span>
-                    `;
-                } else {
-                    indicator.innerHTML = `
-                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                        <span class="text-xs font-black text-emerald-600 uppercase">Aktif</span>
-                    `;
-                }
-            }
-        }
+        resetBtn?.addEventListener('click', () => {
+            if (formTitle) formTitle.textContent = "Tambah Armada Baru";
+            if (formDesc) formDesc.textContent = "Lengkapi informasi unit kendaraan untuk ditampilkan pada sistem pemesanan pelanggan.";
+        });
     };
 
-    document.addEventListener('DOMContentLoaded', setupMaintenanceToggles);
-    document.addEventListener('astro:page-load', setupMaintenanceToggles);
+    document.addEventListener('DOMContentLoaded', setupFleetFormLogic);
+    document.addEventListener('astro:page-load', setupFleetFormLogic);
 </script>
+
+<style>
+    .fleet-card {
+        animation: fadeIn 0.5s ease-out forwards;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
