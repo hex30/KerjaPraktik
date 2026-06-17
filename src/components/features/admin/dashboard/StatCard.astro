@@ -24,7 +24,7 @@ const colors = {
 
 <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col gap-4">
     <div class="flex items-center justify-between">
-        <div class:list={["p-3 rounded-xl", colors[color]]} fragment set:html={icon} />
+        <div class:list={["p-3 rounded-xl", colors[color]]} set:html={icon} />
         {trend && (
             <span class:list={["text-xs font-bold px-2 py-1 rounded-full", trend.isUp ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"]}>
                 {trend.isUp ? "↑" : "↓"} {trend.value}

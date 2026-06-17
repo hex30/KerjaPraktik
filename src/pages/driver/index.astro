@@ -1,0 +1,104 @@
+---
+// File: src/pages/driver/index.astro
+import DriverLayout from "../../layouts/DriverLayout.astro";
+
+const manifest = [
+    { name: "Fahri Ramdhani", seat: "5", pickup: "Dusun Benteng Hilir, Ciamis", dropoff: "Bangka, Kemang", phone: "081234567890" },
+    { name: "Siti Aminah", seat: "12", pickup: "Sukajadi, Panawangan", dropoff: "Pool RTP Grogol", phone: "085211223344" },
+];
+---
+
+<DriverLayout title="Manifes Penumpang">
+    <div class="flex flex-col gap-6">
+        <!-- Header Info -->
+        <div class="bg-white p-5 rounded-[1.5rem] border border-slate-100 shadow-sm">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-sm font-black text-slate-400 uppercase tracking-widest">Jadwal Hari Ini</h2>
+                    <p class="text-lg font-black text-primary mt-1">Ciamis ➔ Jakarta</p>
+                </div>
+                <div class="text-right">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase">Armada</span>
+                    <p class="text-xs font-black text-slate-900">ELF Giga (E-1)</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Manifest List -->
+        <section class="flex flex-col gap-4">
+            <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 px-2">
+                <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                Daftar Penumpang ({manifest.length})
+            </h3>
+
+            {manifest.map((p) => (
+                <div class="manifest-card bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden transition-all duration-300">
+                    <div class="p-5 flex items-center justify-between cursor-pointer manifest-trigger">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center font-black text-primary text-sm">
+                                {p.seat}
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-sm font-black text-slate-800">{p.name}</span>
+                                <span class="text-[10px] text-slate-400 font-bold uppercase">{p.phone}</span>
+                            </div>
+                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-300 transition-transform duration-300 chevron-icon" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    
+                    <div class="expand-content max-h-0 overflow-hidden bg-slate-50/50 transition-all duration-500">
+                        <div class="p-5 border-t border-slate-100 flex flex-col gap-4">
+                            <div class="flex flex-col gap-1">
+                                <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest">Titik Penjemputan</span>
+                                <p class="text-xs text-slate-700 leading-relaxed font-bold">{p.pickup}</p>
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest">Titik Penurunan</span>
+                                <p class="text-xs text-slate-700 leading-relaxed font-bold">{p.dropoff}</p>
+                            </div>
+                            <div class="flex gap-2 pt-2">
+                                <a href={`tel:${p.phone}`} class="flex-1 bg-emerald-500 text-white py-3 rounded-xl text-[10px] font-black uppercase text-center flex items-center justify-center gap-2">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 005.405 5.405l.773-1.548a1 1 0 011.06-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" /></svg>
+                                    Hubungi
+                                </a>
+                                <button class="flex-1 bg-primary text-white py-3 rounded-xl text-[10px] font-black uppercase text-center">
+                                    Lihat Maps
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </section>
+    </div>
+</DriverLayout>
+
+<script>
+    const setupAccordion = () => {
+        const triggers = document.querySelectorAll('.manifest-trigger');
+        triggers.forEach(trigger => {
+            trigger.addEventListener('click', () => {
+                const parent = trigger.parentElement;
+                const content = trigger.nextElementSibling as HTMLElement;
+                const chevron = trigger.querySelector('.chevron-icon');
+                
+                if (content.style.maxHeight) {
+                    content.style.maxHeight = '';
+                    chevron?.classList.remove('rotate-180');
+                } else {
+                    // Close others
+                    document.querySelectorAll('.expand-content').forEach(c => (c as HTMLElement).style.maxHeight = '');
+                    document.querySelectorAll('.chevron-icon').forEach(c => c.classList.remove('rotate-180'));
+                    
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                    chevron?.classList.add('rotate-180');
+                }
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', setupAccordion);
+    document.addEventListener('astro:page-load', setupAccordion);
+</script>

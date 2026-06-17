@@ -1,0 +1,100 @@
+---
+// File: src/pages/admin/fleet.astro
+import AdminLayout from "../../layouts/AdminLayout.astro";
+
+const fleets = [
+    { id: "elf", name: "Isuzu ELF Giga", plate: "Z 1234 XX", type: "Travel/Charter" },
+    { id: "hiace", name: "Toyota Hiace Commuter", plate: "Z 5678 YY", type: "Travel/Charter" },
+    { id: "avanza", name: "Toyota Avanza", plate: "Z 9012 ZZ", type: "Charter" },
+    { id: "innova", name: "Toyota Innova Reborn", plate: "Z 3456 AA", type: "Charter" },
+];
+---
+
+<AdminLayout title="Manajemen Armada">
+    <div class="flex flex-col gap-8">
+        <header>
+            <h2 class="text-2xl font-black text-slate-900">Kontrol Status Armada</h2>
+            <p class="text-sm text-slate-500 mt-1">Atur armada yang aktif atau sedang dalam perawatan (Maintenance).</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {fleets.map(fleet => (
+                <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col gap-6">
+                    <div class="flex justify-between items-start">
+                        <div class="flex flex-col">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{fleet.type}</span>
+                            <h3 class="text-lg font-black text-slate-800 mt-1">{fleet.name}</h3>
+                            <span class="text-xs font-bold text-primary bg-primary/5 px-2 py-1 rounded-md w-fit mt-2">{fleet.plate}</span>
+                        </div>
+                        
+                        <!-- Toggle Switch -->
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" value={fleet.id} class="sr-only peer maintenance-toggle" data-fleet-id={fleet.id}>
+                            <div class="w-11 h-6 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-rose-500"></div>
+                        </label>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-50 flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-400 uppercase">Status Saat Ini</span>
+                        <div class="status-indicator flex items-center gap-2" data-fleet-id={fleet.id}>
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                            <span class="text-xs font-black text-emerald-600 uppercase">Aktif</span>
+                        </div>
+                    </div>
+                </div>
+            ))}
+        </div>
+    </div>
+</AdminLayout>
+
+<script>
+    const setupMaintenanceToggles = () => {
+        const toggles = document.querySelectorAll('.maintenance-toggle');
+        const indicators = document.querySelectorAll('.status-indicator');
+
+        // Sync initial state from localStorage
+        const maintenanceList = JSON.parse(localStorage.getItem('fleet_maintenance') || '[]');
+        
+        toggles.forEach(toggle => {
+            const input = toggle as HTMLInputElement;
+            const fleetId = input.dataset.fleetId;
+            if (maintenanceList.includes(fleetId)) {
+                input.checked = true;
+                updateIndicator(fleetId, true);
+            }
+
+            input.addEventListener('change', () => {
+                const currentList = JSON.parse(localStorage.getItem('fleet_maintenance') || '[]');
+                if (input.checked) {
+                    if (!currentList.includes(fleetId)) currentList.push(fleetId);
+                    updateIndicator(fleetId, true);
+                } else {
+                    const index = currentList.indexOf(fleetId);
+                    if (index > -1) currentList.splice(index, 1);
+                    updateIndicator(fleetId, false);
+                }
+                localStorage.setItem('fleet_maintenance', JSON.stringify(currentList));
+            });
+        });
+
+        function updateIndicator(id: string, isMaintenance: boolean) {
+            const indicator = Array.from(indicators).find(i => (i as HTMLElement).dataset.fleetId === id);
+            if (indicator) {
+                if (isMaintenance) {
+                    indicator.innerHTML = `
+                        <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+                        <span class="text-xs font-black text-rose-600 uppercase">Maintenance</span>
+                    `;
+                } else {
+                    indicator.innerHTML = `
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        <span class="text-xs font-black text-emerald-600 uppercase">Aktif</span>
+                    `;
+                }
+            }
+        }
+    };
+
+    document.addEventListener('DOMContentLoaded', setupMaintenanceToggles);
+    document.addEventListener('astro:page-load', setupMaintenanceToggles);
+</script>

@@ -66,6 +66,27 @@ const bookingStats = [
             </div>
         </section>
 
+        <!-- Fleet Revenue -->
+        <section>
+            <h2 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-6">Pendapatan per Armada</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                {[
+                    { name: "ELF Giga (E-1)", revenue: "Rp 12.4M", orders: 15 },
+                    { name: "Hiace (H-2)", revenue: "Rp 15.1M", orders: 12 },
+                    { name: "Avanza (A-1)", revenue: "Rp 8.2M", orders: 20 },
+                    { name: "Innova (I-3)", revenue: "Rp 10.5M", orders: 14 },
+                ].map(fleet => (
+                    <div class="bg-white p-5 rounded-2xl border border-slate-100 flex flex-col gap-1">
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-tighter">{fleet.name}</span>
+                        <div class="flex items-center justify-between mt-1">
+                            <span class="text-lg font-black text-primary">{fleet.revenue}</span>
+                            <span class="text-[10px] bg-slate-100 px-2 py-0.5 rounded-full font-bold text-slate-500">{fleet.orders} Trip</span>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </section>
+
         <!-- Quick Actions / Info -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-100 p-8 flex flex-col gap-6">

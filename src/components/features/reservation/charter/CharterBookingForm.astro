@@ -139,6 +139,8 @@ const fleetData = [
 </style>
 
 <script>
+    import { authGuard } from "../../../utils/authGuard";
+
     const setupBookingForm = () => {
         const formStep1 = document.getElementById("form-booking-travel");
         const selectArmada = document.getElementById("jenis_armada") as HTMLSelectElement;
@@ -164,9 +166,31 @@ const fleetData = [
 
         if (!formStep1 || !selectArmada) return;
 
+        // Guest Interceptor
+        const checkGuest = (e: Event) => {
+            if (!authGuard.isLoggedIn()) {
+                e.preventDefault();
+                e.stopPropagation();
+                authGuard.requireAuth();
+                return true;
+            }
+            return false;
+        };
+
         // 1. LOGIKA PILIH KARTU ARMADA
+        const maintenanceList = JSON.parse(localStorage.getItem('fleet_maintenance') || '[]');
         fleetCards.forEach(card => {
-            card.addEventListener("click", () => {
+            const fleetId = card.getAttribute("data-value");
+            if (maintenanceList.includes(fleetId)) {
+                card.classList.add('hidden');
+                // Also remove it from the select options
+                const option = selectArmada.querySelector(`option[value="${fleetId}"]`);
+                if (option) (option as HTMLOptionElement).disabled = true;
+            }
+
+            card.addEventListener("click", (e) => {
+                if (checkGuest(e)) return;
+
                 const value = card.getAttribute("data-value");
                 if(!value) return;
 
@@ -199,6 +223,10 @@ const fleetData = [
         });
 
         selectArmada.addEventListener("change", (e) => {
+            if (checkGuest(e)) {
+                selectArmada.value = "";
+                return;
+            }
             const target = e.target as HTMLSelectElement;
             const matchedCard = Array.from(fleetCards).find(c => c.getAttribute("data-value") === target.value) as HTMLElement;
             if(matchedCard) {
@@ -252,6 +280,8 @@ const fleetData = [
         // 4. LOGIKA SUBMIT STEP 1 -> STEP 2
         formStep1.addEventListener("submit", (e) => {
             e.preventDefault();
+            if (checkGuest(e)) return;
+
             const formData = new FormData(formStep1 as HTMLFormElement);
             const data = Object.fromEntries(formData.entries());
 
@@ -272,7 +302,8 @@ const fleetData = [
 
         // 5. LOGIKA TOMBOL KEMBALI
         if (btnKembali) {
-            btnKembali.addEventListener("click", () => {
+            btnKembali.addEventListener("click", (e) => {
+                if (checkGuest(e)) return;
                 if(leftStep1 && leftStep2 && rightStep1 && rightStep2) {
                     leftStep2.classList.add("hidden");
                     rightStep2.classList.remove("block");
@@ -284,8 +315,37 @@ const fleetData = [
             });
         }
 
+        // 6. FINAL SUBMISSION
+        const formStep2 = document.getElementById("form-data-diri-booking");
+        if (formStep2) {
+            formStep2.addEventListener("submit", (e) => {
+                e.preventDefault();
+                if (checkGuest(e)) return;
+
+                const formData = new FormData(formStep2 as HTMLFormElement);
+                const data = Object.fromEntries(formData.entries());
+                
+                const existingHistory = JSON.parse(localStorage.getItem("order_history") || "[]");
+                const newOrder = {
+                    id: `CHR-${Date.now().toString().slice(-6)}`,
+                    date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
+                    status: "Menunggu Konfirmasi",
+                    layanan: "Travel Charter",
+                    armada: summaryArmada?.textContent,
+                    tujuan: summaryTujuan?.textContent,
+                    price: "Sesuai Negosiasi"
+                };
+                
+                existingHistory.unshift(newOrder);
+                localStorage.setItem("order_history", JSON.stringify(existingHistory));
+
+                alert("Booking Charter Berhasil Diajukan! Tim kami akan segera menghubungi Anda.");
+                window.location.href = "/user/booking-history";
+            });
+        }
+
         // ========================================================
-        // 6. LOGIKA AUTO-FILL & AUTO-SCROLL UNTUK TAB
+        // 7. LOGIKA AUTO-FILL & AUTO-SCROLL UNTUK TAB
         // ========================================================
         const params = new URLSearchParams(window.location.search);
         const tujuanDariURL = params.get('tujuan');

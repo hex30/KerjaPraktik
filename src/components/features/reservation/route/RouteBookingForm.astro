@@ -154,16 +154,41 @@ const {
 </style>
 
 <script>
-    import { apiFetch } from "../../../services/api";
+    import { authGuard } from "../../../utils/authGuard";
 
     let selectedScheduleId = "";
 
     const formatters = {
         currency: new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }),
-        day: new Intl.DateTimeFormat("id-ID", { weekday: "short" }),
+        day: new Intl.DateTimeFormat("id-ID", { weekday: "long" }),
+        shortDay: new Intl.DateTimeFormat("id-ID", { weekday: "short" }),
         date: new Intl.DateTimeFormat("id-ID", { day: "2-digit" }),
-        month: new Intl.DateTimeFormat("id-ID", { month: "short" }),
-        time: new Intl.DateTimeFormat("id-ID", { hour: "2-digit", minute: "2-digit" })
+        month: new Intl.DateTimeFormat("id-ID", { month: "short" })
+    };
+
+    const generateDates = (routeValue: string) => {
+        const dates = [];
+        const today = new Date();
+        
+        // Allowed days: 
+        // panawangan_jakarta (Route 1): Senin (1), Rabu (3), Jumat (5)
+        // jakarta_panawangan (Route 2): Selasa (2), Kamis (4), Minggu (0)
+        const allowedDays = routeValue === "panawangan_jakarta" ? [1, 3, 5] : [2, 4, 0];
+
+        for (let i = 0; i < 14; i++) {
+            const nextDate = new Date();
+            nextDate.setDate(today.getDate() + i);
+            
+            if (allowedDays.includes(nextDate.getDay())) {
+                dates.push({
+                    id: `SCH-${routeValue}-${nextDate.getTime()}`,
+                    departure_time: nextDate.toISOString(),
+                    available_seats: Math.floor(Math.random() * 5) + 1, // Random seats 1-5 for visual feel
+                    base_price: 150000
+                });
+            }
+        }
+        return dates;
     };
 
     const createScheduleCard = (schedule: any) => {
@@ -175,7 +200,7 @@ const {
                 <input type="radio" name="pilihan_jadwal" value="${schedule.id}" class="peer sr-only" ${isFull ? 'disabled' : ''}>
                 <div class="flex flex-col items-center justify-center min-w-[120px] p-4 border-2 border-slate-200 rounded-2xl text-primary transition-all peer-checked:text-black peer-checked:border-primary peer-checked:bg-primary/10 hover:border-primary hover:-translate-y-1 ${isFull ? 'opacity-50 cursor-not-allowed grayscale' : ''}">
                     <span class="text-[10px] text-slate-500 font-secondary mb-1 uppercase tracking-wider">
-                        ${formatters.day.format(dateObj)}, ${formatters.time.format(dateObj)} WIB
+                        ${formatters.shortDay.format(dateObj)}, 09:00 WIB
                     </span>
                     <span class="text-3xl font-black leading-none">${formatters.date.format(dateObj)}</span>
                     <span class="text-xs text-slate-500 font-secondary mt-1">${formatters.month.format(dateObj)}</span>
@@ -200,9 +225,25 @@ const {
 
         if (!step1 || !step2 || !form1 || !form2) return;
 
+        // Guest Interceptor on Form interaction
+        const checkGuest = (e: Event) => {
+            if (!authGuard.isLoggedIn()) {
+                e.preventDefault();
+                e.stopPropagation();
+                authGuard.requireAuth();
+                return true;
+            }
+            return false;
+        };
+
         // Route Selection Logic
         ruteRadios.forEach((radio) => {
-            radio.addEventListener("change", async (e) => {
+            radio.addEventListener("change", (e) => {
+                if (checkGuest(e)) {
+                    (radio as HTMLInputElement).checked = false;
+                    return;
+                }
+
                 const target = e.target as HTMLInputElement;
                 if (!dateContainer) return;
 
@@ -215,15 +256,10 @@ const {
                 hiddenDate.value = "";
                 selectedScheduleId = "";
 
-                const [origin, destination] = target.value === "jakarta_panawangan" 
-                    ? ["Jakarta", "Panawangan"] 
-                    : ["Panawangan", "Jakarta"];
+                setTimeout(() => {
+                    const schedules = generateDates(target.value);
 
-                try {
-                    const response = await apiFetch(`/api/travel/schedules?origin=${origin}&destination=${destination}`);
-                    const schedules = response.data;
-
-                    if (!schedules || schedules.length === 0) {
+                    if (schedules.length === 0) {
                         dateContainer.innerHTML = `
                             <div class="w-full flex items-center justify-center p-8 border-2 border-dashed border-red-200 rounded-2xl bg-red-50 text-red-500 text-sm font-medium">
                                 Maaf, tidak ada jadwal untuk rute ini.
@@ -233,17 +269,12 @@ const {
                     }
 
                     dateContainer.innerHTML = schedules.map(createScheduleCard).join("");
-                } catch (error) {
-                    dateContainer.innerHTML = `
-                        <div class="w-full flex items-center justify-center p-8 border-2 border-dashed border-red-200 rounded-2xl bg-red-50 text-red-500 text-sm font-medium">
-                            Gagal memuat jadwal. Silakan coba lagi.
-                        </div>
-                    `;
-                }
+                }, 400);
             });
         });
 
         dateContainer?.addEventListener("change", (e) => {
+            if (checkGuest(e)) return;
             const target = e.target as HTMLInputElement;
             if (target && target.name === "pilihan_jadwal") {
                 hiddenDate.value = target.value;
@@ -254,6 +285,7 @@ const {
         // Navigation Logic
         form1.addEventListener("submit", (e) => {
             e.preventDefault();
+            if (checkGuest(e)) return;
             if (!hiddenDate.value) return alert("Pilih jadwal terlebih dahulu.");
             
             const selectedSeats = (document.getElementById("input-selected-seats") as HTMLInputElement)?.value;
@@ -264,7 +296,8 @@ const {
             window.scrollTo({ top: 0, behavior: "smooth" });
         });
 
-        btnBack?.addEventListener("click", () => {
+        btnBack?.addEventListener("click", (e) => {
+            if (checkGuest(e)) return;
             step2.classList.add("hidden");
             step1.classList.remove("hidden");
         });
@@ -272,12 +305,7 @@ const {
         // Final Submission
         form2.addEventListener("submit", async (e) => {
             e.preventDefault();
-            const token = localStorage.getItem("jwt_token");
-            if (!token) {
-                alert("Silakan login untuk melanjutkan.");
-                window.location.href = "/auth/login";
-                return;
-            }
+            if (checkGuest(e)) return;
 
             const btnSubmit = form2.querySelector('button[type="submit"]') as HTMLButtonElement;
             const originalText = btnSubmit.textContent;
@@ -289,20 +317,23 @@ const {
                 const formData = new FormData(form2);
                 const data = Object.fromEntries(formData.entries());
                 const address = `${data.hamlet}, RT ${data.rt}/RW ${data.rw}, Desa ${data.village}, Kec. ${data.sub_district}. Patokan: ${data.landmark}`;
-                const seat = parseInt((document.getElementById("input-selected-seats") as HTMLInputElement).value);
+                
+                const existingHistory = JSON.parse(localStorage.getItem("order_history") || "[]");
+                const newOrder = {
+                    id: `RTP-${Date.now().toString().slice(-6)}`,
+                    date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
+                    status: "Menunggu Konfirmasi",
+                    layanan: "Travel Regular",
+                    rute: data.rute === "jakarta_panawangan" ? "Jakarta - Panawangan" : "Panawangan - Jakarta",
+                    pickup_address: address,
+                    price: 150000
+                };
+                
+                existingHistory.unshift(newOrder);
+                localStorage.setItem("order_history", JSON.stringify(existingHistory));
 
-                const response = await apiFetch("/api/travel/bookings", {
-                    method: "POST",
-                    headers: { "Authorization": `Bearer ${token}` },
-                    body: JSON.stringify({
-                        schedule_id: selectedScheduleId,
-                        seat_number: seat,
-                        pickup_address: address
-                    })
-                });
-
-                alert("Pemesanan Berhasil! " + response.message);
-                // window.location.href = "/user/booking-history";
+                alert("Pemesanan Berhasil! Menunggu Konfirmasi Admin.");
+                window.location.href = "/user/booking-history";
             } catch (error: any) {
                 alert(error.message || "Gagal melakukan pemesanan.");
             } finally {

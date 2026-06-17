@@ -26,9 +26,16 @@ const { pkg } = Astro.props;
                 <h2 class="text-lg md:text-xl font-black text-slate-800 tracking-tight group-hover:text-primary transition-colors">
                     {pkg.sender.name} <span class="text-slate-300 font-medium">to</span> {pkg.receiver.name}
                 </h2>
-                <p class="font-secondary text-sm text-text-secondary">
-                    {pkg.type} | <span class="font-bold text-primary">{pkg.weight}</span>
-                </p>
+                <div class="flex items-center gap-3 mt-1">
+                    <p class="font-secondary text-sm text-text-secondary">
+                        {pkg.type} | <span class="font-bold text-primary">{pkg.weight}</span>
+                    </p>
+                    {pkg.is_super_besar && (
+                        <span class="px-2 py-0.5 bg-rose-100 text-rose-600 text-[9px] font-black uppercase rounded tracking-tighter">
+                            Memakan 2 Kursi
+                        </span>
+                    )}
+                </div>
             </div>
         </div>
 

@@ -79,18 +79,100 @@ import HeroAside from "../../../ui/HeroAside.astro";
 </article>
 
 <script>
+    import { authGuard } from "../../../utils/authGuard";
+
     const setupPackageListener = () => {
-        const form = document.getElementById('form-package-detail');
-        if (form) {
-            form.addEventListener('submit', (e) => {
+        const form = document.getElementById('form-package-detail') as HTMLFormElement;
+        const dimensionSelect = document.getElementById('dimensi_paket') as HTMLSelectElement;
+        const weightInput = document.getElementById('berat_paket') as HTMLInputElement;
+        
+        if (!form) return;
+
+        // Guest Interceptor
+        const checkGuest = (e: Event) => {
+            if (!authGuard.isLoggedIn()) {
                 e.preventDefault();
-                const formData = new FormData(form as HTMLFormElement);
-                const data = Object.fromEntries(formData.entries());
-                
-                console.log("Data Paket Berhasil Ditangkap:", data);
-                alert(`Pesanan paket dari ${data.nama_pengirim} ke ${data.nama_penerima} berhasil dicatat.`);
-            });
-        }
+                e.stopPropagation();
+                authGuard.requireAuth();
+                return true;
+            }
+            return false;
+        };
+
+        // Double Charge Notice Logic
+        const checkDoubleCharge = () => {
+            const isLarge = dimensionSelect.value === 'besar';
+            const isHeavy = parseInt(weightInput.value) > 20;
+            
+            let notice = document.getElementById('double-charge-notice');
+            
+            if (isLarge || isHeavy) {
+                if (!notice) {
+                    notice = document.createElement('div');
+                    notice.id = 'double-charge-notice';
+                    notice.className = 'mt-4 p-4 bg-amber-50 border border-amber-200 rounded-xl flex items-start gap-3 animate-fade-in';
+                    notice.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-amber-600 shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                        </svg>
+                        <div>
+                            <p class="text-sm font-bold text-amber-900">Double Charge Notice</p>
+                            <p class="text-xs text-amber-700 mt-1 leading-relaxed">
+                                Paket dengan dimensi besar atau berat di atas 20kg akan dikenakan biaya tambahan setara 1 kursi penumpang.
+                            </p>
+                        </div>
+                    `;
+                    form.insertBefore(notice, form.querySelector('.pt-2'));
+                }
+            } else if (notice) {
+                notice.remove();
+            }
+        };
+
+        dimensionSelect?.addEventListener('change', (e) => {
+            if (checkGuest(e)) {
+                dimensionSelect.value = "";
+                return;
+            }
+            checkDoubleCharge();
+        });
+
+        weightInput?.addEventListener('input', (e) => {
+            if (checkGuest(e)) {
+                weightInput.value = "";
+                return;
+            }
+            checkDoubleCharge();
+        });
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (checkGuest(e)) return;
+
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            
+            const existingHistory = JSON.parse(localStorage.getItem("order_history") || "[]");
+            const isDouble = dimensionSelect.value === 'besar' || parseInt(weightInput.value) > 20;
+
+            const newOrder = {
+                id: `PKG-${Date.now().toString().slice(-6)}`,
+                date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
+                status: "Menunggu Konfirmasi",
+                layanan: "Pengiriman Paket",
+                detail: `${data.berat_paket}kg - ${data.dimensi_paket}`,
+                pengirim: data.nama_pengirim,
+                penerima: data.nama_penerima,
+                is_super_besar: isDouble,
+                price: isDouble ? "Double Charge Applied" : "Sesuai Berat"
+            };
+            
+            existingHistory.unshift(newOrder);
+            localStorage.setItem("order_history", JSON.stringify(existingHistory));
+
+            alert(`Pesanan paket berhasil dicatat. ${isDouble ? 'Biaya tambahan (2 kursi) berlaku.' : ''}`);
+            window.location.href = "/user/booking-history";
+        });
     };
     
     document.addEventListener('DOMContentLoaded', setupPackageListener);
