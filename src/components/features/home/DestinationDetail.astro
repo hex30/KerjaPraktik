@@ -1,48 +1,71 @@
 ---
-// File: src/components/features/home/molecules/DestinationDetail.astro
-import Button from "../../../ui/Button.astro";
+// File: src/components/features/home/DestinationDetail.astro
 ---
 
-<div id="detail-section" class="hidden animate-fade-in w-full h-full bg-white">
-    <button id="btn-back-carousel" class="mb-6 flex items-center gap-2 text-slate-500 hover:text-primary font-secondary font-bold transition-colors">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd"></path>
-        </svg>
-        Kembali ke Daftar Destinasi
-    </button>
+<div id="detail-section" class="hidden animate-fade-in w-full py-12">
+    <div class="relative flex flex-col md:flex-row items-center max-w-6xl mx-auto px-4">
+        
+        <!-- Image and Location Container (Left Overlay) -->
+        <div class="relative z-20 flex flex-col items-center gap-6 -mb-16 md:mb-0 md:-mr-24 lg:-mr-32">
+            
+            <div class="relative group">
+                <!-- Floating Back Button (Top-Left of Image) -->
+                <button id="btn-back-carousel" class="absolute -top-2 -left-2 z-30 w-14 h-14 bg-white rounded-full shadow-xl flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all transform hover:scale-110 active:scale-95 border-4 border-slate-50" aria-label="Kembali">
+                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+                    </svg>
+                </button>
 
-    <div class="flex flex-col lg:flex-row gap-10 items-start">
-        <div class="w-full lg:w-[30%]">
-            <div class="w-full h-[280px] rounded-[15px] overflow-hidden shadow-md mb-5">
-                <img id="detail-image" src="" alt="Preview" class="w-full h-full object-cover" />
+                <div class="w-64 h-64 md:w-80 md:h-80 lg:w-[400px] lg:h-[400px] rounded-full border-[12px] border-white shadow-2xl overflow-hidden relative">
+                    <img id="detail-image" src="" alt="Preview" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                </div>
             </div>
-            <div class="flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-sky-500" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
-                </svg>
-                <span id="detail-location" class="font-secondary text-sm font-bold text-text-secondary"></span>
+
+            <!-- Location Pin (Underneath Image) -->
+            <div class="bg-white/90 backdrop-blur-md px-6 py-2.5 rounded-full shadow-lg flex items-center gap-3 border border-white/50 animate-bounce-slow">
+                <div class="p-1.5 bg-sky-100 rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-sky-600" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+                    </svg>
+                </div>
+                <span id="detail-location" class="font-secondary text-[10px] md:text-xs font-black text-slate-700 uppercase tracking-widest"></span>
             </div>
         </div>
 
-        <div class="w-full lg:w-[70%] flex flex-col gap-6 pt-2">
-            <h2 id="detail-title" class="text-3xl md:text-5xl font-black text-primary font-main leading-tight"></h2>
-            <div class="w-16 h-1.5 bg-secondary rounded-full"></div>
-            <p id="detail-desc" class="font-secondary text-base md:text-lg text-text-secondary leading-relaxed max-w-2xl"></p>
-            <div class="pt-4">
-                <a 
-                    id="detail-cta" 
-                    href="/services" 
-                    class="inline-flex items-center justify-center px-8 py-4 bg-btn-linear text-white font-main font-bold rounded-xl shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 gap-2"
-                >
+        <!-- Content Card Wrapper (Right Box) -->
+        <div class="bg-white w-full pt-24 pb-12 px-8 md:pt-16 md:pb-16 md:pl-40 lg:pl-56 md:pr-16 rounded-3xl md:rounded-l-[200px] lg:rounded-l-[250px] md:rounded-r-3xl shadow-2xl border border-slate-50 flex flex-col gap-6">
+             <div class="flex flex-col gap-2">
+                 <span class="text-[10px] font-black text-secondary uppercase tracking-[0.3em]">Destination Detail</span>
+                 <h2 id="detail-title" class="text-4xl md:text-6xl font-black text-primary font-main leading-tight tracking-tighter"></h2>
+             </div>
+             
+             <div class="w-24 h-2 bg-gradient-to-r from-secondary to-amber-300 rounded-full"></div>
+             
+             <p id="detail-desc" class="font-secondary text-base md:text-xl text-slate-500 leading-relaxed max-w-2xl font-medium"></p>
+             
+             <div class="pt-6 border-t border-slate-100 mt-2">
+                <a id="detail-cta" href="/services" class="inline-flex items-center justify-center px-10 py-5 bg-btn-linear text-white font-main font-black text-lg rounded-2xl shadow-xl shadow-primary/20 hover:shadow-2xl hover:shadow-primary/30 transition-all transform hover:-translate-y-1 active:scale-95 gap-4 group">
                     Pesan Tiket Sekarang
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                    </svg>
+                    <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center transition-transform group-hover:translate-x-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="w-4 h-4">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                        </svg>
+                    </div>
                 </a>
-            </div>
+             </div>
         </div>
     </div>
 </div>
+
+<style>
+    @keyframes bounce-slow {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+    .animate-bounce-slow {
+        animation: bounce-slow 4s infinite ease-in-out;
+    }
+</style>
 
 
 
