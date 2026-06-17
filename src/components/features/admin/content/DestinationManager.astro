@@ -1,51 +1,185 @@
 ---
-// File: src/components/admin/features/konten/DestinationManager.astro
+// File: src/components/features/admin/content/DestinationManager.astro
 import Button from "../../../ui/Button.astro";
+import InputGroup from "../../../ui/InputGroup.astro";
 
 // Mock Data Destinasi
 const destinations = [
-    { id: 1, name: "Pantai Pangandaran", location: "Jawa Barat", image: "https://c1.wallpaperflare.com/preview/864/690/351/pantai-kuta-kuta-bali-indonesia.jpg", desc: "Pantai dengan pasir putih dan cagar alam." },
-    { id: 2, name: "Green Canyon", location: "Pangandaran", image: "https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?auto=format&fit=crop&q=80&w=800", desc: "Ngarai hijau dengan sungai jernih." },
+    { id: 1, name: "Pantai Pangandaran", location: "Jawa Barat, Indonesia", image: "https://c1.wallpaperflare.com/preview/864/690/351/pantai-kuta-kuta-bali-indonesia.jpg", desc: "Pantai dengan pasir putih dan cagar alam menakjubkan di salah satu destinasi wisata terbaik di Jawa Barat." },
+    { id: 2, name: "Green Canyon", location: "Pangandaran, Indonesia", image: "https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?auto=format&fit=crop&q=80&w=800", desc: "Ngarai hijau nan eksotis dengan aliran sungai jernih. Nikmati sensasi body rafting menembus gua dan stalaktit." },
+    { id: 3, name: "Kawah Putih", location: "Bandung, Indonesia", image: "https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?auto=format&fit=crop&q=80&w=800", desc: "Saksikan pemandangan magis danau kawah vulkanik berwarna putih kehijauan yang diselimuti kabut tipis." },
+    { id: 4, name: "Gunung Galunggung", location: "Tasikmalaya, Indonesia", image: "https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?auto=format&fit=crop&q=80&w=800", desc: "Nikmati keindahan kawah dan hutan pegunungan yang asri dengan menaiki ratusan anak tangga ikonik." },
+    { id: 5, name: "Situ Gede", location: "Tasikmalaya, Indonesia", image: "https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?auto=format&fit=crop&q=80&w=800", desc: "Danau luas di tengah kota yang menawarkan suasana tenang dan kuliner ikan bakar khas Priangan." },
 ];
 ---
 
-<div class="flex flex-col gap-6">
-    <div class="flex items-center justify-between px-2">
-        <h3 class="text-lg font-black text-slate-900">Destinasi Favorit</h3>
-        <button class="bg-primary text-white px-4 py-2 rounded-xl text-xs font-bold hover:scale-105 active:scale-95 transition-all">
-            + Tambah Destinasi
-        </button>
-    </div>
+<div class="flex flex-col gap-12 font-main">
+    <!-- Grid Section -->
+    <section>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="dest-grid">
+            {destinations.map((dest, index) => (
+                <div class:list={["bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col gap-5 group destination-card", index > 3 ? "hidden extra-dest" : ""]} 
+                     data-id={dest.id} 
+                     data-name={dest.name} 
+                     data-location={dest.location} 
+                     data-desc={dest.desc}>
+                    <div class="relative h-44 rounded-2xl overflow-hidden shadow-inner bg-slate-100">
+                        <img src={dest.image} class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+                        
+                        <!-- Actions -->
+                        <div class="absolute top-3 right-3 flex gap-2">
+                            <button class="delete-dest-btn w-9 h-9 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-rose-500 transition-all transform hover:scale-110">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                            </button>
+                            <button class="edit-dest-btn w-9 h-9 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all transform hover:scale-110 shadow-lg">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <h4 class="font-black text-slate-800 text-lg tracking-tight line-clamp-1">{dest.name}</h4>
+                        <span class="text-[10px] font-black text-secondary uppercase tracking-widest flex items-center gap-1.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.012 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                            {dest.location}
+                        </span>
+                        <p class="text-[10px] text-slate-500 font-secondary leading-relaxed mt-1 line-clamp-3">{dest.desc}</p>
+                    </div>
+                </div>
+            ))}
+        </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {destinations.map(dest => (
-            <div class="bg-white p-4 rounded-[1.5rem] border border-slate-100 shadow-sm flex flex-col gap-4 group">
-                <div class="relative h-32 rounded-xl overflow-hidden">
-                    <img src={dest.image} class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                    <div class="absolute inset-0 bg-black/20"></div>
-                    <button class="absolute top-2 right-2 w-8 h-8 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-rose-500 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                    </button>
-                </div>
-                <div class="flex flex-col gap-1 px-1">
-                    <h4 class="font-black text-slate-800">{dest.name}</h4>
-                    <p class="text-xs text-slate-400 font-secondary flex items-center gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.012 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                        {dest.location}
-                    </p>
-                    <p class="text-[10px] text-slate-500 font-secondary leading-relaxed mt-2 line-clamp-2">{dest.desc}</p>
-                </div>
-                <div class="mt-auto pt-3 border-t border-slate-50 flex gap-2">
-                    <button class="flex-1 bg-slate-50 text-slate-600 py-2 rounded-lg text-[10px] font-bold hover:bg-primary hover:text-white transition-colors">Edit Detail</button>
+        {destinations.length > 4 && (
+            <div class="mt-8 flex justify-center">
+                <button id="toggle-dest-btn" class="flex items-center gap-3 px-8 py-4 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl text-slate-500 font-bold text-sm hover:border-primary hover:text-primary transition-all group">
+                    <span id="dest-toggle-text">Tampilkan Sisa Destinasi</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-4 h-4 transition-transform group-hover:translate-y-0.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
+                </button>
+            </div>
+        )}
+    </section>
+
+    <!-- Form Section -->
+    <section id="dest-form-section" class="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm scroll-mt-28">
+        <header class="mb-10 text-center md:text-left">
+            <h3 id="dest-form-title" class="text-2xl font-black text-slate-900 tracking-tight">Tambah Destinasi Baru</h3>
+            <p id="dest-form-desc" class="text-sm text-slate-400 mt-2 font-secondary">Daftarkan lokasi wisata favorit baru untuk ditampilkan di halaman beranda.</p>
+        </header>
+
+        <form id="dest-form" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="flex flex-col gap-6">
+                <InputGroup label="Nama Lokasi" id="dest_name" name="name" placeholder="Contoh: Pantai Madasari" required={true} />
+                <InputGroup label="Lokasi Daerahnya" id="dest_location" name="location" placeholder="Contoh: Pangandaran, Jawa Barat" required={true} />
+                
+                <div class="flex flex-col gap-2">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Gambar Destinasi (Rasio 1:1)</label>
+                    <div class="relative w-full h-40 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 flex flex-col items-center justify-center gap-3 hover:border-primary transition-all cursor-pointer group overflow-hidden">
+                        <input type="file" name="image" class="absolute inset-0 opacity-0 cursor-pointer z-10" />
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-300 group-hover:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                        <span class="text-xs font-bold text-slate-400 group-hover:text-primary transition-colors">Upload File Gambar</span>
+                    </div>
                 </div>
             </div>
-        ))}
-    </div>
+
+            <div class="flex flex-col gap-6">
+                <div class="flex flex-col gap-2 h-full">
+                    <label for="dest_desc" class="font-secondary text-sm font-bold text-primary">Deskripsi Destinasi</label>
+                    <textarea id="dest_desc" name="desc" class="flex-grow w-full bg-slate-100 border border-slate-200 rounded-2xl px-5 py-4 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-none" placeholder="Ceritakan keindahan destinasi ini agar pengunjung tertarik..."></textarea>
+                </div>
+                
+                <div class="flex gap-4 pt-4">
+                    <Button type="submit" class="flex-grow shadow-lg">Simpan Destinasi</Button>
+                    <button type="reset" id="dest-reset-btn" class="px-10 py-4 bg-slate-100 text-slate-500 font-bold text-sm rounded-2xl hover:bg-slate-200 transition-all">Reset</button>
+                </div>
+            </div>
+        </form>
+    </section>
 </div>
 
+<script>
+    const setupDestLogic = () => {
+        const toggleBtn = document.getElementById('toggle-dest-btn');
+        const extraDests = document.querySelectorAll('.extra-dest');
+        const editButtons = document.querySelectorAll('.edit-dest-btn');
+        const deleteButtons = document.querySelectorAll('.delete-dest-btn');
 
+        const form = document.getElementById('dest-form') as HTMLFormElement;
+        const formTitle = document.getElementById('dest-form-title');
+        const formDesc = document.getElementById('dest-form-desc');
+        const resetBtn = document.getElementById('dest-reset-btn');
+        const section = document.getElementById('dest-form-section');
 
+        const inputName = document.getElementById('dest_name') as HTMLInputElement;
+        const inputLocation = document.getElementById('dest_location') as HTMLInputElement;
+        const inputDesc = document.getElementById('dest_desc') as HTMLTextAreaElement;
 
+        // Toggle Logic
+        toggleBtn?.addEventListener('click', () => {
+            const isHidden = extraDests[0].classList.contains('hidden');
+            const toggleText = document.getElementById('dest-toggle-text');
+            
+            extraDests.forEach(dest => {
+                if (isHidden) {
+                    dest.classList.remove('hidden');
+                    dest.classList.add('animate-fade-in');
+                } else {
+                    dest.classList.add('hidden');
+                }
+            });
 
+            if (toggleText) {
+                toggleText.textContent = isHidden ? "Sembunyikan Destinasi" : "Tampilkan Sisa Destinasi";
+            }
+        });
 
+        // Delete Logic
+        deleteButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (confirm('Hapus destinasi ini dari daftar?')) {
+                    btn.closest('.destination-card')?.remove();
+                }
+            });
+        });
 
+        // Edit Logic
+        editButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const card = btn.closest('.destination-card') as HTMLElement;
+                if (!card) return;
+
+                const { name, location, desc } = card.dataset;
+
+                if (inputName) inputName.value = name || '';
+                if (inputLocation) inputLocation.value = location || '';
+                if (inputDesc) inputDesc.value = desc || '';
+
+                if (formTitle) formTitle.textContent = "Edit Data Destinasi";
+                if (formDesc) formDesc.textContent = `Memperbarui informasi untuk "${name}".`;
+
+                if (section) {
+                    section.classList.add('ring-4', 'ring-primary/20');
+                    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    setTimeout(() => section.classList.remove('ring-4', 'ring-primary/20'), 2000);
+                }
+            });
+        });
+
+        resetBtn?.addEventListener('click', () => {
+            if (formTitle) formTitle.textContent = "Tambah Destinasi Baru";
+            if (formDesc) formDesc.textContent = "Daftarkan lokasi wisata favorit baru untuk ditampilkan di halaman beranda.";
+        });
+    };
+
+    document.addEventListener('DOMContentLoaded', setupDestLogic);
+    document.addEventListener('astro:page-load', setupDestLogic);
+</script>
+
+<style>
+    .destination-card { animation: fadeIn 0.5s ease-out forwards; }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>

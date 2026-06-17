@@ -1,7 +1,7 @@
 ---
 // File: src/components/features/admin/bookings/BookingTable.astro
 import AdminBadge from "../../../ui/AdminBadge.astro";
-import Button from "../../ui/Button.astro";
+import Button from "../../../ui/Button.astro";
 
 /**
  * DATA CONTRACT: The expected structure for a booking item from the Back-End.
@@ -206,11 +206,11 @@ const { bookingType, bookingData } = Astro.props;
                                                         <div class="relative">
                                                             <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[10px]">Rp</span>
                                                             <input 
-                                                                type="number" 
+                                                                type="text" 
                                                                 name="price"
                                                                 placeholder="Harga..." 
-                                                                value={item.price || (bookingType === 'RUTE' ? "250000" : "")}
-                                                                class="w-full bg-slate-50 border border-slate-100 rounded-xl pl-8 pr-3 py-3 text-xs font-black text-primary outline-none focus:ring-2 focus:ring-primary/10"
+                                                                value={item.price || (bookingType === 'RUTE' ? "250.000" : "")}
+                                                                class="w-full bg-slate-100 border border-slate-200 rounded-xl pl-8 pr-3 py-3 text-xs font-black text-primary outline-none focus:ring-2 focus:ring-primary/10"
                                                             />
                                                         </div>
                                                     </div>

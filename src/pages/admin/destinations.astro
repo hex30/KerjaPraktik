@@ -1,0 +1,16 @@
+---
+// File: src/pages/admin/destinations.astro
+import AdminLayout from "../../layouts/AdminLayout.astro";
+import DestinationManager from "../../components/features/admin/content/DestinationManager.astro";
+---
+
+<AdminLayout title="Kelola Destinasi Favorit">
+    <div class="flex flex-col gap-8">
+        <header>
+            <h2 class="text-3xl font-black text-slate-900 tracking-tight">Manajemen Destinasi</h2>
+            <p class="text-sm text-slate-500 mt-2 font-secondary">Atur daftar lokasi wisata yang akan ditampilkan sebagai rekomendasi bagi pelanggan.</p>
+        </header>
+
+        <DestinationManager />
+    </div>
+</AdminLayout>

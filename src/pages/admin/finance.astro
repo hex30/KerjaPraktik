@@ -123,6 +123,130 @@ const transactions = [
             </div>
         </section>
 
+        <!-- Masukan Data Pengeluaran Form -->
+        <section id="input-expense" class="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm scroll-mt-28">
+            <header class="mb-10">
+                <h2 class="text-2xl font-black text-slate-900 tracking-tight">Masukan Data Pengeluaran</h2>
+                <p class="text-sm text-slate-400 mt-2 font-secondary">Catat pengeluaran operasional kantor dan pemeliharaan secara mandiri.</p>
+            </header>
+
+            <form id="expense-form" class="flex flex-col gap-10">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                    <!-- Block 1: Utama -->
+                    <div class="flex flex-col gap-6">
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[10px] font-black text-primary uppercase tracking-widest">Jenis Pengeluaran</label>
+                            <select name="type" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-primary/10">
+                                <option value="Perawatan Kendaraan">🔧 Perawatan Kendaraan</option>
+                                <option value="Pajak Kendaraan">📄 Pajak Kendaraan</option>
+                                <option value="Pajak Izin Berusaha">🏢 Pajak Izin Berusaha</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[10px] font-black text-primary uppercase tracking-widest">Penanggung Jawab</label>
+                            <input type="text" name="pic" placeholder="Nama Lengkap..." required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 outline-none" />
+                        </div>
+                    </div>
+
+                    <!-- Block 2: Transaksi -->
+                    <div class="flex flex-col gap-6">
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[10px] font-black text-primary uppercase tracking-widest">Tanggal Transaksi</label>
+                            <input type="date" name="date" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 outline-none" />
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[10px] font-black text-primary uppercase tracking-widest">Nominal Transaksi (Rp)</label>
+                            <input type="number" name="amount" placeholder="0" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 outline-none" />
+                        </div>
+                    </div>
+
+                    <!-- Block 3: Bukti & Detail -->
+                    <div class="flex flex-col gap-6">
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[10px] font-black text-primary uppercase tracking-widest">Upload Bukti Transaksi</label>
+                            <div class="relative w-full border-2 border-dashed border-slate-200 rounded-xl bg-slate-50 p-4 flex flex-col items-center justify-center gap-2 hover:border-primary transition-all cursor-pointer group">
+                                <input type="file" name="file" class="absolute inset-0 opacity-0 cursor-pointer" />
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-300 group-hover:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                <span class="text-[10px] font-bold text-slate-400">Pilih Nota/Kuitansi</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label class="text-[10px] font-black text-primary uppercase tracking-widest">Detail Tambahan</label>
+                            <textarea name="detail" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 outline-none resize-none" placeholder="Catatan opsional..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end pt-4 border-t border-slate-50">
+                    <button type="submit" class="bg-primary text-white px-12 py-4 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
+                        Simpan & Update Laporan
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Expenditure History Table -->
+        <section class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+            <h2 class="text-xl font-black text-slate-900 mb-8">Riwayat Pengeluaran</h2>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="text-slate-400 text-[10px] font-bold uppercase tracking-widest border-b border-slate-50">
+                            <th class="pb-4 px-4">Tanggal</th>
+                            <th class="pb-4 px-4">PIC / Penanggung Jawab</th>
+                            <th class="pb-4 px-4">Kategori</th>
+                            <th class="pb-4 px-4">Detail</th>
+                            <th class="pb-4 px-4 text-right">Nominal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="expense-tbody" class="divide-y divide-slate-50">
+                        <tr class="text-center py-10" id="no-expense-row">
+                            <td colspan="5" class="py-10 text-slate-400 text-sm font-secondary">Belum ada pengeluaran yang dicatat.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+<script>
+    const setupExpenseTracker = () => {
+        const form = document.getElementById('expense-form') as HTMLFormElement;
+        const tbody = document.getElementById('expense-tbody');
+        const emptyRow = document.getElementById('no-expense-row');
+
+        if (!form || !tbody) return;
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            // Remove empty row if exists
+            if (emptyRow) emptyRow.remove();
+
+            // Create new row
+            const row = document.createElement('tr');
+            row.className = 'group hover:bg-slate-50/50 transition-colors animate-fade-in';
+            row.innerHTML = `
+                <td class="py-4 px-4 text-xs text-slate-500 font-bold">${data.date}</td>
+                <td class="py-4 px-4 text-sm font-black text-slate-900">${data.pic}</td>
+                <td class="py-4 px-4">
+                    <span class="text-[9px] font-black px-2 py-0.5 rounded bg-primary/10 text-primary uppercase">${data.type}</span>
+                </td>
+                <td class="py-4 px-4 text-xs text-slate-500 max-w-xs truncate">${data.detail || '-'}</td>
+                <td class="py-4 px-4 text-right font-main font-black text-rose-600">Rp ${Number(data.amount).toLocaleString('id-ID')}</td>
+            `;
+
+            tbody.prepend(row);
+            form.reset();
+            alert('Data pengeluaran berhasil disimpan dan diperbarui ke laporan!');
+        });
+    }
+
+    setupExpenseTracker();
+    document.addEventListener('astro:page-load', setupExpenseTracker);
+</script>
+
         <!-- Transaction Table -->
         <section class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
             <div class="flex items-center justify-between mb-8">
