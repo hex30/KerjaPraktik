@@ -13,61 +13,57 @@ const {
 ---
 
 <div id="detail-section" class="hidden animate-fade-in w-full py-12 md:py-24">
-  <div class="relative bg-white rounded-[2rem] p-8 md:p-12 lg:min-h-[38rem] shadow-xl font-main text-left flex flex-col md:block mt-16 md:mt-0">
+  <div class="relative bg-white rounded-[2rem] md:rounded-[3rem] p-8 md:p-12 lg:min-h-[42rem] shadow-2xl font-main text-left flex flex-col md:block mt-24 md:mt-0 border border-slate-50 overflow-visible">
     
     {/* Wadah lengkungan gambar yang tumpang tindih */}
-    <div class="relative md:absolute -mt-32 md:mt-0 md:-top-12 md:-left-12 mx-auto md:mx-0 w-56 h-56 md:w-[34rem] md:h-[34rem] rounded-full border-[6px] md:border-8 border-[#063137] overflow-hidden z-10 shrink-0 bg-slate-100 shadow-xl">
+    <div class="relative md:absolute -mt-32 md:mt-0 md:-top-16 md:-left-16 mx-auto md:mx-0 w-64 h-64 md:w-[32rem] md:h-[32rem] lg:w-[38rem] lg:h-[38rem] rounded-full border-[8px] md:border-[12px] border-[#063137] overflow-hidden z-10 shrink-0 bg-slate-100 shadow-2xl transition-all duration-500">
       <img
         id="detail-image"
         src=""
         alt="Detail Destinasi"
-        class="w-full h-full object-cover rounded-full transition-transform duration-700 hover:scale-110"
+        class="w-full h-full object-cover rounded-full transition-transform duration-1000 hover:scale-110"
       />
     </div>
 
     {/* Tombol Kembali melingkar */}
     <button
       id="btn-back-carousel"
-      class="absolute top-4 left-4 md:top-8 md:left-8 w-12 h-12 md:w-14 md:h-14 bg-white rounded-full shadow-lg flex items-center justify-center border border-gray-100 hover:scale-105 transition-transform z-20 text-[#063137]"
+      class="absolute top-4 left-4 md:top-10 md:left-10 w-12 h-12 md:w-16 md:h-16 bg-white rounded-full shadow-xl flex items-center justify-center border border-slate-100 hover:scale-110 transition-all z-20 text-[#063137] hover:bg-slate-50 group"
       aria-label="Kembali"
     >
       {/* Ikon panah kiri */}
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6 md:w-7 md:h-7">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="w-6 h-6 md:w-8 md:h-8 transition-transform group-hover:-translate-x-1">
         <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
       </svg>
     </button>
 
     {/* Area Konten - digeser ke kanan untuk memberi ruang bagi lengkungan pada Desktop, di bawah pada Mobile */}
-    <div class="md:pl-[36rem] flex flex-col items-center md:items-start justify-center h-full relative z-0 mt-8 md:mt-0 text-center md:text-left">
+    <div class="md:pl-[30rem] lg:pl-[40rem] flex flex-col items-center md:items-start justify-center min-h-[300px] md:min-h-full relative z-0 mt-8 md:mt-0 text-center md:text-left">
       
-      {/* Label Cokelat */}
-      <div class="flex items-center gap-2 mb-2">
-        <span id="detail-location" class="text-xs md:text-sm font-bold text-[#B19B69] uppercase tracking-[0.2em]"></span>
-        <span class="text-xs md:text-sm text-slate-300">|</span>
-        <span class="text-xs md:text-sm font-bold text-[#B19B69] uppercase tracking-[0.2em]">{label}</span>
+      <div class="flex flex-col gap-2 mb-6 w-full items-center md:items-start">
+          <p class="text-xs md:text-sm font-black text-[#B19B69] uppercase tracking-[0.3em] mb-1">
+            {label}
+          </p>
+          <h1 id="detail-title" class="text-4xl md:text-6xl lg:text-7xl font-black text-[#063137] leading-[1.1] tracking-tighter drop-shadow-sm"></h1>
+          <div class="h-1.5 w-20 bg-[#ECB93F] mt-2 rounded-full"></div>
       </div>
 
-      {/* Judul Besar Teal */}
-      <h1 id="detail-title" class="text-4xl md:text-5xl lg:text-6xl font-black text-[#063137] leading-tight mb-4 tracking-tight"></h1>
+      <div class="flex items-center gap-2 mb-8 bg-slate-50 px-4 py-2 rounded-full border border-slate-100">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-sky-600" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" /></svg>
+        <span id="detail-location" class="text-xs md:text-sm font-bold text-slate-600 uppercase tracking-wider"></span>
+      </div>
 
-      {/* Garis Pemisah Kuning-Emas */}
-      <div class="h-1 w-16 bg-[#ECB93F] mb-6"></div>
+      <p id="detail-desc" class="text-base md:text-xl text-slate-600 leading-relaxed max-w-2xl font-secondary font-medium mb-10"></p>
 
-      {/* Teks Deskripsi Abu-abu */}
-      <p id="detail-desc" class="text-base md:text-lg text-gray-700 leading-relaxed max-w-prose font-secondary"></p>
-
-      {/* Tombol Pesan Tiket */}
       <a
         id="detail-cta"
         href="#"
-        class="mt-8 md:mt-12 px-8 md:px-10 py-4 md:py-5 bg-[#063137] text-white rounded-xl font-bold text-lg md:text-xl flex items-center gap-4 hover:bg-[#084149] transition-colors shadow-lg group"
+        class="inline-flex items-center gap-5 px-10 py-5 bg-[#063137] text-white rounded-2xl font-black text-lg md:text-xl hover:bg-[#0a424a] transition-all transform hover:-translate-y-1 active:scale-95 shadow-2xl shadow-teal-900/20 group"
       >
         <span>Pesan Tiket Sekarang</span>
         
-        {/* Wadah melingkar di dalam tombol untuk ikon panah */}
-        <div class="w-8 h-8 md:w-10 md:h-10 bg-[#063137] rounded-full flex items-center justify-center border border-white/20 group-hover:bg-white/10 transition-colors">
-          {/* Ikon panah kanan */}
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5 md:w-6 md:h-6">
+        <div class="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center border border-white/20 transition-all group-hover:bg-white/20">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="w-5 h-5 md:w-6 md:h-6 transition-transform group-hover:translate-x-1">
             <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
           </svg>
         </div>

@@ -88,7 +88,7 @@ const transactions = [
             <div class="overflow-x-auto">
                 <table class="w-full text-left">
                     <thead>
-                        <tr class="text-slate-400 text-[10px] font-bold uppercase tracking-widest border-b border-slate-50">
+                        <tr class="text-slate-400 text-[10px] font-bold uppercase tracking-widest border-b border-slate-50 whitespace-nowrap">
                             <th class="pb-4 px-4">Supir</th>
                             <th class="pb-4 px-4">Item Pengeluaran</th>
                             <th class="pb-4 px-4">Jumlah</th>
@@ -101,7 +101,7 @@ const transactions = [
                             { name: "Agus Setiawan", item: "Bensin & Tol (Jakarta)", amount: "450.000", date: "24 Mei" },
                             { name: "Budi Santoso", item: "Ganti Oli & Service Ringan", amount: "850.000", date: "23 Mei" },
                         ].map((exp) => (
-                            <tr class="group hover:bg-slate-50/50 transition-colors">
+                            <tr class="group hover:bg-slate-50/50 transition-colors whitespace-nowrap md:whitespace-normal">
                                 <td class="py-5 px-4 font-bold text-slate-900 text-sm">{exp.name}</td>
                                 <td class="py-5 px-4 text-xs text-slate-600">
                                     {exp.item}
@@ -181,9 +181,9 @@ const transactions = [
         <section class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
             <h2 class="text-xl font-black text-slate-900 mb-8">Riwayat Pengeluaran</h2>
             <div class="overflow-x-auto">
-                <table class="w-full text-left">
+                <table class="w-full text-left min-w-[700px]">
                     <thead>
-                        <tr class="text-slate-400 text-[10px] font-bold uppercase tracking-widest border-b border-slate-50">
+                        <tr class="text-slate-400 text-[10px] font-bold uppercase tracking-widest border-b border-slate-50 whitespace-nowrap">
                             <th class="pb-4 px-4">Tanggal</th>
                             <th class="pb-4 px-4">PIC / Penanggung Jawab</th>
                             <th class="pb-4 px-4">Kategori</th>
@@ -218,7 +218,7 @@ const transactions = [
 
             // Create new row
             const row = document.createElement('tr');
-            row.className = 'group hover:bg-slate-50/50 transition-colors animate-fade-in';
+            row.className = 'group hover:bg-slate-50/50 transition-colors animate-fade-in whitespace-nowrap md:whitespace-normal';
             row.innerHTML = `
                 <td class="py-4 px-4 text-xs text-slate-500 font-bold">${data.date}</td>
                 <td class="py-4 px-4 text-sm font-black text-slate-900">${data.pic}</td>
@@ -246,9 +246,9 @@ const transactions = [
             </div>
 
             <div class="overflow-x-auto">
-                <table class="w-full text-left">
+                <table class="w-full text-left min-w-[700px]">
                     <thead>
-                        <tr class="text-slate-400 text-[10px] font-bold uppercase tracking-widest border-b border-slate-50">
+                        <tr class="text-slate-400 text-[10px] font-bold uppercase tracking-widest border-b border-slate-50 whitespace-nowrap">
                             <th class="pb-4 px-4">ID Transaksi</th>
                             <th class="pb-4 px-4">Tanggal</th>
                             <th class="pb-4 px-4">Pelanggan</th>
@@ -259,7 +259,7 @@ const transactions = [
                     </thead>
                     <tbody class="divide-y divide-slate-50">
                         {transactions.map((tx) => (
-                            <tr class="group hover:bg-slate-50/50 transition-colors">
+                            <tr class="group hover:bg-slate-50/50 transition-colors whitespace-nowrap md:whitespace-normal">
                                 <td class="py-4 px-4 font-bold text-slate-900 text-sm">{tx.id}</td>
                                 <td class="py-4 px-4 text-xs text-slate-500">{tx.date}</td>
                                 <td class="py-4 px-4 text-sm font-medium text-slate-700">{tx.user}</td>

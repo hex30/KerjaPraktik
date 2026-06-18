@@ -16,7 +16,7 @@ const destinations = [
 <div class="flex flex-col gap-12 font-main">
     <!-- Grid Section -->
     <section>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" id="dest-grid">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="dest-grid">
             {destinations.map((dest, index) => (
                 <div class:list={["bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col gap-5 group destination-card", index > 3 ? "hidden extra-dest" : ""]} 
                      data-id={dest.id} 

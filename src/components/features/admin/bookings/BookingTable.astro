@@ -49,7 +49,7 @@ const { bookingType, bookingData } = Astro.props;
 <div class="overflow-x-auto">
     <table class="w-full text-left border-separate border-spacing-y-3">
         <thead>
-            <tr class="text-slate-400 text-[10px] font-bold uppercase tracking-widest px-6">
+            <tr class="text-slate-400 text-[10px] font-bold uppercase tracking-widest px-6 whitespace-nowrap">
                 <th class="pb-2 px-6">Pemesan</th>
                 <th class="pb-2 px-6">Detail Perjalanan</th>
                 <th class="pb-2 px-6">Status</th>
@@ -61,7 +61,7 @@ const { bookingType, bookingData } = Astro.props;
                 <>
                     <!-- Main Row -->
                     <tr 
-                        class="booking-main-row bg-white group cursor-pointer transition-all duration-300 relative" 
+                        class="booking-main-row bg-white group cursor-pointer transition-all duration-300 relative whitespace-nowrap md:whitespace-normal" 
                         data-id={item.id}
                         style="border-radius: 24px;"
                     >
