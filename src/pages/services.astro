@@ -1,20 +1,19 @@
 ---
 // File: src/pages/services.astro
-import Layout from "../layouts/MainLayout.astro";
-import ReservationTabs from "../components/features/reservation/shared/ReservationTabs.astro";
-import RouteBookingForm from "../components/features/reservation/route/RouteBookingForm.astro";
-import CharterBookingForm from "../components/features/reservation/charter/CharterBookingForm.astro";
-import PackageBookingForm from "../components/features/reservation/package/PackageBookingForm.astro";
-import ReservationPromotion from "../components/features/reservation/shared/ReservationPromotion.astro";
+import Layout from "@layouts/MainLayout.astro";
+import ReservationTabs from "@features/reservation/shared/ReservationTabs.astro";
+import RouteBookingForm from "@features/reservation/route/RouteBookingForm.astro";
+import CharterBookingForm from "@features/reservation/charter/CharterBookingForm.astro";
+import PackageBookingForm from "@features/reservation/package/PackageBookingForm.astro";
+import ReservationPromotion from "@features/reservation/shared/ReservationPromotion.astro";
 ---
 
 <Layout title="Layanan | Rini Trans Putri">
     <!-- Service Promotional Banner -->
     <ReservationPromotion 
         image="/assets/images/contoh.jpg"
-        badge="Penawaran Spesial"
-        title="Diskon"
-        highlight="20% Liburan Keluarga"
+        tagline="Liburan Keluarga Lebih Hemat"
+        diskon="20% OFF"
     />
 
     <!-- Main Content Section -->

@@ -1,10 +1,7 @@
 ---
 // File: src/pages/admin/content.astro
-import AdminLayout from "../../layouts/AdminLayout.astro";
-import Button from "../../components/ui/Button.astro";
-import InputGroup from "../../components/ui/InputGroup.astro";
-import PromoManager from "../../components/features/admin/content/PromoManager.astro";
-import DestinationManager from "../../components/features/admin/content/DestinationManager.astro";
+import AdminLayout from "@layouts/AdminLayout.astro";
+import PromoManager from "@features/admin/content/PromoManager.astro";
 
 // Mock Current Content State
 const currentPromo = {
@@ -24,7 +21,7 @@ const currentPromo = {
             <section class="flex flex-col gap-6">
                 <h2 class="text-sm font-bold text-slate-400 uppercase tracking-widest px-2">Preview Tampilan Banner</h2>
                 
-                <div class="bg-slate-900 rounded-[2.5rem] p-12 text-white relative overflow-hidden aspect-video lg:aspect-[21/9] flex flex-col justify-center gap-6 shadow-2xl">
+                <div class="bg-slate-900 rounded-[2.5rem] p-12 text-white relative overflow-hidden aspect-video lg:aspect-auto min-h-[400px] flex flex-col justify-center gap-6 shadow-2xl">
                     <div class="absolute inset-0 bg-gradient-to-r from-primary to-transparent opacity-60"></div>
                     <div class="relative z-10 max-w-2xl">
                         <span class="bg-sky-500 text-xs font-black px-4 py-1.5 rounded-full uppercase tracking-[0.2em]">Penawaran Spesial</span>

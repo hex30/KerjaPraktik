@@ -1,7 +1,8 @@
 ---
 // File: src/pages/admin/finance.astro
-import AdminLayout from "../../layouts/AdminLayout.astro";
-import StatCard from "../../components/features/admin/dashboard/StatCard.astro";
+import AdminLayout from "@layouts/AdminLayout.astro";
+import StatCard from "@features/admin/dashboard/StatCard.astro";
+import InputGroup from "@ui/InputGroup.astro";
 
 // Mock Data Keuangan
 const financialSummary = [
@@ -135,44 +136,35 @@ const transactions = [
                     <!-- Block 1: Utama -->
                     <div class="flex flex-col gap-6">
                         <div class="flex flex-col gap-2">
-                            <label class="text-[10px] font-black text-primary uppercase tracking-widest">Jenis Pengeluaran</label>
-                            <select name="type" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-primary/10">
+                            <label class="font-secondary text-sm font-bold text-primary">Jenis Pengeluaran</label>
+                            <select name="type" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-primary/10 transition-all">
                                 <option value="Perawatan Kendaraan">🔧 Perawatan Kendaraan</option>
                                 <option value="Pajak Kendaraan">📄 Pajak Kendaraan</option>
                                 <option value="Pajak Izin Berusaha">🏢 Pajak Izin Berusaha</option>
                             </select>
                         </div>
-                        <div class="flex flex-col gap-2">
-                            <label class="text-[10px] font-black text-primary uppercase tracking-widest">Penanggung Jawab</label>
-                            <input type="text" name="pic" placeholder="Nama Lengkap..." required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 outline-none" />
-                        </div>
+                        <InputGroup label="Penanggung Jawab" id="expense_pic" name="pic" placeholder="Nama Lengkap..." required={true} />
                     </div>
 
                     <!-- Block 2: Transaksi -->
                     <div class="flex flex-col gap-6">
-                        <div class="flex flex-col gap-2">
-                            <label class="text-[10px] font-black text-primary uppercase tracking-widest">Tanggal Transaksi</label>
-                            <input type="date" name="date" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 outline-none" />
-                        </div>
-                        <div class="flex flex-col gap-2">
-                            <label class="text-[10px] font-black text-primary uppercase tracking-widest">Nominal Transaksi (Rp)</label>
-                            <input type="number" name="amount" placeholder="0" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 outline-none" />
-                        </div>
+                        <InputGroup label="Tanggal Transaksi" id="expense_date" name="date" type="date" required={true} />
+                        <InputGroup label="Nominal Transaksi (Rp)" id="expense_amount" name="amount" type="number" placeholder="0" required={true} />
                     </div>
 
                     <!-- Block 3: Bukti & Detail -->
                     <div class="flex flex-col gap-6">
                         <div class="flex flex-col gap-2">
-                            <label class="text-[10px] font-black text-primary uppercase tracking-widest">Upload Bukti Transaksi</label>
-                            <div class="relative w-full border-2 border-dashed border-slate-200 rounded-xl bg-slate-50 p-4 flex flex-col items-center justify-center gap-2 hover:border-primary transition-all cursor-pointer group">
-                                <input type="file" name="file" class="absolute inset-0 opacity-0 cursor-pointer" />
+                            <label class="font-secondary text-sm font-bold text-primary">Upload Bukti Transaksi</label>
+                            <div class="relative w-full border-2 border-dashed border-slate-200 rounded-xl bg-slate-50 p-4 flex flex-col items-center justify-center gap-2 hover:border-primary transition-all cursor-pointer group overflow-hidden">
+                                <input type="file" name="file" class="absolute inset-0 opacity-0 cursor-pointer z-10" />
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-300 group-hover:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                                <span class="text-[10px] font-bold text-slate-400">Pilih Nota/Kuitansi</span>
+                                <span class="font-secondary text-[10px] font-bold text-slate-400">Pilih Nota/Kuitansi</span>
                             </div>
                         </div>
                         <div class="flex flex-col gap-2">
-                            <label class="text-[10px] font-black text-primary uppercase tracking-widest">Detail Tambahan</label>
-                            <textarea name="detail" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 outline-none resize-none" placeholder="Catatan opsional..."></textarea>
+                            <label class="font-secondary text-sm font-bold text-primary">Detail Tambahan</label>
+                            <textarea name="detail" rows="2" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-primary/10 transition-all resize-none" placeholder="Catatan opsional..."></textarea>
                         </div>
                     </div>
                 </div>

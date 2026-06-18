@@ -1,11 +1,11 @@
 ---
 // File: src/components/features/reservation/charter/CharterBookingForm.astro
-import InputGroup from "../../../ui/InputGroup.astro";
-import PassengerDataForm from "../shared/PassengerDataForm.astro";
-import Button from "../../../ui/Button.astro";
-import SectionHeader from "../../../ui/SectionHeader.astro";
+import InputGroup from "@ui/InputGroup.astro";
+import PassengerDataForm from "@features/reservation/shared/PassengerDataForm.astro";
+import Button from "@ui/Button.astro";
+import SectionHeader from "@ui/SectionHeader.astro";
 import FleetSelectionItem from "./FleetSelectionItem.astro";
-import BookingSummary from "../shared/BookingSummary.astro";
+import BookingSummary from "@features/reservation/shared/BookingSummary.astro";
 
 const fleetData = [
     {
@@ -139,7 +139,7 @@ const fleetData = [
 </style>
 
 <script>
-    import { authGuard } from "../../../../utils/authGuard";
+    import { authGuard } from "@utils/authGuard";
 
     const setupBookingForm = () => {
         const formStep1 = document.getElementById("form-booking-travel");
@@ -189,8 +189,6 @@ const fleetData = [
             }
 
             card.addEventListener("click", (e) => {
-                if (checkGuest(e)) return;
-
                 const value = card.getAttribute("data-value");
                 if(!value) return;
 
@@ -223,10 +221,6 @@ const fleetData = [
         });
 
         selectArmada.addEventListener("change", (e) => {
-            if (checkGuest(e)) {
-                selectArmada.value = "";
-                return;
-            }
             const target = e.target as HTMLSelectElement;
             const matchedCard = Array.from(fleetCards).find(c => c.getAttribute("data-value") === target.value) as HTMLElement;
             if(matchedCard) {

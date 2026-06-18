@@ -1,10 +1,10 @@
 ---
 // File: src/pages/auth/login.astro
-import Layout from "../../layouts/MainLayout.astro";
+import Layout from "@layouts/MainLayout.astro";
 
 // Panggil kedua komponen form dari folder auth
-import LoginForm from "../../components/features/auth/LoginForm.astro";
-import RegisterForm from "../../components/features/auth/RegisterForm.astro";
+import LoginForm from "@features/auth/LoginForm.astro";
+import RegisterForm from "@features/auth/RegisterForm.astro";
 ---
 
 <Layout title="Masuk / Daftar | Rini Trans Putri">
@@ -58,7 +58,7 @@ import RegisterForm from "../../components/features/auth/RegisterForm.astro";
 
 <script>
     import { email, locales } from "astro:schema";
-    import { apiFetch } from "../../services/api";
+    import { apiFetch } from "@services/api";
 
     document.addEventListener("DOMContentLoaded", () => {
         // ================================================================

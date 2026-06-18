@@ -238,6 +238,8 @@ const boxClassBase =
 </section>
 
 <script>
+  import { authGuard } from "@utils/authGuard";
+
   const setupSeatSelection = () => {
     const seatButtons = document.querySelectorAll(".seat-btn:not([disabled])");
     const badgeContainer = document.getElementById("seat-badge-container");
@@ -256,8 +258,19 @@ const boxClassBase =
       ".seat-btn:not([disabled])",
     );
 
+    const checkGuest = (e: Event) => {
+        if (!authGuard.isLoggedIn()) {
+            e.preventDefault();
+            e.stopPropagation();
+            authGuard.requireAuth();
+            return true;
+        }
+        return false;
+    };
+
     freshSeatButtons.forEach((seat) => {
       seat.addEventListener("click", (e) => {
+        if (checkGuest(e)) return;
         const target = e.currentTarget as HTMLButtonElement;
         const seatNum = target.getAttribute("data-seat");
 

@@ -1,10 +1,10 @@
 ---
 // File: src/components/layanan/FormPackage.astro
-import InputGroup from "../../../ui/InputGroup.astro";
-import PackageAddressForm from '../package/PackageAddressForm.astro';
-import SectionHeader from "../../../ui/SectionHeader.astro";
-import Button from "../../../ui/Button.astro";
-import HeroAside from "../../../ui/HeroAside.astro";
+import InputGroup from "@ui/InputGroup.astro";
+import PackageAddressForm from '@features/reservation/package/PackageAddressForm.astro';
+import SectionHeader from "@ui/SectionHeader.astro";
+import Button from "@ui/Button.astro";
+import HeroAside from "@ui/HeroAside.astro";
 ---
 
 <article class="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 md:p-10 flex flex-col lg:flex-row gap-10 max-w-7xl mx-auto font-main">
@@ -79,7 +79,7 @@ import HeroAside from "../../../ui/HeroAside.astro";
 </article>
 
 <script>
-    import { authGuard } from "../../../../utils/authGuard";
+    import { authGuard } from "@utils/authGuard";
 
     const setupPackageListener = () => {
         const form = document.getElementById('form-package-detail') as HTMLFormElement;

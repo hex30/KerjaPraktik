@@ -1,6 +1,6 @@
 ---
 // File: src/components/features/admin/shared/AdminSidebar.astro
-import AdminSidebarItem from "../shared/AdminSidebarItem.astro";
+import AdminSidebarItem from "@features/admin/shared/AdminSidebarItem.astro";
 
 const { pathname } = Astro.url;
 const isActive = (path: string) => pathname === path || pathname.startsWith(path + "/");

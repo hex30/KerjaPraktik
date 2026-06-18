@@ -1,9 +1,9 @@
 ---
 // File: src/pages/admin/fleet.astro
-import AdminLayout from "../../layouts/AdminLayout.astro";
-import InputGroup from "../../components/ui/InputGroup.astro";
-import Badge from "../../components/ui/Badge.astro";
-import Button from "../../components/ui/Button.astro";
+import AdminLayout from "@layouts/AdminLayout.astro";
+import InputGroup from "@ui/InputGroup.astro";
+import Badge from "@ui/Badge.astro";
+import Button from "@ui/Button.astro";
 
 const fleets = [
     { 
@@ -168,8 +168,8 @@ const fleets = [
     const setupFleetLogic = () => {
         const editButtons = document.querySelectorAll('.edit-fleet-btn');
         const deleteButtons = document.querySelectorAll('.delete-fleet-btn');
-        const toggleBtn = document.getElementById('toggle-fleets-btn');
-        const extraFleets = document.querySelectorAll('.extra-fleet');
+        const toggleButton = document.getElementById('toggle-fleets-btn');
+        const extraFleetCards = document.querySelectorAll('.extra-fleet');
         
         const form = document.getElementById('fleet-form') as HTMLFormElement;
         const formTitle = document.getElementById('form-title');
@@ -183,36 +183,56 @@ const fleets = [
         const inputDescription = document.getElementById('fleet_description') as HTMLTextAreaElement;
         const selectStatus = document.getElementById('fleet_status') as HTMLSelectElement;
 
-        // Toggle Logic
-        toggleBtn?.addEventListener('click', () => {
-            const isHidden = extraFleets[0].classList.contains('hidden');
+        // Toggle Grid Logic
+        let isExpanded = false;
+        if(toggleButton) {
             const toggleText = document.getElementById('toggle-text');
-            
-            extraFleets.forEach(fleet => {
-                if (isHidden) {
-                    fleet.classList.remove('hidden');
-                    fleet.classList.add('animate-fade-in');
-                } else {
-                    fleet.classList.add('hidden');
+            const toggleIcon = toggleButton.querySelector('svg');
+
+            toggleButton.addEventListener('click', () => {
+                isExpanded = !isExpanded;
+                extraFleetCards.forEach(fleet => {
+                    if (isExpanded) {
+                        fleet.classList.remove('hidden');
+                        fleet.classList.add('animate-fade-in');
+                    } else {
+                        fleet.classList.add('hidden');
+                        fleet.classList.remove('animate-fade-in');
+                    }
+                });
+                
+                if(toggleText && toggleIcon) {
+                    if (isExpanded) {
+                        toggleText.textContent = "Sembunyikan Armada";
+                        toggleIcon.classList.add('rotate-180');
+                    } else {
+                        toggleText.textContent = "Tampilkan Sisa Armada";
+                        toggleIcon.classList.remove('rotate-180');
+                    }
                 }
             });
-
-            if (toggleText) {
-                toggleText.textContent = isHidden ? "Sembunyikan Armada" : "Tampilkan Sisa Armada";
-            }
-        });
+        }
 
         // Delete Logic Simulation
         deleteButtons.forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                if (confirm('Apakah Anda yakin ingin menghapus armada ini?')) {
-                    const card = btn.closest('.fleet-card');
-                    card?.remove();
+                const card = btn.closest('.fleet-card') as HTMLElement;
+                if(!card) return;
+                
+                const name = card.dataset.name;
+                if (confirm(`Apakah Anda yakin ingin menghapus armada ${name}?`)) {
+                    card.style.transition = 'all 0.3s ease';
+                    card.style.transform = 'scale(0.9)';
+                    card.style.opacity = '0';
+                    setTimeout(() => {
+                        card.remove();
+                    }, 300);
                 }
             });
         });
 
+        // Edit Logic
         editButtons.forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.stopPropagation();
