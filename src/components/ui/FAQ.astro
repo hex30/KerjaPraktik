@@ -53,11 +53,14 @@ import SectionHeader from "./SectionHeader.astro";
         const faqToggles = document.querySelectorAll('.faq-toggle');
 
         faqToggles.forEach(toggle => {
-            toggle.addEventListener('click', function() {
-                const currentItem = this.parentElement;
-                const currentContent = this.nextElementSibling;
-                const currentIcon = this.querySelector('.faq-icon');
-                const currentIconWrapper = this.querySelector('.faq-icon-wrapper');
+            toggle.addEventListener('click', (e) => {
+                const currentButton = e.currentTarget as HTMLButtonElement;
+                const currentItem = currentButton.parentElement as HTMLElement | null;
+                const currentContent = currentButton.nextElementSibling as HTMLElement | null;
+                const currentIcon = currentButton.querySelector('.faq-icon') as HTMLElement | null;
+                const currentIconWrapper = currentButton.querySelector('.faq-icon-wrapper') as HTMLElement | null;
+
+                if (!currentItem || !currentContent || !currentIcon || !currentIconWrapper) return;
 
                 document.querySelectorAll('.faq-item').forEach(item => {
                     if (item !== currentItem) {
@@ -65,7 +68,7 @@ import SectionHeader from "./SectionHeader.astro";
                         const icon = item.querySelector('.faq-icon');
                         const iconWrapper = item.querySelector('.faq-icon-wrapper');
                         
-                        content.style.maxHeight = "0px";
+                        if (content) content.style.maxHeight = "0px";
                         item.classList.remove('border-primary/30', 'bg-slate-50/20');
                         if (icon) icon.classList.remove('rotate-180');
                         if (iconWrapper) {

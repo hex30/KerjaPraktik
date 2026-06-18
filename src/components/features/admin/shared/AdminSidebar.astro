@@ -45,31 +45,88 @@ const menuItems = [
 const isSubActive = (items: any[]) => items.some(item => pathname === item.href);
 ---
 
-<aside class="w-72 bg-white border-r border-slate-100 h-screen sticky top-0 flex flex-col p-6 overflow-y-auto">
-    <div class="mb-10 px-2">
-        <h2 class="text-xl font-black text-primary tracking-tight">Rini Trans <span class="text-slate-400">Putri</span></h2>
-        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Admin Panel</p>
-    </div>
+<>
+    <!-- Overlay for Mobile Sidebar -->
+    <div id="admin-sidebar-overlay" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-40 hidden lg:hidden transition-opacity opacity-0"></div>
 
-    <nav class="flex flex-col gap-2 flex-grow">
-        {menuItems.map(item => (
-            <AdminSidebarItem 
-                {...item} 
-                active={item.subItems ? isSubActive(item.subItems) : isActive(item.href!)} 
-            />
-        ))}
-    </nav>
+    <aside id="admin-sidebar" class="w-72 bg-white border-r border-slate-100 h-screen fixed lg:sticky top-0 left-0 flex flex-col p-6 overflow-y-auto z-50 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out shadow-2xl lg:shadow-none">
+        <div class="mb-10 px-2 flex justify-between items-center">
+            <div>
+                <h2 class="text-xl font-black text-primary tracking-tight">Rini Trans <span class="text-slate-400">Putri</span></h2>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Admin Panel</p>
+            </div>
+            <button id="close-admin-sidebar" class="lg:hidden p-2 text-slate-400 hover:text-rose-500 hover:bg-rose-50 rounded-lg transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
 
-    <div class="mt-auto pt-6 border-t border-slate-100">
-        <div class="bg-slate-50 p-4 rounded-2xl flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-primary text-white font-black flex items-center justify-center shrink-0">A</div>
-            <div class="flex flex-col overflow-hidden">
-                <span class="font-bold text-slate-900 text-sm truncate">Administrator</span>
-                <span class="text-xs text-slate-400 truncate">admin@rinitrans.com</span>
+        <nav class="flex flex-col gap-2 flex-grow">
+            {menuItems.map(item => (
+                <AdminSidebarItem 
+                    href={item.href}
+                    id={item.id}
+                    label={item.label}
+                    icon={item.icon}
+                    subItems={item.subItems}
+                    active={item.subItems ? isSubActive(item.subItems) : isActive(item.href!)} 
+                />
+            ))}
+        </nav>
+
+        <div class="mt-auto pt-6 border-t border-slate-100">
+            <div class="bg-slate-50 p-4 rounded-2xl flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-primary text-white font-black flex items-center justify-center shrink-0">A</div>
+                <div class="flex flex-col overflow-hidden">
+                    <span class="font-bold text-slate-900 text-sm truncate">Administrator</span>
+                    <span class="text-xs text-slate-400 truncate">admin@rinitrans.com</span>
+                </div>
             </div>
         </div>
-    </div>
-</aside>
+    </aside>
+
+    <script>
+        const setupMobileSidebar = () => {
+            const toggleBtn = document.getElementById('admin-sidebar-toggle');
+            const closeBtn = document.getElementById('close-admin-sidebar');
+            const sidebar = document.getElementById('admin-sidebar');
+            const overlay = document.getElementById('admin-sidebar-overlay');
+
+            const openSidebar = () => {
+                if(!sidebar || !overlay) return;
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+                // Small delay to ensure display:block applies before fading in opacity
+                requestAnimationFrame(() => {
+                    overlay.classList.remove('opacity-0');
+                    overlay.classList.add('opacity-100');
+                });
+                document.body.style.overflow = 'hidden'; // Prevent background scrolling
+            };
+
+            const closeSidebar = () => {
+                if(!sidebar || !overlay) return;
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.remove('opacity-100');
+                overlay.classList.add('opacity-0');
+                
+                // Wait for fade out animation before hiding
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                }, 300);
+                document.body.style.overflow = ''; 
+            };
+
+            toggleBtn?.addEventListener('click', openSidebar);
+            closeBtn?.addEventListener('click', closeSidebar);
+            overlay?.addEventListener('click', closeSidebar);
+        };
+
+        document.addEventListener('DOMContentLoaded', setupMobileSidebar);
+        document.addEventListener('astro:page-load', setupMobileSidebar);
+    </script>
+</>
 
 
 
