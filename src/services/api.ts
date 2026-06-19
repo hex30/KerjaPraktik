@@ -2,7 +2,7 @@
  * Base API Service for communicating with Express.js Backend
  */
 
-const API_BASE_URL = import.meta.env.PUBLIC_API_URL || 'https://6a20624be96c1d13b587680e.mockapi.io';
+const API_BASE_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:5000';
 
 export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
   const url = `${API_BASE_URL}${endpoint}`;

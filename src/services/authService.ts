@@ -5,22 +5,22 @@
 // Simulasi delay jaringan (misal 1.5 detik)
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
+import { apiFetch } from './api';
+
 export const authService = {
+  // dokumentasi: Fungsi untuk mengirim kredensial login ke endpoint /api/auth/login
   async login(payload: any) {
-    console.log("Mengirim data login ke API...", payload);
-    await delay(1500); // Simulasi loading
-
-    const savedDataString = localStorage.getItem("dummy_user_rini_trans");
-    if (!savedDataString) {
-      throw new Error("Akun tidak ditemukan. Silakan daftar terlebih dahulu!");
-    }
-
-    const savedUser = JSON.parse(savedDataString);
-    if (payload.email === savedUser.email && payload.password === savedUser.password) {
-      localStorage.setItem("is_logged_in", "true");
-      return { success: true, user: savedUser };
-    } else {
-      throw new Error("Email atau Kata Sandi salah!");
+    try {
+      // dokumentasi: Melakukan request POST dengan payload JSON
+      const response = await apiFetch('/api/auth/login', {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+      return response;
+    } catch (error) {
+      // dokumentasi: Menangkap error jaringan atau server
+      console.error("Login failed:", error);
+      throw error;
     }
   },
 
