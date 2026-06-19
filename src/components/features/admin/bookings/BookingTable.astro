@@ -134,27 +134,33 @@ const { bookingType, bookingData } = Astro.props;
                                         <div class="space-y-4">
                                             <h5 class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
                                                 <div class="w-1 h-1 rounded-full bg-primary"></div>
-                                                Detail Alamat Jemput & Tujuan
+                                                {bookingType === 'RUTE' ? 'Detail Alamat Jemput & Tujuan' : 'Detail Alamat Jemput & Lokasi Akhir'}
                                             </h5>
                                             
-                                            <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100/50 space-y-3">
+                                            <div class="bg-slate-50 p-4 md:p-6 rounded-2xl border border-slate-100/50 space-y-3">
                                                 <div>
                                                     <span class="text-[8px] font-bold text-slate-400 uppercase block">ALAMAT JEMPUT (START)</span>
                                                     <p class="text-xs text-slate-600 leading-relaxed mt-1">
                                                         Kec. {item.user.address_detail.kecamatan}, Desa {item.user.address_detail.desa}, 
                                                         Dusun {item.user.address_detail.dusun}, RT/RW {item.user.address_detail.rt_rw}
                                                         <br/>
-                                                        <span class="font-bold text-slate-900">Patokan: {item.user.address_detail.patokan}</span>
+                                                        <span class="font-bold text-slate-900 dynamic-text-class">Patokan: {item.user.address_detail.patokan}</span>
                                                     </p>
                                                 </div>
                                                 <div class="border-t border-slate-200/50 pt-3">
                                                     <span class="text-[8px] font-bold text-slate-400 uppercase block">ALAMAT TUJUAN (END)</span>
-                                                    <p class="text-xs text-slate-600 leading-relaxed mt-1">
-                                                        Kec. {item.user.destination_detail.kecamatan}, Desa {item.user.destination_detail.desa}, 
-                                                        RT/RW {item.user.destination_detail.rt_rw}
-                                                        <br/>
-                                                        <span class="font-bold text-slate-900">Patokan: {item.user.destination_detail.patokan}</span>
-                                                    </p>
+                                                    {bookingType === 'RUTE' ? (
+                                                        <p class="text-xs text-slate-600 leading-relaxed mt-1">
+                                                            Kec. {item.user.destination_detail.kecamatan}, Desa {item.user.destination_detail.desa}, 
+                                                            RT/RW {item.user.destination_detail.rt_rw}
+                                                            <br/>
+                                                            <span class="font-bold text-slate-900 dynamic-text-class">Patokan: {item.user.destination_detail.patokan}</span>
+                                                        </p>
+                                                    ) : (
+                                                        <p class="text-sm md:text-base text-slate-900 font-bold leading-relaxed mt-1 dynamic-text-class">
+                                                            {item.destination}
+                                                        </p>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>

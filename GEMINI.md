@@ -27,7 +27,7 @@ AI CLI tidak boleh mengasumsikan alias sudah ada. Sebelum melakukan pekerjaan ap
 ---
 
 ## 3. DYNAMIC REUSABLE COMPONENT DISCOVERY & INVENTORY
-Sistem tidak hanya bergantung pada `inputGroup` dan `badge`. AI CLI diwajibkan untuk **menganalisis seluruh basis kode**, mengidentifikasi komponen yang dapat digunakan ulang (reusable), dan memprioritaskan penggunaannya daripada membangun elemen dari awal.
+Sistem tidak hanya bergantung pada komponen dasar. AI CLI diwajibkan untuk **menganalisis seluruh basis kode**, mengidentifikasi komponen yang dapat digunakan ulang (reusable), dan memprioritaskan penggunaannya daripada membangun elemen dari awal.
 
 * **Tugas Audit CLI:** Pindai folder `src/components/`, `src/layouts/`, dan `src/ui/`.
 * **Inventarisasi:** Kenali komponen tata letak (seperti `AdminLayout`, `DriverLayout`), komponen form, tombol, kartu, tabel, dan utilitas visual lainnya.
@@ -63,50 +63,7 @@ Sistem memiliki 4 tingkat otentikasi di sisi client via Vanilla JS (menggunakan 
 
 ---
 
-## 5. DETAILED FEATURE SPECIFICATIONS (FRONT-END SCOPE)
-
-### 1. Modul Detail Destinasi Favorit (Desain Bulat Sempurna)
-* **Keliling Lingkaran:** Wadah gambar destinasi menjadi bulat sempurna (`rounded-full`), proporsional dengan tinggi kotak pembungkus putih. Tambahkan border tebal gelap (misal: `border-[6px] border-[#0e4e5e]`).
-* **Pembungkus Putih:** Sisi kiri harus memiliki lekukan radial yang melengkung mulus mengikuti kontur lingkaran gambar. Sisi kanan menggunakan lengkungan modern (`rounded-xl`).
-* **Tag Lokasi:** Label `PANGANDARAN, INDONESIA` menempel rapi di bawah bingkai bulat gambar.
-* **CTA Navigasi Kembali:** Ganti teks tautan lama dengan ikon panah kiri (*arrow-left*) di dalam lingkaran putih kecil, melayang menempel pada sudut kiri atas lingkaran gambar utama.
-
-### 1.1 Modul Sinkronisasi Promosi Laman Layanan
-* Tampilkan **Tagline** dan **Nominal/Persentase Diskon** secara jelas (dari *Home Page Promotion payload*).
-* Sembunyikan deskripsi panjang dan komponen *badge* status internal.
-
-### 2. Overhaul Dashboard Admin & Ringkasan Operasional Armada
-* Hapus kartu "Pendapatan per armada" dan visualisasi "Statistik pendapatan bulanan".
-* Ganti dengan section **"Daftar Armada Sedang Bertugas"** (Render bersyarat):
-  * **Template "Rute":** Tampilkan badge layanan, rute perjalanan, total penumpang, total paket, nama supir, dan teks statis estimasi pendapatan.
-  * **Template "Booking":** Tampilkan badge layanan, nama pemesan, nomor telepon, alamat jemput/tujuan, tanggal (berangkat/pulang), nama supir, dan teks statis estimasi sewa.
-
-### 3. Data Pemesan & Form Rute Regular
-* Set default value harga menjadi **"250.000"**.
-* Input harus dapat diubah (*editable*) oleh admin sebelum disimpan ke *state*.
-
-### 4. Kelola Konten & Promo Workspace
-* Hapus manajemen "Destinasi Favorit" dari menu "Kelola Promosi".
-* Biarkan kotak *Preview* promosi melebar (*auto-scale*) mengisi sisa ruang secara responsif.
-
-### 5. Kelola Konten Submenu Kelola Armada
-* **Expandable Grid:** Tambah tombol "Tampilkan Sisa Armada" untuk *toggle* kartu armada menggunakan DOM Vanilla JS.
-* **Dropdown Relocation:** Pindahkan status armada (Tersedia, Dalam Pemeliharaan, Sedang Disewa) ke dalam **Form Edit Armada**.
-* **Client-Side Card Deletion:** Pasang ikon *trash bin* berdampingan dengan ikon pena. Eksekusi simulasi hapus dari tampilan visual lokal via Vanilla JS.
-
-### 6. Submenu Independen: Kelola Destinasi
-* **Grid 4x1:** Susun ulang kartu destinasi sebelumnya ke grid 4x1. Sertakan tombol "Tampilkan Sisa Destinasi".
-* **Form Tambah:** Gunakan kembali komponen `InputGroup` untuk Gambar, Nama Lokasi, Lokasi Daerah, dan Deskripsi.
-* **Auto-Populate Mode:** Klik ikon pena pada kartu akan mengisi form di bawahnya secara otomatis (*auto-populate*) dengan data terkait untuk masuk ke mode edit.
-
-### 7. Form Masukan Data Pengeluaran
-* Tambahkan menu "Masukan Data Pengeluaran" di sidebar laporan keuangan.
-* Gunakan `InputGroup` untuk: Dropdown Jenis Pengeluaran, Penanggung Jawab, Date Picker Tanggal, Nominal (Mata uang), Bukti File, dan Detail Teks.
-* **UI Reactive Binding:** Submit form ini harus mensimulasikan pembaruan baris data visual pada tabel laporan keuangan.
-
----
-
-## 6. AUTOMATED WORKFLOW FOR AI EXECUTION
+## 5. AUTOMATED WORKFLOW FOR AI EXECUTION
 AI wajib menjalankan urutan ini setiap kali diberi instruksi eksekusi:
 
 1. **[INTELLIGENCE INIT - PATH & COMPONENTS]:** Lakukan pemindaian direktori secara diam-diam. Buat konfigurasi path alias dinamis di `tsconfig.json`. Refaktor jalur *import* file secara mandiri. Lakukan identifikasi komponen *reusable* dan simpan *state* memori ke dalam file `gemini.md` ini (pada Bagian 3).

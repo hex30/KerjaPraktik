@@ -4,6 +4,7 @@ import PassengerDataForm from "@features/reservation/shared/PassengerDataForm.as
 import SeatMap from "@features/reservation/shared/SeatMap.astro";
 import SectionHeader from "@ui/SectionHeader.astro";
 import RouteSelectionItem from "./RouteSelectionItem.astro";
+import InputGroup from "@ui/InputGroup.astro";
 import QuantitySelector from "@ui/QuantitySelector.astro";
 import Button from "@ui/Button.astro";
 import HeroAside from "@ui/HeroAside.astro";
@@ -59,6 +60,62 @@ const {
                             </div>
                             <input type="hidden" name="tanggal_keberangkatan" id="tanggal_hidden_travel" required />
                         </div>
+
+                        <!-- START ALAMAT PENURUNAN -->
+                        <div class="flex flex-col gap-4 mt-6 pt-6 border-t border-slate-100">
+                            <label class="font-secondary text-base font-bold text-primary">Detail Alamat Penurunan (Tujuan)</label>
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <InputGroup
+                                    label="Kecamatan"
+                                    id="tujuan_kecamatan"
+                                    name="tujuan_kecamatan"
+                                    placeholder="Contoh: Panawangan"
+                                    required={true}
+                                />
+                                <InputGroup
+                                    label="Desa"
+                                    id="tujuan_desa"
+                                    name="tujuan_desa"
+                                    placeholder="Contoh: Cikodang"
+                                    required={true}
+                                />
+                                <InputGroup
+                                    label="Dusun"
+                                    id="tujuan_dusun"
+                                    name="tujuan_dusun"
+                                    placeholder="Contoh: Manis"
+                                    required={true}
+                                />
+                                <div class="grid grid-cols-2 gap-4">
+                                    <InputGroup
+                                        label="RT"
+                                        id="tujuan_rt"
+                                        name="tujuan_rt"
+                                        type="number"
+                                        placeholder="00"
+                                        required={true}
+                                    />
+                                    <InputGroup
+                                        label="RW"
+                                        id="tujuan_rw"
+                                        name="tujuan_rw"
+                                        type="number"
+                                        placeholder="00"
+                                        required={true}
+                                    />
+                                </div>
+                                <div class="md:col-span-2 lg:col-span-2">
+                                    <InputGroup
+                                        label="Patokan Bangunan"
+                                        id="tujuan_patokan"
+                                        name="tujuan_patokan"
+                                        placeholder="Contoh: Depan Masjid Agung"
+                                        required={false}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                        <!-- END ALAMAT PENURUNAN -->
                     </section>
 
                     <section class="border-b border-slate-100 pb-8">
