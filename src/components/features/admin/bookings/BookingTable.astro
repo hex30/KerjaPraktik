@@ -46,62 +46,48 @@ interface Props {
 const { bookingType, bookingData } = Astro.props;
 ---
 
-<div class="overflow-x-auto">
-    <table class="w-full text-left border-separate border-spacing-y-3">
-        <thead>
-            <tr class="text-slate-400 text-[10px] font-bold uppercase tracking-widest px-6 whitespace-nowrap">
-                <th class="pb-2 px-6">Pemesan</th>
-                <th class="pb-2 px-6">Detail Perjalanan</th>
-                <th class="pb-2 px-6">Status</th>
-                <th class="pb-2 px-6 text-right">Aksi</th>
-            </tr>
-        </thead>
+<div class="flex flex-col gap-4 booking-container">
         <tbody class="booking-tbody">
             {bookingData.map((item) => (
-                <>
+                <div class="booking-card bg-white border border-slate-100 rounded-[1.5rem] shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md group">
                     <!-- Main Row -->
-                    <tr 
-                        class="booking-main-row bg-white group cursor-pointer transition-all duration-300 relative whitespace-nowrap md:whitespace-normal" 
+                    <div 
+                        class="booking-main-row flex flex-col md:flex-row justify-between p-4 md:p-6 w-full cursor-pointer items-start md:items-center gap-6 toggle-trigger" 
                         data-id={item.id}
-                        style="border-radius: 24px;"
                     >
-                        <td class="py-5 px-6 border-y border-l border-slate-100" style="border-top-left-radius: inherit; border-bottom-left-radius: inherit;">
-                            <div class="flex flex-col">
-                                <span class="font-bold text-slate-900">{item.user.name}</span>
-                                <span class="text-xs text-slate-500 font-secondary">{item.user.phone}</span>
-                            </div>
-                        </td>
-                        <td class="py-5 px-6 border-y border-slate-100">
-                            <div class="flex flex-col gap-1">
-                                <div class="flex items-center gap-2 text-xs font-bold text-primary">
-                                    <span>{item.user.address_detail.kecamatan}</span>
-                                    <span>➔</span>
-                                    <span>{item.destination}</span>
-                                </div>
-                                <span class="text-[10px] text-slate-400 font-secondary">
-                                    {item.date} {bookingType === 'CHARTER' && item.time ? `| ${item.time}` : ''}
-                                </span>
-                            </div>
-                        </td>
-                        <td class="py-5 px-6 border-y border-slate-100">
+                        <div class="flex flex-col gap-1 w-full md:w-auto">
+                            <h2 class="text-lg md:text-xl font-black text-slate-800 tracking-tight group-hover:text-primary transition-colors">
+                                {item.user.name}
+                            </h2>
+                            <p class="font-secondary text-sm text-text-secondary flex items-center gap-2 mt-1">
+                                <span class="font-bold text-slate-700">{item.user.address_detail.kecamatan}</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+                                <span class="font-bold text-slate-700">{item.destination}</span>
+                            </p>
+                            <span class="text-[10px] text-slate-400 font-secondary mt-1">
+                                {item.user.phone} • {item.date} {bookingType === 'CHARTER' && item.time ? `| ${item.time}` : ''}
+                            </span>
+                        </div>
+
+                        <div class="flex flex-row justify-between items-center mt-4 pt-4 border-t border-slate-100 w-full md:mt-0 md:pt-0 md:border-0 md:w-auto md:flex-col md:justify-between md:items-end gap-4 md:gap-2">
                             {item.price ? (
                                 <AdminBadge status="WAITING_PAYMENT" />
                             ) : (
                                 <span class="px-3 py-1 rounded-full text-[10px] font-black bg-amber-100 text-amber-600">MENUNGGU</span>
                             )}
-                        </td>
-                        <td class="py-5 px-6 border-y border-r border-slate-100 text-right" style="border-top-right-radius: inherit; border-bottom-right-radius: inherit;">
-                            <span class="text-[10px] font-bold text-slate-300 group-hover:text-primary flex items-center justify-end gap-1 transition-colors">
-                                Kelola & Detail
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor" class="w-3 h-3"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" /></svg>
-                            </span>
-                        </td>
-                    </tr>
+                            <div class="flex items-center gap-2 text-slate-400">
+                                <span class="text-[10px] font-bold uppercase tracking-widest hidden md:block">Kelola & Detail</span>
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform duration-300 chevron-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
                     
                     <!-- Expanded Row -->
-                    <tr class="booking-detail-row hidden bg-white overflow-hidden relative" style="border-radius: 0 0 24px 24px;">
-                        <td colspan="4" class="px-6 pb-6 pt-0 border-x border-b border-slate-100" style="border-bottom-left-radius: inherit; border-bottom-right-radius: inherit;">
-                            <div class="border-t border-dashed border-slate-200 pt-6 mt-1 animate-fade-in">
+                    <div class="booking-detail-row expand-content max-h-0 overflow-hidden transition-all duration-500 ease-in-out bg-slate-50/50">
+                        <div class="p-4 md:p-6 border-t border-slate-100">
+                            <div class="animate-fade-in">
                                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
                                     <!-- Detail Column -->
                                     <div class="flex flex-col gap-6">
@@ -242,13 +228,12 @@ const { bookingType, bookingData } = Astro.props;
                                     </div>
                                 </div>
                             </div>
-                        </td>
-                    </tr>
-                </>
+                        </div>
+                    </div>
+                </div>
             ))}
-        </tbody>
-    </table>
-</div>
+        </div>
+    </div>
 
 <script>
     const setupAccordion = () => {
@@ -257,27 +242,27 @@ const { bookingType, bookingData } = Astro.props;
         mainRows.forEach(row => {
             row.addEventListener('click', () => {
                 const detailRow = row.nextElementSibling as HTMLElement;
-                const isOpening = detailRow.classList.contains('hidden');
+                const chevron = row.querySelector('.chevron-icon');
+                const isOpening = !detailRow.style.maxHeight;
 
                 mainRows.forEach(otherRow => {
                     const otherDetail = otherRow.nextElementSibling as HTMLElement;
+                    const otherChevron = otherRow.querySelector('.chevron-icon');
                     if (otherRow !== row) {
-                        otherDetail.classList.add('hidden');
-                        (otherRow as HTMLElement).style.borderRadius = '24px';
-                        otherRow.classList.remove('rounded-b-none', 'active-card');
+                        otherDetail.style.maxHeight = '';
+                        otherChevron?.classList.remove('rotate-180');
+                        otherRow.parentElement?.classList.remove('active-card');
                     }
                 });
 
                 if (isOpening) {
-                    detailRow.classList.remove('hidden');
-                    (row as HTMLElement).style.borderRadius = '24px 24px 0 0';
-                    row.classList.add('rounded-b-none', 'active-card');
-                    detailRow.classList.add('active-card');
+                    detailRow.style.maxHeight = detailRow.scrollHeight + 'px';
+                    chevron?.classList.add('rotate-180');
+                    row.parentElement?.classList.add('active-card');
                 } else {
-                    detailRow.classList.add('hidden');
-                    (row as HTMLElement).style.borderRadius = '24px';
-                    row.classList.remove('rounded-b-none', 'active-card');
-                    detailRow.classList.remove('active-card');
+                    detailRow.style.maxHeight = '';
+                    chevron?.classList.remove('rotate-180');
+                    row.parentElement?.classList.remove('active-card');
                 }
             });
         });
@@ -314,12 +299,8 @@ const { bookingType, bookingData } = Astro.props;
         from { opacity: 0; transform: translateY(-5px); }
         to { opacity: 1; transform: translateY(0); }
     }
-    table { border-collapse: separate; border-spacing: 0 12px; }
-    tr { transition: all 0.3s ease; }
-    .booking-main-row { box-shadow: none; }
-    .active-card { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); z-index: 10; }
-    .booking-main-row.active-card { box-shadow: 0 -10px 25px -5px rgba(0, 0, 0, 0.05), 10px 0 25px -5px rgba(0, 0, 0, 0.05), -10px 0 25px -5px rgba(0, 0, 0, 0.05); }
-    .booking-detail-row.active-card { box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.05), 10px 0 25px -5px rgba(0, 0, 0, 0.05), -10px 0 25px -5px rgba(0, 0, 0, 0.05); }
+    .booking-card { box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); }
+    .booking-card.active-card { box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.05), 10px 0 25px -5px rgba(0, 0, 0, 0.05), -10px 0 25px -5px rgba(0, 0, 0, 0.05); z-index: 10; border-color: #e2e8f0; }
 </style>
 
 

@@ -56,6 +56,21 @@ const assignedFleets = [
         }
     }
 ];
+
+// Data Dummy Persetujuan Driver (Task 8.2)
+const approvalDriverData = [
+    {
+        id: "REQ-001",
+        driver1: "Ujang Komar",
+        driver2: "Asep",
+        pax: 15,
+        path: "Ciamis - Jakarta",
+        date: "26 Juni 2026",
+        packages: 3,
+        unit_name: "ELF Giga (Z 8899 JK)",
+        type: "RUTE"
+    }
+];
 ---
 
 <AdminLayout title="Dashboard Overview">
@@ -70,6 +85,59 @@ const assignedFleets = [
             </div>
         </section>
 
+        <!-- Modul Baru: Kartu Permintaan Persetujuan Driver (Task 8.2) -->
+        <section id="approval-section" class="flex flex-col gap-6">
+            <h2 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Permintaan Persetujuan Driver</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6" id="approval-grid">
+                {approvalDriverData.map(req => (
+                    <div class="approval-card bg-white rounded-xl border border-slate-200 p-6 flex flex-col gap-5 shadow-sm hover:shadow-md transition-all duration-300" data-id={req.id}>
+                        <div class="flex items-center justify-between border-b border-dashed border-slate-100 pb-4">
+                            <div class="flex flex-col">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase">Jadwal Keberangkatan</span>
+                                <span class="text-sm font-black text-primary">{req.date}</span>
+                            </div>
+                            <Badge variant={req.type === 'RUTE' ? 'sky' : 'warning'} class="px-3 py-1 text-[9px]">{req.type}</Badge>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="flex flex-col gap-1">
+                                <span class="text-[9px] font-bold text-slate-400 uppercase block">Rute / Tujuan</span>
+                                <span class="text-xs font-bold text-slate-900">{req.path}</span>
+                            </div>
+                            <div class="flex flex-col gap-1">
+                                <span class="text-[9px] font-bold text-slate-400 uppercase block">Unit Armada</span>
+                                <span class="text-xs font-bold text-slate-900">{req.unit_name}</span>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100/50">
+                                <span class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Total Penumpang</span>
+                                <span class="text-xs font-black text-primary">{req.pax} Orang</span>
+                            </div>
+                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100/50">
+                                <span class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Total Paket</span>
+                                <span class="text-xs font-black text-primary">{req.packages} Item</span>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col gap-2">
+                            <span class="text-[9px] font-bold text-slate-400 uppercase block">Driver Diajukan</span>
+                            <div class="flex gap-2">
+                                <span class="px-2.5 py-1 bg-primary/10 text-primary text-[10px] font-black rounded-md">D1: {req.driver1}</span>
+                                {req.driver2 && <span class="px-2.5 py-1 bg-slate-100 text-slate-600 text-[10px] font-black rounded-md">D2: {req.driver2}</span>}
+                            </div>
+                        </div>
+
+                        <div class="mt-2 pt-4 border-t border-slate-50 flex items-center justify-between gap-3">
+                            <button class="reject-btn flex-1 border border-rose-200 text-rose-600 hover:bg-rose-50 px-4 py-2 rounded-lg text-sm font-medium transition-colors">Tolak</button>
+                            <button class="approve-btn flex-1 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-lg shadow-emerald-600/20">Menyetujui</button>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </section>
+
         <!-- Daftar Armada Sedang Bertugas -->
         <section class="flex flex-col gap-6">
             <div class="flex items-center justify-between">
@@ -77,9 +145,12 @@ const assignedFleets = [
                 <span class="px-4 py-1.5 bg-slate-100 text-slate-500 text-[10px] font-black rounded-full uppercase tracking-widest">Live Status</span>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {assignedFleets.map(fleet => (
-                    <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-6 relative overflow-hidden group hover:shadow-xl transition-all duration-500">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6" id="assigned-fleets-grid">
+                {assignedFleets.map((fleet, index) => (
+                    <div class:list={[
+                        "bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-6 relative overflow-hidden group hover:shadow-xl transition-all duration-500 fleet-card",
+                        index >= 2 ? "hidden extra-fleet" : ""
+                    ]}>
                         <!-- BG Accent -->
                         <div class:list={["absolute top-0 right-0 w-32 h-32 opacity-5 rounded-full -translate-y-1/2 translate-x-1/2", fleet.type === 'RUTE' ? 'bg-primary' : 'bg-secondary']}></div>
                         
@@ -164,6 +235,10 @@ const assignedFleets = [
                     </div>
                 ))}
             </div>
+            <button id="toggle-fleet-btn" class="mx-auto mt-2 px-6 py-3 bg-slate-100 text-slate-600 rounded-full font-bold text-xs hover:bg-slate-200 transition-all cursor-pointer flex items-center gap-2">
+                <span id="toggle-fleet-text">Lihat Semua Armada</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+            </button>
         </section>
 
         <!-- Quick Message -->
@@ -179,6 +254,101 @@ const assignedFleets = [
         </div>
     </div>
 </AdminLayout>
+
+<script>
+    const setupDashboardInteractions = () => {
+        // Toggle Fleet Button Logic (8.1)
+        const toggleFleetBtn = document.getElementById('toggle-fleet-btn');
+        const toggleFleetText = document.getElementById('toggle-fleet-text');
+        const extraFleets = document.querySelectorAll('.extra-fleet');
+
+        if (extraFleets.length === 0 && toggleFleetBtn) {
+            toggleFleetBtn.style.display = 'none'; // Hide if no extra fleets
+        }
+
+        toggleFleetBtn?.addEventListener('click', () => {
+            const isHidden = extraFleets[0]?.classList.contains('hidden');
+            
+            extraFleets.forEach(fleet => {
+                if (isHidden) {
+                    fleet.classList.remove('hidden');
+                    fleet.classList.add('animate-fade-in');
+                } else {
+                    fleet.classList.add('hidden');
+                    fleet.classList.remove('animate-fade-in');
+                }
+            });
+
+            if (toggleFleetText) {
+                toggleFleetText.textContent = isHidden ? 'Sembunyikan Armada' : 'Lihat Semua Armada';
+            }
+        });
+
+        // Approve Driver Logic (8.2)
+        const approveBtns = document.querySelectorAll('.approve-btn');
+        const rejectBtns = document.querySelectorAll('.reject-btn');
+        const assignedFleetsGrid = document.getElementById('assigned-fleets-grid');
+
+        approveBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const target = e.target as HTMLElement;
+                const card = target.closest('.approval-card') as HTMLElement;
+                
+                // Add fade out animation
+                card.style.opacity = '0';
+                card.style.transform = 'scale(0.95)';
+                card.style.transition = 'all 0.3s ease';
+
+                setTimeout(() => {
+                    // Extract data to build a new fleet card (Simulated visual move)
+                    card.style.display = 'none';
+                    
+                    // In a real app, we'd trigger an API, then append the newly built HTML.
+                    // For pure Front-End PRD, we just hide the approval card and could theoretically append a new node to assignedFleetsGrid.
+                    alert('Driver disetujui! Memindahkan data ke Daftar Armada Bertugas...');
+                    
+                    // Optional: remove section if empty
+                    const remainingCards = document.querySelectorAll('.approval-card[style*="display: none"]');
+                    if(remainingCards.length === approveBtns.length) {
+                        document.getElementById('approval-section')?.remove();
+                    }
+                }, 300);
+            });
+        });
+
+        rejectBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const target = e.target as HTMLElement;
+                const card = target.closest('.approval-card') as HTMLElement;
+                
+                if(confirm("Tolak pengajuan driver ini?")) {
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.95)';
+                    card.style.transition = 'all 0.3s ease';
+
+                    setTimeout(() => {
+                        card.remove();
+                        const allCards = document.querySelectorAll('.approval-card');
+                        if(allCards.length === 0) {
+                            document.getElementById('approval-section')?.remove();
+                        }
+                    }, 300);
+                }
+            });
+        });
+    };
+
+    document.addEventListener('DOMContentLoaded', setupDashboardInteractions);
+    document.addEventListener('astro:page-load', setupDashboardInteractions);
+</script>
+
+<style>
+    .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px) scale(0.98); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+</style>
 
 
 
