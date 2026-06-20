@@ -24,3 +24,7 @@ pnpm-debug.log*
 .idea/
 
 .vercel
+
+# AI Documentation
+PRD.md
+GEMINI.md

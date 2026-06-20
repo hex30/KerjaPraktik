@@ -5,13 +5,77 @@ import FavoritDestination from "@features/home/FavoritDestination.astro";
 import PromoSection from "@features/promotion/PromotionSection.astro";
 import FeatureSection from "@features/home/FeatureSection.astro";
 import FAQ from "@ui/FAQ.astro";
+import { contentService } from "@services/contentService";
+
+// dokumentasi: Inisialisasi variabel untuk menampung data dari Backend
+let slidesData = undefined;
+let destinationsData = undefined;
+let promoData = undefined;
+
+// dokumentasi: Mengambil data Banners (Hero Slider)
+try {
+  const bannersRes = await contentService.getBanners();
+  if (bannersRes?.data && bannersRes.data.length > 0) {
+     slidesData = bannersRes.data.map((b: any) => ({
+        id: b.id,
+        sub: b.subtitle || "INFO TERKINI",
+        title: b.title || "Rini Trans Putri",
+        desc: b.description || "",
+        btnText: b.button_text || "Lihat Detail",
+        btnLink: b.button_link || "#",
+        bgImage: b.image_url || b.image
+     }));
+  }
+} catch (e) {
+  console.error("Gagal load banner:", e);
+}
+
+// dokumentasi: Mengambil data Destinasi
+try {
+  const destRes = await contentService.getDestinations();
+  if (destRes?.data && destRes.data.length > 0) {
+     destinationsData = destRes.data.map((d: any) => ({
+        image: d.image_url || d.image,
+        title: d.name || d.title,
+        location: d.location || "Indonesia",
+        description: d.description
+     }));
+  }
+} catch (e) {
+  console.error("Gagal load destinasi:", e);
+}
+
+// dokumentasi: Mengambil data Promosi (Ambil item pertama sebagai Highlight)
+try {
+  const promoRes = await contentService.getPromotions();
+  if (promoRes?.data && promoRes.data.length > 0) {
+     const p = promoRes.data[0];
+     promoData = {
+        image: p.image_url || p.image || "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&q=80&w=800",
+        discount: p.discount_text || `${p.discount_percentage || 10}% OFF`,
+        noteTitle: p.title || "Promo Spesial",
+        noteDesc: p.subtitle || "Penawaran Terbatas",
+        textRow1: "Dapatkan",
+        textDesc1: p.description || "Nikmati harga khusus untuk perjalanan eksklusif Anda bersama kami.",
+        textRow2: "Penawaran",
+        textRow3: "Terbaik",
+        textDesc2: "Syarat dan ketentuan berlaku.",
+        btnLink: p.link || "#booking",
+        btnText: "Klaim Promo"
+     };
+  }
+} catch (e) {
+  console.error("Gagal load promo:", e);
+}
 ---
 
 <Layout title="Rini Trans Putri | Home">
     <main>
-        <HeroSlider />
-        <FavoritDestination />
-        <PromoSection />
+        <!-- dokumentasi: Data Binding ke Komponen UI (Jika undefine, komponen akan merender default dummy) -->
+        <HeroSlider slides={slidesData} />
+        <FavoritDestination destinations={destinationsData} />
+        <PromoSection promoData={promoData} />
+        
         <FeatureSection />
         <FAQ />
     </main>
