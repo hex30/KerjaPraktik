@@ -20,7 +20,7 @@ const seatLayoutData = [
 
   // Kolom 3
   { id: "5", type: "seat", status: "available", label: "5" },
-  { id: "6", type: "seat", status: "booked", label: "6" }, // Contoh data dari DB jika kursi terisi
+  { id: "6", type: "seat", status: "available", label: "6" },
   { id: "door1", type: "door", label: "Pintu" },
 
   // Kolom 4
@@ -210,114 +210,64 @@ const boxClassBase =
     </div>
   </div>
 
-  <div
-    class="flex flex-col md:flex-row md:items-center justify-between p-5 bg-card-bg-sc rounded-[var(--radius-bg)] border border-slate-200 gap-4 mt-2"
-  >
-    <div class="flex flex-col">
-      <span
-        class="text-xs font-bold font-secondary text-text-primary uppercase tracking-tight"
-        >Kursi Terpilih</span
-      >
-      <div
-        id="seat-badge-container"
-        class="flex flex-wrap gap-2 mt-2 min-h-[28px]"
-      >
-        <span class="text-sm font-third text-text-secondary"
-          >Belum ada kursi dipilih</span
-        >
-      </div>
-    </div>
-
-    <input
-      type="hidden"
-      name="seat_number"
-      id="input-selected-seats"
-      required
-    />
-  </div>
+  <input
+    type="hidden"
+    name="seat_number"
+    id="input-selected-seats"
+    required
+  />
 </section>
 
 <script>
   import { authGuard } from "@utils/authGuard";
 
   const setupSeatSelection = () => {
-    const seatButtons = document.querySelectorAll(".seat-btn:not([disabled])");
-    const badgeContainer = document.getElementById("seat-badge-container");
-    const hiddenInput = document.getElementById(
-      "input-selected-seats",
-    ) as HTMLInputElement;
+    const section = document.getElementById("seat-selection-section");
 
-    // UBAH: Sekarang hanya menyimpan satu string/angka tunggal, bukan Array
+    if (!section) return;
+
     let selectedSeat: string | null = null;
 
-    seatButtons.forEach((seat) => {
-      seat.replaceWith(seat.cloneNode(true));
-    });
+    // Remove old listener if exists to prevent duplicates on view transitions
+    const newSection = section.cloneNode(true) as HTMLElement;
+    section.parentNode?.replaceChild(newSection, section);
 
-    const freshSeatButtons = document.querySelectorAll(
-      ".seat-btn:not([disabled])",
-    );
+    newSection.addEventListener("click", (e) => {
+        const target = (e.target as HTMLElement).closest(".seat-btn") as HTMLButtonElement;
+        
+        if (!target || target.hasAttribute("disabled")) return;
 
-    const checkGuest = (e: Event) => {
+        // AUTH GUARD CHECK
         if (!authGuard.isLoggedIn()) {
             e.preventDefault();
             e.stopPropagation();
             authGuard.requireAuth();
-            return true;
+            return;
         }
-        return false;
-    };
 
-    freshSeatButtons.forEach((seat) => {
-      seat.addEventListener("click", (e) => {
-        if (checkGuest(e)) return;
-        const target = e.currentTarget as HTMLButtonElement;
         const seatNum = target.getAttribute("data-seat");
-
         if (!seatNum) return;
 
-        // Jika mengklik kursi yang sama, batalkan pilihan
         if (selectedSeat === seatNum) {
-          selectedSeat = null;
-          target.setAttribute("data-selected", "false");
+            selectedSeat = null;
+            target.setAttribute("data-selected", "false");
         } else {
-          // Batalkan pilihan kursi sebelumnya (jika ada)
-          if (selectedSeat) {
-            const prevBtn = document.querySelector(
-              `.seat-btn[data-seat="${selectedSeat}"]`,
-            );
-            if (prevBtn) prevBtn.setAttribute("data-selected", "false");
-          }
-          // Pilih kursi baru
-          selectedSeat = seatNum;
-          target.setAttribute("data-selected", "true");
+            if (selectedSeat) {
+                const prevBtn = newSection.querySelector(`.seat-btn[data-seat="${selectedSeat}"]`);
+                if (prevBtn) prevBtn.setAttribute("data-selected", "false");
+            }
+            selectedSeat = seatNum;
+            target.setAttribute("data-selected", "true");
         }
 
         updateUI();
-      });
     });
 
     const updateUI = () => {
-      if (hiddenInput) {
-        hiddenInput.value = selectedSeat || "";
-
-        // Opsional: Jika Anda ingin memicu event 'change' manual agar
-        // form lain tahu bahwa input ini baru saja berubah
-        hiddenInput.dispatchEvent(new Event("change", { bubbles: true }));
-      }
-
-      if (badgeContainer) {
-        if (!selectedSeat) {
-          badgeContainer.innerHTML =
-            '<span class="text-sm font-third text-text-secondary">Belum ada kursi dipilih</span>';
-          return;
-        }
-
-        badgeContainer.innerHTML = `
-            <span class="px-3 py-1.5 bg-badge-bg text-primary font-main text-xs font-bold rounded-lg shadow-sm">
-              Kursi ${selectedSeat}
-            </span>
-        `;
+      const activeHiddenInput = document.getElementById("input-selected-seats") as HTMLInputElement;
+      if (activeHiddenInput) {
+        activeHiddenInput.value = selectedSeat || "";
+        activeHiddenInput.dispatchEvent(new Event("change", { bubbles: true }));
       }
     };
   };

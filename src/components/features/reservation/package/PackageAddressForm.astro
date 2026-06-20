@@ -5,36 +5,25 @@ import AddressGrid from '@features/reservation/shared/AddressGrid.astro';
 
 interface Props {
     title: string;
+    stepNumber: string;
     // Tipe ini akan menentukan suffix id dan name secara otomatis
     type: 'pengirim' | 'penerima';
 }
 
-const { title, type } = Astro.props;
-
-// ==========================================
-// SIMULASI AUTENTIKASI & DATA USER
-// ==========================================
-const session = {
-    isLoggedIn: true,
-    user: {
-        fullName: "Febi Yulianti", 
-        phone: "081234567890"
-    }
-};
+const { title, stepNumber, type } = Astro.props;
 
 const isPengirim = type === 'pengirim';
 const labelNama = isPengirim ? 'Nama Pengirim' : 'Nama Penerima';
 const placeholderNama = isPengirim ? 'Nama lengkap Anda' : 'Nama lengkap tujuan';
-
-const defaultName = (isPengirim && session.isLoggedIn) ? session.user.fullName : "";
-const defaultPhone = (isPengirim && session.isLoggedIn) ? session.user.phone : "";
 ---
 
-<fieldset class="flex flex-col gap-5 p-6 rounded-2xl bg-slate-50 border border-slate-100 relative">
-    <legend class="px-3 bg-slate-50 text-text-primary font-black text-sm uppercase tracking-wider rounded-lg border border-slate-100">
+<section class="flex flex-col gap-5">
+    <h3 class="text-lg text-primary font-bold flex items-center gap-2">
+        <span class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm">{stepNumber}</span>
         {title}
-    </legend>
+    </h3>
     
+    <div class="flex flex-col gap-5 p-6 rounded-2xl bg-slate-50 border border-slate-100 relative">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div class="relative w-full">
             <InputGroup 
@@ -43,13 +32,7 @@ const defaultPhone = (isPengirim && session.isLoggedIn) ? session.user.phone : "
                 name={`nama_${type}`} 
                 placeholder={placeholderNama} 
                 required={true} 
-                value={defaultName}
             />
-            {isPengirim && session.isLoggedIn && (
-                <span class="absolute right-4 top-10 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-200 pointer-events-none">
-                    Sesuai Profil
-                </span>
-            )}
         </div>
         
         <div class="relative w-full">
@@ -57,21 +40,41 @@ const defaultPhone = (isPengirim && session.isLoggedIn) ? session.user.phone : "
                 label="No. Telepon" 
                 id={`telp_${type}`} 
                 name={`telp_${type}`} 
-                type="number" 
+                type="tel" 
                 placeholder="Contoh: 08123456789" 
                 required={true} 
-                value={defaultPhone}
             />
-            {isPengirim && session.isLoggedIn && (
-                <span class="absolute right-4 top-10 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-200 pointer-events-none">
-                    Sesuai Profil
-                </span>
-            )}
         </div>
     </div>
     
     <AddressGrid type={type} dusunLabel="Nama Dusun/Jalan" />
-</fieldset>
+    </div>
+</section>
+
+<script define:vars={{ type, isPengirim }}>
+    const setupPackageAutofill = () => {
+        if (!isPengirim) return;
+        
+        const inputNama = document.getElementById(`nama_${type}`);
+        const inputTelp = document.getElementById(`telp_${type}`);
+        
+        const userDataStr = localStorage.getItem("user_data");
+        if (userDataStr) {
+            try {
+                const user = JSON.parse(userDataStr);
+                if ((user.name || user.nama) && inputNama) {
+                    inputNama.value = user.name || user.nama;
+                }
+                if ((user.phone_number || user.telp) && inputTelp) {
+                    inputTelp.value = user.phone_number || user.telp;
+                }
+            } catch (e) {}
+        }
+    };
+    
+    document.addEventListener("DOMContentLoaded", setupPackageAutofill);
+    document.addEventListener("astro:page-load", setupPackageAutofill);
+</script>
 
 
 

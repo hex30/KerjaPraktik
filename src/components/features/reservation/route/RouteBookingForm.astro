@@ -8,6 +8,7 @@ import InputGroup from "@ui/InputGroup.astro";
 import QuantitySelector from "@ui/QuantitySelector.astro";
 import Button from "@ui/Button.astro";
 import HeroAside from "@ui/HeroAside.astro";
+import AlertCard from "@ui/AlertCard.astro";
 
 interface Props {
     title?: string;
@@ -53,116 +54,104 @@ const {
 
                         <div class="flex flex-col gap-3 mt-2">
                             <label class="font-secondary text-sm font-bold text-primary">Pilih tanggal keberangkatan anda</label>
-                            <div id="date-container-travel" class="flex gap-3 overflow-x-auto pb-4 snap-x hide-scrollbar min-h-[140px]">
+                            <div id="date-container-travel" class="flex gap-4 overflow-x-auto pb-4 hide-scrollbar snap-x w-full">
                                 <div class="w-full flex items-center justify-center p-8 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 text-slate-400 text-sm font-medium">
-                                    Silahkan Pilih Rute Terlebih Dahulu.
+                                    Pilih rute perjalanan terlebih dahulu
                                 </div>
                             </div>
                             <input type="hidden" name="tanggal_keberangkatan" id="tanggal_hidden_travel" required />
                         </div>
-
-                        <!-- START ALAMAT PENURUNAN -->
-                        <div class="flex flex-col gap-4 mt-6 pt-6 border-t border-slate-100">
-                            <label class="font-secondary text-base font-bold text-primary">Detail Alamat Penurunan (Tujuan)</label>
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                <InputGroup
-                                    label="Kecamatan"
-                                    id="tujuan_kecamatan"
-                                    name="tujuan_kecamatan"
-                                    placeholder="Contoh: Panawangan"
-                                    required={true}
-                                />
-                                <InputGroup
-                                    label="Desa"
-                                    id="tujuan_desa"
-                                    name="tujuan_desa"
-                                    placeholder="Contoh: Cikodang"
-                                    required={true}
-                                />
-                                <InputGroup
-                                    label="Dusun"
-                                    id="tujuan_dusun"
-                                    name="tujuan_dusun"
-                                    placeholder="Contoh: Manis"
-                                    required={true}
-                                />
-                                <div class="grid grid-cols-2 gap-4">
-                                    <InputGroup
-                                        label="RT"
-                                        id="tujuan_rt"
-                                        name="tujuan_rt"
-                                        type="number"
-                                        placeholder="00"
-                                        required={true}
-                                    />
-                                    <InputGroup
-                                        label="RW"
-                                        id="tujuan_rw"
-                                        name="tujuan_rw"
-                                        type="number"
-                                        placeholder="00"
-                                        required={true}
-                                    />
-                                </div>
-                                <div class="md:col-span-2 lg:col-span-2">
-                                    <InputGroup
-                                        label="Patokan Bangunan"
-                                        id="tujuan_patokan"
-                                        name="tujuan_patokan"
-                                        placeholder="Contoh: Depan Masjid Agung"
-                                        required={false}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                        <!-- END ALAMAT PENURUNAN -->
                     </section>
 
-                    <section class="border-b border-slate-100 pb-8">
-                        <h3 class="text-lg text-primary font-bold flex items-center gap-2 mb-6">
-                            <span class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm">2</span>
-                            Pilih Kursi
-                        </h3>
-                        <SeatMap />
-                    </section>
+                    <!-- RESTRICTED AREA FOR GUEST -->
+                    <div id="restricted-area-route" class="relative transition-all duration-300">
+                        
+                        <!-- Guest Alert Overlay Backdrop (Transparent Catcher) -->
+                        <div id="guest-overlay-route" class="absolute inset-0 z-40 bg-transparent cursor-pointer rounded-2xl"></div>
 
-                    <section class="flex flex-col gap-5">
-                        <h3 class="text-lg text-primary font-bold flex items-center gap-2">
-                            <span class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm">3</span>
-                            Barang bawaan (Opsional)
-                        </h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                            <div class="flex flex-col gap-2">
-                                <label for="ukuran_bagasi" class="font-secondary text-sm font-bold text-primary">Ukuran dominan</label>
-                                <div class="relative">
-                                    <select
-                                        name="ukuran_bagasi"
-                                        id="ukuran_bagasi"
-                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all appearance-none"
-                                    >
-                                        <option value="tidak_ada">Hanya tas/Ransel</option>
-                                        <option value="sedang">Sedang (Kardus Mie)</option>
-                                        <option value="besar">Besar (Koper/Karung)</option>
-                                    </select>
-                                    <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-slate-400">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        <!-- Content yang dikunci secara fungsional (tidak diblur) -->
+                        <div id="restricted-content-route" class="flex flex-col gap-6 pointer-events-none transition-all duration-500">
+                            
+                            <section class="border-b border-slate-100 pb-8">
+                                <h3 class="text-lg text-primary font-bold flex items-center gap-2 mb-6">
+                                    <span class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm">2</span>
+                                    Pilih Kursi
+                                </h3>
+                                <SeatMap />
+                            </section>
+
+                            <section class="flex flex-col gap-5">
+                                <h3 class="text-lg text-primary font-bold flex items-center gap-2">
+                                    <span class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm">3</span>
+                                    Barang Bawaan (Opsional)
+                                </h3>
+
+                                <div class="p-6 rounded-2xl bg-slate-50 border border-slate-100 relative mt-2">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                        <div class="flex flex-col gap-2 w-full">
+                                            <label for="berat_bagasi" class="font-secondary text-sm font-bold text-primary">
+                                                Berat Bawaan
+                                            </label>
+                                            <div class="relative flex items-center w-full">
+                                                <input 
+                                                    type="number" 
+                                                    name="berat_bagasi" 
+                                                    id="berat_bagasi" 
+                                                    placeholder="Contoh: 15" 
+                                                    min="0"
+                                                    class="w-full bg-slate-100 border border-slate-200 rounded-lg pl-4 pr-16 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-slate-400"
+                                                />
+                                                <div class="absolute right-1 top-1 bottom-1 bg-white border border-slate-200 rounded-md px-3 flex items-center justify-center pointer-events-none shadow-sm">
+                                                    <span class="font-black text-primary text-xs tracking-wider">Kg</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="flex flex-col gap-2 w-full">
+                                            <label for="dimensi_bagasi" class="font-secondary text-sm font-bold text-primary">Ukuran Dominan</label>
+                                            <div class="relative">
+                                                <select name="dimensi_bagasi" id="dimensi_bagasi" class="w-full bg-slate-100 border border-slate-200 rounded-lg px-4 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all appearance-none cursor-pointer">
+                                                    <option value="kecil" selected>Kecil (Tas/Ransel)</option>
+                                                    <option value="sedang">Sedang (Kardus Mie)</option>
+                                                    <option value="besar">Besar (Koper/Karung)</option>
+                                                    <option value="super_besar">Super Besar</option>
+                                                </select>
+                                                <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-slate-400">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <!-- START ALAMAT PENURUNAN -->
+                            <div class="flex flex-col gap-4 mt-6 pt-6 border-t border-slate-100">
+                                <h3 class="text-lg text-primary font-bold flex items-center gap-2 mb-2">
+                                    <span class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm">4</span>
+                                    Detail Alamat Penurunan (Tujuan)
+                                </h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    <InputGroup label="Kecamatan" id="tujuan_kecamatan" name="tujuan_kecamatan" placeholder="Contoh: Panawangan" required={true} />
+                                    <InputGroup label="Desa" id="tujuan_desa" name="tujuan_desa" placeholder="Contoh: Cikodang" required={true} />
+                                    <InputGroup label="Dusun" id="tujuan_dusun" name="tujuan_dusun" placeholder="Contoh: Manis" required={true} />
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <InputGroup label="RT" id="tujuan_rt" name="tujuan_rt" type="number" placeholder="00" required={true} />
+                                        <InputGroup label="RW" id="tujuan_rw" name="tujuan_rw" type="number" placeholder="00" required={true} />
+                                    </div>
+                                    <div class="md:col-span-2 lg:col-span-2">
+                                        <InputGroup label="Patokan Bangunan" id="tujuan_patokan" name="tujuan_patokan" placeholder="Contoh: Depan Masjid Agung" required={false} />
                                     </div>
                                 </div>
                             </div>
+                            <!-- END ALAMAT PENURUNAN -->
 
-                            <QuantitySelector 
-                                id="jumlah_bagasi" 
-                                name="jumlah_bagasi" 
-                                label="Jumlah Barang (Pcs)" 
-                                max={15}
-                            />
+                            <div class="pt-2">
+                                <Button type="submit" size="lg" class="w-full md:w-auto">
+                                    Lanjutkan Isi Data Diri
+                                </Button>
+                            </div>
                         </div>
-                    </section>
-
-                    <div class="pt-6">
-                        <Button type="submit" size="lg" class="w-full md:w-auto">
-                            Lanjutkan Isi Data Diri
-                        </Button>
                     </div>
                 </form>
             </div>
@@ -210,10 +199,26 @@ const {
     .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 </style>
 
+<!-- FIXED GUEST ALERT CARD -->
+<div id="guest-alert-card-route" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 opacity-0 transition-opacity duration-300">
+    <div class="pointer-events-auto shadow-2xl rounded-2xl transform scale-95 transition-transform duration-300" id="guest-alert-card-inner-route">
+        <AlertCard 
+            type="warning"
+            title="Login Diperlukan"
+            message="Silakan masuk ke akun Anda untuk memilih kursi dan melanjutkan tahap pemesanan."
+            actionText="Login Sekarang"
+            actionLink="/auth/login"
+        />
+    </div>
+</div>
+
 <script>
     import { authGuard } from "@utils/authGuard";
+    import { travelService } from "@services/travelService";
 
-    let selectedScheduleId = "";
+    let selectedScheduleId = ""; // (Deprecated, will be removed later)
+    let selectedRouteId = "";
+    let selectedRawDate = "";
 
     const formatters = {
         currency: new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }),
@@ -227,9 +232,6 @@ const {
         const dates = [];
         const today = new Date();
         
-        // Allowed days: 
-        // panawangan_jakarta (Route 1): Senin (1), Rabu (3), Jumat (5)
-        // jakarta_panawangan (Route 2): Selasa (2), Kamis (4), Minggu (0)
         const allowedDays = routeValue === "panawangan_jakarta" ? [1, 3, 5] : [2, 4, 0];
 
         for (let i = 0; i < 14; i++) {
@@ -238,9 +240,10 @@ const {
             
             if (allowedDays.includes(nextDate.getDay())) {
                 dates.push({
-                    id: `SCH-${routeValue}-${nextDate.getTime()}`,
+                    id: `DUMMY-${routeValue}-${nextDate.getTime()}`, // Not real schedule ID, but used for UI
+                    raw_date: nextDate.toISOString().split('T')[0], // The actual date user selected
                     departure_time: nextDate.toISOString(),
-                    available_seats: Math.floor(Math.random() * 5) + 1, // Random seats 1-5 for visual feel
+                    available_seats: 15,
                     base_price: 250000
                 });
             }
@@ -254,13 +257,16 @@ const {
         
         return `
             <label class="relative cursor-pointer snap-start shrink-0 group">
-                <input type="radio" name="pilihan_jadwal" value="${schedule.id}" class="peer sr-only" ${isFull ? 'disabled' : ''}>
+                <input type="radio" name="pilihan_jadwal" data-raw-date="${schedule.raw_date}" value="${schedule.id}" class="peer sr-only" ${isFull ? 'disabled' : ''}>
                 <div class="flex flex-col items-center justify-center min-w-[120px] p-4 border-2 border-slate-200 rounded-2xl text-primary transition-all peer-checked:text-black peer-checked:border-primary peer-checked:bg-primary/10 hover:border-primary hover:-translate-y-1 ${isFull ? 'opacity-50 cursor-not-allowed grayscale' : ''}">
                     <span class="text-[12px] text-slate-500 font-secondary mb-1 uppercase tracking-wider font-bold">
                         ${formatters.day.format(dateObj)}
                     </span>
                     <span class="text-4xl font-black leading-none my-1">${formatters.date.format(dateObj)}</span>
                     <span class="text-sm text-slate-500 font-secondary mt-1 font-bold">${formatters.month.format(dateObj)}</span>
+                    <span class="text-xs ${isFull ? 'text-red-500' : 'text-green-600'} font-bold mt-2 bg-white px-2 py-0.5 rounded-full border shadow-sm">
+                        ${isFull ? 'Penuh' : `Sisa ${schedule.available_seats}`}
+                    </span>
                 </div>
             </label>
         `;
@@ -275,6 +281,61 @@ const {
         const hiddenDate = document.getElementById("tanggal_hidden_travel") as HTMLInputElement;
         const ruteRadios = document.querySelectorAll('input[name="rute"]');
         const btnBack = document.getElementById("btn-kembali-travel");
+
+        // UX: Guest Overlay Setup
+        const guestOverlay = document.getElementById("guest-overlay-route");
+        const guestAlertCard = document.getElementById("guest-alert-card-route");
+        const restrictedContent = document.getElementById("restricted-content-route");
+        
+        // Pindahkan modal ke luar dari struktur DOM komponen agar 'fixed' benar-benar berada di window (terbebas dari parent CSS transform/filter)
+        if (guestAlertCard && guestAlertCard.parentElement !== document.body) {
+            document.body.appendChild(guestAlertCard);
+        }
+
+        const setupGuestOverlay = () => {
+            if (authGuard.isLoggedIn()) {
+                guestOverlay?.classList.add("hidden");
+                guestAlertCard?.classList.add("hidden");
+                restrictedContent?.classList.remove("pointer-events-none");
+            } else {
+                guestOverlay?.classList.remove("hidden");
+                // Alert Card disembunyikan secara default
+                guestAlertCard?.classList.add("hidden");
+                guestAlertCard?.classList.remove("flex");
+                restrictedContent?.classList.add("pointer-events-none");
+            }
+        };
+        setupGuestOverlay();
+
+        // Tampilkan modal alert hanya saat overlay diblur di-klik
+        if (guestOverlay) {
+            guestOverlay.addEventListener("click", () => {
+                if (guestAlertCard) {
+                    guestAlertCard.classList.remove("hidden");
+                    guestAlertCard.classList.add("flex");
+                    // Trigger animasi
+                    void guestAlertCard.offsetWidth;
+                    guestAlertCard.classList.remove("opacity-0");
+                    const inner = document.getElementById("guest-alert-card-inner-route");
+                    inner?.classList.remove("scale-95");
+                }
+            });
+        }
+
+        // Tutup modal jika klik di luar card (di area backdrop)
+        if (guestAlertCard) {
+            guestAlertCard.addEventListener("click", (e) => {
+                if (e.target === guestAlertCard) {
+                    guestAlertCard.classList.add("opacity-0");
+                    const inner = document.getElementById("guest-alert-card-inner-route");
+                    inner?.classList.add("scale-95");
+                    setTimeout(() => {
+                        guestAlertCard.classList.remove("flex");
+                        guestAlertCard.classList.add("hidden");
+                    }, 300);
+                }
+            });
+        }
 
         if (!step1 || !step2 || !form1 || !form2) return;
 
@@ -291,7 +352,7 @@ const {
 
         // Route Selection Logic
         ruteRadios.forEach((radio) => {
-            radio.addEventListener("change", (e) => {
+            radio.addEventListener("change", async (e) => {
                 const target = e.target as HTMLInputElement;
                 if (!dateContainer) return;
 
@@ -303,29 +364,59 @@ const {
 
                 hiddenDate.value = "";
                 selectedScheduleId = "";
+                selectedRouteId = target.value;
 
-                setTimeout(() => {
-                    const schedules = generateDates(target.value);
-
-                    if (schedules.length === 0) {
+                // Generate dates via JS
+                const baseSchedules = generateDates(target.value);
+                
+                try {
+                    // Endpoint untuk cek ketersediaan kursi via tanggal belum ada, ini mock simulasi
+                    // await travelService.checkSchedulesAvailability(target.value, ...);
+                    
+                    if (baseSchedules.length === 0) {
                         dateContainer.innerHTML = `
-                            <div class="w-full flex items-center justify-center p-8 border-2 border-dashed border-red-200 rounded-2xl bg-red-50 text-red-500 text-sm font-medium">
-                                Maaf, tidak ada jadwal untuk rute ini.
+                            <div class="w-full flex items-center justify-center p-8 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 text-slate-500 text-sm font-medium">
+                                Maaf, tidak ada jadwal aktif untuk rute ini.
                             </div>
                         `;
                         return;
                     }
 
-                    dateContainer.innerHTML = schedules.map(createScheduleCard).join("");
-                }, 400);
+                    dateContainer.innerHTML = baseSchedules.map(createScheduleCard).join("");
+                } catch (error) {
+                    dateContainer.innerHTML = baseSchedules.map(createScheduleCard).join("");
+                }
             });
         });
 
-        dateContainer?.addEventListener("change", (e) => {
+        let selectedRawDate = "";
+        
+        dateContainer?.addEventListener("change", async (e) => {
             const target = e.target as HTMLInputElement;
             if (target && target.name === "pilihan_jadwal") {
                 hiddenDate.value = target.value;
                 selectedScheduleId = target.value;
+                selectedRawDate = target.getAttribute("data-raw-date") || "";
+
+                // Reset kursi
+                const hiddenInput = document.getElementById("input-selected-seats") as HTMLInputElement;
+                if (hiddenInput) {
+                    hiddenInput.value = "";
+                    hiddenInput.dispatchEvent(new Event("change", { bubbles: true }));
+                }
+
+                try {
+                    // Karena scheduleId di-generate JS (bukan riil DB), kita pakai mockup agar kursi bisa diklik
+                    throw new Error("Gunakan Fallback Murni");
+                } catch (err) {
+                    const allSeats = document.querySelectorAll(".seat-btn");
+                    allSeats.forEach((btn) => {
+                        const btnEl = btn as HTMLButtonElement;
+                        btnEl.setAttribute("data-selected", "false");
+                        btnEl.removeAttribute("disabled");
+                        btnEl.classList.remove("opacity-40", "grayscale", "cursor-not-allowed");
+                    });
+                }
             }
         });
 
@@ -333,10 +424,14 @@ const {
         form1.addEventListener("submit", (e) => {
             e.preventDefault();
             if (checkGuest(e)) return;
-            if (!hiddenDate.value) return alert("Pilih jadwal terlebih dahulu.");
+            if (!hiddenDate.value) {
+                return (window as any).showFeedbackModal('warning', 'Pilih Jadwal', 'Silakan pilih rute dan tanggal keberangkatan terlebih dahulu.');
+            }
             
             const selectedSeats = (document.getElementById("input-selected-seats") as HTMLInputElement)?.value;
-            if (!selectedSeats) return alert("Pilih minimal satu kursi.");
+            if (!selectedSeats) {
+                return (window as any).showFeedbackModal('warning', 'Pilih Kursi', 'Silakan pilih minimal 1 kursi yang tersedia untuk melanjutkan.');
+            }
 
             step1.classList.add("hidden");
             step2.classList.remove("hidden");
@@ -362,27 +457,39 @@ const {
 
             try {
                 const formData = new FormData(form2);
-                const data = Object.fromEntries(formData.entries());
-                const address = `${data.hamlet}, RT ${data.rt}/RW ${data.rw}, Desa ${data.village}, Kec. ${data.sub_district}. Patokan: ${data.landmark}`;
+                const data = Object.fromEntries(formData.entries()) as Record<string, any>;
                 
-                const existingHistory = JSON.parse(localStorage.getItem("order_history") || "[]");
-                const newOrder = {
-                    id: `RTP-${Date.now().toString().slice(-6)}`,
-                    date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
-                    status: "Menunggu Konfirmasi",
-                    layanan: "Travel Regular",
-                    rute: data.rute === "jakarta_panawangan" ? "Jakarta - Panawangan" : "Panawangan - Jakarta",
-                    pickup_address: address,
-                    price: 250000
-                };
-                
-                existingHistory.unshift(newOrder);
-                localStorage.setItem("order_history", JSON.stringify(existingHistory));
+                // Format Address
+                const address = `Kec. ${data.tujuan_kecamatan}, Desa ${data.tujuan_desa}, Dusun ${data.tujuan_dusun}, RT ${data.tujuan_rt}/RW ${data.tujuan_rw}, Patokan: ${data.tujuan_patokan || '-'}`;
+                const seatValues = (document.getElementById("input-selected-seats") as HTMLInputElement)?.value || "";
+                const firstSeat = parseInt(seatValues.split(',')[0]);
 
-                alert("Pemesanan Berhasil! Menunggu Konfirmasi Admin.");
-                window.location.href = "/user/booking-history";
+                const bookingPayload = {
+                    route_id: selectedRouteId, // Endpoint Backend perlu diubah untuk menerima ini alih-alih schedule_id
+                    departure_date: selectedRawDate,
+                    seat_number: firstSeat,
+                    pickup_address: "Pool Rini Trans Putri",
+                    dropoff_address: address,
+                    payment_method: "menunggu_konfirmasi", // Alur baru: user tidak bayar di awal
+                    payment_status: "menunggu_konfirmasi", 
+                    baggage_description: "Bawaan Penumpang Reguler",
+                    baggage_weight: data.berat_bagasi && parseFloat(data.berat_bagasi) > 0 ? parseFloat(data.berat_bagasi) : 1,
+                    baggage_dimension: data.dimensi_bagasi || "kecil"
+                };
+
+                const token = localStorage.getItem("jwt_token");
+                if (!token) throw new Error("Anda belum login (Token tidak ditemukan).");
+
+                await travelService.createTravelBooking(bookingPayload, token);
+
+                (window as any).showFeedbackModal(
+                    'success', 
+                    'Pemesanan Berhasil', 
+                    'Pemesanan Anda telah berhasil dikirim ke sistem! Anda telah mengunci kursi ini.',
+                    '/'
+                );
             } catch (error: any) {
-                alert(error.message || "Gagal melakukan pemesanan.");
+                (window as any).showFeedbackModal('error', 'Pemesanan Gagal', error.message || 'Terjadi kesalahan saat memproses pesanan Anda.');
             } finally {
                 btnSubmit.disabled = false;
                 btnSubmit.textContent = originalText;

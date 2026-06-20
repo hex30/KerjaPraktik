@@ -5,6 +5,7 @@ import PackageAddressForm from '@features/reservation/package/PackageAddressForm
 import SectionHeader from "@ui/SectionHeader.astro";
 import Button from "@ui/Button.astro";
 import HeroAside from "@ui/HeroAside.astro";
+import AlertCard from "@components/ui/AlertCard.astro";
 ---
 
 <article class="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 md:p-10 flex flex-col lg:flex-row gap-10 max-w-7xl mx-auto font-main">
@@ -16,18 +17,26 @@ import HeroAside from "@ui/HeroAside.astro";
             subtitle="Lengkapi data pengirim, penerima, dan detail barang dengan akurat."
         />
 
-        <form id="form-package-detail" class="flex flex-col gap-10">
+        <!-- RESTRICTED AREA FOR GUEST -->
+        <div id="restricted-area-package" class="relative transition-all duration-300">
+            <!-- Guest Alert Overlay Backdrop (Transparent Catcher) -->
+            <div id="guest-overlay-package" class="absolute inset-0 z-40 bg-transparent cursor-pointer rounded-2xl -m-4"></div>
             
-            <PackageAddressForm title="1. Data Pengirim" type="pengirim" />
+            <div id="restricted-content-package" class="pointer-events-none transition-all duration-500">
+                <form id="form-package-detail" class="flex flex-col gap-10">
+            
+            <PackageAddressForm stepNumber="1" title="Data Pengirim" type="pengirim" />
 
-            <PackageAddressForm title="2. Data Penerima" type="penerima" />
+            <PackageAddressForm stepNumber="2" title="Data Penerima" type="penerima" />
 
-            <fieldset class="flex flex-col gap-5 p-6 rounded-2xl bg-slate-50 border border-slate-100 relative">
-                <legend class="px-3 bg-slate-50 text-text-primary font-black text-sm uppercase tracking-wider rounded-lg border border-slate-100">
-                    3. Detail Paket
-                </legend>
+            <section class="flex flex-col gap-5">
+                <h3 class="text-lg text-primary font-bold flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm">3</span>
+                    Detail Paket
+                </h3>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div class="flex flex-col gap-5 p-6 rounded-2xl bg-slate-50 border border-slate-100 relative">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     
                     <div class="flex flex-col gap-2 w-full">
                         <label for="berat_paket" class="font-secondary text-sm font-bold text-primary">
@@ -59,7 +68,7 @@ import HeroAside from "@ui/HeroAside.astro";
                         </select>
                     </div>
                 </div>
-            </fieldset>
+            </section>
 
             <div class="pt-2">
                 <Button type="submit" size="lg">
@@ -67,7 +76,9 @@ import HeroAside from "@ui/HeroAside.astro";
                 </Button>
             </div>
             
-        </form>
+                </form>
+            </div>
+        </div>
     </div>
 
     <HeroAside 
@@ -77,6 +88,19 @@ import HeroAside from "@ui/HeroAside.astro";
     />
 
 </article>
+
+<!-- FIXED GUEST ALERT CARD -->
+<div id="guest-alert-card-package" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 opacity-0 transition-opacity duration-300">
+    <div class="pointer-events-auto shadow-2xl rounded-2xl transform scale-95 transition-transform duration-300" id="guest-alert-card-inner-package">
+        <AlertCard 
+            type="warning"
+            title="Login Diperlukan"
+            message="Silakan masuk ke akun Anda untuk mengisi formulir pengiriman paket."
+            actionText="Login Sekarang"
+            actionLink="/auth/login"
+        />
+    </div>
+</div>
 
 <script>
     import { authGuard } from "@utils/authGuard";
@@ -88,12 +112,69 @@ import HeroAside from "@ui/HeroAside.astro";
         
         if (!form) return;
 
-        // Guest Interceptor
+        // UX: Guest Overlay Setup
+        const guestOverlay = document.getElementById("guest-overlay-package");
+        const guestAlertCard = document.getElementById("guest-alert-card-package");
+        const restrictedContent = document.getElementById("restricted-content-package");
+        
+        if (guestAlertCard && guestAlertCard.parentElement !== document.body) {
+            document.body.appendChild(guestAlertCard);
+        }
+
+        const setupGuestOverlay = () => {
+            if (authGuard.isLoggedIn()) {
+                guestOverlay?.classList.add("hidden");
+                guestAlertCard?.classList.add("hidden");
+                restrictedContent?.classList.remove("pointer-events-none");
+            } else {
+                guestOverlay?.classList.remove("hidden");
+                guestAlertCard?.classList.add("hidden");
+                guestAlertCard?.classList.remove("flex");
+                restrictedContent?.classList.add("pointer-events-none");
+            }
+        };
+        setupGuestOverlay();
+
+        if (guestOverlay) {
+            guestOverlay.addEventListener("click", () => {
+                if (guestAlertCard) {
+                    guestAlertCard.classList.remove("hidden");
+                    guestAlertCard.classList.add("flex");
+                    void guestAlertCard.offsetWidth;
+                    guestAlertCard.classList.remove("opacity-0");
+                    const inner = document.getElementById("guest-alert-card-inner-package");
+                    inner?.classList.remove("scale-95");
+                }
+            });
+        }
+
+        if (guestAlertCard) {
+            guestAlertCard.addEventListener("click", (e) => {
+                if (e.target === guestAlertCard) {
+                    guestAlertCard.classList.add("opacity-0");
+                    const inner = document.getElementById("guest-alert-card-inner-package");
+                    inner?.classList.add("scale-95");
+                    setTimeout(() => {
+                        guestAlertCard.classList.remove("flex");
+                        guestAlertCard.classList.add("hidden");
+                    }, 300);
+                }
+            });
+        }
+
+        // Guest Interceptor (fallback)
         const checkGuest = (e: Event) => {
             if (!authGuard.isLoggedIn()) {
                 e.preventDefault();
                 e.stopPropagation();
-                authGuard.requireAuth();
+                if (guestAlertCard) {
+                    guestAlertCard.classList.remove("hidden");
+                    guestAlertCard.classList.add("flex");
+                    void guestAlertCard.offsetWidth;
+                    guestAlertCard.classList.remove("opacity-0");
+                    const inner = document.getElementById("guest-alert-card-inner-package");
+                    inner?.classList.remove("scale-95");
+                }
                 return true;
             }
             return false;

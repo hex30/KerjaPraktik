@@ -16,48 +16,20 @@ interface Props {
   slides?: Slide[];
 }
 
-const defaultSlides: Slide[] = [
-  {
-    id: 1,
-    sub: "ELEVATE YOUR TRAVEL JOURNEY",
-    title: "Discover Your Perfect Route",
-    desc: "Nikmati perjalanan rutin antar jemput Ciamis - Jakarta dengan armada eksekutif, ternyaman, dan via jalan tol.",
-    btnText: "Book Route Now",
-    btnLink: "#services",
-    bgImage:
-      "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&q=80&w=1200",
-  },
-  {
-    id: 2,
-    sub: "ELEVATE YOUR TRAVEL JOURNEY",
-    title: "Your Private Journey Awaits",
-    desc: "Sewa satu mobil utuh (booking armada) untuk perjalanan keluarga atau dinas Anda dengan alokasi supir profesional.",
-    btnText: "Rent Private Car",
-    btnLink: "#booking",
-    bgImage:
-      "https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&q=80&w=1200",
-  },
-  {
-    id: 3,
-    sub: "FAST & RELIABLE DELIVERY",
-    title: "Safe & Fast Parcel Courier",
-    desc: "Titip paket kilat super aman. Kiriman barang berharga Anda sampai ke tujuan dalam hitungan jam, kapan saja.",
-    btnText: "Send Package",
-    btnLink: "#courier",
-    bgImage:
-      "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=1200",
-  },
-];
+const { slides = [] } = Astro.props;
 
-const { slides = defaultSlides } = Astro.props;
+// Jika DB kosong, buat 1 slide kosong agar layout tetap muncul
+const displaySlides = slides.length > 0 ? slides : [
+  { id: 0, sub: "", title: "Tidak ada data banner", desc: "", btnText: "", btnLink: "#", bgImage: "" }
+];
 ---
 
 <section class="relative max-w-7xl mx-auto px-6 py-6 font-main">
   <div
-    class="relative w-full h-[500px] md:h-[600px] rounded-[2rem] overflow-hidden shadow-lg bg-slate-900"
+    class="relative w-full h-[500px] md:h-[600px] rounded-[2rem] overflow-hidden shadow-lg bg-slate-900 flex items-center justify-center text-slate-500"
   >
     {
-      slides.map((slide, index) => (
+      displaySlides.map((slide, index) => (
         <HeroSlide 
           {...slide} 
           index={index} 
@@ -72,7 +44,7 @@ const { slides = defaultSlides } = Astro.props;
     >
       <div class="absolute w-[2px] bg-primary/20 h-full -z-10"></div>
       {
-        slides.map((_, index) => (
+        displaySlides.map((_, index) => (
           <button
             class:list={[
               "slide-indicator w-8 h-8 rounded-full flex items-center justify-center font-main font-bold text-xs border-2 transition-all duration-300 cursor-pointer",

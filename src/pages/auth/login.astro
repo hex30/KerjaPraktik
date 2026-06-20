@@ -5,6 +5,7 @@ import Layout from "@layouts/MainLayout.astro";
 // Panggil kedua komponen form dari folder auth
 import LoginForm from "@features/auth/LoginForm.astro";
 import RegisterForm from "@features/auth/RegisterForm.astro";
+import FeedbackModal from "@components/ui/FeedbackModal.astro";
 ---
 
 <Layout title="Masuk / Daftar | Rini Trans Putri">
@@ -54,11 +55,12 @@ import RegisterForm from "@features/auth/RegisterForm.astro";
             </div>
         </div>
     </section>
-</UserLayout>
+
+    <!-- Modal Umpan Balik (Global Component) -->
+    <FeedbackModal />
+</Layout>
 
 <script>
-    import { email, locales } from "astro:schema";
-    import { apiFetch } from "@services/api";
     import { authService } from "@services/authService";
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -134,22 +136,29 @@ import RegisterForm from "@features/auth/RegisterForm.astro";
                     // dokumentasi: Memanggil fungsi registrasi dari authService (Tahap 2 & 3)
                     const response = await authService.register(payload);
 
-                    alert(
-                        response.message ||
-                            "Pendaftaran Berhasil! Silahkan Masuk",
+                    // Menampilkan Modal Berhasil
+                    (window as any).showFeedbackModal(
+                        'success',
+                        'Pendaftaran Berhasil!',
+                        response.message || 'Akun Anda berhasil dibuat. Silakan masuk dengan kredensial baru Anda.'
                     );
+                    
                     registerForm.reset();
 
                     const loginLink = document.querySelector(
                         '[data-target="form-login"]',
                     ) as HTMLElement;
-                    if (loginLink) loginLink.click();
+                    if (loginLink) {
+                        setTimeout(() => loginLink.click(), 500); // delay agar user bisa melihat modal
+                    }
                 } catch (e) {
                     const error = e as any;
                     console.error("Gagal mendaftar", error);
-                    alert(
-                        error.message ||
-                            "pendaftaran gagal, pastikan pengisian data sesuai",
+                    // Menampilkan Modal Gagal
+                    (window as any).showFeedbackModal(
+                        'error',
+                        'Pendaftaran Gagal',
+                        error.message || 'Pastikan pengisian data sesuai.'
                     );
                 } finally {
                     if (btnSubmit) {
@@ -207,22 +216,30 @@ import RegisterForm from "@features/auth/RegisterForm.astro";
                         JSON.stringify(user),
                     );
 
-                    alert(response.message || "Login Berhasil!");
-                    
-                    // dokumentasi: Role-Based Access Control (RBAC) Redirect
+                    // Role-Based Access Control (RBAC) Redirect
                     const role = user.role?.toLowerCase() || 'customer';
+                    let redirectTarget = "/";
                     if (role === 'admin' || role === 'superadmin' || role === 'super_admin') {
-                        window.location.href = "/admin";
+                        redirectTarget = "/admin";
                     } else if (role === 'driver' || role === 'supir') {
-                        window.location.href = "/driver";
-                    } else {
-                        // Default ke beranda untuk customer
-                        window.location.href = "/";
+                        redirectTarget = "/driver";
                     }
+
+                    // Tampilkan modal sukses lalu redirect otomatis
+                    (window as any).showFeedbackModal(
+                        'success',
+                        'Login Berhasil',
+                        response.message || 'Selamat datang kembali!',
+                        redirectTarget
+                    );
                 } catch (e) {
                     const error = e as any;
                     console.error("Gagal login:", error);
-                    alert(error.message || "Email atau Kata Sandi salah!");
+                    (window as any).showFeedbackModal(
+                        'error',
+                        'Login Gagal',
+                        error.message || 'Email atau Kata Sandi yang Anda masukkan salah.'
+                    );
                 } finally {
                     if (btnSubmit) {
                         btnSubmit.disabled = false;

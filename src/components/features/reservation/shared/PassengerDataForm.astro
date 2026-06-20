@@ -10,17 +10,6 @@ interface Props {
 
 const { formId } = Astro.props;
 
-// ==========================================
-// SIMULASI AUTENTIKASI & DATA USER
-// ==========================================
-const session = {
-    isLoggedIn: true,
-    user: {
-        fullName: "Febi Yulianti", 
-    }
-};
-
-const defaultName = session.isLoggedIn ? session.user.fullName : "";
 ---
 
 <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 md:p-10 flex flex-col gap-8 font-main">
@@ -38,14 +27,7 @@ const defaultName = session.isLoggedIn ? session.user.fullName : "";
                 name="full_name"
                 placeholder="Masukan Nama Lengkap Anda"
                 required={true}
-                value={defaultName} 
             />
-            
-            {session.isLoggedIn && (
-                <span class="absolute right-4 top-10 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-200 pointer-events-none">
-                    Sesuai Profil
-                </span>
-            )}
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -84,6 +66,27 @@ const defaultName = session.isLoggedIn ? session.user.fullName : "";
         </div>
     </section>
 </div>
+
+<script>
+    const setupPassengerAutofill = () => {
+        const inputNama = document.getElementById("nama-lengkap") as HTMLInputElement;
+        
+        const userDataStr = localStorage.getItem("user_data");
+        if (userDataStr && inputNama) {
+            try {
+                const user = JSON.parse(userDataStr);
+                if (user.name || user.nama) {
+                    inputNama.value = user.name || user.nama;
+                }
+            } catch (e) {
+                console.error("Gagal membaca user_data", e);
+            }
+        }
+    };
+    
+    document.addEventListener("DOMContentLoaded", setupPassengerAutofill);
+    document.addEventListener("astro:page-load", setupPassengerAutofill);
+</script>
 
 
 
