@@ -59,6 +59,7 @@ import RegisterForm from "@features/auth/RegisterForm.astro";
 <script>
     import { email, locales } from "astro:schema";
     import { apiFetch } from "@services/api";
+    import { authService } from "@services/authService";
 
     document.addEventListener("DOMContentLoaded", () => {
         // ================================================================
@@ -189,23 +190,37 @@ import RegisterForm from "@features/auth/RegisterForm.astro";
 
                 try {
                     const payload = {
-                        email: inputEmail,
-                        password: inputPassword,
+                        email: inputEmail.value,
+                        password: inputPassword.value,
                     };
 
-                    const response = await apiFetch("/api/auth/login", {
-                        method: "POST",
-                        body: JSON.stringify(payload),
-                    });
+                    // dokumentasi: Memanggil service login dari authService (Integrasi Tahap 2 & 3)
+                    const response = await authService.login(payload);
 
-                    localStorage.setItem("jwt_token", response.data.token);
+                    // dokumentasi: Mengambil token dan data user (menyesuaikan format data JSON)
+                    const token = response.data?.token || response.token;
+                    const user = response.data?.user || response.user;
+
+                    if (!token || !user) throw new Error("Format respons tidak valid dari server.");
+
+                    localStorage.setItem("jwt_token", token);
                     localStorage.setItem(
                         "user_data",
-                        JSON.stringify(response.data.user),
+                        JSON.stringify(user),
                     );
 
                     alert(response.message || "Login Berhasil!");
-                    window.location.href = "/user/booking-history";
+                    
+                    // dokumentasi: Role-Based Access Control (RBAC) Redirect
+                    const role = user.role?.toLowerCase() || 'customer';
+                    if (role === 'admin' || role === 'superadmin' || role === 'super_admin') {
+                        window.location.href = "/admin";
+                    } else if (role === 'driver' || role === 'supir') {
+                        window.location.href = "/driver";
+                    } else {
+                        // Default ke beranda untuk customer
+                        window.location.href = "/";
+                    }
                 } catch (e) {
                     const error = e as any;
                     console.error("Gagal login:", error);
