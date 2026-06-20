@@ -1,6 +1,5 @@
 ---
 // File: src/components/features/home/FavoritDestination.astro
-// File: src/components/DestinationFav.astro
 import DestinationCard from "./DestinationCard.astro";
 import SectionHeader from "@ui/SectionHeader.astro";
 import DestinationDetail from "./DestinationDetail.astro";
@@ -19,13 +18,10 @@ interface Props {
 }
 
 const defaultDestinations: Destination[] = [
-// Tambahkan deskripsi pada setiap data destinasi
-const destinations = [
     {
         image: "https://c1.wallpaperflare.com/preview/864/690/351/pantai-kuta-kuta-bali-indonesia.jpg",
         title: "Pantai Pangandaran",
         location: "Jawa Barat, Indonesia",
-        description: "Nikmati keindahan pantai pasir putih, deburan ombak yang cocok untuk berselancar, dan cagar alam menakjubkan di salah satu destinasi wisata terbaik di Jawa Barat."
         description:
             "Nikmati keindahan pantai pasir putih, deburan ombak yang cocok untuk berselancar, dan cagar alam menakjubkan di salah satu destinasi wisata terbaik di Jawa Barat.",
     },
@@ -33,7 +29,6 @@ const destinations = [
         image: "https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?auto=format&fit=crop&q=80&w=800",
         title: "Green Canyon",
         location: "Pangandaran, Indonesia",
-        description: "Jelajahi keajaiban alam berupa ngarai hijau nan eksotis dengan aliran sungai jernih. Nikmati sensasi body rafting menembus gua dan stalaktit yang memukau."
         description:
             "Jelajahi keajaiban alam berupa ngarai hijau nan eksotis dengan aliran sungai jernih. Nikmati sensasi body rafting menembus gua dan stalaktit yang memukau.",
     },
@@ -41,35 +36,19 @@ const destinations = [
         image: "https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?auto=format&fit=crop&q=80&w=800",
         title: "Kawah Putih",
         location: "Bandung, Indonesia",
-        description: "Saksikan pemandangan magis danau kawah vulkanik berwarna putih kehijauan yang diselimuti kabut tipis di kawasan pegunungan sejuk Ciwidey."
         description:
             "Saksikan pemandangan magis danau kawah vulkanik berwarna putih kehijauan yang diselimuti kabut tipis di kawasan pegunungan sejuk Ciwidey.",
     },
-    // Tambahkan destinasi lain jika perlu...
 ];
 
-const { 
+const {
     destinations = defaultDestinations,
     title = "Popular Destinations",
-    subtitle = "Capai banyak destinasi wisata menarik yang bisa kamu jelajahi bersama kami."
+    subtitle = "Capai banyak destinasi wisata menarik yang bisa kamu jelajahi bersama kami.",
 } = Astro.props;
 ---
 
 <section class="max-w-7xl mx-auto px-6 py-16 relative min-h-[500px] font-main">
-    
-    <div id="carousel-section" class="block animate-fade-in">
-        <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-            <SectionHeader 
-                title={title}
-                subtitle={subtitle}
-            />
-            <div class="flex gap-3 mb-8">
-                <button id="dest-prev" class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-text-secondary hover:bg-slate-200 transition-colors cursor-pointer select-none" aria-label="Previous destination">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"></path></svg>
-                </button>
-                <button id="dest-next" class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white shadow-md hover:opacity-90 transition-opacity cursor-pointer select-none" aria-label="Next destination">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"></path></svg>
-<section class="max-w-7xl mx-auto px-6 py-16 relative min-h-[500px]">
     <div id="carousel-section" class="block animate-fade-in">
         <div
             class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12"
@@ -78,11 +57,10 @@ const {
                 <h2
                     class="text-3xl md:text-4xl font-black text-primary font-main"
                 >
-                    Popular Destinations
+                    {title}
                 </h2>
                 <p class="font-secondary text-text-secondary">
-                    Capai banyak destinasi wisata menarik yang bisa kamu
-                    jelajahi bersama kami.
+                    {subtitle}
                 </p>
             </div>
 
@@ -90,6 +68,7 @@ const {
                 <button
                     id="dest-prev"
                     class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-text-secondary hover:bg-slate-200 transition-colors cursor-pointer select-none"
+                    aria-label="Previous destination"
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -107,6 +86,7 @@ const {
                 <button
                     id="dest-next"
                     class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white shadow-md hover:opacity-90 transition-opacity cursor-pointer select-none"
+                    aria-label="Next destination"
                 >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -124,14 +104,6 @@ const {
             </div>
         </div>
 
-        <div id="destination-container" class="flex gap-5 overflow-x-auto snap-x mandatory scroll-smooth pb-6 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-            {destinations.map((dest) => (
-                <div class="w-full md:w-[calc(33.333%-22px)] flex-shrink-0 snap-start">
-                    <DestinationCard
-                        {...dest}
-                    />
-                </div>
-            ))}
         <div
             id="destination-container"
             class="flex gap-5 overflow-x-auto snap-x mandatory scroll-smooth pb-6 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
@@ -210,15 +182,12 @@ const {
                     class="text-3xl md:text-5xl font-black text-primary font-main leading-tight"
                 >
                 </h2>
-
                 <div class="w-16 h-1.5 bg-secondary rounded-full"></div>
-
                 <p
                     id="detail-desc"
                     class="font-secondary text-base md:text-lg text-text-secondary leading-relaxed max-w-2xl"
                 >
                 </p>
-
                 <div class="pt-4">
                     <a
                         id="detail-cta"
@@ -249,10 +218,6 @@ const {
 </section>
 
 <style>
-    .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
     .animate-fade-in {
         animation: fadeIn 0.4s ease-out forwards;
     }
@@ -280,28 +245,6 @@ const {
                 const firstCard = container.querySelector(".flex-shrink-0");
                 return firstCard ? firstCard.clientWidth + 20 : 300;
             };
-            nextBtn.addEventListener("click", () => container.scrollLeft += getScrollAmount());
-            prevBtn.addEventListener("click", () => container.scrollLeft -= getScrollAmount());
-        }
-
-        const cards = document.querySelectorAll('.destination-card-trigger');
-        const carouselSection = document.getElementById('carousel-section');
-        const detailSection = document.getElementById('detail-section');
-        const backBtn = document.getElementById('btn-back-carousel');
-
-        const detailImage = document.getElementById('detail-image') as HTMLImageElement;
-        const detailTitle = document.getElementById('detail-title');
-        const detailLocation = document.getElementById('detail-location');
-        const detailDesc = document.getElementById('detail-desc');
-        const detailCta = document.getElementById('detail-cta') as HTMLAnchorElement;
-
-        cards.forEach(card => {
-            card.addEventListener('click', () => {
-                const title = card.getAttribute('data-title') || '';
-                const location = card.getAttribute('data-location') || '';
-                const image = card.getAttribute('data-image') || '';
-                const desc = card.getAttribute('data-description') || '';
-
 
             nextBtn.addEventListener(
                 "click",
@@ -319,84 +262,54 @@ const {
         const detailSection = document.getElementById("detail-section");
         const backBtn = document.getElementById("btn-back-carousel");
 
-        // Elemen-elemen di dalam detail view yang akan diubah datanya
-        const detailImage = document.getElementById(
-            "detail-image",
-        ) as HTMLImageElement;
+        // Hapus sintaks "as HTMLImageElement" dan "as HTMLAnchorElement"
+        const detailImage = document.getElementById("detail-image");
         const detailTitle = document.getElementById("detail-title");
         const detailLocation = document.getElementById("detail-location");
         const detailDesc = document.getElementById("detail-desc");
-        const detailCta = document.getElementById(
-            "detail-cta",
-        ) as HTMLAnchorElement;
+        const detailCta = document.getElementById("detail-cta");
 
         cards.forEach((card) => {
             card.addEventListener("click", () => {
-                // Ambil data dari atribut kartu yang diklik
                 const title = card.getAttribute("data-title") || "";
                 const location = card.getAttribute("data-location") || "";
                 const image = card.getAttribute("data-image") || "";
                 const desc = card.getAttribute("data-description") || "";
 
-                // Suntikkan data ke dalam Detail View
-                if (detailImage) detailImage.src = image;
+                // Gunakan "instanceof" sebagai ganti Type Assertion TypeScript
+                if (detailImage instanceof HTMLImageElement) {
+                    detailImage.src = image;
+                }
+
                 if (detailTitle) detailTitle.textContent = title;
                 if (detailLocation) detailLocation.textContent = location;
                 if (detailDesc) detailDesc.textContent = desc;
 
-                if (detailCta) {
-                    detailCta.href = `/services?tujuan=${encodeURIComponent(title)}#booking-component`;
-                }
-
-                if (carouselSection && detailSection) {
-                    carouselSection.classList.add('hidden');
-                    carouselSection.classList.remove('block');
-                    detailSection.classList.remove('hidden');
-                    detailSection.classList.add('block');
-                // Memodifikasi URL pada tombol CTA dengan membawa Query Parameter tujuan
-                // Sesuaikan 'path' /layanan/booking dengan struktur routing Anda
-                if (detailCta) {
+                // Gunakan "instanceof" untuk mengecek elemen Anchor (link)
+                if (detailCta instanceof HTMLAnchorElement) {
                     detailCta.href = `/layanan?tujuan=${encodeURIComponent(title)}#booking-component`;
                 }
 
-                // Sembunyikan Carousel, Tampilkan Detail
                 if (carouselSection && detailSection) {
                     carouselSection.classList.add("hidden");
                     carouselSection.classList.remove("block");
-
                     detailSection.classList.remove("hidden");
                     detailSection.classList.add("block");
                 }
             });
         });
 
-        if (backBtn && carouselSection && detailSection) {
-            backBtn.addEventListener('click', () => {
-                detailSection.classList.add('hidden');
-                detailSection.classList.remove('block');
-                carouselSection.classList.remove('hidden');
-                carouselSection.classList.add('block');
-        // Logika Tombol Kembali
+        // --- 3. Logika Tombol Kembali ---
         if (backBtn && carouselSection && detailSection) {
             backBtn.addEventListener("click", () => {
                 detailSection.classList.add("hidden");
                 detailSection.classList.remove("block");
-
                 carouselSection.classList.remove("hidden");
                 carouselSection.classList.add("block");
             });
         }
     };
 
-    document.addEventListener('DOMContentLoaded', initDestinationFeatures);
-    document.addEventListener('astro:page-load', initDestinationFeatures);
-    // Dukungan untuk transisi halaman Astro ViewTransitions
     document.addEventListener("DOMContentLoaded", initDestinationFeatures);
     document.addEventListener("astro:page-load", initDestinationFeatures);
 </script>
-
-
-
-
-
-
