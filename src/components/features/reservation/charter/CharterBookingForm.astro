@@ -5,6 +5,7 @@ import Button from "@ui/Button.astro";
 import SectionHeader from "@ui/SectionHeader.astro";
 import FleetSelectionItem from "./FleetSelectionItem.astro";
 import BookingSummary from "@features/reservation/shared/BookingSummary.astro";
+import AlertCard from "@components/ui/AlertCard.astro";
 
 const fleetData = [
     {
@@ -65,45 +66,6 @@ const fleetData = [
                         id="form-booking-travel"
                         class="flex flex-col gap-5"
                     >
-                        <div class="flex flex-col gap-2 w-full">
-                            <label
-                                for="jenis_armada"
-                                class="font-secondary text-sm font-bold text-primary"
-                                >Pilih Jenis Armada</label
-                            >
-                            <select
-                                name="jenis_armada"
-                                id="jenis_armada"
-                                required
-                                class="w-full bg-white border border-slate-200 rounded-lg px-4 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all cursor-pointer appearance-none"
-                            >
-                                <option value="" disabled selected
-                                    >Pilih kendaraan...</option
-                                >
-                                {
-                                    fleetData.map((unit) => (
-                                        <option value={unit.value}>
-                                            {unit.name}
-                                        </option>
-                                    ))
-                                }
-                            </select>
-                        </div>
-
-                        <InputGroup
-                            label="Tanggal Keberangkatan"
-                            id="tanggal_sewa"
-                            name="tanggal_sewa"
-                            type="date"
-                            required={true}
-                        />
-                        <InputGroup
-                            label="Tanggal Kepulangan"
-                            id="tanggal_kepulangan"
-                            name="tanggal_kepulangan"
-                            type="date"
-                            required={false}
-                        />
                         <InputGroup
                             label="Area Tujuan"
                             id="tujuan"
@@ -112,9 +74,55 @@ const fleetData = [
                             required={true}
                         />
 
-                        <Button type="submit" class="w-full mt-2" size="lg">
-                            Lanjutkan Isi Data Diri
-                        </Button>
+                        <!-- RESTRICTED AREA FOR GUEST -->
+                        <div id="restricted-area-charter" class="relative transition-all duration-300">
+                            <!-- Guest Alert Overlay Backdrop (Transparent Catcher) -->
+                            <div id="guest-overlay-charter" class="absolute inset-0 z-40 bg-transparent cursor-pointer rounded-2xl -mx-2 -my-2"></div>
+                            
+                            <div id="restricted-content-charter" class="flex flex-col gap-5 pointer-events-none transition-all duration-500">
+                                <div class="flex flex-col gap-2 w-full">
+                                    <label
+                                        for="jenis_armada"
+                                        class="font-secondary text-sm font-bold text-primary"
+                                        >Pilih Jenis Armada</label
+                                    >
+                                    <select
+                                        name="jenis_armada"
+                                        id="jenis_armada"
+                                        required
+                                        class="w-full bg-white border border-slate-200 rounded-lg px-4 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all cursor-pointer appearance-none"
+                                    >
+                                        <option value="" disabled selected>Pilih kendaraan...</option>
+                                        {
+                                            fleetData.map((unit) => (
+                                                <option value={unit.value}>
+                                                    {unit.name}
+                                                </option>
+                                            ))
+                                        }
+                                    </select>
+                                </div>
+
+                                <InputGroup
+                                    label="Tanggal Keberangkatan"
+                                    id="tanggal_sewa"
+                                    name="tanggal_sewa"
+                                    type="date"
+                                    required={true}
+                                />
+                                <InputGroup
+                                    label="Tanggal Kepulangan"
+                                    id="tanggal_kepulangan"
+                                    name="tanggal_kepulangan"
+                                    type="date"
+                                    required={false}
+                                />
+
+                                <Button type="submit" class="w-full mt-2" size="lg">
+                                    Lanjutkan Isi Data Diri
+                                </Button>
+                            </div>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -240,6 +248,19 @@ const fleetData = [
     }
 </style>
 
+<!-- FIXED GUEST ALERT CARD -->
+<div id="guest-alert-card-charter" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 opacity-0 transition-opacity duration-300">
+    <div class="pointer-events-auto shadow-2xl rounded-2xl transform scale-95 transition-transform duration-300" id="guest-alert-card-inner-charter">
+        <AlertCard 
+            type="warning"
+            title="Login Diperlukan"
+            message="Silakan masuk ke akun Anda untuk melanjutkan proses pemesanan armada Charter."
+            actionText="Login Sekarang"
+            actionLink="/auth/login"
+        />
+    </div>
+</div>
+
 <script>
     import { authGuard } from "@utils/authGuard";
 
@@ -277,12 +298,69 @@ const fleetData = [
 
         if (!formStep1 || !selectArmada) return;
 
-        // Guest Interceptor
+        // UX: Guest Overlay Setup
+        const guestOverlay = document.getElementById("guest-overlay-charter");
+        const guestAlertCard = document.getElementById("guest-alert-card-charter");
+        const restrictedContent = document.getElementById("restricted-content-charter");
+        
+        if (guestAlertCard && guestAlertCard.parentElement !== document.body) {
+            document.body.appendChild(guestAlertCard);
+        }
+
+        const setupGuestOverlay = () => {
+            if (authGuard.isLoggedIn()) {
+                guestOverlay?.classList.add("hidden");
+                guestAlertCard?.classList.add("hidden");
+                restrictedContent?.classList.remove("pointer-events-none");
+            } else {
+                guestOverlay?.classList.remove("hidden");
+                guestAlertCard?.classList.add("hidden");
+                guestAlertCard?.classList.remove("flex");
+                restrictedContent?.classList.add("pointer-events-none");
+            }
+        };
+        setupGuestOverlay();
+
+        if (guestOverlay) {
+            guestOverlay.addEventListener("click", () => {
+                if (guestAlertCard) {
+                    guestAlertCard.classList.remove("hidden");
+                    guestAlertCard.classList.add("flex");
+                    void guestAlertCard.offsetWidth;
+                    guestAlertCard.classList.remove("opacity-0");
+                    const inner = document.getElementById("guest-alert-card-inner-charter");
+                    inner?.classList.remove("scale-95");
+                }
+            });
+        }
+
+        if (guestAlertCard) {
+            guestAlertCard.addEventListener("click", (e) => {
+                if (e.target === guestAlertCard) {
+                    guestAlertCard.classList.add("opacity-0");
+                    const inner = document.getElementById("guest-alert-card-inner-charter");
+                    inner?.classList.add("scale-95");
+                    setTimeout(() => {
+                        guestAlertCard.classList.remove("flex");
+                        guestAlertCard.classList.add("hidden");
+                    }, 300);
+                }
+            });
+        }
+
+        // Guest Interceptor (untuk form submit & button fallback)
         const checkGuest = (e: Event) => {
             if (!authGuard.isLoggedIn()) {
                 e.preventDefault();
                 e.stopPropagation();
-                authGuard.requireAuth();
+                if (guestAlertCard) {
+                    guestAlertCard.classList.remove("hidden");
+                    guestAlertCard.classList.add("flex");
+                    void guestAlertCard.offsetWidth;
+                    guestAlertCard.classList.remove("opacity-0");
+                    const inner = document.getElementById("guest-alert-card-inner-charter");
+                    inner?.classList.remove("scale-95");
+                }
                 return true;
             }
             return false;
@@ -302,7 +380,9 @@ const fleetData = [
                 if (option) (option as HTMLOptionElement).disabled = true;
             }
 
-            card.addEventListener("click", () => {
+            card.addEventListener("click", (e) => {
+                if (checkGuest(e)) return;
+
                 const value = card.getAttribute("data-value");
                 if (!value) return;
 

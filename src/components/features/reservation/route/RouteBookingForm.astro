@@ -64,13 +64,13 @@ const {
                     </section>
 
                     <!-- RESTRICTED AREA FOR GUEST -->
-                    <div id="restricted-area" class="relative transition-all duration-300">
+                    <div id="restricted-area-route" class="relative transition-all duration-300">
                         
                         <!-- Guest Alert Overlay Backdrop (Transparent Catcher) -->
-                        <div id="guest-overlay" class="absolute inset-0 z-40 bg-transparent cursor-pointer rounded-2xl"></div>
+                        <div id="guest-overlay-route" class="absolute inset-0 z-40 bg-transparent cursor-pointer rounded-2xl"></div>
 
                         <!-- Content yang dikunci secara fungsional (tidak diblur) -->
-                        <div id="restricted-content" class="flex flex-col gap-6 pointer-events-none transition-all duration-500">
+                        <div id="restricted-content-route" class="flex flex-col gap-6 pointer-events-none transition-all duration-500">
                             
                             <section class="border-b border-slate-100 pb-8">
                                 <h3 class="text-lg text-primary font-bold flex items-center gap-2 mb-6">
@@ -196,8 +196,8 @@ const {
 </style>
 
 <!-- FIXED GUEST ALERT CARD -->
-<div id="guest-alert-card" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/40 px-4 opacity-0 transition-opacity duration-300">
-    <div class="pointer-events-auto shadow-2xl rounded-2xl transform scale-95 transition-transform duration-300" id="guest-alert-card-inner">
+<div id="guest-alert-card-route" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 opacity-0 transition-opacity duration-300">
+    <div class="pointer-events-auto shadow-2xl rounded-2xl transform scale-95 transition-transform duration-300" id="guest-alert-card-inner-route">
         <AlertCard 
             type="warning"
             title="Login Diperlukan"
@@ -276,9 +276,9 @@ const {
         const btnBack = document.getElementById("btn-kembali-travel");
 
         // UX: Guest Overlay Setup
-        const guestOverlay = document.getElementById("guest-overlay");
-        const guestAlertCard = document.getElementById("guest-alert-card");
-        const restrictedContent = document.getElementById("restricted-content");
+        const guestOverlay = document.getElementById("guest-overlay-route");
+        const guestAlertCard = document.getElementById("guest-alert-card-route");
+        const restrictedContent = document.getElementById("restricted-content-route");
         
         // Pindahkan modal ke luar dari struktur DOM komponen agar 'fixed' benar-benar berada di window (terbebas dari parent CSS transform/filter)
         if (guestAlertCard && guestAlertCard.parentElement !== document.body) {
@@ -309,7 +309,7 @@ const {
                     // Trigger animasi
                     void guestAlertCard.offsetWidth;
                     guestAlertCard.classList.remove("opacity-0");
-                    const inner = document.getElementById("guest-alert-card-inner");
+                    const inner = document.getElementById("guest-alert-card-inner-route");
                     inner?.classList.remove("scale-95");
                 }
             });
@@ -320,7 +320,7 @@ const {
             guestAlertCard.addEventListener("click", (e) => {
                 if (e.target === guestAlertCard) {
                     guestAlertCard.classList.add("opacity-0");
-                    const inner = document.getElementById("guest-alert-card-inner");
+                    const inner = document.getElementById("guest-alert-card-inner-route");
                     inner?.classList.add("scale-95");
                     setTimeout(() => {
                         guestAlertCard.classList.remove("flex");
