@@ -29,8 +29,9 @@ import MobileMenu from "./MobileMenu.astro";
 
 <script>
     const setupNavbar = () => {
-        const isLoggedIn = localStorage.getItem('is_logged_in') === 'true';
-        const savedDataString = localStorage.getItem('dummy_user_rini_trans');
+        const token = localStorage.getItem('jwt_token');
+        const savedDataString = localStorage.getItem('user_data');
+        const isLoggedIn = !!token && !!savedDataString;
 
         if (isLoggedIn) {
             const authElements = [
@@ -52,9 +53,10 @@ import MobileMenu from "./MobileMenu.astro";
             
             ['btn-login', 'mobile-btn-login'].forEach(id => document.getElementById(id)?.classList.add('hidden'));
 
-            if (savedDataString) {
+            try {
                 const user = JSON.parse(savedDataString);
-                const initial = user.nama ? user.nama.charAt(0).toUpperCase() : 'U';
+                const userName = user.name || user.nama || 'User';
+                const initial = userName.charAt(0).toUpperCase();
                 
                 ['avatar-initial', 'mobile-avatar-initial'].forEach(id => {
                     const el = document.getElementById(id);
@@ -66,10 +68,13 @@ import MobileMenu from "./MobileMenu.astro";
                     if (el) el.textContent = text;
                 };
 
-                setContent('dropdown-name', user.nama);
-                setContent('dropdown-email', user.email);
-                setContent('mobile-dropdown-name', user.nama);
-                setContent('mobile-dropdown-email', user.email);
+                setContent('dropdown-name', userName);
+                setContent('dropdown-email', user.email || '');
+                setContent('dropdown-phone', user.phone_number || user.telp || '-');
+                setContent('mobile-dropdown-name', userName);
+                setContent('mobile-dropdown-email', user.email || '');
+            } catch (error) {
+                console.error("Gagal parse data user:", error);
             }
         }
 
@@ -92,9 +97,10 @@ import MobileMenu from "./MobileMenu.astro";
 
         // Logout Logic
         const handleLogout = () => {
-            localStorage.removeItem('is_logged_in');
+            localStorage.removeItem('jwt_token');
+            localStorage.removeItem('user_data');
             alert('Anda telah berhasil keluar.');
-            window.location.reload();
+            window.location.href = '/';
         };
 
         document.getElementById('btn-logout')?.addEventListener('click', handleLogout);

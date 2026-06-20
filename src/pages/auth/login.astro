@@ -119,7 +119,7 @@ import RegisterForm from "@features/auth/RegisterForm.astro";
                 ).value;
 
                 const phoneInput = document.getElementById(
-                    "reg_phone",
+                    "reg_telp",
                 ) as HTMLInputElement;
                 const phoneNumber = phoneInput ? phoneInput.value : "";
 
@@ -131,10 +131,8 @@ import RegisterForm from "@features/auth/RegisterForm.astro";
                         phone_number: phoneNumber,
                     };
 
-                    const response = await apiFetch("/api/auth/register", {
-                        method: "POST",
-                        body: JSON.stringify(payload),
-                    });
+                    // dokumentasi: Memanggil fungsi registrasi dari authService (Tahap 2 & 3)
+                    const response = await authService.register(payload);
 
                     alert(
                         response.message ||
@@ -150,7 +148,7 @@ import RegisterForm from "@features/auth/RegisterForm.astro";
                     const error = e as any;
                     console.error("Gagal mendaftar", error);
                     alert(
-                        error.mesagge ||
+                        error.message ||
                             "pendaftaran gagal, pastikan pengisian data sesuai",
                     );
                 } finally {
