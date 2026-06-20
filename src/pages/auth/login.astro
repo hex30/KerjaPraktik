@@ -57,8 +57,6 @@ import RegisterForm from "@features/auth/RegisterForm.astro";
 </UserLayout>
 
 <script>
-    import { email, locales } from "astro:schema";
-    import { apiFetch } from "@services/api";
     import { authService } from "@services/authService";
 
     document.addEventListener("DOMContentLoaded", () => {

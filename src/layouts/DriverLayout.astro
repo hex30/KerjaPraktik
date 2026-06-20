@@ -56,3 +56,12 @@ const { title } = Astro.props;
         </nav>
 	</body>
 </html>
+
+<script>
+    import { authGuard } from "@utils/authGuard";
+    
+    // Proteksi Rute (Client-Side) - Hanya Supir yang boleh akses
+    document.addEventListener("DOMContentLoaded", () => {
+        authGuard.checkPermission(['driver', 'supir']);
+    });
+</script>

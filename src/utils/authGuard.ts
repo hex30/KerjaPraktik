@@ -4,17 +4,17 @@
 
 export const authGuard = {
     isLoggedIn(): boolean {
-        return localStorage.getItem('is_logged_in') === 'true';
+        return !!localStorage.getItem('jwt_token') || localStorage.getItem('is_logged_in') === 'true';
     },
 
     getUser() {
-        const userData = localStorage.getItem('dummy_user_rini_trans');
+        const userData = localStorage.getItem('user_data') || localStorage.getItem('dummy_user_rini_trans');
         return userData ? JSON.parse(userData) : null;
     },
 
     getRole(): string {
         const user = this.getUser();
-        return user?.role || 'GUEST';
+        return user?.role?.toLowerCase() || 'guest';
     },
 
     requireAuth(redirectUrl: string = '/auth/login') {

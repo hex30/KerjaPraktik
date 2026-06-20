@@ -40,9 +40,12 @@ export const authService = {
     }
   },
 
+  // dokumentasi: Fungsi untuk menghapus sesi dan token pengguna
   async logout() {
-    await delay(500);
-    localStorage.removeItem("is_logged_in");
+    // dokumentasi: Menghapus token JWT dan data user dari localStorage
+    localStorage.removeItem("jwt_token");
+    localStorage.removeItem("user_data");
+    localStorage.removeItem("is_logged_in"); // fallback untuk mock sebelumnya
     return { success: true };
   }
 };
