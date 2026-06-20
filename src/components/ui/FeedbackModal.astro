@@ -1,0 +1,80 @@
+---
+// src/components/ui/FeedbackModal.astro
+// Komponen Modal interaktif yang dapat dipanggil dari JS Client-side untuk menggantikan fungsi alert() bawaan browser
+---
+
+<div id="global-feedback-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/40 opacity-0 transition-opacity duration-300">
+    <div id="feedback-modal-content" class="bg-white p-6 rounded-2xl shadow-2xl border border-slate-100 max-w-sm w-full text-center flex flex-col items-center gap-4 mx-4 transform scale-95 transition-transform duration-300">
+        
+        <div id="feedback-icon-container" class="w-14 h-14 rounded-full flex items-center justify-center shadow-sm border">
+            <svg id="feedback-icon" xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></svg>
+        </div>
+        
+        <div>
+            <h4 id="feedback-title" class="font-bold text-lg text-primary mb-1">Informasi</h4>
+            <p id="feedback-message" class="text-sm text-slate-500 font-secondary leading-relaxed">Pesan umpan balik.</p>
+        </div>
+        
+        <button type="button" id="feedback-btn-close" class="w-full py-2.5 px-4 bg-primary text-white font-bold rounded-xl text-sm hover:bg-opacity-90 transition-colors shadow-md shadow-primary/20 mt-2">
+            Tutup
+        </button>
+    </div>
+</div>
+
+<script is:inline>
+    // Menyediakan fungsi global agar bisa dipanggil dari mana saja (seperti authService)
+    window.showFeedbackModal = function(type, title, message, redirectUrl = null) {
+        const modal = document.getElementById('global-feedback-modal');
+        const content = document.getElementById('feedback-modal-content');
+        const iconContainer = document.getElementById('feedback-icon-container');
+        const icon = document.getElementById('feedback-icon');
+        const titleEl = document.getElementById('feedback-title');
+        const messageEl = document.getElementById('feedback-message');
+        const btnClose = document.getElementById('feedback-btn-close');
+
+        if (!modal) return;
+
+        titleEl.textContent = title;
+        messageEl.textContent = message;
+
+        // Reset class container ikon
+        iconContainer.className = "w-14 h-14 rounded-full flex items-center justify-center shadow-sm border";
+
+        const icons = {
+            success: '<path d="M20 6L9 17l-5-5"></path>',
+            error: '<line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>',
+            warning: '<rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path>'
+        };
+
+        if (type === 'success') {
+            iconContainer.classList.add("bg-emerald-50", "text-emerald-500", "border-emerald-100");
+            icon.innerHTML = icons.success;
+        } else if (type === 'error') {
+            iconContainer.classList.add("bg-red-50", "text-red-500", "border-red-100");
+            icon.innerHTML = icons.error;
+        } else {
+            iconContainer.classList.add("bg-amber-50", "text-amber-500", "border-amber-100");
+            icon.innerHTML = icons.warning;
+        }
+
+        // Tampilkan modal
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        
+        // Trigger reflow untuk CSS animation
+        void modal.offsetWidth;
+        
+        modal.classList.remove('opacity-0');
+        content.classList.remove('scale-95');
+
+        btnClose.onclick = () => {
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.remove('flex');
+                modal.classList.add('hidden');
+                if (redirectUrl) window.location.href = redirectUrl;
+            }, 300); // 300ms sesuai dengan duration-300
+        };
+    };
+</script>
