@@ -18,16 +18,18 @@ import HeroAside from "@ui/HeroAside.astro";
 
         <form id="form-package-detail" class="flex flex-col gap-10">
             
-            <PackageAddressForm title="1. Data Pengirim" type="pengirim" />
+            <PackageAddressForm stepNumber="1" title="Data Pengirim" type="pengirim" />
 
-            <PackageAddressForm title="2. Data Penerima" type="penerima" />
+            <PackageAddressForm stepNumber="2" title="Data Penerima" type="penerima" />
 
-            <fieldset class="flex flex-col gap-5 p-6 rounded-2xl bg-slate-50 border border-slate-100 relative">
-                <legend class="px-3 bg-slate-50 text-text-primary font-black text-sm uppercase tracking-wider rounded-lg border border-slate-100">
-                    3. Detail Paket
-                </legend>
+            <section class="flex flex-col gap-5">
+                <h3 class="text-lg text-primary font-bold flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm">3</span>
+                    Detail Paket
+                </h3>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div class="flex flex-col gap-5 p-6 rounded-2xl bg-slate-50 border border-slate-100 relative">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     
                     <div class="flex flex-col gap-2 w-full">
                         <label for="berat_paket" class="font-secondary text-sm font-bold text-primary">
@@ -59,7 +61,7 @@ import HeroAside from "@ui/HeroAside.astro";
                         </select>
                     </div>
                 </div>
-            </fieldset>
+            </section>
 
             <div class="pt-2">
                 <Button type="submit" size="lg">

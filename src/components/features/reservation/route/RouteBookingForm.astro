@@ -129,18 +129,35 @@ const {
                     <section class="flex flex-col gap-5">
                         <h3 class="text-lg text-primary font-bold flex items-center gap-2">
                             <span class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm">3</span>
-                            Barang bawaan (Opsional)
+                            Barang Bawaan (Opsional)
                         </h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                            <div class="flex flex-col gap-2">
-                                <label for="ukuran_bagasi" class="font-secondary text-sm font-bold text-primary">Ukuran dominan</label>
+
+                        <div class="p-6 rounded-2xl bg-slate-50 border border-slate-100 relative mt-2">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div class="flex flex-col gap-2 w-full">
+                                <label for="berat_bagasi" class="font-secondary text-sm font-bold text-primary">
+                                    Berat Bawaan
+                                </label>
+                                <div class="relative flex items-center w-full">
+                                    <input 
+                                        type="number" 
+                                        name="berat_bagasi" 
+                                        id="berat_bagasi" 
+                                        placeholder="Contoh: 15" 
+                                        min="0"
+                                        class="w-full bg-slate-100 border border-slate-200 rounded-lg pl-4 pr-16 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-slate-400"
+                                    />
+                                    <div class="absolute right-1 top-1 bottom-1 bg-white border border-slate-200 rounded-md px-3 flex items-center justify-center pointer-events-none shadow-sm">
+                                        <span class="font-black text-primary text-xs tracking-wider">Kg</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex flex-col gap-2 w-full">
+                                <label for="dimensi_bagasi" class="font-secondary text-sm font-bold text-primary">Ukuran Dominan</label>
                                 <div class="relative">
-                                    <select
-                                        name="ukuran_bagasi"
-                                        id="ukuran_bagasi"
-                                        class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all appearance-none"
-                                    >
-                                        <option value="tidak_ada">Hanya tas/Ransel</option>
+                                    <select name="dimensi_bagasi" id="dimensi_bagasi" class="w-full bg-slate-100 border border-slate-200 rounded-lg px-4 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all appearance-none cursor-pointer">
+                                        <option value="tidak_ada" selected>Hanya Tas/Ransel</option>
                                         <option value="sedang">Sedang (Kardus Mie)</option>
                                         <option value="besar">Besar (Koper/Karung)</option>
                                     </select>
@@ -149,13 +166,6 @@ const {
                                     </div>
                                 </div>
                             </div>
-
-                            <QuantitySelector 
-                                id="jumlah_bagasi" 
-                                name="jumlah_bagasi" 
-                                label="Jumlah Barang (Pcs)" 
-                                max={15}
-                            />
                         </div>
                     </section>
 
