@@ -44,6 +44,7 @@ const fleetData = [
 ---
 
 <div id="booking-component" class="w-full relative">
+<div id= "booking-component" class="w-full relative">
     <article class="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 md:p-10 flex flex-col lg:flex-row gap-10 max-w-7xl mx-auto font-main">
         
         <aside class="w-full lg:w-1/3">
@@ -150,6 +151,11 @@ const fleetData = [
         const btnCollapse = document.getElementById("btn-collapse-armada");
         const extraCards = document.querySelectorAll(".extra-card");
 
+<<<<<<< HEAD:src/components/features/reservation/charter/CharterBookingForm.astro
+=======
+        // Element Input Form
+        // Kita cast ke HTMLInputElement agar TypeScript tau bahwa tipe ini memiliki properti '.value' dan '.min'
+>>>>>>> main:src/components/features/services/FormBooking.astro
         const inputTanggalSewa = document.getElementById("tanggal_sewa") as HTMLInputElement;
         const inputTanggalKepulangan = document.getElementById("tanggal_kepulangan") as HTMLInputElement;
         const inputTujuan = document.getElementById("tujuan") as HTMLInputElement;
@@ -379,6 +385,19 @@ const fleetData = [
                     targetElement.scrollIntoView({ behavior: "smooth", block: "start" });
                     observer.disconnect();
                 }, 800);
+        // 6. LOGIKA AUTO-FILL TUJUAN DARI URL PARAMETER
+        if (inputTujuan) {
+            const params = new URLSearchParams(window.location.search);
+            const tujuanDariURL = params.get('tujuan');
+            
+            // Jika ada param "?tujuan=..." di URL, otomatis isi field Area Tujuan
+            if (tujuanDariURL) {
+                inputTujuan.value = tujuanDariURL;
+                // Opsional: Berikan highlight sesaat agar user sadar datanya terisi otomatis
+                inputTujuan.classList.add("ring-2", "ring-emerald-400", "bg-emerald-50");
+                setTimeout(() => {
+                    inputTujuan.classList.remove("ring-2", "ring-emerald-400", "bg-emerald-50");
+                }, 1500);
             }
         }
     };
