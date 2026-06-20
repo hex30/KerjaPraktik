@@ -15,7 +15,7 @@
             <p id="feedback-message" class="text-sm text-slate-500 font-secondary leading-relaxed">Pesan umpan balik.</p>
         </div>
         
-        <button type="button" id="feedback-btn-close" class="w-full py-2.5 px-4 bg-primary text-white font-bold rounded-xl text-sm hover:bg-opacity-90 transition-colors shadow-md shadow-primary/20 mt-2">
+        <button type="button" id="feedback-btn-close" class="w-full py-2.5 px-4 bg-primary text-white font-bold rounded-xl text-sm hover:bg-opacity-90 transition-colors shadow-md shadow-primary/20">
             Tutup
         </button>
     </div>
@@ -67,7 +67,7 @@
         modal.classList.remove('opacity-0');
         content.classList.remove('scale-95');
 
-        btnClose.onclick = () => {
+        const closeModal = () => {
             modal.classList.add('opacity-0');
             content.classList.add('scale-95');
             setTimeout(() => {
@@ -75,6 +75,15 @@
                 modal.classList.add('hidden');
                 if (redirectUrl) window.location.href = redirectUrl;
             }, 300); // 300ms sesuai dengan duration-300
+        };
+
+        btnClose.onclick = closeModal;
+        
+        // Menutup modal dengan mengklik di luar area card (di backdrop)
+        modal.onclick = (e) => {
+            if (e.target === modal) {
+                closeModal();
+            }
         };
     };
 </script>

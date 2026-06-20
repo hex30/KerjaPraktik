@@ -22,7 +22,11 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.message || `API Error: ${response.status}`);
+      let errMsg = errorData.message || `API Error: ${response.status}`;
+      if (errorData.errors && Array.isArray(errorData.errors)) {
+          errMsg += "\n- " + errorData.errors.join("\n- ");
+      }
+      throw new Error(errMsg);
     }
 
     return await response.json();

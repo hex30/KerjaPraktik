@@ -210,31 +210,12 @@ const boxClassBase =
     </div>
   </div>
 
-  <div
-    class="flex flex-col md:flex-row md:items-center justify-between p-5 bg-card-bg-sc rounded-[var(--radius-bg)] border border-slate-200 gap-4 mt-2"
-  >
-    <div class="flex flex-col">
-      <span
-        class="text-xs font-bold font-secondary text-text-primary uppercase tracking-tight"
-        >Kursi Terpilih</span
-      >
-      <div
-        id="seat-badge-container"
-        class="flex flex-wrap gap-2 mt-2 min-h-[28px]"
-      >
-        <span class="text-sm font-third text-text-secondary"
-          >Belum ada kursi dipilih</span
-        >
-      </div>
-    </div>
-
-    <input
-      type="hidden"
-      name="seat_number"
-      id="input-selected-seats"
-      required
-    />
-  </div>
+  <input
+    type="hidden"
+    name="seat_number"
+    id="input-selected-seats"
+    required
+  />
 </section>
 
 <script>
@@ -242,8 +223,6 @@ const boxClassBase =
 
   const setupSeatSelection = () => {
     const section = document.getElementById("seat-selection-section");
-    const badgeContainer = document.getElementById("seat-badge-container");
-    const hiddenInput = document.getElementById("input-selected-seats") as HTMLInputElement;
 
     if (!section) return;
 
@@ -285,22 +264,10 @@ const boxClassBase =
     });
 
     const updateUI = () => {
-      if (hiddenInput) {
-        hiddenInput.value = selectedSeat || "";
-        hiddenInput.dispatchEvent(new Event("change", { bubbles: true }));
-      }
-
-      if (badgeContainer) {
-        if (!selectedSeat) {
-          badgeContainer.innerHTML = '<span class="text-sm font-third text-text-secondary">Belum ada kursi dipilih</span>';
-          return;
-        }
-
-        badgeContainer.innerHTML = `
-            <span class="px-3 py-1.5 bg-badge-bg text-primary font-main text-xs font-bold rounded-lg shadow-sm">
-              Kursi ${selectedSeat}
-            </span>
-        `;
+      const activeHiddenInput = document.getElementById("input-selected-seats") as HTMLInputElement;
+      if (activeHiddenInput) {
+        activeHiddenInput.value = selectedSeat || "";
+        activeHiddenInput.dispatchEvent(new Event("change", { bubbles: true }));
       }
     };
   };

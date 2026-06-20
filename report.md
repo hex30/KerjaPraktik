@@ -9,6 +9,17 @@
 ## Modul Autentikasi - Halaman Registrasi (21 Juni 2026)
 - **Endpoint:** `POST /api/auth/register`
 - **File Frontend Terubah:** `src/pages/auth/login.astro` (Register Form area), `src/services/authService.ts`
+# Laporan Integrasi Frontend - Backend (PT Rini Trans Putri)
+
+## Modul Autentikasi - Halaman Login (21 Juni 2026)
+- **Endpoint:** `POST /api/auth/login`
+- **File Frontend Terubah:** `src/pages/auth/login.astro`, `src/services/authService.ts`, `src/services/api.ts`
+- **Status:** Selesai & Tervalidasi.
+- **Catatan Integrasi:** Token JWT dan data user berhasil disimpan di localStorage. Telah diimplementasikan Role-Based Access Control (RBAC) untuk mengarahkan pengguna berdasarkan role (Admin, Driver, Customer).
+
+## Modul Autentikasi - Halaman Registrasi (21 Juni 2026)
+- **Endpoint:** `POST /api/auth/register`
+- **File Frontend Terubah:** `src/pages/auth/login.astro` (Register Form area), `src/services/authService.ts`
 - **Status:** Selesai & Tervalidasi.
 - **Catatan Integrasi:** Form pendaftaran berhasil disambungkan dengan `authService.register()`. Data pengguna yang dikirimkan melalui UI sudah terikat dan memanggil endpoint backend dengan struktur JSON yang sesuai (`name`, `email`, `password`, `phone_number`).
 
@@ -20,6 +31,21 @@
   - Data Binding diselesaikan melalui SSR (Server-Side Rendering) di `index.astro` dengan arsitektur *Fail-Safe* menggunakan `try...catch`.
   - Menerapkan *graceful degradation*: jika *database Backend* kosong, UI menghapus seluruh komponen *placeholder (dummy data)* dan hanya merender kerangka desain (*layout*) murni tanpa menampilkan kerusakan (*error*).
   - Penyesuaian visual (*Custom UI*): Tombol aksi ditiadakan pada modul Banner dan Navigasi. Layout destinasi diperbarui menjadi grid `4x1` yang bersifat estetik dan dinamis dengan penambahan fungsi "peeking" untuk mengindikasikan fungsi *horizontal-scroll*.
+
+## 3. Komunikasi dengan Tim Backend (Request Update API)
+**Kepada Tim Backend:**  
+Berdasarkan kebutuhan *Frontend* dan logika UX aplikasi yang men-generate jadwal keberangkatan secara dinamis menggunakan *Javascript* (14 hari ke depan berdasarkan rute yang didukung), sistem memerlukan endpoint pemesanan (*booking*) yang menerima tanggal pilihan pengunjung (*user's chosen date*).
+
+*Pembaruan yang Diperlukan:*
+1. **Pembaruan Skema Booking:**  
+   Pada *Payload Request* `POST /api/travel/bookings`, tambahkan penerimaan data `departure_date`. Saat ini `travel_bookings` dan API Create Booking hanya bergantung pada `schedule_id`. Padahal, jadwal tidak dipre-generate seluruh harinya di backend, melainkan ditentukan langsung oleh pengguna pada Frontend. Tolong siapkan tabel atau relasi untuk menyimpan "Tanggal Keberangkatan" (departure date) dari user.
+2. **Endpoint Ketersediaan Kursi by Date:**  
+   Mohon sediakan endpoint baru untuk *GET Seat Availability* yang parameternya tidak berdasarkan `schedule_id`, melainkan menggunakan `route_id` dan `date`, karena komponen *Seat Map* tidak akan memiliki `schedule_id` nyata sebelum reservasi dilakukan. (Contoh: `GET /api/travel/seats?route_id=...&date=...`).
+3. **Konfirmasi Data yang Disediakan Endpoint:**  
+   Sesuai dengan logika yang diinginkan (*Business Rules*), satu-satunya data krusial yang perlu diambil dengan status GET ke backend secara aktif pada layar pemesanan hanyalah:
+   - Data *Kursi Tersedia* (Seat Map/Availability).
+   - Katalog Data Armada (Fleets).
+   - Banner Promosi yang berlaku.
 
 ## Modul Layanan Customer - Layanan Rute (Travel Reguler) (21 Juni 2026)
 - **Endpoint:** `POST /api/travel/schedules/availability` (Sementara), `GET /api/travel/schedules/:id/seats` (Sementara), `POST /api/travel/bookings`

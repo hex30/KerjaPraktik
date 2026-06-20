@@ -2,6 +2,7 @@
 import "../styles/global.css";
 import NavigationBar from "@components/shared/NavigationBar.astro";
 import PageFooter from "@components/shared/PageFooter.astro";
+import FeedbackModal from "@components/ui/FeedbackModal.astro";
 
 interface Props {
 	title: string;
@@ -23,6 +24,48 @@ const { title } = Astro.props;
 		<NavigationBar />
 		<slot />
 		<PageFooter />
+		<FeedbackModal />
+		
+		<script>
+			// Global HTML5 Validation Override
+			let isInvalidAlerting = false;
+			document.addEventListener('invalid', (e) => {
+				e.preventDefault(); // Mencegah tooltip bawaan browser
+				
+				if (isInvalidAlerting) return;
+				isInvalidAlerting = true;
+				setTimeout(() => { isInvalidAlerting = false; }, 1000); // Debounce untuk mencegah modal ganda
+				
+				const target = e.target as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+				
+				// Mencari nama label untuk pesan yang lebih ramah pengguna
+				let fieldName = target.getAttribute('placeholder') || target.name || 'Kolom input';
+				if (target.id) {
+					const label = document.querySelector(`label[for="${target.id}"]`);
+					if (label) {
+						fieldName = label.textContent?.trim() || fieldName;
+					}
+				}
+				
+				// Menentukan jenis pesan berdasarkan tipe error validasi
+				let message = `Harap isi bagian "${fieldName}" yang masih kosong.`;
+				if (target.validity?.typeMismatch) {
+					message = `Format data tidak sesuai pada bagian "${fieldName}".`;
+				} else if (target.validity?.tooShort) {
+					message = `Isian pada bagian "${fieldName}" terlalu pendek.`;
+				}
+				
+				// Memberi efek highlight merah sejenak pada input yang salah
+				target.classList.add('ring-2', 'ring-red-500', 'bg-red-50');
+				setTimeout(() => target.classList.remove('ring-2', 'ring-red-500', 'bg-red-50'), 3000);
+				
+				(window as any).showFeedbackModal('warning', 'Validasi Gagal', message);
+				
+				// Scroll otomatis ke area input yang bermasalah
+				target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+				target.focus({ preventScroll: true });
+			}, true); // Menggunakan capture phase karena event 'invalid' tidak bubble
+		</script>
 	</body>
 </html>
 
@@ -31,6 +74,6 @@ const { title } = Astro.props;
 	body {
 		margin: 0;
 		width: 100%;
-		height: 100%;
+		min-height: 100vh;
 	}
 </style>
