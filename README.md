@@ -43,5 +43,26 @@ Proyek ini mengikuti pola **Component-Based Development (CBD)** dengan struktur 
 3.  **Supir:** Mengelola manifes penumpang dan laporan biaya operasional.
 4.  **Admin:** Panel kendali penuh terhadap konten, armada, dan laporan keuangan.
 
+## 💳 Alur Pembayaran Pemesanan (Payment Flow)
+Sistem ini menggunakan mekanisme penetapan harga dinamis (oleh Admin) sebelum pelanggan melakukan pembayaran. Berikut adalah siklus hidup pemesanan dari awal hingga selesai:
+
+1. **Menunggu Konfirmasi (Pending Confirmation)**
+   * User membuat pesanan (Travel, Charter, atau Paket) tanpa langsung melakukan pembayaran.
+   * Data masuk ke panel Admin. Admin akan meninjau pesanan dan **menetapkan/menginput harga akhir** (misalnya menambahkan biaya *double charge* jika paket besar, atau harga negosiasi untuk Charter).
+
+2. **Menunggu Pembayaran (Pending Payment)**
+   * Setelah harga ditetapkan Admin, status pesanan di halaman "Riwayat Pesanan" User berubah.
+   * User kini melihat tombol aksi **"Bayar"**.
+   * User memilih metode pembayaran: **Cash** (Tunai ke Supir) atau **Cashless** (Transfer).
+   * *Jika Cashless:* Sebuah Pop-up Alert berisi **QRIS Statis** dan **Nomor Rekening** akan muncul ke tengah layar. User mentransfer sesuai nominal harga dan mengeklik tombol "Konfirmasi Sudah Bayar".
+
+3. **Menunggu Pengecekan (Verification / Checking)**
+   * Setelah User mengkonfirmasi transfer, status berubah menjadi Menunggu Pengecekan.
+   * Admin akan memverifikasi di panel mereka apakah mutasi/dana sudah benar-benar masuk. Admin mengeklik tombol "Konfirmasi Pembayaran".
+
+4. **Selesai (Completed / Ready for Pickup)**
+   * *Untuk Cashless:* Begitu Admin memverifikasi uang masuk, status menjadi Selesai dengan catatan *"Silakan tunggu dijemput"*.
+   * *Untuk Cash:* Begitu User memilih *Cash* (langsung), Admin dapat memverifikasinya nanti, atau otomatis status berubah dengan catatan *"Bayar nanti saat sudah dijemput"*.
+
 ---
 © 2026 PT Rini Trans Putri. All Rights Reserved.

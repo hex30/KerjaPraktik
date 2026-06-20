@@ -216,7 +216,9 @@ const {
     import { authGuard } from "@utils/authGuard";
     import { travelService } from "@services/travelService";
 
-    let selectedScheduleId = "";
+    let selectedScheduleId = ""; // (Deprecated, will be removed later)
+    let selectedRouteId = "";
+    let selectedRawDate = "";
 
     const formatters = {
         currency: new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 }),
@@ -362,6 +364,7 @@ const {
 
                 hiddenDate.value = "";
                 selectedScheduleId = "";
+                selectedRouteId = target.value;
 
                 // Generate dates via JS
                 const baseSchedules = generateDates(target.value);
@@ -462,12 +465,13 @@ const {
                 const firstSeat = parseInt(seatValues.split(',')[0]);
 
                 const bookingPayload = {
-                    schedule_id: "123e4567-e89b-12d3-a456-426614174000", // Valid dummy UUID untuk bypass Zod
+                    route_id: selectedRouteId, // Endpoint Backend perlu diubah untuk menerima ini alih-alih schedule_id
                     departure_date: selectedRawDate,
                     seat_number: firstSeat,
                     pickup_address: "Pool Rini Trans Putri",
                     dropoff_address: address,
-                    payment_method: "cashless",
+                    payment_method: "menunggu_konfirmasi", // Alur baru: user tidak bayar di awal
+                    payment_status: "menunggu_konfirmasi", 
                     baggage_description: "Bawaan Penumpang Reguler",
                     baggage_weight: data.berat_bagasi && parseFloat(data.berat_bagasi) > 0 ? parseFloat(data.berat_bagasi) : 1,
                     baggage_dimension: data.dimensi_bagasi || "kecil"

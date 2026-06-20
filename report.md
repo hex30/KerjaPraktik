@@ -37,8 +37,9 @@
 Berdasarkan kebutuhan *Frontend* dan logika UX aplikasi yang men-generate jadwal keberangkatan secara dinamis menggunakan *Javascript* (14 hari ke depan berdasarkan rute yang didukung), sistem memerlukan endpoint pemesanan (*booking*) yang menerima tanggal pilihan pengunjung (*user's chosen date*).
 
 *Pembaruan yang Diperlukan:*
-1. **Pembaruan Skema Booking:**  
-   Pada *Payload Request* `POST /api/travel/bookings`, tambahkan penerimaan data `departure_date`. Saat ini `travel_bookings` dan API Create Booking hanya bergantung pada `schedule_id`. Padahal, jadwal tidak dipre-generate seluruh harinya di backend, melainkan ditentukan langsung oleh pengguna pada Frontend. Tolong siapkan tabel atau relasi untuk menyimpan "Tanggal Keberangkatan" (departure date) dari user.
+1. **Pembaruan Skema Booking (Route & Date vs Schedule):**  
+   Pada *Payload Request* `POST /api/travel/bookings`, hapus kewajiban `schedule_id` dan ganti dengan penerimaan data `route_id` dan `departure_date`. Saat ini validasi Zod meminta `schedule_id` berformat UUID yang mana tidak bisa Frontend berikan karena jadwal dibuat secara dinamis di *client-side*. Mohon siapkan tampungan/field di database untuk menyimpan `departure_date` dan `route_id` yang dipilih oleh user. Frontend untuk sementara mengirim `route_id` dan `departure_date` alih-alih `schedule_id`.
+
 2. **Endpoint Ketersediaan Kursi by Date:**  
    Mohon sediakan endpoint baru untuk *GET Seat Availability* yang parameternya tidak berdasarkan `schedule_id`, melainkan menggunakan `route_id` dan `date`, karena komponen *Seat Map* tidak akan memiliki `schedule_id` nyata sebelum reservasi dilakukan. (Contoh: `GET /api/travel/seats?route_id=...&date=...`).
 3. **Konfirmasi Data yang Disediakan Endpoint:**  
@@ -75,6 +76,14 @@ Berdasarkan kebutuhan *Frontend* dan logika UX aplikasi yang men-generate jadwal
    - **Keterangan:** Frontend melempar 14 jadwal tanggal. Mohon BE merespon dengan data sisa kursi (`available_seats`) yang sesuai dengan tiap tanggal tersebut.
 
 2. **Fitur:** Pemetaan Denah Kursi Riil
-   - **Usulan Endpoint FE:** `GET /api/travel/schedules/:schedule_id/seats`
+   - **Usulan Endpoint FE:** `GET /api/travel/schedules/:schedule_id/seats` (Ubah menjadi pakai route_id & date)
    - **File FE Terkait:** `src/services/travelService.ts`
-   - **Keterangan:** Mengembalikan struktur data array/list nomor kursi yang sudah **berstatus dipesan (booked)** pada jadwal spesifik tersebut agar bisa dikunci (*disabled*) di Frontend.
+   - **Keterangan:** Mengembalikan array nomor kursi yang berstatus dipesan (*booked*) pada tanggal spesifik tersebut.
+
+3. **Pembaruan:** Sistem Alur Pembayaran Pemesanan (Payment Flow)
+   - **Perubahan Skema API:** Tolong hapus validasi ketat `payment_method: "cash" | "cashless"` pada endpoint pembuatan pesanan (`POST /api/travel/bookings`), karena pada saat membuat pesanan, *User* belum memilih metode pembayaran.
+   - **Alur Baru (Tolong sesuaikan di Backend):**
+     1. **Menunggu Konfirmasi:** Pesanan masuk, Admin melihat pesanan, dan Admin menentukan harga total.
+     2. **Menunggu Pembayaran:** Setelah Admin memasukkan harga, pesanan muncul di Riwayat Pesanan User. Di sinilah User baru menekan tombol "Bayar" dan memilih *Cash* atau *Cashless*.
+     3. **Menunggu Pengecekan:** Jika *Cashless*, User mengunggah bukti/mengkonfirmasi pembayaran, status berubah menjadi "Menunggu Pengecekan" (Admin memverifikasi uang masuk).
+     4. **Selesai:** Jika Admin memverifikasi dana masuk, atau jika User memilih *Cash* dan Admin mengkonfirmasi *Cash*, status menjadi "Selesai" (Silakan tunggu dijemput).
