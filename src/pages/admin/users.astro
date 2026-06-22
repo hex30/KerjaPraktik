@@ -3,8 +3,11 @@
 import AdminLayout from "@layouts/AdminLayout.astro";
 import { adminContentService } from "@services/adminContentService";
 
-// Fetch data pengguna secara dinamis dari backend
-const users = await adminContentService.getUsersAdmin();
+// Baca token dari cookies saat mode SSR
+const token = Astro.cookies.get('token')?.value;
+
+// Fetch data dari API Backend secara nyata
+const users = await adminContentService.getUsersAdmin(token);
 
 const currentRole = Astro.url.searchParams.get("role") || "customer";
 ---

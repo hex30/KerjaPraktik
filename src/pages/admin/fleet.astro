@@ -6,8 +6,11 @@ import Badge from "@ui/Badge.astro";
 import Button from "@ui/Button.astro";
 import { adminContentService } from "@services/adminContentService";
 
+// Baca token dari cookies saat mode SSR
+const token = Astro.cookies.get('token')?.value;
+
 // Fetch data armada aktual dari Backend (Admin View)
-const fleets = await adminContentService.getFleetsAdmin();
+const fleets = await adminContentService.getFleetsAdmin(token);
 ---
 
 <AdminLayout title="Manajemen Armada">

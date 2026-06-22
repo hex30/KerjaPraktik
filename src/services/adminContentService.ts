@@ -37,10 +37,13 @@ export interface UserAdmin {
 }
 
 // Helper to handle tokens safely on client/server
-const getAuthHeaders = (): Record<string, string> => {
+const getAuthHeaders = (tokenParam?: string): Record<string, string> => {
+    // Gunakan token dari parameter jika ada (biasanya dari cookie saat SSR)
+    if (tokenParam) return { 'Authorization': `Bearer ${tokenParam}` };
+    
     // Pada saat build SSR Astro, localStorage tidak ada.
     if (typeof window !== 'undefined') {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('token') || localStorage.getItem('jwt_token');
         if (token) return { 'Authorization': `Bearer ${token}` };
     }
     return {};
@@ -147,12 +150,12 @@ export const adminContentService = {
     // ==========================================
     // FLEETS (ARMADA)
     // ==========================================
-    async getFleetsAdmin(): Promise<Fleet[]> {
+    async getFleetsAdmin(token?: string): Promise<Fleet[]> {
         try {
             // Admin menarik semua armada
             const response = await apiFetch('/api/admin/cms/fleets', {
                 method: 'GET',
-                headers: getAuthHeaders()
+                headers: getAuthHeaders(token)
             });
             return response?.data || [];
         } catch (error) {
@@ -207,11 +210,11 @@ export const adminContentService = {
     // ==========================================
     // USERS (PENGGUNA & DRIVER)
     // ==========================================
-    async getUsersAdmin(): Promise<UserAdmin[]> {
+    async getUsersAdmin(token?: string): Promise<UserAdmin[]> {
         try {
             const response = await apiFetch('/api/admin/master/users', {
                 method: 'GET',
-                headers: getAuthHeaders()
+                headers: getAuthHeaders(token)
             });
             return response?.data || [];
         } catch (error) {

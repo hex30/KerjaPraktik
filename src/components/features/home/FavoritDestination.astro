@@ -1,57 +1,42 @@
 ---
 // File: src/components/features/home/FavoritDestination.astro
 import DestinationCard from "./DestinationCard.astro";
-import SectionHeader from "@ui/SectionHeader.astro";
-import DestinationDetail from "./DestinationDetail.astro";
+import { adminContentService } from "@services/adminContentService";
 
-interface Destination {
-    image: string;
-    title: string;
-    location: string;
-    description: string;
-}
-
-interface Props {
-    destinations?: Destination[];
-    title?: string;
-    subtitle?: string;
-}
-
-const {
-    destinations = [],
-    title = "Popular Destinations",
-    subtitle = "Capai banyak destinasi wisata menarik yang bisa kamu jelajahi bersama kami.",
-} = Astro.props;
+// Tarik data destinasi dari BE
+const destinations = await adminContentService.getDestinations();
 ---
 
-<section class="max-w-7xl mx-auto px-6 py-16 relative min-h-[500px] font-main">
+<section class="max-w-7xl mx-auto px-6 py-16 relative font-main min-h-[500px]">
     <div id="carousel-section" class="block animate-fade-in">
         <div
-            class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12"
+            class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-4"
         >
             <div class="space-y-2">
                 <h2
                     class="text-3xl md:text-4xl font-black text-primary font-main"
                 >
-                    {title}
+                    Popular Destinations
                 </h2>
                 <p class="font-secondary text-text-secondary">
-                    {subtitle}
+                    Capai banyak destinasi wisata menarik yang bisa kamu
+                    jelajahi bersama kami.
                 </p>
+            </div>
         </div>
 
         <div
             id="destination-container"
-            class="flex gap-5 overflow-x-auto snap-x mandatory scroll-smooth pb-6 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+            class="flex gap-5 overflow-x-auto snap-x mandatory scroll-smooth pt-8 pb-6 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
         >
             {
                 destinations.map((dest) => (
-                    <div class="w-[85vw] sm:w-[45%] md:w-[30%] lg:w-[23%] flex-shrink-0 snap-start">
+                    <div class="w-[85vw] sm:w-[45%] md:w-[28%] flex-shrink-0 snap-start">
                         <DestinationCard
-                            image={dest.image}
-                            title={dest.title}
-                            location={dest.location}
-                            description={dest.description}
+                            image={dest.image_url || dest.image || ""}
+                            title={dest.name || dest.title || ""}
+                            location={dest.location || ""}
+                            description={dest.description || ""}
                         />
                     </div>
                 ))
@@ -59,103 +44,111 @@ const {
         </div>
     </div>
 
-    <div
-        id="detail-section"
-        class="hidden animate-fade-in w-full h-full bg-white"
-    >
-        <button
-            id="btn-back-carousel"
-            class="mb-6 flex items-center gap-2 text-slate-500 hover:text-primary font-secondary font-bold transition-colors"
+    <div id="detail-section" class="hidden animate-fade-in w-full h-full">
+        <div
+            class="flex flex-col md:flex-row items-center justify-center w-full py-8 md:py-12 max-w-5xl mx-auto"
         >
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-5 w-5"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-            >
-                <path
-                    fill-rule="evenodd"
-                    d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z"
-                    clip-rule="evenodd"></path>
-            </svg>
-            Kembali ke Daftar Destinasi
-        </button>
+            <!-- KIRI: Circular Image + Back Button -->
+            <div class="relative z-10 flex-shrink-0">
+                <button
+                    id="btn-back-carousel"
+                    class="absolute top-[10%] -left-1 md:top-[12%] md:-left-6 z-20 w-12 h-12 md:w-14 md:h-14 rounded-full bg-white shadow-[0_4px_15px_rgba(0,0,0,0.1)] border border-slate-100 flex items-center justify-center text-[#043e48] hover:bg-slate-50 transition-colors cursor-pointer"
+                    aria-label="Kembali"
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-6 w-6"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        stroke-width="2.5"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                    </svg>
+                </button>
 
-        <div class="flex flex-col lg:flex-row gap-10 items-start">
-            <div class="w-full lg:w-[30%]">
+                <!-- Image Circle -->
                 <div
-                    class="w-full h-[280px] rounded-[15px] overflow-hidden shadow-md mb-5"
+                    class="w-[260px] h-[260px] sm:w-[320px] sm:h-[320px] md:w-[400px] md:h-[400px] rounded-full border-[6px] md:border-[8px] border-[#043e48] overflow-hidden shadow-2xl bg-slate-200"
                 >
                     <img
                         id="detail-image"
                         src=""
-                        alt="Preview"
+                        alt="Destination Detail"
                         class="w-full h-full object-cover"
                     />
                 </div>
-                <div class="flex items-center gap-2">
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        class="h-5 w-5 text-sky-500"
-                        viewBox="0 0 20 20"
-                        fill="currentColor"
-                    >
-                        <path
-                            fill-rule="evenodd"
-                            d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
-                            clip-rule="evenodd"></path>
-                    </svg>
-                    <span
-                        id="detail-location"
-                        class="font-secondary text-sm font-bold text-text-secondary"
-                    ></span>
-                </div>
             </div>
 
-            <div class="w-full lg:w-[70%] flex flex-col gap-6 pt-2">
+            <!-- KANAN: Text Card -->
+            <div
+                class="relative z-0 flex-1 bg-white rounded-[30px] md:rounded-[40px] border border-slate-200 shadow-[0_8px_30px_rgb(0,0,0,0.06)] p-6 md:p-12 pt-[150px] sm:pt-[180px] md:pt-12 md:pl-[240px] -mt-[130px] sm:-mt-[160px] md:mt-0 md:-ml-[200px] w-full max-w-[850px] flex flex-col justify-center min-h-[350px] md:min-h-[400px]"
+            >
+                <p
+                    class="text-[#c29a5c] font-bold text-[10px] md:text-xs tracking-[0.25em] uppercase mb-3 font-secondary"
+                >
+                    Destination Detail
+                </p>
+
                 <h2
                     id="detail-title"
-                    class="text-3xl md:text-5xl font-black text-primary font-main leading-tight"
+                    class="text-[#043e48] font-black text-4xl md:text-[3.5rem] mb-4 leading-tight font-main tracking-tight"
                 >
                 </h2>
-                <div class="w-16 h-1.5 bg-secondary rounded-full"></div>
+
+                <div
+                    class="w-16 md:w-20 h-1.5 md:h-2 bg-[#f0c24c] rounded-full mb-6"
+                >
+                </div>
+
                 <p
                     id="detail-desc"
-                    class="font-secondary text-base md:text-lg text-text-secondary leading-relaxed max-w-2xl"
+                    class="text-slate-500 font-secondary text-sm md:text-base leading-relaxed mb-8 md:mb-10 max-w-lg"
                 >
                 </p>
-                <div class="pt-4">
-                    <a
-                        id="detail-cta"
-                        href="/layanan/booking"
-                        class="inline-flex items-center justify-center px-8 py-4 bg-btn-linear text-white font-main font-bold rounded-xl shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 gap-2"
+
+                <a
+                    id="detail-cta"
+                    href="/layanan/booking"
+                    class="inline-flex items-center gap-3 px-6 py-3.5 bg-[#044b55] hover:bg-[#03343b] transition-colors rounded-xl text-white font-secondary font-semibold shadow-lg group w-max"
+                >
+                    Pesan Tiket Sekarang
+                    <div
+                        class="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center group-hover:bg-white/30 transition-colors"
                     >
-                        Pesan Tiket Sekarang
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
+                            class="h-3.5 w-3.5 md:h-4 md:w-4"
                             fill="none"
                             viewBox="0 0 24 24"
-                            stroke-width="2.5"
                             stroke="currentColor"
-                            class="w-5 h-5"
+                            stroke-width="3"
                         >
                             <path
                                 stroke-linecap="round"
                                 stroke-linejoin="round"
-                                d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path>
+                                d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                         </svg>
-                    </a>
-                </div>
+                    </div>
+                </a>
             </div>
         </div>
     </div>
-
-    <DestinationDetail />
 </section>
 
 <style>
     .animate-fade-in {
         animation: fadeIn 0.4s ease-out forwards;
+    }
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
     }
     @keyframes fadeIn {
         from {
@@ -171,39 +164,21 @@ const {
 
 <script>
     const initDestinationFeatures = () => {
-        // --- 1. Logika Navigasi Carousel ---
-        const container = document.getElementById("destination-container");
-        const prevBtn = document.getElementById("dest-prev");
-        const nextBtn = document.getElementById("dest-next");
-
-        if (container && prevBtn && nextBtn) {
-            const getScrollAmount = () => {
-                const firstCard = container.querySelector(".flex-shrink-0");
-                return firstCard ? firstCard.clientWidth + 20 : 300;
-            };
-
-            nextBtn.addEventListener(
-                "click",
-                () => (container.scrollLeft += getScrollAmount()),
-            );
-            prevBtn.addEventListener(
-                "click",
-                () => (container.scrollLeft -= getScrollAmount()),
-            );
-        }
-
-        // --- 2. Logika Interaksi Card -> Detail View ---
+        // Interaksi Card ke Detail View
         const cards = document.querySelectorAll(".destination-card-trigger");
         const carouselSection = document.getElementById("carousel-section");
         const detailSection = document.getElementById("detail-section");
         const backBtn = document.getElementById("btn-back-carousel");
 
-        // Hapus sintaks "as HTMLImageElement" dan "as HTMLAnchorElement"
-        const detailImage = document.getElementById("detail-image");
+        const detailImage = document.getElementById(
+            "detail-image",
+        ) as HTMLImageElement;
         const detailTitle = document.getElementById("detail-title");
         const detailLocation = document.getElementById("detail-location");
         const detailDesc = document.getElementById("detail-desc");
-        const detailCta = document.getElementById("detail-cta");
+        const detailCta = document.getElementById(
+            "detail-cta",
+        ) as HTMLAnchorElement;
 
         cards.forEach((card) => {
             card.addEventListener("click", () => {
@@ -212,18 +187,13 @@ const {
                 const image = card.getAttribute("data-image") || "";
                 const desc = card.getAttribute("data-description") || "";
 
-                // Gunakan "instanceof" sebagai ganti Type Assertion TypeScript
-                if (detailImage instanceof HTMLImageElement) {
-                    detailImage.src = image;
-                }
-
+                if (detailImage) detailImage.src = image;
                 if (detailTitle) detailTitle.textContent = title;
                 if (detailLocation) detailLocation.textContent = location;
                 if (detailDesc) detailDesc.textContent = desc;
 
-                // Gunakan "instanceof" untuk mengecek elemen Anchor (link)
-                if (detailCta instanceof HTMLAnchorElement) {
-                    detailCta.href = `/layanan?tujuan=${encodeURIComponent(title)}#booking-component`;
+                if (detailCta) {
+                    detailCta.href = `/services?tujuan=${encodeURIComponent(title)}#booking-component`;
                 }
 
                 if (carouselSection && detailSection) {
@@ -235,7 +205,7 @@ const {
             });
         });
 
-        // --- 3. Logika Tombol Kembali ---
+        // Tombol Kembali
         if (backBtn && carouselSection && detailSection) {
             backBtn.addEventListener("click", () => {
                 detailSection.classList.add("hidden");

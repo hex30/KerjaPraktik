@@ -40,9 +40,12 @@ export interface AssignedFleet {
 
 export const adminDashboardService = {
   // dokumentasi: Mengambil metrik untuk 3 card teratas
-  async getDashboardMetrics(): Promise<DashboardMetrics> {
+  async getDashboardMetrics(token?: string): Promise<DashboardMetrics> {
     try {
-      const response = await apiFetch('/api/admin/dashboard/metrics', { method: 'GET' });
+      const headers: Record<string, string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      
+      const response = await apiFetch('/api/admin/dashboard/metrics', { method: 'GET', headers });
       const data = response?.data || {};
       
       return {
@@ -57,9 +60,12 @@ export const adminDashboardService = {
   },
 
   // dokumentasi: Mengambil antrean izin keberangkatan supir (Endpoint usulan untuk BE)
-  async getDepartureRequests(): Promise<DepartureRequest[]> {
+  async getDepartureRequests(token?: string): Promise<DepartureRequest[]> {
     try {
-      const response = await apiFetch('/api/admin/dashboard/departure-requests', { method: 'GET' });
+      const headers: Record<string, string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const response = await apiFetch('/api/admin/dashboard/departure-requests', { method: 'GET', headers });
       return response?.data || [];
     } catch (error) {
       console.error("Endpoint departure-requests belum siap di BE:", error);
@@ -68,9 +74,12 @@ export const adminDashboardService = {
   },
 
   // dokumentasi: Mengambil daftar armada yang sedang bertugas (Live Status)
-  async getActiveFleets(): Promise<AssignedFleet[]> {
+  async getActiveFleets(token?: string): Promise<AssignedFleet[]> {
     try {
-      const response = await apiFetch('/api/admin/dashboard/active-duties', { method: 'GET' });
+      const headers: Record<string, string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
+      const response = await apiFetch('/api/admin/dashboard/active-duties', { method: 'GET', headers });
       return response?.data || [];
     } catch (error) {
       console.error("Gagal mengambil active fleets:", error);

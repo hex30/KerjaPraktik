@@ -7,17 +7,24 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_URL || 'http://localhost:5000';
 export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
   const url = `${API_BASE_URL}${endpoint}`;
   
-  const defaultHeaders = {
-    'Content-Type': 'application/json',
-  };
+  const isFormData = typeof FormData !== 'undefined' && options.body instanceof FormData;
+  
+  // Cara paling aman dan standar (TypeScript-friendly) untuk menggabungkan headers
+  const headers = new Headers(options.headers);
+  
+  if (!isFormData) {
+    if (!headers.has('Content-Type')) {
+      headers.set('Content-Type', 'application/json');
+    }
+  } else {
+    // Pastikan tidak ada Content-Type agar browser bebas membuat boundary untuk FormData
+    headers.delete('Content-Type');
+  }
 
   try {
     const response = await fetch(url, {
       ...options,
-      headers: {
-        ...defaultHeaders,
-        ...options.headers,
-      },
+      headers,
     });
 
     if (!response.ok) {

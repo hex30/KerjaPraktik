@@ -215,6 +215,7 @@ import FeedbackModal from "@components/ui/FeedbackModal.astro";
                         "user_data",
                         JSON.stringify(user),
                     );
+                    document.cookie = `token=${token}; path=/; max-age=86400; SameSite=Lax`;
 
                     // Role-Based Access Control (RBAC) Redirect
                     const role = user.role?.toLowerCase() || 'customer';

@@ -46,6 +46,7 @@ export const authService = {
     localStorage.removeItem("jwt_token");
     localStorage.removeItem("user_data");
     localStorage.removeItem("is_logged_in"); // fallback untuk mock sebelumnya
+    document.cookie = "token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     return { success: true };
   }
 };

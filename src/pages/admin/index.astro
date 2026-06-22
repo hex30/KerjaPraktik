@@ -6,10 +6,13 @@ import Badge from "@ui/Badge.astro";
 
 import { adminDashboardService } from "@services/adminDashboardService";
 
+// Baca token dari cookies saat mode SSR
+const token = Astro.cookies.get('token')?.value;
+
 // Fetch data secara riil dari Backend via SSR
-const metrics = await adminDashboardService.getDashboardMetrics();
-const approvalDriverData = await adminDashboardService.getDepartureRequests();
-const assignedFleets = await adminDashboardService.getActiveFleets();
+const metrics = await adminDashboardService.getDashboardMetrics(token);
+const approvalDriverData = await adminDashboardService.getDepartureRequests(token);
+const assignedFleets = await adminDashboardService.getActiveFleets(token);
 
 // Map metrics ke komponen StatCard
 const stats = [
@@ -118,34 +121,34 @@ const stats = [
                         <div class="flex items-center justify-between relative z-10">
                             <div class="flex flex-col gap-1">
                                 <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">{fleet.id}</span>
-                                <h3 class="text-2xl font-black text-primary">{fleet.name}</h3>
+                                <h3 class="text-2xl font-black text-primary">{fleet.fleet_code || fleet.name}</h3>
                             </div>
-                            <Badge variant={fleet.type === 'RUTE' ? 'sky' : 'warning'} class="px-4 py-1.5 text-[10px]">
-                                {fleet.type}
+                            <Badge variant={fleet.type === 'rute' || fleet.type === 'RUTE' ? 'sky' : 'warning'} class="px-4 py-1.5 text-[10px]">
+                                {fleet.badge_label || fleet.type}
                             </Badge>
                         </div>
 
                         <div class="grid grid-cols-1 gap-4 relative z-10">
-                            {fleet.type === 'RUTE' ? (
+                            {fleet.type === 'rute' || fleet.type === 'RUTE' ? (
                                 <>
                                     <div class="flex justify-between items-center py-3 border-b border-dashed border-slate-100">
                                         <span class="text-xs font-bold text-slate-400 uppercase">Rute Perjalanan</span>
-                                        <span class="text-sm font-black text-slate-900">{fleet.details.path}</span>
+                                        <span class="text-sm font-black text-slate-900">{fleet.route || fleet.details?.path || '-'}</span>
                                     </div>
                                     <div class="grid grid-cols-2 gap-4">
                                         <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100/50">
                                             <span class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Total Penumpang</span>
-                                            <span class="text-sm font-black text-primary">{fleet.details.pax} Orang</span>
+                                            <span class="text-sm font-black text-primary">{fleet.total_passengers ?? fleet.details?.pax ?? 0} Orang</span>
                                         </div>
                                         <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100/50">
                                             <span class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Total Paket</span>
-                                            <span class="text-sm font-black text-primary">{fleet.details.packages} Item</span>
+                                            <span class="text-sm font-black text-primary">{fleet.total_packages ?? fleet.details?.packages ?? 0} Item</span>
                                         </div>
                                     </div>
                                     <div class="flex flex-col gap-2">
                                         <span class="text-[9px] font-bold text-slate-400 uppercase">Supir Bertugas</span>
                                         <div class="flex gap-2">
-                                            {fleet.details.drivers?.map(d => (
+                                            {(fleet.drivers || fleet.details?.drivers || []).map(d => (
                                                 <span class="px-3 py-1 bg-sky-50 text-sky-600 text-[10px] font-black rounded-lg">{d}</span>
                                             ))}
                                         </div>
@@ -156,33 +159,33 @@ const stats = [
                                     <div class="flex flex-col gap-1 py-3 border-b border-dashed border-slate-100">
                                         <span class="text-[8px] font-bold text-slate-400 uppercase">Pelanggan</span>
                                         <div class="flex justify-between items-end">
-                                            <span class="text-sm font-black text-slate-900">{fleet.details.customer}</span>
-                                            <span class="text-[10px] font-bold text-slate-500">{fleet.details.phone}</span>
+                                            <span class="text-sm font-black text-slate-900">{fleet.customer_name || fleet.details?.customer || '-'}</span>
+                                            <span class="text-[10px] font-bold text-slate-500">{fleet.customer_phone || fleet.details?.phone || '-'}</span>
                                         </div>
                                     </div>
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div class="flex flex-col gap-1">
                                             <span class="text-[8px] font-bold text-slate-400 uppercase">Lokasi Jemput</span>
-                                            <p class="text-[10px] font-bold text-slate-600 line-clamp-1">{fleet.details.pickup}</p>
+                                            <p class="text-[10px] font-bold text-slate-600 line-clamp-1">{fleet.pickup_address || fleet.details?.pickup || '-'}</p>
                                         </div>
                                         <div class="flex flex-col gap-1">
                                             <span class="text-[8px] font-bold text-slate-400 uppercase">Destinasi</span>
-                                            <p class="text-[10px] font-bold text-slate-600">{fleet.details.destination}</p>
+                                            <p class="text-[10px] font-bold text-slate-600">{fleet.destination || fleet.details?.destination || '-'}</p>
                                         </div>
                                     </div>
                                     <div class="grid grid-cols-2 gap-4">
                                         <div class="bg-slate-50 p-3 rounded-xl border border-slate-100/50 text-center">
                                             <span class="text-[8px] font-bold text-slate-400 uppercase block mb-1">Pick Up</span>
-                                            <span class="text-[10px] font-black text-slate-900">{fleet.details.date_pickup}</span>
+                                            <span class="text-[10px] font-black text-slate-900">{fleet.pickup_date || fleet.details?.date_pickup || '-'}</span>
                                         </div>
                                         <div class="bg-slate-50 p-3 rounded-xl border border-slate-100/50 text-center">
                                             <span class="text-[8px] font-bold text-slate-400 uppercase block mb-1">Kembali</span>
-                                            <span class="text-[10px] font-black text-slate-900">{fleet.details.date_return}</span>
+                                            <span class="text-[10px] font-black text-slate-900">{fleet.return_date || fleet.details?.date_return || '-'}</span>
                                         </div>
                                     </div>
                                     <div class="flex justify-between items-center pt-2">
                                         <span class="text-[9px] font-bold text-slate-400 uppercase">Supir Bertugas</span>
-                                        <span class="px-3 py-1 bg-amber-50 text-amber-600 text-[10px] font-black rounded-lg">{fleet.details.driver}</span>
+                                        <span class="px-3 py-1 bg-amber-50 text-amber-600 text-[10px] font-black rounded-lg">{(fleet.drivers && fleet.drivers[0]) || fleet.details?.driver || '-'}</span>
                                     </div>
                                 </>
                             )}
@@ -191,7 +194,9 @@ const stats = [
                         <!-- Revenue Footer -->
                         <div class="mt-4 pt-6 border-t border-slate-50 flex items-center justify-between relative z-10">
                             <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Estimated Revenue</span>
-                            <span class="text-xl font-main font-black text-primary tracking-tight">{fleet.details.revenue}</span>
+                            <span class="text-xl font-main font-black text-primary tracking-tight">
+                                {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(fleet.estimated_revenue || fleet.details?.revenue || 0)}
+                            </span>
                         </div>
                     </div>
                 ))}
