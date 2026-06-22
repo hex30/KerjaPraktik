@@ -2,6 +2,8 @@
 // File: src/components/features/admin/content/PromoManager.astro
 import InputGroup from "@ui/InputGroup.astro";
 import Button from "@ui/Button.astro";
+
+const { promo } = Astro.props;
 ---
 
 <div class="flex flex-col gap-8 bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
@@ -10,7 +12,8 @@ import Button from "@ui/Button.astro";
         <p class="text-xs text-slate-400 font-secondary mt-1">Update promo di Home dan Layanan secara bersamaan.</p>
     </header>
 
-    <form class="flex flex-col gap-8">
+    <form id="promo-form" class="flex flex-col gap-8">
+        <input type="hidden" name="id" value={promo?.id || ""} />
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="flex flex-col gap-5">
                 <h4 class="text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-2">
@@ -18,11 +21,11 @@ import Button from "@ui/Button.astro";
                     Payload Utama Promo
                 </h4>
                 
-                <InputGroup label="Tagline Promo" id="tagline" name="tagline" placeholder="Contoh: Mudik Ceria 2026" required={true} />
+                <InputGroup label="Tagline Promo" id="tagline" name="tagline" placeholder="Contoh: Mudik Ceria 2026" required={true} value={promo?.tagline || ""} />
                 
                 <div class="flex flex-col gap-2">
                     <label class="font-secondary text-sm font-bold text-primary">Deskripsi Promo</label>
-                    <textarea rows="4" class="w-full bg-slate-100 border border-slate-200 rounded-lg px-4 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-none" placeholder="Jelaskan detail promo Anda..."></textarea>
+                    <textarea id="description" name="description" rows="4" class="w-full bg-slate-100 border border-slate-200 rounded-lg px-4 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-none" placeholder="Jelaskan detail promo Anda...">{promo?.description || ""}</textarea>
                 </div>
             </div>
 
@@ -33,14 +36,15 @@ import Button from "@ui/Button.astro";
                 </h4>
 
                 <div class="grid grid-cols-2 gap-4">
-                    <InputGroup label="Diskon (%)" id="discount" name="discount" type="number" placeholder="0" suffix="%" />
+                    <InputGroup label="Diskon (%)" id="discount" name="discount" type="number" placeholder="0" suffix="%" value={promo?.discount || ""} />
                     <InputGroup label="Max Potongan" id="max_discount" name="max_discount" type="number" placeholder="0" suffix="Rp" />
                 </div>
 
-                <div class="flex flex-col gap-2">
+                <div class="flex flex-col gap-2 relative">
                     <label class="text-[10px] font-bold text-slate-500 uppercase">Banner Promo</label>
-                    <div class="w-full py-12 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 flex flex-col items-center justify-center gap-2 hover:border-primary transition-all cursor-pointer group">
-                         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-300 group-hover:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                    <input type="file" id="promo_image" name="image" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                    <div class="w-full py-12 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 flex flex-col items-center justify-center gap-2 group-hover:border-primary transition-all relative">
+                         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-300 group-hover:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                          <span class="text-[10px] font-bold text-slate-400">Pilih Gambar / Drag & Drop</span>
                     </div>
                 </div>
@@ -51,19 +55,95 @@ import Button from "@ui/Button.astro";
             <h5 class="text-[10px] font-black text-slate-800 uppercase tracking-widest">Penempatan Promo</h5>
             <div class="flex flex-wrap gap-4">
                 <label class="flex items-center gap-2 cursor-pointer group">
-                    <input type="checkbox" checked class="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary">
-                    <span class="text-xs font-bold text-slate-600 group-hover:text-primary transition-colors">Tampilkan di Beranda</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer group">
-                    <input type="checkbox" checked class="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary">
-                    <span class="text-xs font-bold text-slate-600 group-hover:text-primary transition-colors">Tampilkan di Laman Layanan</span>
+                    <input type="checkbox" name="is_active" checked={promo?.isActive !== false} class="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary">
+                    <span class="text-xs font-bold text-slate-600 group-hover:text-primary transition-colors">Tampilkan sebagai Promo Aktif Utama</span>
                 </label>
             </div>
         </div>
 
         <div class="flex justify-end gap-3 pt-4 border-t border-slate-50">
-            <button type="button" class="px-8 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-slate-600 transition-all">Reset</button>
-            <Button type="submit" size="lg" class="px-12">Simpan & Sync Promo</Button>
+            {promo?.id && (
+                <button type="button" id="delete-promo-btn" data-id={promo.id} class="px-8 py-3 rounded-xl font-bold text-sm text-red-500 hover:bg-red-50 transition-all">Hapus Promo</button>
+            )}
+            <button type="reset" class="px-8 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-slate-600 transition-all">Reset</button>
+            <Button id="submit-promo-btn" type="submit" size="lg" class="px-12">Simpan & Sync Promo</Button>
         </div>
     </form>
 </div>
+
+<script>
+    import { adminContentService } from "@services/adminContentService";
+
+    const setupPromoForm = () => {
+        const form = document.getElementById('promo-form') as HTMLFormElement;
+        const deleteBtn = document.getElementById('delete-promo-btn');
+        const submitBtn = document.getElementById('submit-promo-btn');
+
+        if (form) {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(form);
+                
+                // Construct standard object or keep as FormData based on whether image is present
+                const fileInput = form.querySelector('input[type="file"]') as HTMLInputElement;
+                const hasFile = fileInput && fileInput.files && fileInput.files.length > 0;
+
+                try {
+                    if (submitBtn) {
+                        const originalText = submitBtn.textContent;
+                        submitBtn.textContent = "Menyimpan...";
+                        submitBtn.setAttribute('disabled', 'true');
+                    }
+
+                    if (hasFile) {
+                        // Send as Multipart
+                        formData.set('is_active', form.querySelector('input[name="is_active"]:checked') ? 'true' : 'false');
+                        await adminContentService.savePromotion(formData);
+                    } else {
+                        // Send as JSON
+                        const jsonPayload = {
+                            id: formData.get('id'),
+                            tagline: formData.get('tagline'),
+                            description: formData.get('description'),
+                            discount: formData.get('discount'),
+                            max_discount: formData.get('max_discount'),
+                            is_active: form.querySelector('input[name="is_active"]:checked') ? true : false
+                        };
+                        await adminContentService.savePromotion(jsonPayload);
+                    }
+
+                    alert("Promo berhasil disimpan dan disinkronisasi!");
+                    window.location.reload();
+                } catch (error: any) {
+                    alert(error.message || "Gagal menyimpan promo");
+                } finally {
+                    if (submitBtn) {
+                        submitBtn.textContent = "Simpan & Sync Promo";
+                        submitBtn.removeAttribute('disabled');
+                    }
+                }
+            });
+        }
+
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', async () => {
+                const id = deleteBtn.getAttribute('data-id');
+                if (id && confirm("Yakin ingin menghapus promo ini secara permanen?")) {
+                    try {
+                        const originalText = deleteBtn.textContent;
+                        deleteBtn.textContent = "Menghapus...";
+                        await adminContentService.deletePromotion(id);
+                        alert("Promo berhasil dihapus!");
+                        window.location.reload();
+                    } catch (error: any) {
+                        alert(error.message || "Gagal menghapus promo");
+                        deleteBtn.textContent = "Hapus Promo";
+                    }
+                }
+            });
+        }
+    };
+
+    setupPromoForm();
+    document.addEventListener('astro:page-load', setupPromoForm);
+</script>

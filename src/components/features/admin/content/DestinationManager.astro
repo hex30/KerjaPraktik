@@ -2,20 +2,20 @@
 // File: src/components/features/admin/content/DestinationManager.astro
 import Button from "@ui/Button.astro";
 import InputGroup from "@ui/InputGroup.astro";
+import { adminContentService } from "@services/adminContentService";
 
-// Mock Data Destinasi
-const destinations = [
-    { id: 1, name: "Pantai Pangandaran", location: "Jawa Barat, Indonesia", image: "https://c1.wallpaperflare.com/preview/864/690/351/pantai-kuta-kuta-bali-indonesia.jpg", desc: "Pantai dengan pasir putih dan cagar alam menakjubkan di salah satu destinasi wisata terbaik di Jawa Barat." },
-    { id: 2, name: "Green Canyon", location: "Pangandaran, Indonesia", image: "https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?auto=format&fit=crop&q=80&w=800", desc: "Ngarai hijau nan eksotis dengan aliran sungai jernih. Nikmati sensasi body rafting menembus gua dan stalaktit." },
-    { id: 3, name: "Kawah Putih", location: "Bandung, Indonesia", image: "https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?auto=format&fit=crop&q=80&w=800", desc: "Saksikan pemandangan magis danau kawah vulkanik berwarna putih kehijauan yang diselimuti kabut tipis." },
-    { id: 4, name: "Gunung Galunggung", location: "Tasikmalaya, Indonesia", image: "https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?auto=format&fit=crop&q=80&w=800", desc: "Nikmati keindahan kawah dan hutan pegunungan yang asri dengan menaiki ratusan anak tangga ikonik." },
-    { id: 5, name: "Situ Gede", location: "Tasikmalaya, Indonesia", image: "https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?auto=format&fit=crop&q=80&w=800", desc: "Danau luas di tengah kota yang menawarkan suasana tenang dan kuliner ikan bakar khas Priangan." },
-];
+// Fetch data destinasi aktual dari Backend (SSR)
+const destinations = await adminContentService.getDestinations();
 ---
 
 <div class="flex flex-col gap-12 font-main">
     <!-- Grid Section -->
     <section>
+        {destinations.length === 0 && (
+            <div class="p-8 text-center border-2 border-dashed border-slate-200 rounded-3xl bg-slate-50">
+                <p class="text-sm font-bold text-slate-500">Belum ada data destinasi.</p>
+            </div>
+        )}
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6" id="dest-grid">
             {destinations.map((dest, index) => (
                 <div class:list={[
@@ -25,9 +25,9 @@ const destinations = [
                      data-id={dest.id} 
                      data-name={dest.name} 
                      data-location={dest.location} 
-                     data-desc={dest.desc}>
+                     data-desc={dest.description}>
                     <div class="relative h-44 rounded-2xl overflow-hidden shadow-inner bg-slate-100">
-                        <img src={dest.image} class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                        <img src={dest.image_url} alt={dest.name} class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                         <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
                         
                         <!-- Actions -->
@@ -46,7 +46,7 @@ const destinations = [
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.012 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                             {dest.location}
                         </span>
-                        <p class="text-[10px] text-slate-500 font-secondary leading-relaxed mt-1 line-clamp-3">{dest.desc}</p>
+                        <p class="text-[10px] text-slate-500 font-secondary leading-relaxed mt-1 line-clamp-3">{dest.description}</p>
                     </div>
                 </div>
             ))}
@@ -70,6 +70,7 @@ const destinations = [
         </header>
 
         <form id="dest-form" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <input type="hidden" name="id" id="dest_id" value="" />
             <div class="flex flex-col gap-6">
                 <InputGroup label="Nama Lokasi" id="dest_name" name="name" placeholder="Contoh: Pantai Madasari" required={true} />
                 <InputGroup label="Lokasi Daerahnya" id="dest_location" name="location" placeholder="Contoh: Pangandaran, Jawa Barat" required={true} />
@@ -77,7 +78,7 @@ const destinations = [
                 <div class="flex flex-col gap-2">
                     <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Gambar Destinasi (Rasio 1:1)</label>
                     <div class="relative w-full h-40 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 flex flex-col items-center justify-center gap-3 hover:border-primary transition-all cursor-pointer group overflow-hidden">
-                        <input type="file" name="image" class="absolute inset-0 opacity-0 cursor-pointer z-10" />
+                        <input type="file" name="image" id="dest_image" class="absolute inset-0 opacity-0 cursor-pointer z-10" />
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-300 group-hover:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                         <span class="text-xs font-bold text-slate-400 group-hover:text-primary transition-colors">Upload File Gambar</span>
                     </div>
@@ -87,11 +88,11 @@ const destinations = [
             <div class="flex flex-col gap-6">
                 <div class="flex flex-col gap-2 h-full">
                     <label for="dest_desc" class="font-secondary text-sm font-bold text-primary">Deskripsi Destinasi</label>
-                    <textarea id="dest_desc" name="desc" class="flex-grow w-full bg-slate-100 border border-slate-200 rounded-2xl px-5 py-4 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-none" placeholder="Ceritakan keindahan destinasi ini agar pengunjung tertarik..."></textarea>
+                    <textarea id="dest_desc" name="description" class="flex-grow w-full bg-slate-100 border border-slate-200 rounded-2xl px-5 py-4 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-none" placeholder="Ceritakan keindahan destinasi ini agar pengunjung tertarik..."></textarea>
                 </div>
                 
                 <div class="flex gap-4 pt-4">
-                    <Button type="submit" class="flex-grow shadow-lg">Simpan Destinasi</Button>
+                    <Button id="submit-dest-btn" type="submit" class="flex-grow shadow-lg">Simpan Destinasi</Button>
                     <button type="reset" id="dest-reset-btn" class="px-10 py-4 bg-slate-100 text-slate-500 font-bold text-sm rounded-2xl hover:bg-slate-200 transition-all">Reset</button>
                 </div>
             </div>
@@ -100,6 +101,8 @@ const destinations = [
 </div>
 
 <script>
+    import { adminContentService } from "@services/adminContentService";
+
     const setupDestLogic = () => {
         const toggleBtn = document.getElementById('toggle-dest-btn');
         const extraDests = document.querySelectorAll('.extra-dest');
@@ -110,14 +113,17 @@ const destinations = [
         const formTitle = document.getElementById('dest-form-title');
         const formDesc = document.getElementById('dest-form-desc');
         const resetBtn = document.getElementById('dest-reset-btn');
+        const submitBtn = document.getElementById('submit-dest-btn');
         const section = document.getElementById('dest-form-section');
 
+        const inputId = document.getElementById('dest_id') as HTMLInputElement;
         const inputName = document.getElementById('dest_name') as HTMLInputElement;
         const inputLocation = document.getElementById('dest_location') as HTMLInputElement;
         const inputDesc = document.getElementById('dest_desc') as HTMLTextAreaElement;
 
         // Toggle Logic
         toggleBtn?.addEventListener('click', () => {
+            if (extraDests.length === 0) return;
             const isHidden = extraDests[0].classList.contains('hidden');
             const toggleText = document.getElementById('dest-toggle-text');
             
@@ -135,12 +141,47 @@ const destinations = [
             }
         });
 
+        // Submit Form (Create / Update)
+        if (form) {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(form);
+                
+                try {
+                    if (submitBtn) {
+                        submitBtn.textContent = "Menyimpan...";
+                        submitBtn.setAttribute('disabled', 'true');
+                    }
+                    
+                    await adminContentService.saveDestination(formData);
+                    alert("Destinasi berhasil disimpan!");
+                    window.location.reload();
+                } catch (error: any) {
+                    alert(error.message || "Gagal menyimpan destinasi");
+                } finally {
+                    if (submitBtn) {
+                        submitBtn.textContent = "Simpan Destinasi";
+                        submitBtn.removeAttribute('disabled');
+                    }
+                }
+            });
+        }
+
         // Delete Logic
         deleteButtons.forEach(btn => {
-            btn.addEventListener('click', (e) => {
+            btn.addEventListener('click', async (e) => {
                 e.stopPropagation();
-                if (confirm('Hapus destinasi ini dari daftar?')) {
-                    btn.closest('.destination-card')?.remove();
+                const card = btn.closest('.destination-card') as HTMLElement;
+                const id = card?.dataset.id;
+                
+                if (id && confirm('Hapus destinasi ini secara permanen dari database?')) {
+                    try {
+                        await adminContentService.deleteDestination(id);
+                        alert("Destinasi dihapus!");
+                        window.location.reload();
+                    } catch(err: any) {
+                        alert(err.message || "Gagal menghapus destinasi.");
+                    }
                 }
             });
         });
@@ -152,8 +193,9 @@ const destinations = [
                 const card = btn.closest('.destination-card') as HTMLElement;
                 if (!card) return;
 
-                const { name, location, desc } = card.dataset;
+                const { id, name, location, desc } = card.dataset;
 
+                if (inputId) inputId.value = id || '';
                 if (inputName) inputName.value = name || '';
                 if (inputLocation) inputLocation.value = location || '';
                 if (inputDesc) inputDesc.value = desc || '';
@@ -170,6 +212,7 @@ const destinations = [
         });
 
         resetBtn?.addEventListener('click', () => {
+            if (inputId) inputId.value = '';
             if (formTitle) formTitle.textContent = "Tambah Destinasi Baru";
             if (formDesc) formDesc.textContent = "Daftarkan lokasi wisata favorit baru untuk ditampilkan di halaman beranda.";
         });

@@ -178,15 +178,15 @@ Berdasarkan kebutuhan *Frontend* dan logika UX aplikasi yang men-generate jadwal
    - **Usulan Endpoint FE:** `GET /api/content/fleets`
    - **File FE Terkait:** `src/services/charterService.ts`
    - **Keterangan:** Digunakan untuk merender kartu armada di halaman Charter. Mohon disediakan endpoint publik untuk mengambil data armada aktif.
-   - **Ekspektasi Response:**
+   - **Ekspektasi Response (Sesuai Skema Baru DB BE):**
      ```json
      [
        {
          "id": "uuid",
-         "name": "Isuzu ELF Giga",
-         "type": "elf",
-         "capacity": "14-19 Kursi",
-         "price_per_day": 1200000,
+         "plate_number": "Z 1234 XY",
+         "car_type": "Elf",
+         "seat_capacity": 15,
+         "status": "active",
          "description": "...",
          "image_url": "..."
        }
@@ -199,7 +199,8 @@ Berdasarkan kebutuhan *Frontend* dan logika UX aplikasi yang men-generate jadwal
 
 6. **Pengecekan Internal:** Error 500 pada API Layanan Paket Ekspedisi
    - **Endpoint Terkait:** `POST /api/packages/shipments`
-   - **Keterangan:** Saat UI Frontend mengirim data payload yang valid (`sender_name`, `dimension`, `seat_qty`, `weight`, dll), Controller backend di `package.controller.js` melemparkan `status: 500` dengan pesan `"Gagal membuat pengiriman paket"`. Kemungkinan besar terdapat masalah pada eksekusi `PackageModel.createShipment(data)`, seperti *PostgreSQL connection leak*, tabel belum tersedia, atau trigger `trg_generate_waybill` bermasalah. Mohon dicek.
+   - **Keterangan:** Saat UI Frontend mengirim data payload yang valid (`sender_name`, `dimension`, `seat_qty`, `weight`, dll), Controller backend di `package.controller.js` melemparkan `status: 500` dengan pesan `"Gagal membuat pengiriman paket"`. Kemungkinan besar terdapat masalah pada eksekusi `PackageModel.createShipment(data)`.
+   - **Pembaruan:** Frontend kini telah menyisipkan field `departure_date` pada payload agar pengguna dapat memilih tanggal pengiriman. Mohon Backend menyesuaikan skema dan database untuk menerima sekaligus menyimpan `departure_date`.
 
 7. **Fitur:** Penyesuaian Pemetaan Data Promosi (Global Promo)
    - **File FE Terkait:** `src/services/contentService.ts`, `src/pages/index.astro`, `src/pages/services.astro`
@@ -208,6 +209,64 @@ Berdasarkan kebutuhan *Frontend* dan logika UX aplikasi yang men-generate jadwal
      1. **Pemetaan Data UI:** Frontend menganggap isi dari `badge_label` (misal: "MUDIK20") sebagai **"besaran promo visual"** yang akan dipampang dengan warna biru/besar di halaman *Layanan*. Dan kolom `tagline` (misal: "Promo Mudik Berkah RTP!") akan dipecah otomatis menjadi teks utama (*Header*) yang berlapis. Pastikan Endpoint mengeluarkan data `badge_label` dan `tagline` secara akurat dari *input* Admin.
      2. **Update Skema Database (`promotions` table):** Tambahkan kolom `max_discount` (tipe decimal/numeric) untuk mengakomodasi form input "Max Potongan" di halaman kelola promosi Admin.
      3. **Endpoint Promo Tunggal:** Cukup sediakan endpoint global `GET /api/content/promotions` yang mengembalikan `array` berisi 1 objek promo yang sedang berstatus `is_active = true`.
+
+## Modul Layanan Customer - Halaman Riwayat Pesanan / Dashboard (22 Juni 2026)
+- **Endpoint:** `GET /api/travel/history`, `GET /api/charter/history`, `GET /api/packages/history`
+- **File Frontend Terubah:** `src/pages/user/booking-history.astro`, `src/components/features/user/OrderItem.astro`, `src/services/userService.ts`
+- **Status:** Selesai & Tervalidasi (Menggunakan Fallback Array Kosong).
+- **Catatan Integrasi:** 
+  - Seluruh status *dummy* telah dihapus. Halaman ini memanggil 3 endpoint riwayat secara *paralel* (`Promise.allSettled`) agar performa pemuatan lebih cepat.
+  - Menerapkan **Hybrid Mapper**: struktur data JSON yang berbeda-beda dari 3 layanan tersebut dinormalisasi secara otomatis menjadi 1 antarmuka, sementara detail unik (nomor kursi, nomor resi, plat mobil) diamankan di dalam properti `meta`.
+  - Mengimplementasikan logika tampilan berdasarkan **Alur Pembayaran 4 Tahap**: Komponen UI tidak akan menampilkan tombol "BAYAR SEKARANG" jika status dari Backend adalah `PENDING_CONFIRMATION` (Admin belum menetapkan harga akhir).
+
+## Modul Dashboard Admin - Ringkasan & Operasional (22 Juni 2026)
+- **Endpoint:** `GET /api/admin/dashboard/metrics`, `GET /api/admin/dashboard/departure-requests` (BARU), `GET /api/admin/dashboard/active-duties`
+- **File Frontend Terubah:** `src/pages/admin/index.astro`, `src/services/adminDashboardService.ts`
+- **Status:** Selesai (Data Binding) & Menunggu Pembuatan Endpoint BE.
+- **Catatan Integrasi & Instruksi Spesifik untuk Backend (MOHON SEGERA DIBUAT):**
+  1. **Pemosisian Data Pemesan & Paket:** Frontend **tidak menampilkan** Data Pemesan (Travel/Charter) dan Paket di *halaman utama* Dashboard sesuai desain awal (telah memiliki halaman terpisah di Sidebar seperti `/admin/bookings`).
+  2. **Revisi Endpoint Metrik (`GET /api/admin/dashboard/metrics`):** Saat ini endpoint ini hanya berisi hitungan omzet finansial. Frontend mewajibkan Backend untuk menyisipkan *key* berikut pada respons JSON:
+     - `total_bookings_today`: (angka) jumlah pesanan masuk hari ini.
+     - `total_users`: (angka) total akun terdaftar (Guest/Customer).
+     - `total_drivers`: (angka) total supir terdaftar.
+  3. **Pembuatan Endpoint Izin Keberangkatan (Driver Departure Request):** 
+     - **Latar Belakang:** Alur kerja disepakati bahwa *Admin me-assign supir* -> *Supir mengajukan izin berangkat di hari H* -> *Admin menyetujui izin*.
+     - **Tugas BE:** Buat endpoint `GET /api/admin/dashboard/departure-requests` yang mengembalikan array objek dengan struktur JSON *tepat* seperti ini:
+       ```json
+       [
+         {
+           "id": "REQ-001",
+           "driver1": "Nama Supir 1",
+           "driver2": "Nama Supir 2 (Opsional)",
+           "pax": 15,
+           "path": "Asal - Tujuan",
+           "date": "2026-06-26",
+           "packages": 3,
+           "unit_name": "Nama Armada (Plat)",
+           "type": "RUTE atau BOOKING"
+         }
+       ]
+       ```
+     - **Tugas BE (Action):** Buat juga endpoint `PUT /api/admin/dashboard/departure-requests/:id/approve` untuk mengubah status armada tersebut menjadi sah bertugas (*On Duty*) dan memindahkannya ke tabel/daftar *Active Duties*.
+
+## Modul Manajemen Pemesan & Paket Admin (22 Juni 2026)
+- **Endpoint:** `GET /api/admin/master/travel-bookings`, `GET /api/charter/history`, `GET /api/admin/master/package-shipments`
+- **File Frontend Terubah:** `src/pages/admin/bookings.astro`, `src/pages/admin/packages.astro`, `src/services/adminBookingService.ts`
+- **Status:** Selesai (Data Binding Strict) & **Membutuhkan Perombakan Schema Backend**.
+- **Catatan Integrasi & Instruksi BLocker untuk Backend (WAJIB DIBACA):**
+  - Berdasarkan prinsip **Standard Professional Frontend**, UI Frontend menolak melakukan manipulasi/ekstraksi *string* secara sepihak untuk memecah alamat. Frontend menuntut agar API Backend mengembalikan alamat dalam bentuk JSON Tersarang (*Nested JSON Object*).
+  - **Tugas BE (Refactor API):** Pada ketiga endpoint di atas, properti detail alamat (baik pengirim, penerima, asal, maupun tujuan) wajib dikembalikan dalam format objek `address_detail` dan `destination_detail` (atau `sender_address_detail` & `receiver_address_detail` untuk paket).
+  - **Skema JSON yang Diwajibkan:**
+    ```json
+    "address_detail": {
+        "kecamatan": "Kecamatan Pemesan",
+        "desa": "Desa Pemesan",
+        "dusun": "Dusun (Opsional)",
+        "rt_rw": "01/02",
+        "patokan": "Detail patokan/jalan lengkap"
+    }
+    ```
+  - **Fallback Frontend:** Selama Backend belum merombak API-nya agar sesuai skema di atas, antarmuka Frontend secara defensif akan merender tulisan **"DATA BE BELUM SESUAI"** pada kolom alamat agar aplikasi tidak *crash*.
 
 ---
 
@@ -218,14 +277,14 @@ Berikut adalah rangkuman dari seluruh implementasi di folder `D:\ProjekKp\KerjaP
 ## Modul Titip Paket - Form & Pengiriman (22 Juni 2026)
 - **Endpoint:** `POST /api/packages/shipments`
 - **File Frontend Terubah:** `src/components/features/reservation/package/PackageBookingForm.astro`, `src/services/packageService.ts`
-- **Status:** Menunggu Tindakan BE (Error 500).
-- **Catatan Integrasi:** Frontend telah selesai menerapkan validasi data dan pengikatan fungsi untuk pengiriman form. Saat form dikirim, Backend merespons dengan *Error 500*. Analisis menunjukkan bahwa Backend tidak memiliki kolom `pickup_address` di tabel `package_shipments`. Backend harus menambahkan kolom ini agar Frontend dapat berjalan penuh.
+- **Status:** Menunggu Tindakan BE (Error 500 & Tambahan Kolom).
+- **Catatan Integrasi:** Frontend telah merombak payload untuk menyertakan `departure_date` sesuai dengan pilihan tanggal pengiriman user. Frontend juga telah mengubah nilai *default* `payment_method` menjadi `menunggu_konfirmasi`. Backend wajib memastikan tabel di database mampu menampung field baru ini, serta mengubah/menambahkan `pickup_address` jika masih belum ada.
 
 ## Modul Sewa Armada (Charter) - Katalog & Form (22 Juni 2026)
 - **Endpoint:** `GET /api/content/fleets` (Belum ada), `POST /api/charter/request`
-- **File Frontend Terubah:** `src/components/features/reservation/charter/CharterBookingForm.astro`, `src/services/charterService.ts`
+- **File Frontend Terubah:** `src/components/features/reservation/charter/CharterBookingForm.astro`, `src/services/charterService.ts`, `src/components/features/reservation/charter/PreviewSeatMap.astro`
 - **Status:** Menunggu Tindakan BE.
-- **Catatan Integrasi:** UI Frontend dirancang secara dinamis untuk menampilkan gambar dan kapasitas armada dari database. Namun, Backend belum memiliki endpoint `GET /api/content/fleets` untuk Frontend memanggil data tersebut. Pada proses pengiriman data sewa, Backend membatasi `car_type` secara kaku (hanya Luxio/Elf), mohon Backend menghapus pembatasan validasi tersebut.
+- **Catatan Integrasi:** UI Frontend dirancang secara dinamis merender *Preview Layout Kursi* berdasarkan tipe mobil. Frontend telah mengadaptasi struktur tabel/model Backend yang baru, yaitu `plate_number`, `car_type`, dan `seat_capacity`. Form *Charter* kini hanya menampilkan 2 pilihan armada unik (`Elf` dan `Luxio`), namun memanggil seluruh data armada *background*. Mohon Backend menghapus pembatasan validasi `payment_method` dan menyelaraskan penerimaan field pada *Charter*.
 
 ## Modul Pembayaran & Status Pemesanan - Seluruh Layanan (22 Juni 2026)
 - **Endpoint:** Berpengaruh ke semua endpoint `POST` reservasi.
@@ -233,5 +292,36 @@ Berikut adalah rangkuman dari seluruh implementasi di folder `D:\ProjekKp\KerjaP
 - **Status:** Menunggu Tindakan BE.
 - **Catatan Integrasi:** Pola/UX pemesanan telah dirombak. Frontend **tidak akan** mengirimkan metode pembayaran (`payment_method`: "cash"/"cashless") di awal pembuatan pesanan. User akan memesan dulu, Admin menentukan harga, lalu User baru memilih metode bayar. Backend harus **menghapus validasi wajib** `payment_method` pada *Controller* pembuatan pesanan mereka.
 
-## Kesimpulan Analisis
 Dari seluruh kode yang ditulis di folder `src/`, Frontend sudah 100% menggunakan arsitektur *Data-Driven* (bergantung pada respons Backend) dan telah menggunakan penanganan error (`try...catch`) agar UI tidak rusak jika Backend mati. Saat ini operasional aplikasi hanya tertahan oleh ketiadaan endpoint tertentu (Fleets, Ketersediaan Kursi dinamis) dan ketidakcocokan skema tabel/validasi di sisi Backend (Missing column `pickup_address`, validasi `schedule_id`, validasi `car_type`, validasi `payment_method`). Mohon kerjasamanya dari tim Backend untuk memfasilitasi hal-hal tersebut.
+
+---
+
+## Modul Kelola Konten (CMS) - Sisi Admin & User (22 Juni 2026)
+- **Endpoint Admin:** `POST/PUT/DELETE /api/admin/cms/promotions`, `/api/admin/cms/destinations`, `/api/admin/cms/fleets`
+- **Endpoint Publik:** `GET /api/content/promotions`, `/api/content/destinations`, `GET /api/content/fleets`
+- **File Frontend Terubah:** `src/services/adminContentService.ts`, `src/pages/admin/content.astro`, `src/pages/admin/destinations.astro`, `src/pages/admin/fleet.astro`
+- **Status:** Selesai (Data Binding & Client-Side Script).
+- **Catatan Integrasi & Instruksi Spesifik untuk Backend:**
+  1. **Aksi Admin:** Frontend mengirim form menggunakan object `FormData` (Multipart) jika admin mengunggah gambar baru, atau `application/json` jika tanpa gambar. Backend harus siap menerima *content-type* dinamis ini di semua *route* `/api/admin/cms/...`.
+  2. **Skema JSON Promo (Banner):** Jika dikirim via JSON, payload untuk Promo adalah:
+     ```json
+     {
+        "id": "uuid", // Hanya dikirim jika PUT
+        "tagline": "Tagline Promo",
+        "description": "Deskripsi Promo",
+        "discount": "20",
+        "max_discount": "50000",
+        "is_active": true
+     }
+     ```
+  3. **Aksi Delete:** Proses Delete dilakukan dengan request metode `DELETE` ke endpoint `/api/admin/cms/.../:id`.
+  4. **Endpoint Publik Fleet (BLOKIR):** Frontend menggunakan endpoint `GET /api/content/fleets` untuk mendapatkan data armada pada komponen User (seperti dropdown tipe kendaraan atau kartu). Saat ini BE belum menyediakannya. Tolong siapkan rute `/api/content/fleets` yang dapat diakses Publik (tanpa JWT) yang mereturn list armada berstatus "Tersedia" atau "active".
+
+## Modul Manajemen Akun (Pengguna & Driver) - Admin (23 Juni 2026)
+- **Endpoint:** `GET /api/admin/master/users`, `PUT /api/admin/master/users/:id`
+- **File Frontend Terubah:** `src/pages/admin/users.astro`, `src/services/adminContentService.ts`
+- **Status:** Selesai (Data Binding) & Tersinkronisasi dengan Backend.
+- **Catatan Integrasi:**
+  - Mock data telah dihapus secara keseluruhan. Halaman kini melakukan *fetch* aktif ke endpoint `/api/admin/master/users`.
+  - Berdasarkan hasil validasi internal terhadap file `user.model.js` dan `validation.middleware.js` (pada skema `adminValidationSchemas.user`) milik Backend, struktur tabel `users` **telah terkonfirmasi 100% kompatibel** dengan kebutuhan atribut UI saat ini. Atribut krusial seperti `name`, `email`, `password`, `phone_number`, dan `role` (`customer`/`driver`) sudah difasilitasi penuh.
+  - Kesimpulan: **Tidak ada perubahan skema atau penambahan atribut yang diperlukan** dari tim Backend untuk fitur pengelolaan pengguna dan supir ini. Fungsi mutasi hak akses (*Role Elevation*) dan ganti *password* juga sudah dapat dilayani melalui metode `PUT` ke `updateUser`.

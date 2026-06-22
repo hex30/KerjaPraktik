@@ -81,6 +81,16 @@ import AlertCard from "@components/ui/AlertCard.astro";
                             <option value="super_besar">Super Besar (Furnitur/Motor)</option>
                         </select>
                     </div>
+
+                    <div class="md:col-span-2">
+                        <InputGroup
+                            label="Tanggal Pengiriman"
+                            id="departure_date"
+                            name="departure_date"
+                            type="date"
+                            required={true}
+                        />
+                    </div>
                 </div>
             </section>
 
@@ -267,7 +277,8 @@ import AlertCard from "@components/ui/AlertCard.astro";
                     weight: Number(data.berat_paket),
                     dimension: data.dimensi_paket as 'kecil' | 'sedang' | 'besar' | 'super_besar',
                     seat_qty: isDouble ? 2 : 1,
-                    payment_method: 'cashless' as const
+                    departure_date: data.departure_date as string,
+                    payment_method: 'menunggu_konfirmasi' as const
                 };
 
                 // dokumentasi: Mengirim payload pengiriman paket ke API Backend

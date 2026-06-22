@@ -11,7 +11,8 @@ export interface PackageShipmentData {
     weight: number;
     dimension: 'kecil' | 'sedang' | 'besar' | 'super_besar';
     seat_qty: number;
-    payment_method: 'cash' | 'cashless';
+    departure_date: string;
+    payment_method: string;
 }
 
 export const packageService = {
@@ -30,7 +31,8 @@ export const packageService = {
                 weight: Number(data.weight),
                 dimension: data.dimension,
                 seat_qty: Number(data.seat_qty),
-                payment_method: data.payment_method || 'cashless' // Default sementara
+                departure_date: data.departure_date,
+                payment_method: data.payment_method || 'menunggu_konfirmasi'
             };
 
             // dokumentasi: Mengambil token otorisasi dari localStorage

@@ -3,16 +3,16 @@
 import FleetCard from "@features/reservation/charter/FleetOptionCard.astro";
 
 interface Props {
-    name: string;
+    car_type: string;
     value: string;
-    capacity: string;
+    seat_capacity: number;
     description: string;
-    price: string;
+    price: string | number;
     image: string;
     isHidden?: boolean;
 }
 
-const { name, value, capacity, description, price, image, isHidden = false } = Astro.props;
+const { car_type, value, seat_capacity, description, price, image, isHidden = false } = Astro.props;
 ---
 
 <div 
@@ -21,13 +21,13 @@ const { name, value, capacity, description, price, image, isHidden = false } = A
         isHidden ? "hidden extra-card" : ""
     ]} 
     data-value={value} 
-    data-name={name}
+    data-name={car_type}
 >
     <FleetCard 
-        name={name} 
-        capacity={capacity} 
+        name={car_type} 
+        capacity={`${seat_capacity} Kursi`} 
         description={description} 
-        price={price} 
+        price={price.toString()} 
         image={image} 
     />
     <div class="absolute inset-0 pointer-events-none rounded-2xl transition-all duration-300 border-2 border-transparent group-hover/wrapper:border-primary/40 selected-ring"></div>

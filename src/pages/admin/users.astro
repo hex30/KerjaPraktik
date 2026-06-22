@@ -1,14 +1,10 @@
 ---
 // File: src/pages/admin/users.astro
 import AdminLayout from "@layouts/AdminLayout.astro";
+import { adminContentService } from "@services/adminContentService";
 
-// Mock Data
-const users = [
-    { id: "u1", name: "Febi Yulianti", email: "febi@example.com", phone: "08123456789", role: "customer" },
-    { id: "u2", name: "Budi Santoso", email: "budi@example.com", phone: "08234567890", role: "customer" },
-    { id: "u3", name: "Agus Setiawan", email: "agus@example.com", phone: "08345678901", role: "driver" },
-    { id: "u4", name: "Iwan Fals", email: "iwan@example.com", phone: "08456789012", role: "driver" },
-];
+// Fetch data pengguna secara dinamis dari backend
+const users = await adminContentService.getUsersAdmin();
 
 const currentRole = Astro.url.searchParams.get("role") || "customer";
 ---
@@ -19,12 +15,6 @@ const currentRole = Astro.url.searchParams.get("role") || "customer";
             <h2 class="text-2xl font-black text-slate-900 tracking-tight">Manajemen Akun</h2>
             <p class="text-sm text-slate-500 mt-1 font-secondary">Kelola daftar pengguna, supir, serta mutasi akses (Role Elevation) secara interaktif.</p>
         </header>
-
-        <!-- Toggle View between Customer and Driver -->
-        <div class="flex gap-4 border-b border-slate-100 pb-4">
-            <button id="tab-customer" class="tab-btn px-6 py-2 rounded-full font-bold text-sm transition-all bg-primary text-white">Data Pengguna (Customer)</button>
-            <button id="tab-driver" class="tab-btn px-6 py-2 rounded-full font-bold text-sm transition-all bg-slate-100 text-slate-500 hover:bg-slate-200">Data Supir (Driver)</button>
-        </div>
 
         <!-- Grid Container -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="users-grid">
@@ -43,7 +33,7 @@ const currentRole = Astro.url.searchParams.get("role") || "customer";
                                 </div>
                                 <div class="flex flex-col">
                                     <span class="font-bold text-slate-900 leading-tight">{user.name}</span>
-                                    <span class="text-xs text-slate-500 font-secondary">{user.phone}</span>
+                                    <span class="text-xs text-slate-500 font-secondary">{user.phone_number || '-'}</span>
                                 </div>
                             </div>
                         </div>
@@ -78,29 +68,16 @@ const currentRole = Astro.url.searchParams.get("role") || "customer";
 </AdminLayout>
 
 <script>
+    import { adminContentService } from "@services/adminContentService";
+
     const setupUserManagement = () => {
-        const tabCustomer = document.getElementById('tab-customer');
-        const tabDriver = document.getElementById('tab-driver');
         const cards = document.querySelectorAll('.user-card');
-        const selects = document.querySelectorAll('.role-select');
 
         // URL Param matching
         const urlParams = new URLSearchParams(window.location.search);
         let activeTab = urlParams.get('role') === 'driver' ? 'driver' : 'customer';
 
         const updateTabUI = () => {
-            if (activeTab === 'customer') {
-                tabCustomer?.classList.replace('bg-slate-100', 'bg-primary');
-                tabCustomer?.classList.replace('text-slate-500', 'text-white');
-                tabDriver?.classList.replace('bg-primary', 'bg-slate-100');
-                tabDriver?.classList.replace('text-white', 'text-slate-500');
-            } else {
-                tabDriver?.classList.replace('bg-slate-100', 'bg-primary');
-                tabDriver?.classList.replace('text-slate-500', 'text-white');
-                tabCustomer?.classList.replace('bg-primary', 'bg-slate-100');
-                tabCustomer?.classList.replace('text-white', 'text-slate-500');
-            }
-            
             cards.forEach(card => {
                 const c = card as HTMLElement;
                 if (c.dataset.role === activeTab) {
@@ -116,49 +93,51 @@ const currentRole = Astro.url.searchParams.get("role") || "customer";
         // Init
         updateTabUI();
 
-        tabCustomer?.addEventListener('click', () => {
-            activeTab = 'customer';
-            window.history.pushState({}, '', '?role=customer');
-            updateTabUI();
-        });
-
-        tabDriver?.addEventListener('click', () => {
-            activeTab = 'driver';
-            window.history.pushState({}, '', '?role=driver');
-            updateTabUI();
-        });
-
         // Mutasi Role Logic (Tombol Simpan Perubahan)
         const saveBtns = document.querySelectorAll('.save-role-btn');
         saveBtns.forEach((btn) => {
-            btn.addEventListener('click', (e) => {
+            btn.addEventListener('click', async (e) => {
                 const target = e.target as HTMLElement;
                 const card = target.closest('.user-card') as HTMLElement;
                 const select = card.querySelector('.role-select') as HTMLSelectElement;
+                const id = card.dataset.id;
+
+                if (!id) return;
 
                 const newRole = select.value;
                 
-                // Cek jika ada input password baru (opsional simulasi)
+                // Cek jika ada input password baru
                 const passwordInput = card.querySelector('input[type="password"]') as HTMLInputElement;
-                if (passwordInput && passwordInput.value) {
-                    alert(`Menyimpan perubahan ke server...\nPassword diperbarui.\nRole diubah menjadi: ${newRole}`);
-                } else {
-                    alert(`Menyimpan perubahan ke server...\nRole diset menjadi: ${newRole}`);
-                }
+                const newPassword = (passwordInput && passwordInput.value) ? passwordInput.value : undefined;
 
-                card.dataset.role = newRole;
-                
-                // If role changed from current tab view, hide it and move it
-                if (newRole !== activeTab) {
-                    card.classList.remove('animate-fade-in');
-                    card.style.opacity = '0';
-                    card.style.transform = 'scale(0.95)';
+                try {
+                    target.textContent = "Menyimpan...";
+                    target.setAttribute('disabled', 'true');
+
+                    await adminContentService.updateUserRole(id, newRole, newPassword);
+
+                    alert(`Berhasil! Role diset menjadi: ${newRole}`);
+
+                    if (passwordInput) passwordInput.value = '';
+                    card.dataset.role = newRole;
                     
-                    setTimeout(() => {
-                        card.style.display = 'none';
-                        card.style.opacity = '1';
-                        card.style.transform = 'scale(1)';
-                    }, 300);
+                    // If role changed from current tab view, hide it
+                    if (newRole !== activeTab) {
+                        card.classList.remove('animate-fade-in');
+                        card.style.opacity = '0';
+                        card.style.transform = 'scale(0.95)';
+                        
+                        setTimeout(() => {
+                            card.style.display = 'none';
+                            card.style.opacity = '1';
+                            card.style.transform = 'scale(1)';
+                        }, 300);
+                    }
+                } catch (error: any) {
+                    alert(error.message || "Gagal menyimpan perubahan ke server.");
+                } finally {
+                    target.textContent = "Simpan Perubahan";
+                    target.removeAttribute('disabled');
                 }
             });
         });

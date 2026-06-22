@@ -1,0 +1,158 @@
+---
+// File: src/components/features/reservation/charter/PreviewSeatMap.astro
+interface Props {
+  type: "Elf" | "Luxio";
+}
+
+const { type } = Astro.props;
+
+// Path ikon seat
+const seatIconSrc = "/src/assets/icons/seat.svg";
+
+// Data layout Elf (sama dengan SeatMap.astro: 15 Kursi Penumpang + 1 Supir)
+const elfLayoutData = [
+  { id: "driver", type: "driver", label: "Supir" }, 
+  { id: "engine_gap", type: "empty" }, 
+  { id: "1", type: "seat", label: "1" }, 
+
+  { id: "2", type: "seat", label: "2" },
+  { id: "3", type: "seat", label: "3" },
+  { id: "4", type: "seat", label: "4" },
+
+  { id: "5", type: "seat", label: "5" },
+  { id: "6", type: "seat", label: "6" },
+  { id: "door1", type: "door", label: "Pintu" },
+
+  { id: "7", type: "seat", label: "7" },
+  { id: "8", type: "seat", label: "8" },
+  { id: "9", type: "seat", label: "9" },
+
+  { id: "10", type: "seat", label: "10" },
+  { id: "11", type: "seat", label: "11" },
+  { id: "12", type: "seat", label: "12" },
+
+  { id: "13", type: "seat", label: "13" },
+  { id: "14", type: "seat", label: "14" },
+  { id: "15", type: "seat", label: "15" },
+];
+
+// Data layout Luxio (1 Supir + 10 Penumpang = 11 Kursi Total)
+const luxioLayoutData = [
+  // Baris Depan
+  { id: "driver", type: "driver", label: "Supir" },
+  { id: "engine_gap", type: "empty" },
+  { id: "1", type: "seat", label: "1" },
+
+  // Baris Tengah 1
+  { id: "4", type: "seat", label: "4" },
+  { id: "3", type: "seat", label: "3" },
+  { id: "2", type: "seat", label: "2" },
+
+  // Baris Tengah 2
+  { id: "7", type: "seat", label: "7" },
+  { id: "6", type: "seat", label: "6" },
+  { id: "5", type: "seat", label: "5" },
+
+  // Baris Belakang
+  { id: "door1", type: "door", label: "Pintu" },
+  { id: "10", type: "seat", label: "10" },
+  { id: "8", type: "seat", label: "8" },
+  
+  // Extra seat to balance the grid
+  { id: "empty2", type: "empty" },
+  { id: "empty3", type: "empty" },
+  { id: "9", type: "seat", label: "9" },
+];
+
+// Re-adjust Luxio to grid-rows-3 grid-flow-col
+const luxioGrid = [
+    // Kolom 1
+    { id: "driver", type: "driver", label: "Supir" },
+    { id: "engine", type: "empty" },
+    { id: "1", type: "seat", label: "1" },
+
+    // Kolom 2
+    { id: "4", type: "seat", label: "4" },
+    { id: "3", type: "seat", label: "3" },
+    { id: "2", type: "seat", label: "2" },
+
+    // Kolom 3
+    { id: "7", type: "seat", label: "7" },
+    { id: "6", type: "seat", label: "6" },
+    { id: "5", type: "seat", label: "5" },
+
+    // Kolom 4
+    { id: "10", type: "seat", label: "10" },
+    { id: "9", type: "seat", label: "9" },
+    { id: "8", type: "seat", label: "8" },
+];
+
+const layoutData = type === "Elf" ? elfLayoutData : luxioGrid;
+
+// Base ukuran container agar simetris
+const boxClassBase = "relative w-14 h-14 max-h-[4rem] max-w-[4rem] flex flex-col items-center justify-center select-none";
+---
+
+<div class={`w-full bg-slate-50 border border-slate-200 rounded-[2rem] p-6 shadow-sm flex flex-col gap-6 font-main preview-seatmap transition-all duration-500`} data-type={type}>
+    <header class="flex items-center justify-between border-b border-slate-200 pb-4">
+        <h3 class="text-lg font-black text-primary flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-500"><path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/><circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/></svg>
+            Preview Kursi Dalam Armada ({type})
+        </h3>
+        <span class="text-xs font-bold text-slate-500 uppercase tracking-widest bg-white px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm">
+            Total: {type === "Elf" ? "15" : "10"} Penumpang
+        </span>
+    </header>
+
+    <div class="w-full bg-white border border-slate-100 rounded-2xl p-5 md:p-8 overflow-x-auto relative [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <div class="absolute left-4 md:left-6 top-1/2 -translate-y-1/2 flex flex-col items-center opacity-30 pointer-events-none">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-primary mb-1 -rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+            </svg>
+            <span class="text-[10px] font-bold uppercase tracking-widest text-primary rotate-180 [writing-mode:vertical-rl]">Depan</span>
+        </div>
+
+        <div class="grid grid-rows-3 grid-flow-col gap-3 md:gap-4 w-fit mx-auto pl-10 md:pl-12">
+            {layoutData.map((item) => {
+                if (item.type === "empty") {
+                    return <div class={boxClassBase} />;
+                }
+
+                if (item.type === "door") {
+                    return (
+                        <div class={`${boxClassBase} text-[8px] text-slate-300 font-secondary font-bold uppercase tracking-widest pointer-events-none border border-dashed border-slate-200 rounded-xl`}>
+                            {item.label}
+                        </div>
+                    );
+                }
+
+                if (item.type === "driver") {
+                    return (
+                        <div class={`${boxClassBase} opacity-70`} title="Supir">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-text-secondary">
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="M12 14v8" />
+                                <path d="m10.5 11-8-5" />
+                                <path d="m13.5 11 8-5" />
+                                <circle cx="12" cy="12" r="2" />
+                            </svg>
+                            <span class="absolute bottom-0 text-[8px] font-bold font-secondary text-text-secondary uppercase">{item.label}</span>
+                        </div>
+                    );
+                }
+
+                if (item.type === "seat") {
+                    return (
+                        <div class={`group ${boxClassBase} pointer-events-none opacity-80`} title={`Kursi ${item.label}`}>
+                            <div class="absolute inset-0 rounded-lg bg-slate-50 border border-slate-200" />
+                            <img src={seatIconSrc} alt={`Kursi ${item.label}`} class="w-10 h-10 object-contain relative z-10" />
+                            <span class="absolute top-0.5 left-2 z-20 font-black font-secondary text-[11px] text-slate-600">
+                                {item.label}
+                            </span>
+                        </div>
+                    );
+                }
+            })}
+        </div>
+    </div>
+</div>

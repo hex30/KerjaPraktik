@@ -2,12 +2,13 @@ import { apiFetch } from './api';
 
 export interface Fleet {
     id: string;
-    name: string;
-    type: string;
-    capacity: string | number;
+    plate_number: string;
+    car_type: string;
+    seat_capacity: number;
     price_per_day: number;
     description: string;
     image_url: string;
+    status: string;
 }
 
 export interface CharterRequestData {
@@ -19,8 +20,8 @@ export interface CharterRequestData {
     dropoff_address?: string;
     with_driver?: boolean;
     notes?: string;
-    payment_method: string; 
-    
+    payment_method: string;
+
     // Additional passenger/pickup details from Form UI
     full_name?: string;
     sub_district?: string;
@@ -36,7 +37,7 @@ export const charterService = {
             const response = await apiFetch('/api/content/fleets', {
                 method: 'GET'
             });
-            
+
             // dokumentasi: Mengembalikan array data armada jika response valid
             if (response && response.data) {
                 return response.data;
@@ -58,7 +59,7 @@ export const charterService = {
                 destination: data.destination,
                 car_type: data.car_type,
                 departure_date: data.departure_date,
-                return_date: data.return_date || data.departure_date, 
+                return_date: data.return_date || data.departure_date,
                 pickup_address: data.pickup_address,
                 dropoff_address: data.dropoff_address || data.pickup_address,
                 with_driver: data.with_driver !== undefined ? data.with_driver : true,
@@ -79,7 +80,7 @@ export const charterService = {
                 headers,
                 body: JSON.stringify(payload)
             });
-            
+
             // dokumentasi: Mengembalikan data respons sukses dari backend
             return response;
         } catch (error) {
