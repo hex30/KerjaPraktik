@@ -218,6 +218,55 @@ Berdasarkan kebutuhan *Frontend* dan logika UX aplikasi yang men-generate jadwal
   - Menerapkan **Hybrid Mapper**: struktur data JSON yang berbeda-beda dari 3 layanan tersebut dinormalisasi secara otomatis menjadi 1 antarmuka, sementara detail unik (nomor kursi, nomor resi, plat mobil) diamankan di dalam properti `meta`.
   - Mengimplementasikan logika tampilan berdasarkan **Alur Pembayaran 4 Tahap**: Komponen UI tidak akan menampilkan tombol "BAYAR SEKARANG" jika status dari Backend adalah `PENDING_CONFIRMATION` (Admin belum menetapkan harga akhir).
 
+## Modul Dashboard Admin - Ringkasan & Operasional (22 Juni 2026)
+- **Endpoint:** `GET /api/admin/dashboard/metrics`, `GET /api/admin/dashboard/departure-requests` (BARU), `GET /api/admin/dashboard/active-duties`
+- **File Frontend Terubah:** `src/pages/admin/index.astro`, `src/services/adminDashboardService.ts`
+- **Status:** Selesai (Data Binding) & Menunggu Pembuatan Endpoint BE.
+- **Catatan Integrasi & Instruksi Spesifik untuk Backend (MOHON SEGERA DIBUAT):**
+  1. **Pemosisian Data Pemesan & Paket:** Frontend **tidak menampilkan** Data Pemesan (Travel/Charter) dan Paket di *halaman utama* Dashboard sesuai desain awal (telah memiliki halaman terpisah di Sidebar seperti `/admin/bookings`).
+  2. **Revisi Endpoint Metrik (`GET /api/admin/dashboard/metrics`):** Saat ini endpoint ini hanya berisi hitungan omzet finansial. Frontend mewajibkan Backend untuk menyisipkan *key* berikut pada respons JSON:
+     - `total_bookings_today`: (angka) jumlah pesanan masuk hari ini.
+     - `total_users`: (angka) total akun terdaftar (Guest/Customer).
+     - `total_drivers`: (angka) total supir terdaftar.
+  3. **Pembuatan Endpoint Izin Keberangkatan (Driver Departure Request):** 
+     - **Latar Belakang:** Alur kerja disepakati bahwa *Admin me-assign supir* -> *Supir mengajukan izin berangkat di hari H* -> *Admin menyetujui izin*.
+     - **Tugas BE:** Buat endpoint `GET /api/admin/dashboard/departure-requests` yang mengembalikan array objek dengan struktur JSON *tepat* seperti ini:
+       ```json
+       [
+         {
+           "id": "REQ-001",
+           "driver1": "Nama Supir 1",
+           "driver2": "Nama Supir 2 (Opsional)",
+           "pax": 15,
+           "path": "Asal - Tujuan",
+           "date": "2026-06-26",
+           "packages": 3,
+           "unit_name": "Nama Armada (Plat)",
+           "type": "RUTE atau BOOKING"
+         }
+       ]
+       ```
+     - **Tugas BE (Action):** Buat juga endpoint `PUT /api/admin/dashboard/departure-requests/:id/approve` untuk mengubah status armada tersebut menjadi sah bertugas (*On Duty*) dan memindahkannya ke tabel/daftar *Active Duties*.
+
+## Modul Manajemen Pemesan & Paket Admin (22 Juni 2026)
+- **Endpoint:** `GET /api/admin/master/travel-bookings`, `GET /api/charter/history`, `GET /api/admin/master/package-shipments`
+- **File Frontend Terubah:** `src/pages/admin/bookings.astro`, `src/pages/admin/packages.astro`, `src/services/adminBookingService.ts`
+- **Status:** Selesai (Data Binding Strict) & **Membutuhkan Perombakan Schema Backend**.
+- **Catatan Integrasi & Instruksi BLocker untuk Backend (WAJIB DIBACA):**
+  - Berdasarkan prinsip **Standard Professional Frontend**, UI Frontend menolak melakukan manipulasi/ekstraksi *string* secara sepihak untuk memecah alamat. Frontend menuntut agar API Backend mengembalikan alamat dalam bentuk JSON Tersarang (*Nested JSON Object*).
+  - **Tugas BE (Refactor API):** Pada ketiga endpoint di atas, properti detail alamat (baik pengirim, penerima, asal, maupun tujuan) wajib dikembalikan dalam format objek `address_detail` dan `destination_detail` (atau `sender_address_detail` & `receiver_address_detail` untuk paket).
+  - **Skema JSON yang Diwajibkan:**
+    ```json
+    "address_detail": {
+        "kecamatan": "Kecamatan Pemesan",
+        "desa": "Desa Pemesan",
+        "dusun": "Dusun (Opsional)",
+        "rt_rw": "01/02",
+        "patokan": "Detail patokan/jalan lengkap"
+    }
+    ```
+  - **Fallback Frontend:** Selama Backend belum merombak API-nya agar sesuai skema di atas, antarmuka Frontend secara defensif akan merender tulisan **"DATA BE BELUM SESUAI"** pada kolom alamat agar aplikasi tidak *crash*.
+
 ---
 
 ## 4. Analisis Menyeluruh Kesiapan Frontend (`src/`) vs Backend (BE)

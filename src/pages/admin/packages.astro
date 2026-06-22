@@ -2,73 +2,10 @@
 // File: src/pages/admin/packages.astro
 import AdminLayout from "@layouts/AdminLayout.astro";
 import AdminBadge from "@ui/AdminBadge.astro";
+import { adminBookingService } from "@services/adminBookingService";
 
-// Mock Data Paket
-const packageData = [
-    {
-        id: "P-001",
-        sender: { 
-            name: "Febi Yulianti", 
-            phone: "0812-3456-7890",
-            address_detail: {
-                kecamatan: "Ciamis",
-                desa: "Benteng",
-                dusun: "Benteng Hilir",
-                rt_rw: "04/02",
-                patokan: "Depan Masjid Agung"
-            }
-        },
-        receiver: { 
-            name: "Agus Salim", 
-            phone: "0852-1111-2222",
-            address_detail: {
-                kecamatan: "Duren Sawit",
-                desa: "Klender",
-                dusun: "-",
-                rt_rw: "01/05",
-                patokan: "Perumahan Indah Kav. 12"
-            }
-        },
-        origin: "Ciamis",
-        destination: "Jakarta",
-        weight: "25 Kg",
-        type: "Elektronik",
-        status: "PENDING",
-        is_super_besar: true,
-        price: null
-    },
-    {
-        id: "P-002",
-        sender: { 
-            name: "Budi Santoso", 
-            phone: "0877-6655-4433",
-            address_detail: {
-                kecamatan: "Setiabudi",
-                desa: "Kuningan Timur",
-                dusun: "-",
-                rt_rw: "03/01",
-                patokan: "Gedung Cyber 2"
-            }
-        },
-        receiver: { 
-            name: "Dewi Sartika", 
-            phone: "0811-0099-8877",
-            address_detail: {
-                kecamatan: "Kawali",
-                desa: "Kawali",
-                dusun: "Kawali Mukti",
-                rt_rw: "02/02",
-                patokan: "Alun-alun Kawali"
-            }
-        },
-        origin: "Jakarta",
-        destination: "Ciamis",
-        weight: "5 Kg",
-        type: "Dokumen",
-        status: "APPROVED",
-        price: 50000
-    }
-];
+// Fetch data paket dari Backend via SSR
+const packageData = await adminBookingService.getPackageShipments();
 ---
 
 <AdminLayout title="Manajemen Paket">
