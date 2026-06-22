@@ -291,5 +291,27 @@ Berikut adalah rangkuman dari seluruh implementasi di folder `D:\ProjekKp\KerjaP
 - **Status:** Menunggu Tindakan BE.
 - **Catatan Integrasi:** Pola/UX pemesanan telah dirombak. Frontend **tidak akan** mengirimkan metode pembayaran (`payment_method`: "cash"/"cashless") di awal pembuatan pesanan. User akan memesan dulu, Admin menentukan harga, lalu User baru memilih metode bayar. Backend harus **menghapus validasi wajib** `payment_method` pada *Controller* pembuatan pesanan mereka.
 
-## Kesimpulan Analisis
 Dari seluruh kode yang ditulis di folder `src/`, Frontend sudah 100% menggunakan arsitektur *Data-Driven* (bergantung pada respons Backend) dan telah menggunakan penanganan error (`try...catch`) agar UI tidak rusak jika Backend mati. Saat ini operasional aplikasi hanya tertahan oleh ketiadaan endpoint tertentu (Fleets, Ketersediaan Kursi dinamis) dan ketidakcocokan skema tabel/validasi di sisi Backend (Missing column `pickup_address`, validasi `schedule_id`, validasi `car_type`, validasi `payment_method`). Mohon kerjasamanya dari tim Backend untuk memfasilitasi hal-hal tersebut.
+
+---
+
+## Modul Kelola Konten (CMS) - Sisi Admin & User (22 Juni 2026)
+- **Endpoint Admin:** `POST/PUT/DELETE /api/admin/cms/promotions`, `/api/admin/cms/destinations`, `/api/admin/cms/fleets`
+- **Endpoint Publik:** `GET /api/content/promotions`, `/api/content/destinations`, `GET /api/content/fleets`
+- **File Frontend Terubah:** `src/services/adminContentService.ts`, `src/pages/admin/content.astro`, `src/pages/admin/destinations.astro`, `src/pages/admin/fleet.astro`
+- **Status:** Selesai (Data Binding & Client-Side Script).
+- **Catatan Integrasi & Instruksi Spesifik untuk Backend:**
+  1. **Aksi Admin:** Frontend mengirim form menggunakan object `FormData` (Multipart) jika admin mengunggah gambar baru, atau `application/json` jika tanpa gambar. Backend harus siap menerima *content-type* dinamis ini di semua *route* `/api/admin/cms/...`.
+  2. **Skema JSON Promo (Banner):** Jika dikirim via JSON, payload untuk Promo adalah:
+     ```json
+     {
+        "id": "uuid", // Hanya dikirim jika PUT
+        "tagline": "Tagline Promo",
+        "description": "Deskripsi Promo",
+        "discount": "20",
+        "max_discount": "50000",
+        "is_active": true
+     }
+     ```
+  3. **Aksi Delete:** Proses Delete dilakukan dengan request metode `DELETE` ke endpoint `/api/admin/cms/.../:id`.
+  4. **Endpoint Publik Fleet (BLOKIR):** Frontend menggunakan endpoint `GET /api/content/fleets` untuk mendapatkan data armada pada komponen User (seperti dropdown tipe kendaraan atau kartu). Saat ini BE belum menyediakannya. Tolong siapkan rute `/api/content/fleets` yang dapat diakses Publik (tanpa JWT) yang mereturn list armada berstatus "Tersedia" atau "active".

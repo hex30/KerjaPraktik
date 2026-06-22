@@ -4,49 +4,10 @@ import AdminLayout from "@layouts/AdminLayout.astro";
 import InputGroup from "@ui/InputGroup.astro";
 import Badge from "@ui/Badge.astro";
 import Button from "@ui/Button.astro";
+import { adminContentService } from "@services/adminContentService";
 
-const fleets = [
-    { 
-        id: "elf", 
-        name: "Isuzu ELF Giga", 
-        capacity: "19 Kursi", 
-        description: "Cocok untuk rombongan menengah, nyaman dan tangguh.", 
-        image: "/assets/images/contoh.jpg",
-        status: "Tersedia"
-    },
-     { 
-        id: "elf", 
-        name: "Isuzu ELF Giga", 
-        capacity: "19 Kursi", 
-        description: "Cocok untuk rombongan menengah, nyaman dan tangguh.", 
-        image: "/assets/images/contoh.jpg",
-        status: "Tersedia"
-    },
-     { 
-        id: "elf", 
-        name: "Isuzu ELF Giga", 
-        capacity: "19 Kursi", 
-        description: "Cocok untuk rombongan menengah, nyaman dan tangguh.", 
-        image: "/assets/images/contoh.jpg",
-        status: "Tersedia"
-    },
-    { 
-        id: "hiace", 
-        name: "Toyota Hiace Commuter", 
-        capacity: "15 Kursi", 
-        description: "Eksekutif dan premium untuk perjalanan jarak jauh.", 
-        image: "/assets/images/contoh.jpg",
-        status: "Dalam Pemeliharaan"
-    },
-    { 
-        id: "avanza", 
-        name: "Toyota Avanza", 
-        capacity: "6 Kursi", 
-        description: "Pilihan ekonomis untuk perjalanan keluarga kecil.", 
-        image: "/assets/images/contoh.jpg",
-        status: "Sedang Disewa"
-    },
-];
+// Fetch data armada aktual dari Backend (Admin View)
+const fleets = await adminContentService.getFleetsAdmin();
 ---
 
 <AdminLayout title="Manajemen Armada">
@@ -58,6 +19,12 @@ const fleets = [
                 <p class="text-sm text-slate-500 mt-1 font-secondary">Monitor status operasional dan edit data unit kendaraan Anda.</p>
             </header>
 
+            {fleets.length === 0 && (
+                <div class="p-8 text-center border-2 border-dashed border-slate-200 rounded-3xl bg-slate-50">
+                    <p class="text-sm font-bold text-slate-500">Belum ada armada yang terdaftar.</p>
+                </div>
+            )}
+
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8" id="fleet-grid">
                 {fleets.map((fleet, index) => (
                     <div class:list={["bg-white border border-slate-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group flex flex-col h-full w-full fleet-card", index > 3 ? "hidden extra-fleet" : "flex"]} 
@@ -66,7 +33,7 @@ const fleets = [
                          data-capacity={fleet.capacity} 
                          data-description={fleet.description} 
                          data-status={fleet.status}
-                         data-image={fleet.image}>
+                         data-image={fleet.image_url}>
                         
                         <figure class="relative h-48 overflow-hidden bg-slate-200">
                             <div class="absolute top-4 left-4 z-10">
@@ -84,7 +51,7 @@ const fleets = [
                             </div>
 
                             <img
-                                src={fleet.image}
+                                src={fleet.image_url}
                                 alt={fleet.name}
                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                             />
@@ -94,8 +61,8 @@ const fleets = [
                             <div class="flex items-center justify-between mb-2">
                                 <h3 class="text-lg font-black text-primary">{fleet.name}</h3>
                                 <span class:list={["text-[10px] font-black uppercase px-2 py-0.5 rounded-md", 
-                                    fleet.status === 'Tersedia' ? 'bg-green-100 text-green-600' : 
-                                    fleet.status === 'Dalam Pemeliharaan' ? 'bg-amber-100 text-amber-600' : 'bg-slate-100 text-slate-600']}>
+                                    fleet.status === 'Tersedia' || fleet.status === 'active' ? 'bg-green-100 text-green-600' : 
+                                    fleet.status === 'Dalam Pemeliharaan' || fleet.status === 'maintenance' ? 'bg-amber-100 text-amber-600' : 'bg-slate-100 text-slate-600']}>
                                     {fleet.status}
                                 </span>
                             </div>
@@ -116,7 +83,6 @@ const fleets = [
                     </button>
                 </div>
             )}
-        </section>
         </section>
 
         <!-- Section B: Modern Add / Edit Fleet Form -->
@@ -142,6 +108,7 @@ const fleets = [
                 </div>
 
                 <form id="fleet-form" class="w-full lg:w-3/5 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <input type="hidden" name="id" id="fleet_id" value="" />
                     <div class="md:col-span-2">
                         <InputGroup label="Nama Armada" id="fleet_name" name="name" placeholder="Contoh: Toyota Hiace Premio" required={true} />
                     </div>
@@ -161,14 +128,14 @@ const fleets = [
                     <div class="md:col-span-2 flex flex-col gap-2">
                         <label for="fleet_status" class="font-secondary text-sm font-bold text-primary">Status Operasional</label>
                         <select id="fleet_status" name="status" class="w-full bg-slate-100 border border-slate-200 rounded-lg px-4 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all cursor-pointer">
-                            <option value="Tersedia">✅ Tersedia</option>
-                            <option value="Dalam Pemeliharaan">🔧 Dalam Pemeliharaan</option>
-                            <option value="Sedang Disewa">📅 Sedang Disewa</option>
+                            <option value="active">✅ Tersedia / Active</option>
+                            <option value="maintenance">🔧 Dalam Pemeliharaan / Maintenance</option>
+                            <option value="rented">📅 Sedang Disewa</option>
                         </select>
                     </div>
 
                     <div class="md:col-span-2 pt-4 flex gap-4">
-                        <Button type="submit" size="lg" class="flex-grow shadow-lg shadow-primary/20">
+                        <Button type="submit" id="submit-fleet-btn" size="lg" class="flex-grow shadow-lg shadow-primary/20">
                             Simpan Data Armada
                         </Button>
                         <button type="reset" id="reset-form-btn" class="px-8 py-3 bg-slate-100 text-slate-500 font-bold text-sm rounded-xl hover:bg-slate-200 transition-all">
@@ -182,6 +149,8 @@ const fleets = [
 </AdminLayout>
 
 <script>
+    import { adminContentService } from "@services/adminContentService";
+
     const setupFleetLogic = () => {
         const editButtons = document.querySelectorAll('.edit-fleet-btn');
         const deleteButtons = document.querySelectorAll('.delete-fleet-btn');
@@ -192,9 +161,11 @@ const fleets = [
         const formTitle = document.getElementById('form-title');
         const formDesc = document.getElementById('form-desc');
         const resetBtn = document.getElementById('reset-form-btn');
+        const submitBtn = document.getElementById('submit-fleet-btn');
         const section = document.getElementById('fleet-form-section');
 
         // Inputs
+        const inputId = document.getElementById('fleet_id') as HTMLInputElement;
         const inputName = document.getElementById('fleet_name') as HTMLInputElement;
         const inputCapacity = document.getElementById('fleet_capacity') as HTMLInputElement;
         const inputDescription = document.getElementById('fleet_description') as HTMLTextAreaElement;
@@ -230,21 +201,48 @@ const fleets = [
             });
         }
 
-        // Delete Logic Simulation
+        // Submit Logic (Create / Update)
+        if (form) {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(form);
+                
+                try {
+                    if (submitBtn) {
+                        submitBtn.textContent = "Menyimpan...";
+                        submitBtn.setAttribute('disabled', 'true');
+                    }
+                    
+                    await adminContentService.saveFleet(formData);
+                    alert("Data armada berhasil disimpan!");
+                    window.location.reload();
+                } catch (error: any) {
+                    alert(error.message || "Gagal menyimpan armada");
+                } finally {
+                    if (submitBtn) {
+                        submitBtn.textContent = "Simpan Data Armada";
+                        submitBtn.removeAttribute('disabled');
+                    }
+                }
+            });
+        }
+
+        // Delete Logic
         deleteButtons.forEach(btn => {
-            btn.addEventListener('click', (e) => {
+            btn.addEventListener('click', async (e) => {
                 e.stopPropagation();
                 const card = btn.closest('.fleet-card') as HTMLElement;
                 if(!card) return;
                 
-                const name = card.dataset.name;
-                if (confirm(`Apakah Anda yakin ingin menghapus armada ${name}?`)) {
-                    card.style.transition = 'all 0.3s ease';
-                    card.style.transform = 'scale(0.9)';
-                    card.style.opacity = '0';
-                    setTimeout(() => {
-                        card.remove();
-                    }, 300);
+                const { id, name } = card.dataset;
+                if (id && confirm(`Apakah Anda yakin ingin menghapus armada ${name} secara permanen?`)) {
+                    try {
+                        await adminContentService.deleteFleet(id);
+                        alert("Armada berhasil dihapus!");
+                        window.location.reload();
+                    } catch (err: any) {
+                        alert(err.message || "Gagal menghapus armada");
+                    }
                 }
             });
         });
@@ -256,13 +254,21 @@ const fleets = [
                 const card = btn.closest('.fleet-card') as HTMLElement;
                 if (!card) return;
 
-                const { name, capacity, description, status } = card.dataset;
+                const { id, name, capacity, description, status } = card.dataset;
 
                 // Populate Form
+                if (inputId) inputId.value = id || '';
                 if (inputName) inputName.value = name || '';
                 if (inputCapacity) inputCapacity.value = capacity || '';
                 if (inputDescription) inputDescription.value = description || '';
-                if (selectStatus) selectStatus.value = status || 'Tersedia';
+                
+                // Map status back to option values if they differ
+                if (selectStatus) {
+                    const statusStr = status?.toLowerCase() || '';
+                    if (statusStr.includes('maint')) selectStatus.value = 'maintenance';
+                    else if (statusStr.includes('sewa')) selectStatus.value = 'rented';
+                    else selectStatus.value = 'active';
+                }
 
                 // Change UI State
                 if (formTitle) formTitle.textContent = "Edit Data Armada";
@@ -281,6 +287,7 @@ const fleets = [
         });
 
         resetBtn?.addEventListener('click', () => {
+            if (inputId) inputId.value = '';
             if (formTitle) formTitle.textContent = "Tambah Armada Baru";
             if (formDesc) formDesc.textContent = "Lengkapi informasi unit kendaraan untuk ditampilkan pada sistem pemesanan pelanggan.";
         });

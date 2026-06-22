@@ -2,19 +2,24 @@
 // File: src/pages/admin/content.astro
 import AdminLayout from "@layouts/AdminLayout.astro";
 import PromoManager from "@features/admin/content/PromoManager.astro";
+import { adminContentService } from "@services/adminContentService";
 
-// Mock Current Content State
-const currentPromo = {
-    discount: "20%",
-    tagline: "Liburan Keluarga Lebih Hemat",
-    isActive: true
+// Ambil data promo aktif dari Backend (SSR)
+const promos = await adminContentService.getPromotions();
+const currentPromo = promos.length > 0 ? promos[0] : { 
+    id: "",
+    discount: "0", 
+    tagline: "Belum Ada Promo Aktif", 
+    description: "",
+    isActive: false 
 };
 ---
 
 <AdminLayout title="Kelola Konten Dinamis">
     <div class="flex flex-col gap-12">
         <!-- Unified Promo Manager -->
-        <PromoManager />
+        {/* @ts-ignore */}
+        <PromoManager promo={currentPromo} />
 
         <div class="grid grid-cols-1 gap-10">
             <!-- Preview Konten -->
@@ -24,9 +29,9 @@ const currentPromo = {
                 <div class="bg-slate-900 rounded-[2rem] md:rounded-[2.5rem] p-8 md:p-12 text-white relative overflow-hidden aspect-video lg:aspect-auto min-h-[300px] md:min-h-[400px] flex flex-col justify-center gap-6 shadow-2xl">
                     <div class="absolute inset-0 bg-gradient-to-r from-primary to-transparent opacity-60"></div>
                     <div class="relative z-10 max-w-2xl">
-                        <span class="bg-sky-500 text-[10px] md:text-xs font-black px-3 py-1.5 md:px-4 rounded-full uppercase tracking-[0.2em]">Penawaran Spesial</span>
+                        <span class="bg-sky-500 text-[10px] md:text-xs font-black px-3 py-1.5 md:px-4 rounded-full uppercase tracking-[0.2em]">{currentPromo.isActive ? 'Penawaran Spesial' : 'Tidak Aktif'}</span>
                         <h1 class="text-3xl md:text-5xl lg:text-7xl font-black mt-4 md:mt-6 leading-tight tracking-tighter">
-                            Diskon <span class="text-sky-400">{currentPromo.discount}</span><br />
+                            Diskon <span class="text-sky-400">{currentPromo.discount}%</span><br />
                             {currentPromo.tagline}
                         </h1>
                         <div class="mt-6 md:mt-8 flex gap-4">
