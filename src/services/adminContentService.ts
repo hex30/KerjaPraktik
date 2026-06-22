@@ -20,15 +20,24 @@ export interface Destination {
 
 export interface Fleet {
     id?: string | number;
-    name: string;
-    capacity: string;
+    plate_number: string;
+    car_type: string;
+    seat_capacity: number;
     description: string;
     image_url: string;
     status: string;
 }
 
+export interface UserAdmin {
+    id: string;
+    name: string;
+    email: string;
+    phone_number: string;
+    role: string;
+}
+
 // Helper to handle tokens safely on client/server
-const getAuthHeaders = () => {
+const getAuthHeaders = (): Record<string, string> => {
     // Pada saat build SSR Astro, localStorage tidak ada.
     if (typeof window !== 'undefined') {
         const token = localStorage.getItem('token');
@@ -57,14 +66,14 @@ export const adminContentService = {
         try {
             const isFormData = data instanceof FormData;
             const headers = getAuthHeaders();
-            
+
             // Jika multipart/form-data, browser akan set Content-Type otomatis (hapus Content-Type bawaan apiFetch)
             const options: RequestInit = {
                 method: 'POST', // Asumsi selalu POST untuk replace active promo
                 headers: isFormData ? headers : { ...headers, 'Content-Type': 'application/json' },
                 body: isFormData ? data : JSON.stringify(data)
             };
-            
+
             // Menghapus Content-Type agar browser bisa set boundary multipart jika pakai FormData
             if (isFormData) {
                 // @ts-ignore
@@ -141,7 +150,7 @@ export const adminContentService = {
     async getFleetsAdmin(): Promise<Fleet[]> {
         try {
             // Admin menarik semua armada
-            const response = await apiFetch('/api/admin/cms/fleets', { 
+            const response = await apiFetch('/api/admin/cms/fleets', {
                 method: 'GET',
                 headers: getAuthHeaders()
             });
@@ -191,6 +200,37 @@ export const adminContentService = {
             });
         } catch (error) {
             console.error("Gagal menghapus armada:", error);
+            throw error;
+        }
+    },
+
+    // ==========================================
+    // USERS (PENGGUNA & DRIVER)
+    // ==========================================
+    async getUsersAdmin(): Promise<UserAdmin[]> {
+        try {
+            const response = await apiFetch('/api/admin/master/users', {
+                method: 'GET',
+                headers: getAuthHeaders()
+            });
+            return response?.data || [];
+        } catch (error) {
+            console.error("Gagal mengambil data pengguna:", error);
+            return [];
+        }
+    },
+
+    async updateUserRole(id: string, role: string, password?: string): Promise<any> {
+        try {
+            const body: any = { role };
+            if (password) body.password = password;
+            return await apiFetch(`/api/admin/master/users/${id}`, {
+                method: 'PUT',
+                headers: { ...getAuthHeaders(), 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+        } catch (error) {
+            console.error("Gagal update user:", error);
             throw error;
         }
     }

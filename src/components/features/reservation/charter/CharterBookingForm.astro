@@ -4,13 +4,22 @@ import PassengerDataForm from "@features/reservation/shared/PassengerDataForm.as
 import Button from "@ui/Button.astro";
 import SectionHeader from "@ui/SectionHeader.astro";
 import FleetSelectionItem from "./FleetSelectionItem.astro";
+import PreviewSeatMap from "./PreviewSeatMap.astro";
 import BookingSummary from "@features/reservation/shared/BookingSummary.astro";
 import AlertCard from "@components/ui/AlertCard.astro";
 import { charterService } from "@services/charterService";
 
 let fleetData: any[] = [];
 try {
-    fleetData = await charterService.getFleets();
+    const allFleets = await charterService.getFleets();
+    // Filter to only unique car_types (Elf and Luxio) as requested
+    const uniqueFleetsMap = new Map();
+    for (const fleet of allFleets) {
+        if (!uniqueFleetsMap.has(fleet.car_type)) {
+            uniqueFleetsMap.set(fleet.car_type, fleet);
+        }
+    }
+    fleetData = Array.from(uniqueFleetsMap.values());
 } catch (error) {
     console.error("Gagal memuat katalog armada charter:", error);
     fleetData = [];
@@ -69,8 +78,8 @@ try {
                                         <option value="" disabled selected>Pilih kendaraan...</option>
                                         {
                                             fleetData.map((unit) => (
-                                                <option value={unit.value}>
-                                                    {unit.name}
+                                                <option value={unit.car_type}>
+                                                    {unit.car_type}
                                                 </option>
                                             ))
                                         }
@@ -140,7 +149,7 @@ try {
                         fleetData.map((unit, index) => (
                             <FleetSelectionItem
                                 {...unit}
-                                value={unit.type || unit.value}
+                                value={unit.car_type}
                                 isHidden={index > 1}
                             />
                         ))
@@ -152,57 +161,15 @@ try {
                     )}
                 </div>
 
-                {
-                    fleetData.length > 2 && (
-                        <div class="flex flex-col w-full mt-2">
-                            <div
-                                id="btn-expand-armada"
-                                class="w-full py-5 rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/50 hover:bg-card-bg-sc hover:border-primary/50 cursor-pointer flex items-center justify-center gap-3 group transition-all duration-300"
-                            >
-                                <span class="font-secondary font-bold text-sm text-slate-500 group-hover:text-primary transition-colors">
-                                    Tampilkan {fleetData.length - 2} Armada
-                                    Lainnya
-                                </span>
-                                <div class="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center group-hover:border-primary/50 transition-colors">
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 20 20"
-                                        fill="currentColor"
-                                        class="w-5 h-5 text-slate-400 group-hover:text-primary group-hover:translate-y-0.5 transition-all"
-                                    >
-                                        <path
-                                            fill-rule="evenodd"
-                                            d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"
-                                            clip-rule="evenodd"
-                                        />
-                                    </svg>
-                                </div>
+                {fleetData.length > 0 && (
+                    <div id="preview-seatmap-container" class="w-full hidden animate-fade-in mt-2">
+                        {fleetData.map((unit) => (
+                            <div class="seatmap-wrapper hidden" data-type={unit.car_type}>
+                                <PreviewSeatMap type={unit.car_type as "Elf" | "Luxio"} />
                             </div>
-                            <div
-                                id="btn-collapse-armada"
-                                class="hidden w-full py-5 rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/50 hover:bg-card-bg-sc hover:border-primary/50 cursor-pointer items-center justify-center gap-3 group transition-all duration-300"
-                            >
-                                <span class="font-secondary font-bold text-sm text-slate-500 group-hover:text-primary transition-colors">
-                                    Tutup Pilihan Armada
-                                </span>
-                                <div class="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center group-hover:border-primary/50 transition-colors">
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        viewBox="0 0 20 20"
-                                        fill="currentColor"
-                                        class="w-5 h-5 text-slate-400 group-hover:text-primary group-hover:-translate-y-0.5 transition-all"
-                                    >
-                                        <path
-                                            fill-rule="evenodd"
-                                            d="M14.78 11.78a.75.75 0 0 1-1.06 0L10 8.06l-3.72 3.72a.75.75 0 1 1-1.06-1.06l4.25-4.25a.75.75 0 0 1 1.06 0l4.25 4.25a.75.75 0 0 1 0 1.06Z"
-                                            clip-rule="evenodd"
-                                        />
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-                    )
-                }
+                        ))}
+                    </div>
+                )}
             </div>
 
             <div id="right-step-2" class="hidden animate-fade-in w-full">
@@ -400,6 +367,20 @@ try {
                 }
 
                 selectArmada.value = value;
+                
+                // Show PreviewSeatMap
+                const seatmapContainer = document.getElementById("preview-seatmap-container");
+                if (seatmapContainer) {
+                    seatmapContainer.classList.remove("hidden");
+                    const wrappers = seatmapContainer.querySelectorAll(".seatmap-wrapper");
+                    wrappers.forEach(w => w.classList.add("hidden"));
+                    
+                    const activeSeatmap = seatmapContainer.querySelector(`.seatmap-wrapper[data-type="${value}"]`);
+                    if (activeSeatmap) {
+                        activeSeatmap.classList.remove("hidden");
+                        activeSeatmap.classList.add("animate-fade-in");
+                    }
+                }
             });
         });
 
@@ -415,33 +396,7 @@ try {
             }
         });
 
-        // 2. LOGIKA CTA EXPAND & COLLAPSE
-        if (extraCards.length > 0 && btnExpand && btnCollapse) {
-            btnExpand.addEventListener("click", () => {
-                extraCards.forEach((card) => {
-                    card.classList.remove("hidden");
-                    card.classList.add("animate-fade-in");
-                });
-                btnExpand.classList.add("hidden");
-                btnExpand.classList.remove("flex");
-                btnCollapse.classList.remove("hidden");
-                btnCollapse.classList.add("flex");
-            });
-
-            btnCollapse.addEventListener("click", () => {
-                extraCards.forEach((card) => {
-                    card.classList.add("hidden");
-                    card.classList.remove("animate-fade-in");
-                });
-                btnCollapse.classList.add("hidden");
-                btnCollapse.classList.remove("flex");
-                btnExpand.classList.remove("hidden");
-                btnExpand.classList.add("flex");
-                document
-                    .getElementById("right-step-1")
-                    ?.scrollIntoView({ behavior: "smooth", block: "start" });
-            });
-        }
+        // Removed Expand/Collapse Logic as we only show max 2 unique cards now
 
         // 3. LOGIKA VALIDASI TANGGAL
         if (inputTanggalSewa && inputTanggalKepulangan) {
@@ -512,7 +467,6 @@ try {
                 const submitBtn = formStep2.querySelector('button[type="submit"]') as HTMLButtonElement | null;
                 if (submitBtn) {
                     submitBtn.disabled = true;
-                    const originalText = submitBtn.textContent;
                     submitBtn.textContent = "Memproses...";
                 }
 
