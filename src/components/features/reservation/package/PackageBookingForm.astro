@@ -36,6 +36,19 @@ import AlertCard from "@components/ui/AlertCard.astro";
                 </h3>
 
                 <div class="flex flex-col gap-5 p-6 rounded-2xl bg-slate-50 border border-slate-100 relative">
+                    <div class="flex flex-col gap-2 w-full">
+                        <label for="deskripsi_paket" class="font-secondary text-sm font-bold text-primary">Deskripsi Isi Paket</label>
+                        <input 
+                            type="text" 
+                            name="deskripsi_paket" 
+                            id="deskripsi_paket" 
+                            placeholder="Contoh: Dokumen penting, Pakaian, Makanan ringan" 
+                            required 
+                            minlength="3"
+                            class="w-full bg-slate-100 border border-slate-200 rounded-lg px-4 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-slate-400"
+                        />
+                    </div>
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     
                     <div class="flex flex-col gap-2 w-full">
@@ -65,6 +78,7 @@ import AlertCard from "@components/ui/AlertCard.astro";
                             <option value="kecil">Kecil (Dokumen/Buku)</option>
                             <option value="sedang">Sedang (Kotak Sepatu/Pakaian)</option>
                             <option value="besar">Besar (Kardus Besar/Elektronik)</option>
+                            <option value="super_besar">Super Besar (Furnitur/Motor)</option>
                         </select>
                     </div>
                 </div>
@@ -104,6 +118,7 @@ import AlertCard from "@components/ui/AlertCard.astro";
 
 <script>
     import { authGuard } from "@utils/authGuard";
+    import { packageService } from "@services/packageService";
 
     const setupPackageListener = () => {
         const form = document.getElementById('form-package-detail') as HTMLFormElement;
@@ -180,9 +195,8 @@ import AlertCard from "@components/ui/AlertCard.astro";
             return false;
         };
 
-        // Double Charge Notice Logic
         const checkDoubleCharge = () => {
-            const isLarge = dimensionSelect.value === 'besar';
+            const isLarge = dimensionSelect.value === 'besar' || dimensionSelect.value === 'super_besar';
             const isHeavy = parseInt(weightInput.value) > 20;
             
             let notice = document.getElementById('double-charge-notice');
@@ -226,33 +240,49 @@ import AlertCard from "@components/ui/AlertCard.astro";
             checkDoubleCharge();
         });
 
-        form.addEventListener('submit', (e) => {
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
             if (checkGuest(e)) return;
 
-            const formData = new FormData(form);
-            const data = Object.fromEntries(formData.entries());
-            
-            const existingHistory = JSON.parse(localStorage.getItem("order_history") || "[]");
-            const isDouble = dimensionSelect.value === 'besar' || parseInt(weightInput.value) > 20;
+            const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement | null;
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = "Memproses Pengiriman...";
+            }
 
-            const newOrder = {
-                id: `PKG-${Date.now().toString().slice(-6)}`,
-                date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
-                status: "Menunggu Konfirmasi",
-                layanan: "Pengiriman Paket",
-                detail: `${data.berat_paket}kg - ${data.dimensi_paket}`,
-                pengirim: data.nama_pengirim,
-                penerima: data.nama_penerima,
-                is_super_besar: isDouble,
-                price: isDouble ? "Double Charge Applied" : "Sesuai Berat"
-            };
-            
-            existingHistory.unshift(newOrder);
-            localStorage.setItem("order_history", JSON.stringify(existingHistory));
+            try {
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+                
+                const isDouble = dimensionSelect.value === 'besar' || dimensionSelect.value === 'super_besar' || parseInt(weightInput.value) > 20;
 
-            alert(`Pesanan paket berhasil dicatat. ${isDouble ? 'Biaya tambahan (2 kursi) berlaku.' : ''}`);
-            window.location.href = "/user/booking-history";
+                const payload = {
+                    sender_name: data.nama_pengirim as string,
+                    sender_phone: data.telp_pengirim as string,
+                    pickup_address: `Kec: ${data.sub_district_pengirim || '-'}, Desa: ${data.village_pengirim || '-'}, ${data.alamat_lengkap_pengirim || '-'}, Patokan: ${data.landmark_pengirim || '-'}`,
+                    receiver_name: data.nama_penerima as string,
+                    receiver_phone: data.telp_penerima as string,
+                    receiver_address: `Kec: ${data.sub_district_penerima || '-'}, Desa: ${data.village_penerima || '-'}, ${data.alamat_lengkap_penerima || '-'}, Patokan: ${data.landmark_penerima || '-'}`,
+                    package_description: data.deskripsi_paket as string,
+                    weight: Number(data.berat_paket),
+                    dimension: data.dimensi_paket as 'kecil' | 'sedang' | 'besar' | 'super_besar',
+                    seat_qty: isDouble ? 2 : 1,
+                    payment_method: 'cashless' as const
+                };
+
+                // dokumentasi: Mengirim payload pengiriman paket ke API Backend
+                await packageService.createPackageShipment(payload);
+
+                alert(`Pesanan paket berhasil dicatat. ${isDouble ? 'Biaya tambahan (2 kursi) berlaku.' : ''}`);
+                window.location.href = "/user/booking-history";
+            } catch (error) {
+                console.error("Submit Package Error:", error);
+                alert("Gagal memproses pesanan pengiriman paket. Silakan coba lagi.");
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = "Pesan Pengiriman Sekarang";
+                }
+            }
         });
     };
     

@@ -6,41 +6,15 @@ import SectionHeader from "@ui/SectionHeader.astro";
 import FleetSelectionItem from "./FleetSelectionItem.astro";
 import BookingSummary from "@features/reservation/shared/BookingSummary.astro";
 import AlertCard from "@components/ui/AlertCard.astro";
+import { charterService } from "@services/charterService";
 
-const fleetData = [
-    {
-        name: "Isuzu ELF Giga",
-        value: "elf",
-        capacity: "14-19 Kursi",
-        description: "Cocok untuk rombongan menengah, nyaman dan tangguh.",
-        price: "1.200.000",
-        image: "/assets/images/contoh.jpg",
-    },
-    {
-        name: "Toyota Hiace Commuter",
-        value: "hiace",
-        capacity: "15 Kursi",
-        description: "Eksekutif dan premium untuk perjalanan jarak jauh.",
-        price: "1.500.000",
-        image: "/assets/images/contoh.jpg",
-    },
-    {
-        name: "Toyota Avanza",
-        value: "avanza",
-        capacity: "6 Kursi",
-        description: "Pilihan ekonomis untuk perjalanan keluarga kecil.",
-        price: "600.000",
-        image: "/assets/images/contoh.jpg",
-    },
-    {
-        name: "Toyota Innova Reborn",
-        value: "innova",
-        capacity: "7 Kursi",
-        description: "Kenyamanan ekstra dengan kabin yang luas dan senyap.",
-        price: "850.000",
-        image: "/assets/images/contoh.jpg",
-    },
-];
+let fleetData: any[] = [];
+try {
+    fleetData = await charterService.getFleets();
+} catch (error) {
+    console.error("Gagal memuat katalog armada charter:", error);
+    fleetData = [];
+}
 ---
 
 <div id="booking-component" class="w-full relative">
@@ -162,14 +136,20 @@ const fleetData = [
                     class="grid grid-cols-1 md:grid-cols-2 gap-6"
                     id="armada-grid-container"
                 >
-                    {
+                    {fleetData.length > 0 ? (
                         fleetData.map((unit, index) => (
                             <FleetSelectionItem
                                 {...unit}
+                                value={unit.type || unit.value}
                                 isHidden={index > 1}
                             />
                         ))
-                    }
+                    ) : (
+                        <div class="col-span-full py-10 text-center bg-slate-50 border border-slate-200 rounded-2xl">
+                            <p class="font-secondary font-bold text-slate-500 mb-2">Mohon Maaf, Layanan Sedang Terganggu</p>
+                            <p class="font-secondary text-xs text-slate-400">Saat ini data armada tidak dapat dimuat dari server. Silakan coba beberapa saat lagi.</p>
+                        </div>
+                    )}
                 </div>
 
                 {
@@ -263,6 +243,7 @@ const fleetData = [
 
 <script>
     import { authGuard } from "@utils/authGuard";
+    import { charterService } from "@services/charterService";
 
     const setupBookingForm = () => {
         const formStep1 = document.getElementById("form-booking-travel");
@@ -524,37 +505,51 @@ const fleetData = [
         // 6. FINAL SUBMISSION
         const formStep2 = document.getElementById("form-data-diri-booking");
         if (formStep2) {
-            formStep2.addEventListener("submit", (e) => {
+            formStep2.addEventListener("submit", async (e) => {
                 e.preventDefault();
                 if (checkGuest(e)) return;
 
-                const existingHistory = JSON.parse(
-                    localStorage.getItem("order_history") || "[]",
-                );
-                const newOrder = {
-                    id: `CHR-${Date.now().toString().slice(-6)}`,
-                    date: new Date().toLocaleDateString("id-ID", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                    }),
-                    status: "Menunggu Konfirmasi",
-                    layanan: "Travel Charter",
-                    armada: summaryArmada?.textContent,
-                    tujuan: summaryTujuan?.textContent,
-                    price: "Sesuai Negosiasi",
-                };
+                const submitBtn = formStep2.querySelector('button[type="submit"]') as HTMLButtonElement | null;
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    const originalText = submitBtn.textContent;
+                    submitBtn.textContent = "Memproses...";
+                }
 
-                existingHistory.unshift(newOrder);
-                localStorage.setItem(
-                    "order_history",
-                    JSON.stringify(existingHistory),
-                );
+                try {
+                    // Kumpulkan data dari kedua form
+                    const formData1 = new FormData(formStep1 as HTMLFormElement);
+                    const data1 = Object.fromEntries(formData1.entries());
 
-                alert(
-                    "Booking Charter Berhasil Diajukan! Tim kami akan segera menghubungi Anda.",
-                );
-                window.location.href = "/user/booking-history";
+                    const formData2 = new FormData(formStep2 as HTMLFormElement);
+                    const data2 = Object.fromEntries(formData2.entries());
+
+                    const payload = {
+                        destination: data1.tujuan as string,
+                        car_type: data1.jenis_armada as string,
+                        departure_date: data1.tanggal_sewa as string,
+                        return_date: data1.tanggal_kepulangan as string,
+                        full_name: data2.full_name as string,
+                        sub_district: data2.sub_district as string,
+                        village: data2.village as string,
+                        pickup_address: data2.alamat_lengkap as string || data2.village as string,
+                        landmark: data2.landmark as string,
+                        payment_method: "menunggu_konfirmasi", // Alur baru
+                    };
+
+                    // dokumentasi: Mengirim data booking charter ke Backend API
+                    await charterService.createCharterRequest(payload);
+
+                    alert("Booking Charter Berhasil Diajukan! Tim admin kami akan mereview pesanan Anda.");
+                    window.location.href = "/user/booking-history";
+                } catch (error) {
+                    console.error("Submit Charter Error:", error);
+                    alert("Gagal memproses pesanan Charter. Server sedang gangguan atau tidak terhubung.");
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = "Coba Lagi";
+                    }
+                }
             });
         }
 

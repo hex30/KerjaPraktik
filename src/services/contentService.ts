@@ -35,16 +35,14 @@ export const contentService = {
     }
   },
 
-  // dokumentasi: Mengambil data promo yang sedang aktif dari endpoint /api/content/promotions
+  // dokumentasi: Mengambil data promo global yang sedang aktif (digunakan di Home & Layanan)
   async getPromotions() {
     try {
-      // dokumentasi: Melakukan request GET untuk mengambil data array promosi
       const response = await apiFetch('/api/content/promotions', {
         method: 'GET'
       });
       return response;
     } catch (error) {
-      // dokumentasi: Menangkap error jaringan atau server
       console.error("Gagal mengambil data Promotions:", error);
       throw error;
     }

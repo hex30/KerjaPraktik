@@ -50,18 +50,28 @@ try {
   const promoRes = await contentService.getPromotions();
   if (promoRes?.data && promoRes.data.length > 0) {
      const p = promoRes.data[0];
+     
+     // Memecah tagline menjadi 3 baris sesuai instruksi desain awal
+     const words = (p.tagline || p.title || "").split(" ");
+     const textRow1 = words.length > 0 ? words[0] : "";
+     const textRow2 = words.length > 1 ? words[1] : "";
+     const textRow3 = words.length > 2 ? words.slice(2).join(" ") : "";
+
+     // Parsing persentase diskon menjadi bilangan bulat (misal: 20.00 menjadi 20)
+     const discountValue = Math.round(parseFloat(p.discount_percentage || 0));
+
      promoData = {
-        image: p.image_url || p.image || "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?auto=format&fit=crop&q=80&w=800",
-        discount: p.discount_text || `${p.discount_percentage || 10}% OFF`,
-        noteTitle: p.title || "Promo Spesial",
-        noteDesc: p.subtitle || "Penawaran Terbatas",
-        textRow1: "Dapatkan",
-        textDesc1: p.description || "Nikmati harga khusus untuk perjalanan eksklusif Anda bersama kami.",
-        textRow2: "Penawaran",
-        textRow3: "Terbaik",
+        image: p.image_url || p.image || "",
+        discount: `${discountValue}% OFF`,
+        noteTitle: p.title || "",
+        noteDesc: p.subtitle || "",
+        textRow1: textRow1,
+        textDesc1: p.description || "",
+        textRow2: textRow2,
+        textRow3: textRow3,
         textDesc2: "Syarat dan ketentuan berlaku.",
-        btnLink: p.link || "#booking",
-        btnText: "Klaim Promo"
+        btnLink: "/services",
+        btnText: "Pesan Sekarang"
      };
   }
 } catch (e) {
