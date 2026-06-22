@@ -209,6 +209,15 @@ Berdasarkan kebutuhan *Frontend* dan logika UX aplikasi yang men-generate jadwal
      2. **Update Skema Database (`promotions` table):** Tambahkan kolom `max_discount` (tipe decimal/numeric) untuk mengakomodasi form input "Max Potongan" di halaman kelola promosi Admin.
      3. **Endpoint Promo Tunggal:** Cukup sediakan endpoint global `GET /api/content/promotions` yang mengembalikan `array` berisi 1 objek promo yang sedang berstatus `is_active = true`.
 
+## Modul Layanan Customer - Halaman Riwayat Pesanan / Dashboard (22 Juni 2026)
+- **Endpoint:** `GET /api/travel/history`, `GET /api/charter/history`, `GET /api/packages/history`
+- **File Frontend Terubah:** `src/pages/user/booking-history.astro`, `src/components/features/user/OrderItem.astro`, `src/services/userService.ts`
+- **Status:** Selesai & Tervalidasi (Menggunakan Fallback Array Kosong).
+- **Catatan Integrasi:** 
+  - Seluruh status *dummy* telah dihapus. Halaman ini memanggil 3 endpoint riwayat secara *paralel* (`Promise.allSettled`) agar performa pemuatan lebih cepat.
+  - Menerapkan **Hybrid Mapper**: struktur data JSON yang berbeda-beda dari 3 layanan tersebut dinormalisasi secara otomatis menjadi 1 antarmuka, sementara detail unik (nomor kursi, nomor resi, plat mobil) diamankan di dalam properti `meta`.
+  - Mengimplementasikan logika tampilan berdasarkan **Alur Pembayaran 4 Tahap**: Komponen UI tidak akan menampilkan tombol "BAYAR SEKARANG" jika status dari Backend adalah `PENDING_CONFIRMATION` (Admin belum menetapkan harga akhir).
+
 ---
 
 ## 4. Analisis Menyeluruh Kesiapan Frontend (`src/`) vs Backend (BE)
