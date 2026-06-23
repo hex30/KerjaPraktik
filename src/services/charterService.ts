@@ -63,7 +63,7 @@ export const charterService = {
                 pickup_address: data.pickup_address,
                 dropoff_address: data.dropoff_address || data.pickup_address,
                 with_driver: data.with_driver !== undefined ? data.with_driver : true,
-                payment_method: data.payment_method || 'menunggu_konfirmasi',
+                ...(data.payment_method && { payment_method: data.payment_method }),
                 notes: `Atas Nama: ${data.full_name || '-'}, Kec: ${data.sub_district || '-'}, Desa: ${data.village || '-'}, Patokan: ${data.landmark || '-'}. Catatan: ${data.notes || ''}`
             };
 

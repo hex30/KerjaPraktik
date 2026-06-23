@@ -32,7 +32,7 @@ export const packageService = {
                 dimension: data.dimension,
                 seat_qty: Number(data.seat_qty),
                 departure_date: data.departure_date,
-                payment_method: data.payment_method || 'menunggu_konfirmasi'
+                ...(data.payment_method && { payment_method: data.payment_method })
             };
 
             // dokumentasi: Mengambil token otorisasi dari localStorage
