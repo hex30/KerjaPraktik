@@ -11,7 +11,7 @@ import { contentService } from "@services/contentService";
 let promoData = null;
 
 try {
-  const promoRes = await contentService.getPromotions();
+  const promoRes = await contentService.getPromotions('service');
   if (promoRes?.data && promoRes.data.length > 0) {
      const p = promoRes.data[0];
      

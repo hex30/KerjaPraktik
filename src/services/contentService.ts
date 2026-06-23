@@ -36,9 +36,10 @@ export const contentService = {
   },
 
   // dokumentasi: Mengambil data promo global yang sedang aktif (digunakan di Home & Layanan)
-  async getPromotions() {
+  async getPromotions(type?: string) {
     try {
-      const response = await apiFetch('/api/content/promotions', {
+      const endpoint = type ? `/api/content/promotions?type=${type}` : '/api/content/promotions';
+      const response = await apiFetch(endpoint, {
         method: 'GET'
       });
       return response;

@@ -83,18 +83,33 @@ const fallbackAddress = (): AddressDetail => ({
 
 const parseAddressDetail = (data: any): AddressDetail => {
     if (!data) return fallbackAddress();
+    
+    let parsedData = data;
     if (typeof data === 'string') {
         try {
-            return JSON.parse(data);
+            parsedData = JSON.parse(data);
+            if (typeof parsedData === 'string') {
+                parsedData = JSON.parse(parsedData);
+            }
         } catch (e) {
-            // If it's a regular string, just put it in patokan
             return {
                 ...fallbackAddress(),
                 patokan: data
             };
         }
     }
-    return data as AddressDetail;
+    
+    if (typeof parsedData === 'object' && parsedData !== null) {
+        return {
+            ...fallbackAddress(),
+            ...parsedData
+        };
+    }
+    
+    return {
+        ...fallbackAddress(),
+        patokan: String(data)
+    };
 };
 
 export const adminBookingService = {
@@ -146,8 +161,8 @@ export const adminBookingService = {
                 user: {
                     name: item.customer_name || 'Tanpa Nama',
                     phone: item.customer_phone || '-',
-                    address_detail: parseAddressDetail(item.address_detail),
-                    destination_detail: parseAddressDetail(item.destination_detail),
+                    address_detail: parseAddressDetail(item.pickup_address),
+                    destination_detail: parseAddressDetail(item.destination),
                     departure_date: item.start_date || '-',
                     return_date: item.end_date || '-'
                 },

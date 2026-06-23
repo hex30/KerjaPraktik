@@ -4,117 +4,298 @@ import InputGroup from "@ui/InputGroup.astro";
 import Button from "@ui/Button.astro";
 ---
 
-<div class="flex flex-col gap-8 bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+<div class="flex flex-col gap-12 bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
     <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-            <h3 class="text-xl font-black text-slate-900 tracking-tight">Formulir Promo Multi-Channel</h3>
-            <p class="text-xs text-slate-400 font-secondary mt-1">Buat promo baru atau edit promo yang sudah ada untuk Landing Page.</p>
+            <h3 class="text-xl font-black text-slate-900 tracking-tight">Manajemen Promosi</h3>
+            <p class="text-xs text-slate-400 font-secondary mt-1">Buat promo terpisah untuk Landing Page (Home) dan Spesifik Layanan.</p>
         </div>
-        <button type="button" id="btn-new-promo" class="px-5 py-2.5 bg-primary/10 text-primary text-xs font-black rounded-xl hover:bg-primary hover:text-white transition-all">
-            + Buat Promo Baru
-        </button>
+        <div class="flex gap-2">
+            <button type="button" id="btn-new-promo-home" class="px-5 py-2.5 bg-primary/10 text-primary text-xs font-black rounded-xl hover:bg-primary hover:text-white transition-all">
+                + Promo Home
+            </button>
+            <button type="button" id="btn-new-promo-service" class="px-5 py-2.5 bg-sky-500/10 text-sky-600 text-xs font-black rounded-xl hover:bg-sky-500 hover:text-white transition-all">
+                + Promo Layanan
+            </button>
+        </div>
     </header>
 
-    <form id="promo-form" class="flex flex-col gap-8">
-        <input type="hidden" id="promo-id" name="id" value="" />
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="flex flex-col gap-5">
-                <h4 class="text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-2">
-                    <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                    Payload Utama Promo
-                </h4>
-                
-                <div class="grid grid-cols-2 gap-4">
-                    <InputGroup label="Tagline Promo" id="tagline" name="tagline" placeholder="Contoh: Mudik Ceria 2026" required={true} />
-                    <InputGroup label="Kode Promo" id="promo_code" name="promo_code" placeholder="Contoh: MUDIK10" />
-                </div>
-                
-                <div class="flex flex-col gap-2">
-                    <label class="font-secondary text-sm font-bold text-primary">Deskripsi Promo</label>
-                    <textarea id="description" name="description" rows="4" class="w-full bg-slate-100 border border-slate-200 rounded-lg px-4 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-none" placeholder="Jelaskan detail promo Anda..."></textarea>
-                </div>
+    <!-- FORM PROMO HOME -->
+    <div id="section-promo-home" class="flex flex-col gap-8 pt-8 border-t border-slate-100">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
             </div>
-
-            <div class="flex flex-col gap-5">
-                <h4 class="text-[10px] font-black text-amber-500 uppercase tracking-widest flex items-center gap-2">
-                    <div class="w-1.5 h-1.5 rounded-full bg-amber-500"></div>
-                    Visual & Besaran
-                </h4>
-
-                <div class="grid grid-cols-2 gap-4">
-                    <InputGroup label="Diskon (%)" id="discount" name="discount" type="number" placeholder="0" suffix="%" />
-                    <InputGroup label="Max Potongan" id="max_discount" name="max_discount" type="number" placeholder="0" suffix="Rp" />
+            <h3 class="text-lg font-black text-slate-800">Form Promosi Home</h3>
+        </div>
+        
+        <form id="promo-home-form" class="flex flex-col gap-8 promo-form" data-type="home">
+            <input type="hidden" class="promo-id" name="id" value="" />
+            <input type="hidden" name="promo_type" value="home" />
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="flex flex-col gap-5">
+                    <h4 class="text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-2">
+                        <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
+                        Payload Utama Promo
+                    </h4>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <InputGroup label="Tagline Promo" class="tagline-input" name="tagline" placeholder="Contoh: Mudik Ceria" required={true} />
+                        <InputGroup label="Kode Promo" class="promo-code-input" name="promo_code" placeholder="Contoh: MUDIK10" required={true} />
+                    </div>
+                    
+                    <div class="flex flex-col gap-2">
+                        <label class="font-secondary text-sm font-bold text-primary">Deskripsi Promo</label>
+                        <textarea name="description" rows="4" class="description-input w-full bg-slate-100 border border-slate-200 rounded-lg px-4 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-none" placeholder="Jelaskan detail promo Anda..." required></textarea>
+                    </div>
                 </div>
 
-                <div class="flex flex-col gap-2 relative">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Banner Promo</label>
-                    <div class="relative w-full h-40 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 flex flex-col items-center justify-center gap-3 hover:border-primary hover:bg-primary/5 transition-all cursor-pointer group overflow-hidden">
-                        <input type="file" name="image" id="promo_image" accept="image/png, image/jpeg, image/jpg" class="image-upload-input absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-300 group-hover:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                        <span class="image-upload-text text-xs font-bold text-slate-400 group-hover:text-primary transition-colors px-4 text-center line-clamp-1">Pilih Gambar / Drag & Drop</span>
+                <div class="flex flex-col gap-5">
+                    <h4 class="text-[10px] font-black text-amber-500 uppercase tracking-widest flex items-center gap-2">
+                        <div class="w-1.5 h-1.5 rounded-full bg-amber-500"></div>
+                        Visual & Besaran
+                    </h4>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <InputGroup label="Diskon (%)" class="discount-input" name="discount" type="number" placeholder="0" suffix="%" required={true} />
+                        <InputGroup label="Max Potongan" class="max-discount-input" name="max_discount" type="number" placeholder="0" suffix="Rp" required={true} />
+                    </div>
+
+                    <div class="flex flex-col gap-2 relative">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Banner Promo (Wajib untuk Home)</label>
+                        <div class="relative w-full h-40 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 flex flex-col items-center justify-center gap-3 hover:border-primary hover:bg-primary/5 transition-all cursor-pointer group overflow-hidden">
+                            <input type="file" name="image" accept="image/png, image/jpeg, image/jpg" class="image-upload-input absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-300 group-hover:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                            <span class="image-upload-text text-xs font-bold text-slate-400 group-hover:text-primary transition-colors px-4 text-center line-clamp-1">Pilih Gambar / Drag & Drop</span>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col gap-4">
-            <h5 class="text-[10px] font-black text-slate-800 uppercase tracking-widest">Penempatan Promo</h5>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start mt-2">
-                <div class="flex flex-col gap-2">
-                    <label class="font-secondary text-xs font-bold text-primary">Target Layanan</label>
-                    <select id="target_service" name="target_service" class="bg-white border border-slate-200 rounded-xl px-4 py-3 font-secondary text-sm text-slate-700 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-full">
-                        <option value="all">Semua Layanan (Global)</option>
-                        <option value="travel">Hanya Travel Regular</option>
-                        <option value="charter">Hanya Carter Drop</option>
-                        <option value="package">Hanya Paket Ekspedisi</option>
-                    </select>
+            <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col gap-4">
+                <h5 class="text-[10px] font-black text-slate-800 uppercase tracking-widest">Target Layanan (Pilih Salah Satu)</h5>
+                <div class="flex flex-wrap gap-4 mt-2">
+                    <label class="flex items-center gap-2 cursor-pointer bg-white border border-slate-200 px-4 py-2 rounded-xl hover:border-primary">
+                        <input type="radio" name="target_service" value="travel" class="text-primary focus:ring-primary w-4 h-4" checked>
+                        <span class="text-xs font-bold text-slate-600">Travel Regular</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer bg-white border border-slate-200 px-4 py-2 rounded-xl hover:border-primary">
+                        <input type="radio" name="target_service" value="charter" class="text-primary focus:ring-primary w-4 h-4">
+                        <span class="text-xs font-bold text-slate-600">Carter Drop</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer bg-white border border-slate-200 px-4 py-2 rounded-xl hover:border-primary">
+                        <input type="radio" name="target_service" value="package" class="text-primary focus:ring-primary w-4 h-4">
+                        <span class="text-xs font-bold text-slate-600">Paket Ekspedisi</span>
+                    </label>
                 </div>
                 
-                <label class="flex items-center gap-3 cursor-pointer group mt-0 md:mt-8 bg-white border border-slate-200 p-3 rounded-xl hover:border-primary transition-colors">
-                    <input type="checkbox" id="is-active" name="is_active" class="w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary">
+                <label class="flex items-center gap-3 cursor-pointer group mt-4 bg-white border border-slate-200 p-3 rounded-xl hover:border-primary transition-colors w-max">
+                    <input type="checkbox" name="is_active" class="is-active-input w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary">
                     <span class="text-sm font-bold text-slate-600 group-hover:text-primary transition-colors">Tampilkan sebagai Promo Aktif</span>
                 </label>
             </div>
-        </div>
 
-        <div class="flex justify-end gap-3 pt-4 border-t border-slate-50">
-            <button type="button" id="delete-promo-btn" class="px-8 py-3 rounded-xl font-bold text-sm text-red-500 hover:bg-red-50 transition-all hidden">Hapus Promo</button>
-            <button type="reset" class="px-8 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-slate-600 transition-all">Reset</button>
-            <Button id="submit-promo-btn" type="submit" size="lg" class="px-12">Simpan & Sync Promo</Button>
+            <div class="flex justify-end gap-3 pt-4 border-t border-slate-50">
+                <button type="button" class="delete-promo-btn px-8 py-3 rounded-xl font-bold text-sm text-red-500 hover:bg-red-50 transition-all hidden">Hapus Promo</button>
+                <button type="reset" class="px-8 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-slate-600 transition-all">Reset</button>
+                <Button type="submit" size="lg" class="submit-promo-btn px-12">Simpan Promo Home</Button>
+            </div>
+        </form>
+    </div>
+
+    <!-- FORM PROMO LAYANAN -->
+    <div id="section-promo-service" class="flex flex-col gap-8 pt-8 border-t border-slate-100 hidden">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-sky-500/10 flex items-center justify-center text-sky-600">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+            </div>
+            <h3 class="text-lg font-black text-slate-800">Form Promosi Layanan (Multi-Apply)</h3>
         </div>
-    </form>
+        
+        <form id="promo-service-form" class="flex flex-col gap-8 promo-form" data-type="service">
+            <input type="hidden" class="promo-id" name="id" value="" />
+            <input type="hidden" name="promo_type" value="service" />
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="flex flex-col gap-5">
+                    <h4 class="text-[10px] font-black text-sky-500 uppercase tracking-widest flex items-center gap-2">
+                        <div class="w-1.5 h-1.5 rounded-full bg-sky-500"></div>
+                        Payload Utama Promo
+                    </h4>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <InputGroup label="Tagline Promo" class="tagline-input" name="tagline" placeholder="Contoh: Spesial Rute Bandung" required={true} />
+                        <InputGroup label="Kode Promo" class="promo-code-input" name="promo_code" placeholder="Contoh: BDO20" required={true} />
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-5">
+                    <h4 class="text-[10px] font-black text-amber-500 uppercase tracking-widest flex items-center gap-2">
+                        <div class="w-1.5 h-1.5 rounded-full bg-amber-500"></div>
+                        Besaran Diskon
+                    </h4>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <InputGroup label="Diskon (%)" class="discount-input" name="discount" type="number" placeholder="0" suffix="%" required={true} />
+                        <InputGroup label="Max Potongan" class="max-discount-input" name="max_discount" type="number" placeholder="0" suffix="Rp" required={true} />
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col gap-4">
+                <h5 class="text-[10px] font-black text-slate-800 uppercase tracking-widest">Target Layanan (Bisa Multi-Apply)</h5>
+                <div class="flex flex-wrap gap-4 mt-2">
+                    <label class="flex items-center gap-2 cursor-pointer bg-white border border-slate-200 px-4 py-2 rounded-xl hover:border-primary">
+                        <input type="checkbox" name="target_service_cb" value="travel" class="target-cb text-primary focus:ring-primary w-4 h-4 rounded">
+                        <span class="text-xs font-bold text-slate-600">Travel Regular</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer bg-white border border-slate-200 px-4 py-2 rounded-xl hover:border-primary">
+                        <input type="checkbox" name="target_service_cb" value="charter" class="target-cb text-primary focus:ring-primary w-4 h-4 rounded">
+                        <span class="text-xs font-bold text-slate-600">Carter Drop</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer bg-white border border-slate-200 px-4 py-2 rounded-xl hover:border-primary">
+                        <input type="checkbox" name="target_service_cb" value="package" class="target-cb text-primary focus:ring-primary w-4 h-4 rounded">
+                        <span class="text-xs font-bold text-slate-600">Paket Ekspedisi</span>
+                    </label>
+                </div>
+                
+                <label class="flex items-center gap-3 cursor-pointer group mt-4 bg-white border border-slate-200 p-3 rounded-xl hover:border-primary transition-colors w-max">
+                    <input type="checkbox" name="is_active" class="is-active-input w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary">
+                    <span class="text-sm font-bold text-slate-600 group-hover:text-primary transition-colors">Tampilkan sebagai Promo Aktif</span>
+                </label>
+            </div>
+
+            <div class="flex justify-end gap-3 pt-4 border-t border-slate-50">
+                <button type="button" class="delete-promo-btn px-8 py-3 rounded-xl font-bold text-sm text-red-500 hover:bg-red-50 transition-all hidden">Hapus Promo</button>
+                <button type="reset" class="px-8 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-slate-600 transition-all">Reset</button>
+                <Button type="submit" size="lg" class="submit-promo-btn px-12 bg-sky-600 hover:bg-sky-700">Simpan Promo Layanan</Button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Custom Alert Modal -->
+<div id="promo-alert-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm opacity-0 transition-opacity duration-300">
+    <div class="bg-white p-8 rounded-[2rem] max-w-sm w-full shadow-2xl scale-95 transition-transform duration-300" id="promo-alert-card">
+        <div class="flex flex-col items-center text-center gap-4">
+            <div id="promo-alert-icon" class="w-16 h-16 rounded-full flex items-center justify-center text-3xl"></div>
+            <h3 id="promo-alert-title" class="text-xl font-black text-slate-900"></h3>
+            <p id="promo-alert-message" class="text-sm text-slate-500 font-secondary"></p>
+            <button type="button" id="promo-alert-close" class="mt-4 w-full py-3 rounded-xl font-bold transition-all text-white"></button>
+        </div>
+    </div>
 </div>
 
 <script>
     import { adminContentService } from "@services/adminContentService";
 
     const setupPromoForm = () => {
-        const form = document.getElementById('promo-form') as HTMLFormElement;
-        const deleteBtn = document.getElementById('delete-promo-btn');
-        const submitBtn = document.getElementById('submit-promo-btn');
+        const homeSection = document.getElementById('section-promo-home');
+        const serviceSection = document.getElementById('section-promo-service');
+        const btnNewHome = document.getElementById('btn-new-promo-home');
+        const btnNewService = document.getElementById('btn-new-promo-service');
 
-        if (form) {
+        // Custom Alert Logic
+        const alertModal = document.getElementById('promo-alert-modal');
+        const alertCard = document.getElementById('promo-alert-card');
+        const alertIcon = document.getElementById('promo-alert-icon');
+        const alertTitle = document.getElementById('promo-alert-title');
+        const alertMessage = document.getElementById('promo-alert-message');
+        const alertClose = document.getElementById('promo-alert-close');
+        
+        let onAlertCloseCallback: (() => void) | null = null;
+
+        const showAlert = (type: 'success' | 'error', title: string, message: string, cb?: () => void) => {
+            if(!alertModal || !alertIcon || !alertTitle || !alertMessage || !alertClose) return;
+            
+            if(type === 'success') {
+                alertIcon.className = "w-16 h-16 rounded-full flex items-center justify-center text-3xl bg-green-100 text-green-500";
+                alertIcon.innerHTML = "✓";
+                alertClose.className = "mt-4 w-full py-3 rounded-xl font-bold transition-all text-white bg-green-500 hover:bg-green-600";
+                alertClose.textContent = "Selesai";
+            } else {
+                alertIcon.className = "w-16 h-16 rounded-full flex items-center justify-center text-3xl bg-red-100 text-red-500";
+                alertIcon.innerHTML = "✕";
+                alertClose.className = "mt-4 w-full py-3 rounded-xl font-bold transition-all text-white bg-red-500 hover:bg-red-600";
+                alertClose.textContent = "Tutup";
+            }
+            
+            alertTitle.textContent = title;
+            alertMessage.textContent = message;
+            onAlertCloseCallback = cb || null;
+            
+            alertModal.classList.remove('hidden');
+            // trigger reflow
+            void alertModal.offsetWidth;
+            alertModal.classList.remove('opacity-0');
+            alertCard?.classList.remove('scale-95');
+        };
+
+        if(alertClose) {
+            alertClose.addEventListener('click', () => {
+                alertModal?.classList.add('opacity-0');
+                alertCard?.classList.add('scale-95');
+                setTimeout(() => {
+                    alertModal?.classList.add('hidden');
+                    if(onAlertCloseCallback) onAlertCloseCallback();
+                }, 300);
+            });
+        }
+
+        // Toggle Views
+        if(btnNewHome && btnNewService) {
+            btnNewHome.addEventListener('click', () => {
+                homeSection?.classList.remove('hidden');
+                serviceSection?.classList.add('hidden');
+                (document.getElementById('promo-home-form') as HTMLFormElement)?.reset();
+                document.querySelector('#promo-home-form .promo-id')!.value = '';
+                document.querySelector('#promo-home-form .delete-promo-btn')?.classList.add('hidden');
+            });
+            btnNewService.addEventListener('click', () => {
+                serviceSection?.classList.remove('hidden');
+                homeSection?.classList.add('hidden');
+                (document.getElementById('promo-service-form') as HTMLFormElement)?.reset();
+                document.querySelector('#promo-service-form .promo-id')!.value = '';
+                document.querySelector('#promo-service-form .delete-promo-btn')?.classList.add('hidden');
+            });
+        }
+
+        // Handle Submits
+        const forms = document.querySelectorAll('.promo-form');
+        forms.forEach(form => {
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const formData = new FormData(form);
+                const f = e.target as HTMLFormElement;
+                const type = f.getAttribute('data-type');
+                const submitBtn = f.querySelector('.submit-promo-btn');
                 
-                // Construct standard object or keep as FormData based on whether image is present
-                const fileInput = form.querySelector('input[type="file"]') as HTMLInputElement;
+                const formData = new FormData(f);
+                
+                // Get targets
+                if (type === 'service') {
+                    const checkedCbs = Array.from(f.querySelectorAll('.target-cb:checked')) as HTMLInputElement[];
+                    if(checkedCbs.length === 0) {
+                        showAlert('error', 'Validasi Gagal', "Harap pilih minimal 1 target layanan!");
+                        return;
+                    }
+                    const combinedTarget = checkedCbs.map(cb => cb.value).join(',');
+                    formData.set('target_service', combinedTarget);
+                }
+
+                const fileInput = f.querySelector('input[type="file"]') as HTMLInputElement;
                 const hasFile = fileInput && fileInput.files && fileInput.files.length > 0;
 
                 try {
                     if (submitBtn) {
-                        const originalText = submitBtn.textContent;
                         submitBtn.textContent = "Menyimpan...";
                         submitBtn.setAttribute('disabled', 'true');
                     }
 
                     if (hasFile) {
-                        // Send as Multipart
-                        formData.set('is_active', form.querySelector('input[name="is_active"]:checked') ? 'true' : 'false');
+                        formData.set('is_active', f.querySelector('input[name="is_active"]:checked') ? 'true' : 'false');
                         await adminContentService.savePromotion(formData);
                     } else {
-                        // Send as JSON
                         const jsonPayload = {
                             id: formData.get('id'),
                             tagline: formData.get('tagline'),
@@ -122,101 +303,115 @@ import Button from "@ui/Button.astro";
                             discount: formData.get('discount'),
                             max_discount: formData.get('max_discount'),
                             promo_code: formData.get('promo_code'),
+                            promo_type: formData.get('promo_type'),
                             target_service: formData.get('target_service'),
-                            is_active: form.querySelector('input[name="is_active"]:checked') ? true : false
+                            is_active: f.querySelector('input[name="is_active"]:checked') ? true : false
                         };
                         await adminContentService.savePromotion(jsonPayload);
                     }
 
-                    alert("Promo berhasil disimpan dan disinkronisasi!");
-                    window.location.reload();
+                    showAlert('success', 'Berhasil', `Promo ${type} berhasil disimpan!`, () => {
+                        window.location.reload();
+                    });
                 } catch (error: any) {
-                    alert(error.message || "Gagal menyimpan promo");
+                    showAlert('error', 'Gagal', error.message || "Gagal menyimpan promo");
                 } finally {
                     if (submitBtn) {
-                        submitBtn.textContent = "Simpan & Sync Promo";
+                        submitBtn.textContent = type === 'home' ? "Simpan Promo Home" : "Simpan Promo Layanan";
                         submitBtn.removeAttribute('disabled');
                     }
                 }
             });
-        }
+        });
 
-        if (deleteBtn) {
-            deleteBtn.addEventListener('click', async () => {
-                const id = document.getElementById('promo-id') as HTMLInputElement;
-                if (id && id.value && confirm("Yakin ingin menghapus promo ini secara permanen?")) {
-                    try {
-                        const originalText = deleteBtn.textContent;
-                        deleteBtn.textContent = "Menghapus...";
-                        await adminContentService.deletePromotion(id.value);
-                        alert("Promo berhasil dihapus!");
-                        window.location.reload();
-                    } catch (error: any) {
-                        alert(error.message || "Gagal menghapus promo");
-                        deleteBtn.textContent = "Hapus Promo";
+        // Handle Deletes
+        const deleteBtns = document.querySelectorAll('.delete-promo-btn');
+        deleteBtns.forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const f = (e.target as HTMLElement).closest('form') as HTMLFormElement;
+                const id = f.querySelector('.promo-id') as HTMLInputElement;
+                if (id && id.value) {
+                    // Custom confirm via showAlert is tricky because it's not a promise, using window.confirm for now or we can implement confirm modal later. The prompt asked for alert card when save promo is clicked. I'll just keep window.confirm for delete.
+                    if (confirm("Yakin ingin menghapus promo ini secara permanen?")) {
+                        try {
+                            const originalText = btn.textContent;
+                            btn.textContent = "Menghapus...";
+                            await adminContentService.deletePromotion(id.value);
+                            showAlert('success', 'Berhasil', 'Promo berhasil dihapus!', () => {
+                                window.location.reload();
+                            });
+                        } catch (error: any) {
+                            showAlert('error', 'Gagal', error.message || "Gagal menghapus promo");
+                            btn.textContent = "Hapus Promo";
+                        }
                     }
                 }
             });
-        }
+        });
 
-        // Handle Populate Form when Edit is clicked
+        // Handle Edit Populate
         const editButtons = document.querySelectorAll('.edit-promo-btn');
         editButtons.forEach(btn => {
             btn.addEventListener('click', () => {
                 const data = JSON.parse(btn.getAttribute('data-promo') || '{}');
+                const isHome = data.promo_type !== 'service'; // fallback home
                 
-                // Populate fields
-                (document.getElementById('promo-id') as HTMLInputElement).value = data.id || '';
-                (document.getElementById('tagline') as HTMLInputElement).value = data.tagline || '';
-                (document.getElementById('description') as HTMLInputElement).value = data.description || '';
-                (document.getElementById('discount') as HTMLInputElement).value = data.discount || '';
-                (document.getElementById('max_discount') as HTMLInputElement).value = data.max_discount || '';
-                (document.getElementById('promo_code') as HTMLInputElement).value = data.promo_code || '';
-                (document.getElementById('target_service') as HTMLSelectElement).value = data.target_service || 'all';
-                (document.getElementById('is-active') as HTMLInputElement).checked = data.isActive === true || data.is_active === true;
+                const f = isHome 
+                    ? document.getElementById('promo-home-form') as HTMLFormElement
+                    : document.getElementById('promo-service-form') as HTMLFormElement;
+
+                // Show correct section
+                if(isHome) {
+                    homeSection?.classList.remove('hidden');
+                    serviceSection?.classList.add('hidden');
+                } else {
+                    serviceSection?.classList.remove('hidden');
+                    homeSection?.classList.add('hidden');
+                }
+
+                // Populate
+                (f.querySelector('.promo-id') as HTMLInputElement).value = data.id || '';
+                (f.querySelector('.tagline-input') as HTMLInputElement).value = data.tagline || '';
                 
-                // Show delete button
-                if (deleteBtn) deleteBtn.classList.remove('hidden');
+                if(isHome) {
+                    (f.querySelector('.description-input') as HTMLInputElement).value = data.description || '';
+                    
+                    // Single radio
+                    const radio = f.querySelector(`input[type="radio"][value="${data.target_service}"]`) as HTMLInputElement;
+                    if(radio) radio.checked = true;
+                } else {
+                    // Multi checkbox
+                    const targets = (data.target_service || '').split(',');
+                    const checkboxes = f.querySelectorAll('.target-cb') as NodeListOf<HTMLInputElement>;
+                    checkboxes.forEach(cb => {
+                        cb.checked = targets.includes(cb.value);
+                    });
+                }
+
+                (f.querySelector('.discount-input') as HTMLInputElement).value = data.discount || '';
+                (f.querySelector('.max-discount-input') as HTMLInputElement).value = data.max_discount || '';
+                (f.querySelector('.promo-code-input') as HTMLInputElement).value = data.promo_code || '';
+                (f.querySelector('.is-active-input') as HTMLInputElement).checked = data.isActive === true || data.is_active === true;
                 
-                // Scroll to form
-                form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                f.querySelector('.delete-promo-btn')?.classList.remove('hidden');
+                f.scrollIntoView({ behavior: 'smooth', block: 'start' });
             });
         });
 
-        // Handle Buat Promo Baru
-        const newPromoBtn = document.getElementById('btn-new-promo');
-        if (newPromoBtn) {
-            newPromoBtn.addEventListener('click', () => {
-                form.reset();
-                (document.getElementById('promo-id') as HTMLInputElement).value = '';
-                if (deleteBtn) deleteBtn.classList.add('hidden');
-                
-                // Reset text file name
-                const uploadText = form.querySelector('.image-upload-text');
-                if (uploadText) {
-                    uploadText.textContent = "Pilih Gambar / Drag & Drop";
-                    uploadText.classList.remove('text-primary');
-                }
-                
-                form.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            });
-        }
-
-        // UI/UX Update Image Name
-        const imageInput = form.querySelector('.image-upload-input') as HTMLInputElement;
-        const uploadText = form.querySelector('.image-upload-text');
-        if (imageInput && uploadText) {
-            imageInput.addEventListener('change', (e) => {
+        // Image upload UI
+        document.querySelectorAll('.image-upload-input').forEach(input => {
+            input.addEventListener('change', (e) => {
                 const target = e.target as HTMLInputElement;
-                if (target.files && target.files.length > 0) {
+                const uploadText = target.parentElement?.querySelector('.image-upload-text');
+                if (target.files && target.files.length > 0 && uploadText) {
                     uploadText.textContent = target.files[0].name;
                     uploadText.classList.add('text-primary');
-                } else {
+                } else if(uploadText) {
                     uploadText.textContent = "Pilih Gambar / Drag & Drop";
                     uploadText.classList.remove('text-primary');
                 }
             });
-        }
+        });
     };
 
     setupPromoForm();
