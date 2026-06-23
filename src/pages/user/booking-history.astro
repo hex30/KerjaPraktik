@@ -6,7 +6,8 @@ import PaymentPopup from '@features/user/PaymentPopup.astro';
 import { userService } from '@services/userService';
 
 // Terapkan AuthGuard & ambil data secara SSR
-const orderHistory = await userService.getUserHistory();
+const token = Astro.cookies.get('token')?.value || '';
+const orderHistory = await userService.getUserHistory(token);
 
 ---
 
@@ -75,13 +76,17 @@ const orderHistory = await userService.getUserHistory();
             // Perbaiki host backend
             const beHost = import.meta.env.PUBLIC_API_URL || 'http://localhost:5000';
             
+            // Ambil kode promo jika ada
+            const promoInput = document.getElementById(`promo-${orderId}`) as HTMLInputElement;
+            const promoCode = promoInput ? promoInput.value.trim() : "";
+
             const res = await fetch(`${beHost}${endpoint}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     ...(token && { 'Authorization': `Bearer ${token}` })
                 },
-                body: JSON.stringify({ payment_method: method })
+                body: JSON.stringify({ payment_method: method, promo_code: promoCode })
             });
 
             if (res.ok) {

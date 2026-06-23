@@ -141,17 +141,12 @@ const qrisImageUrl = "https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=
                         submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                     }
 
-                    // FAKE UPLOAD (Karna BE mungkin tidak punya endpoint S3 / Multer, 
-                    // atau tidak didokumentasikan di To Do. Kita akan inject dummy URL ke endpoint)
-                    const fakeFileUrl = "https://example.com/receipt-" + Date.now() + ".jpg";
+                    // Buat FormData untuk mengirim file
+                    const formData = new FormData();
+                    formData.append('payment_proof', fileInput.files[0]);
 
-                    const token = localStorage.getItem('jwt_token') || localStorage.getItem('token');
+                    const token = localStorage.getItem('jwt_token') || document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
                     if (!token) throw new Error("Sesi telah habis, silakan login ulang");
-
-                    const headers = {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    };
 
                     const orderId = idInput.value;
                     const orderType = typeInput.value;
@@ -166,15 +161,19 @@ const qrisImageUrl = "https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=
                         endpoint = `/api/packages/shipments/${orderId}/payment-proof`;
                     }
 
-                    const body = JSON.stringify({
-                        payment_proof_url: fakeFileUrl
+                    const beHost = import.meta.env.PUBLIC_API_URL || 'http://localhost:5000';
+                    const res = await fetch(`${beHost}${endpoint}`, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: formData
                     });
 
-                    await apiFetch(endpoint, {
-                        method: 'PUT',
-                        headers,
-                        body
-                    });
+                    if (!res.ok) {
+                        const errData = await res.json();
+                        throw new Error(errData.message || 'Gagal mengunggah bukti');
+                    }
 
                     alert('Bukti pembayaran berhasil diunggah! Menunggu konfirmasi admin.');
                     window.location.reload();

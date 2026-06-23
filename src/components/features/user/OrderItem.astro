@@ -104,6 +104,9 @@ const formattedPrice = new Intl.NumberFormat('id-ID', { style: 'currency', curre
                     <span class="block text-[9px] font-bold text-sky-700 uppercase tracking-wide">Transfer (QRIS)</span>
                 </button>
             </div>
+            <div class="w-full mt-2 relative">
+                <input type="text" id={`promo-${order.id}`} placeholder="Punya kode promo?" class="w-full text-xs font-secondary bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-600 uppercase focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary placeholder-slate-400" />
+            </div>
         )}
 
         {showQrisButton && (

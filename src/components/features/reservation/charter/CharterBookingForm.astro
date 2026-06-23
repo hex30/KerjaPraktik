@@ -524,11 +524,15 @@ try {
                     // dokumentasi: Mengirim data booking charter ke Backend API
                     await charterService.createCharterRequest(payload);
 
-                    alert("Booking Charter Berhasil Diajukan! Tim admin kami akan mereview pesanan Anda.");
-                    window.location.href = "/user/booking-history";
+                    (window as any).showFeedbackModal(
+                        'success', 
+                        'Pemesanan Berhasil', 
+                        'Booking Charter Berhasil Diajukan! Tim admin kami akan mereview pesanan Anda.',
+                        '/user/booking-history'
+                    );
                 } catch (error) {
                     console.error("Submit Charter Error:", error);
-                    alert("Gagal memproses pesanan Charter. Server sedang gangguan atau tidak terhubung.");
+                    (window as any).showFeedbackModal('error', 'Pemesanan Gagal', 'Gagal memproses pesanan Charter. Server sedang gangguan atau tidak terhubung.');
                     if (submitBtn) {
                         submitBtn.disabled = false;
                         submitBtn.textContent = "Coba Lagi";

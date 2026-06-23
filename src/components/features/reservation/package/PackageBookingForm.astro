@@ -331,11 +331,16 @@ import AlertCard from "@components/ui/AlertCard.astro";
                 // dokumentasi: Mengirim payload pengiriman paket ke API Backend
                 await packageService.createPackageShipment(payload);
 
-                alert(`Pesanan paket berhasil dicatat. ${isDouble ? 'Biaya tambahan (2 kursi) berlaku.' : ''}`);
-                window.location.href = "/user/booking-history";
+                (window as any).showFeedbackModal(
+                    'success', 
+                    'Pesanan Paket Berhasil', 
+                    `Pesanan paket berhasil dicatat. ${isDouble ? 'Biaya tambahan (2 kursi) berlaku.' : ''}`,
+                    '/user/booking-history'
+                );
             } catch (error) {
                 console.error("Submit Package Error:", error);
-                alert("Gagal memproses pesanan pengiriman paket. Silakan coba lagi.");
+                (window as any).showFeedbackModal('error', 'Pesanan Gagal', 'Gagal mengirim pesanan paket. Server sedang gangguan.');
+            } finally {
                 if (submitBtn) {
                     submitBtn.disabled = false;
                     submitBtn.textContent = "Pesan Pengiriman Sekarang";

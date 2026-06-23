@@ -17,11 +17,12 @@ try {
      
      // Parsing persentase diskon menjadi bilangan bulat (misal: 20.00 menjadi 20)
      const discountValue = Math.round(parseFloat(p.discount || p.discount_percentage || 0));
+     const diskonText = discountValue > 0 ? `${discountValue}% OFF` : `Diskon Rp ${Math.round(parseFloat(p.max_discount || 0))}`;
 
      promoData = {
         image: p.image_url || p.image || "",
-        tagline: p.tagline || p.title || "",
-        diskon: `${discountValue}% OFF`
+        tagline: p.promo_code ? `${p.tagline || p.title || "Promo Spesial"} (Kode: ${p.promo_code})` : (p.tagline || p.title || ""),
+        diskon: diskonText
      };
   }
 } catch (e) {

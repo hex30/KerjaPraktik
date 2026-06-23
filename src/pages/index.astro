@@ -52,24 +52,24 @@ try {
      const p = promoRes.data[0];
      
      // Memecah tagline menjadi 3 baris sesuai instruksi desain awal
-     const words = (p.tagline || p.title || "").split(" ");
-     const textRow1 = words.length > 0 ? words[0] : "";
-     const textRow2 = words.length > 1 ? words[1] : "";
-     const textRow3 = words.length > 2 ? words.slice(2).join(" ") : "";
+     const words = (p.tagline || p.title || "Promo Menarik Hari Ini").split(" ");
+     const textRow1 = words.length > 0 ? words[0] : "Promo";
+     const textRow2 = words.length > 1 ? words[1] : "Spesial";
+     const textRow3 = words.length > 2 ? words.slice(2).join(" ") : "Rini Trans";
 
      // Parsing persentase diskon menjadi bilangan bulat (misal: 20.00 menjadi 20)
      const discountValue = Math.round(parseFloat(p.discount || p.discount_percentage || 0));
 
      promoData = {
-        image: p.image_url || p.image || "",
-        discount: `${discountValue}% OFF`,
-        noteTitle: p.title || "",
-        noteDesc: p.subtitle || "",
+        image: p.image_url || p.image || "/images/dummy-promo.jpg",
+        discount: discountValue > 0 ? `${discountValue}% OFF` : `Diskon Rp ${Math.round(parseFloat(p.max_discount || 0))}`,
+        noteTitle: p.badge_label || "INFO PROMO",
+        noteDesc: p.promo_code ? `Gunakan Kode: ${p.promo_code}` : (p.subtitle || "Berlaku Syarat & Ketentuan"),
         textRow1: textRow1,
-        textDesc1: p.description || "",
+        textDesc1: p.description || "Jangan lewatkan penawaran spesial ini khusus untuk Anda.",
         textRow2: textRow2,
         textRow3: textRow3,
-        textDesc2: "Syarat dan ketentuan berlaku.",
+        textDesc2: p.target_service !== 'all' ? `*Khusus layanan ${p.target_service}` : "Syarat dan ketentuan berlaku.",
         btnLink: "/services",
         btnText: "Pesan Sekarang"
      };

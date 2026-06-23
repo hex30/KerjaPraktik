@@ -1,0 +1,138 @@
+---
+// File: src/pages/admin/bookings/route.astro
+import AdminLayout from "@layouts/AdminLayout.astro";
+import BookingTable from "@features/admin/bookings/BookingTable.astro";
+import { adminBookingService } from "@services/adminBookingService";
+
+const token = Astro.cookies.get('token')?.value;
+
+const [ruteData, rawFleets, driversData] = await Promise.all([
+    adminBookingService.getTravelBookings(token),
+    adminBookingService.getMasterFleets(token),
+    adminBookingService.getMasterDrivers(token)
+]);
+
+const fleetsData = rawFleets
+    .filter(f => f.car_type?.toLowerCase().includes('elf') || f.car_type?.toLowerCase().includes('luxio'))
+    .sort((a, b) => {
+        const aType = a.car_type?.toLowerCase() || '';
+        const bType = b.car_type?.toLowerCase() || '';
+        if (aType.includes('elf') && !bType.includes('elf')) return -1;
+        if (!aType.includes('elf') && bType.includes('elf')) return 1;
+        return 0;
+    });
+
+// Categorize Data
+const activeBookings = ruteData.filter((item: any) => !['selesai', 'selesai_final', 'completed', 'dibatalkan', 'ditolak', 'cancelled'].includes(item.booking_status?.toLowerCase()));
+const completedBookings = ruteData.filter((item: any) => ['selesai', 'selesai_final', 'completed'].includes(item.booking_status?.toLowerCase()));
+const cancelledBookings = ruteData.filter((item: any) => ['dibatalkan', 'ditolak', 'cancelled'].includes(item.booking_status?.toLowerCase()));
+
+---
+
+<AdminLayout title="Perjalanan Rute">
+    <section class="mb-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-2xl font-black text-slate-900 tracking-tight">Data Perjalanan Rute</h2>
+                <p class="text-sm text-slate-500 font-secondary mt-1">Kelola pemesanan tiket antar kota rutin.</p>
+            </div>
+            <div class="bg-white border border-slate-100 rounded-lg px-3 py-1.5 text-[10px] font-bold text-slate-400 shadow-sm">
+                TOTAL: {ruteData.length} Antrean
+            </div>
+        </div>
+    </section>
+
+    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+        <!-- Tabs Header -->
+        <div class="flex border-b border-slate-100 bg-slate-50/50 p-2 gap-2 overflow-x-auto scrollbar-hide">
+            <button class="tab-btn active px-6 py-3 rounded-2xl text-sm font-bold transition-all whitespace-nowrap bg-white text-primary shadow-sm border border-slate-100" data-target="tab-active">
+                Antrean Aktif
+                <span class="ml-2 px-2 py-0.5 bg-amber-100 text-amber-600 rounded-full text-[10px]">{activeBookings.length}</span>
+            </button>
+            <button class="tab-btn px-6 py-3 rounded-2xl text-sm font-bold text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-all whitespace-nowrap" data-target="tab-completed">
+                Antrean Selesai
+                <span class="ml-2 px-2 py-0.5 bg-slate-200 text-slate-600 rounded-full text-[10px]">{completedBookings.length}</span>
+            </button>
+            <button class="tab-btn px-6 py-3 rounded-2xl text-sm font-bold text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-all whitespace-nowrap" data-target="tab-cancelled">
+                Pesanan Dibatalkan
+                <span class="ml-2 px-2 py-0.5 bg-slate-200 text-slate-600 rounded-full text-[10px]">{cancelledBookings.length}</span>
+            </button>
+        </div>
+
+        <!-- Tabs Content -->
+        <div class="p-6 md:p-8">
+            <div id="tab-active" class="tab-content">
+                {activeBookings.length === 0 ? (
+                    <div class="text-center py-12">
+                        <p class="text-slate-400 font-bold text-sm">Tidak ada antrean rute aktif saat ini.</p>
+                    </div>
+                ) : (
+                    <BookingTable bookingType="RUTE" bookingData={activeBookings} fleets={fleetsData} drivers={driversData} />
+                )}
+            </div>
+
+            <div id="tab-completed" class="tab-content hidden">
+                {completedBookings.length === 0 ? (
+                    <div class="text-center py-12">
+                        <p class="text-slate-400 font-bold text-sm">Belum ada rute selesai.</p>
+                    </div>
+                ) : (
+                    <BookingTable bookingType="RUTE" bookingData={completedBookings} fleets={fleetsData} drivers={driversData} />
+                )}
+            </div>
+
+            <div id="tab-cancelled" class="tab-content hidden">
+                {cancelledBookings.length === 0 ? (
+                    <div class="text-center py-12">
+                        <p class="text-slate-400 font-bold text-sm">Belum ada pesanan dibatalkan.</p>
+                    </div>
+                ) : (
+                    <BookingTable bookingType="RUTE" bookingData={cancelledBookings} fleets={fleetsData} drivers={driversData} />
+                )}
+            </div>
+        </div>
+    </div>
+</AdminLayout>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const setupTabs = () => {
+            const btns = document.querySelectorAll('.tab-btn');
+            const contents = document.querySelectorAll('.tab-content');
+
+            btns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const target = btn.getAttribute('data-target');
+
+                    // Reset all
+                    btns.forEach(b => {
+                        b.classList.remove('active', 'bg-white', 'text-primary', 'shadow-sm', 'border', 'border-slate-100');
+                        b.classList.add('text-slate-500', 'hover:bg-slate-100', 'hover:text-slate-700');
+                        const badge = b.querySelector('span');
+                        if(badge) {
+                            badge.classList.remove('bg-amber-100', 'text-amber-600');
+                            badge.classList.add('bg-slate-200', 'text-slate-600');
+                        }
+                    });
+
+                    contents.forEach(c => c.classList.add('hidden'));
+
+                    // Set active
+                    btn.classList.add('active', 'bg-white', 'text-primary', 'shadow-sm', 'border', 'border-slate-100');
+                    btn.classList.remove('text-slate-500', 'hover:bg-slate-100', 'hover:text-slate-700');
+                    const badge = btn.querySelector('span');
+                    if(badge) {
+                        badge.classList.add('bg-amber-100', 'text-amber-600');
+                        badge.classList.remove('bg-slate-200', 'text-slate-600');
+                    }
+
+                    const targetContent = document.getElementById(target as string);
+                    if (targetContent) targetContent.classList.remove('hidden');
+                });
+            });
+        };
+
+        setupTabs();
+        document.addEventListener('astro:page-load', setupTabs);
+    });
+</script>

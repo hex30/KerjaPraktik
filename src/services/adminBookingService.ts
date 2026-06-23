@@ -74,12 +74,28 @@ export interface PackageShipmentAdmin {
 // Fallback object to render cleanly if Backend sends flat strings instead of nested JSON.
 // Menerapkan Standard Professional FE: Kita menuntut BE mengirimkan struktur yang benar.
 const fallbackAddress = (): AddressDetail => ({
-    kecamatan: "DATA BE BELUM SESUAI",
+    kecamatan: "-",
     desa: "-",
     dusun: "-",
     rt_rw: "-",
     patokan: "-"
 });
+
+const parseAddressDetail = (data: any): AddressDetail => {
+    if (!data) return fallbackAddress();
+    if (typeof data === 'string') {
+        try {
+            return JSON.parse(data);
+        } catch (e) {
+            // If it's a regular string, just put it in patokan
+            return {
+                ...fallbackAddress(),
+                patokan: data
+            };
+        }
+    }
+    return data as AddressDetail;
+};
 
 export const adminBookingService = {
     async getTravelBookings(token?: string): Promise<TravelBookingAdmin[]> {
@@ -96,8 +112,8 @@ export const adminBookingService = {
                     name: item.customer_name || 'Tanpa Nama',
                     phone: item.customer_phone || '-',
                     // Standard FE: Menuntut objek address_detail riil dari BE
-                    address_detail: item.address_detail || fallbackAddress(),
-                    destination_detail: item.destination_detail || fallbackAddress(),
+                    address_detail: parseAddressDetail(item.address_detail),
+                    destination_detail: parseAddressDetail(item.destination_detail),
                     seat_number: item.seat_number || '-',
                     luggage: item.luggage || '-'
                 },
@@ -130,8 +146,8 @@ export const adminBookingService = {
                 user: {
                     name: item.customer_name || 'Tanpa Nama',
                     phone: item.customer_phone || '-',
-                    address_detail: item.address_detail || fallbackAddress(),
-                    destination_detail: item.destination_detail || fallbackAddress(),
+                    address_detail: parseAddressDetail(item.address_detail),
+                    destination_detail: parseAddressDetail(item.destination_detail),
                     departure_date: item.start_date || '-',
                     return_date: item.end_date || '-'
                 },
@@ -164,12 +180,12 @@ export const adminBookingService = {
                 sender: {
                     name: item.sender_name || 'Tanpa Nama',
                     phone: item.sender_phone || '-',
-                    address_detail: item.sender_address_detail || fallbackAddress()
+                    address_detail: parseAddressDetail(item.sender_address_detail)
                 },
                 receiver: {
                     name: item.receiver_name || 'Tanpa Nama',
                     phone: item.receiver_phone || '-',
-                    address_detail: item.receiver_address_detail || fallbackAddress()
+                    address_detail: parseAddressDetail(item.receiver_address_detail)
                 },
                 origin: item.origin || 'N/A',
                 destination: item.destination || 'N/A',

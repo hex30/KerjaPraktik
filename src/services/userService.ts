@@ -12,13 +12,16 @@ export interface UnifiedOrder {
 
 export const userService = {
   // dokumentasi: Mengambil riwayat dari ketiga layanan sekaligus secara paralel
-  async getUserHistory(): Promise<UnifiedOrder[]> {
+  async getUserHistory(token?: string): Promise<UnifiedOrder[]> {
     try {
+      const headers: HeadersInit = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+
       // 1. Fetching paralel agar performa halaman lebih cepat
       const [travelRes, charterRes, packageRes] = await Promise.allSettled([
-        apiFetch('/api/travel/history', { method: 'GET' }),
-        apiFetch('/api/charter/history', { method: 'GET' }),
-        apiFetch('/api/packages/history', { method: 'GET' })
+        apiFetch('/api/travel/history', { method: 'GET', headers }),
+        apiFetch('/api/charter/history', { method: 'GET', headers }),
+        apiFetch('/api/packages/history', { method: 'GET', headers })
       ]);
 
       const mergedHistory: UnifiedOrder[] = [];
@@ -31,8 +34,8 @@ export const userService = {
             type: 'travel',
             title: `Perjalanan Rute: ${item.route_name || 'Reguler'}`,
             date: item.departure_date || item.created_at || new Date().toISOString(),
-            price: item.total_price || 0,
-            status: item.status || 'PENDING',
+            price: item.price || item.total_price || 0,
+            status: item.booking_status || item.status || 'PENDING',
             meta: {
               seat_number: item.seat_number,
               payment_method: item.payment_method,
@@ -71,8 +74,8 @@ export const userService = {
             type: 'package',
             title: `Pengiriman Paket`,
             date: item.created_at || new Date().toISOString(),
-            price: item.total_price || 0,
-            status: item.status || 'PENDING',
+            price: item.total_price || item.price || 0,
+            status: item.transaction_status || item.status || 'PENDING',
             meta: {
               waybill_number: item.waybill_number,
               weight: item.weight,

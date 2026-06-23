@@ -1,21 +1,16 @@
 ---
 // File: src/pages/admin/packages.astro
 import AdminLayout from "@layouts/AdminLayout.astro";
-import AdminBadge from "@ui/AdminBadge.astro";
 import PackageRow from "@features/admin/bookings/PackageRow.astro";
-import PaymentPreviewModal from "@features/admin/bookings/PaymentPreviewModal.astro";
 import { adminBookingService } from "@services/adminBookingService";
 
-// Baca token dari cookies saat mode SSR
 const token = Astro.cookies.get('token')?.value;
 
-// Fetch data paket dan armada dari Backend via SSR
 const [packageData, rawFleets] = await Promise.all([
     adminBookingService.getPackageShipments(token),
     adminBookingService.getMasterFleets(token)
 ]);
 
-// Filter fleet (Elf pertama, lalu Luxio) dan mapping data
 const fleetsData = rawFleets
     .filter(f => f.type?.toLowerCase().includes('elf') || f.type?.toLowerCase().includes('luxio'))
     .sort((a, b) => {
@@ -26,33 +21,49 @@ const fleetsData = rawFleets
         return 0;
     });
 
-// PISAHKAN DATA BERDASARKAN KATEGORI
+// Categorize Data
 const activePackages = packageData.filter((item: any) => !['selesai', 'selesai_final', 'completed', 'dibatalkan', 'ditolak', 'cancelled'].includes(item.transaction_status?.toLowerCase()));
 const completedPackages = packageData.filter((item: any) => ['selesai', 'selesai_final', 'completed'].includes(item.transaction_status?.toLowerCase()));
 const cancelledPackages = packageData.filter((item: any) => ['dibatalkan', 'ditolak', 'cancelled'].includes(item.transaction_status?.toLowerCase()));
+
 ---
 
 <AdminLayout title="Manajemen Paket">
-    <section>
-        <div class="flex items-center justify-between mb-8">
+    <section class="mb-8">
+        <div class="flex items-center justify-between">
             <div>
                 <h2 class="text-2xl font-black text-slate-900 tracking-tight">Data Penitipan Paket</h2>
                 <p class="text-sm text-slate-500 font-secondary mt-1">Kelola daftar kiriman barang kilat dari pelanggan.</p>
             </div>
+            <div class="bg-white border border-slate-100 rounded-lg px-3 py-1.5 text-[10px] font-bold text-slate-400 shadow-sm">
+                TOTAL: {packageData.length} Antrean
+            </div>
+        </div>
+    </section>
+
+    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+        <!-- Tabs Header -->
+        <div class="flex border-b border-slate-100 bg-slate-50/50 p-2 gap-2 overflow-x-auto scrollbar-hide">
+            <button class="tab-btn active px-6 py-3 rounded-2xl text-sm font-bold transition-all whitespace-nowrap bg-white text-primary shadow-sm border border-slate-100" data-target="tab-active">
+                Antrean Aktif
+                <span class="ml-2 px-2 py-0.5 bg-amber-100 text-amber-600 rounded-full text-[10px]">{activePackages.length}</span>
+            </button>
+            <button class="tab-btn px-6 py-3 rounded-2xl text-sm font-bold text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-all whitespace-nowrap" data-target="tab-completed">
+                Antrean Selesai
+                <span class="ml-2 px-2 py-0.5 bg-slate-200 text-slate-600 rounded-full text-[10px]">{completedPackages.length}</span>
+            </button>
+            <button class="tab-btn px-6 py-3 rounded-2xl text-sm font-bold text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-all whitespace-nowrap" data-target="tab-cancelled">
+                Pesanan Dibatalkan
+                <span class="ml-2 px-2 py-0.5 bg-slate-200 text-slate-600 rounded-full text-[10px]">{cancelledPackages.length}</span>
+            </button>
         </div>
 
-        <div class="flex flex-col gap-12 package-container">
-            
-            <!-- BAGIAN 1: ANTREAN AKTIF -->
-            <div>
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-xl font-black text-slate-800 tracking-tight">Antrean Aktif</h3>
-                    <span class="px-3 py-1 bg-primary/10 text-primary font-bold text-[10px] rounded-full">{activePackages.length} Paket</span>
-                </div>
-                
+        <!-- Tabs Content -->
+        <div class="p-6 md:p-8">
+            <div id="tab-active" class="tab-content">
                 {activePackages.length === 0 ? (
-                    <div class="bg-white border border-slate-100 rounded-3xl p-12 text-center shadow-sm">
-                        <p class="text-slate-400 font-bold text-sm">Tidak ada paket aktif saat ini.</p>
+                    <div class="text-center py-12">
+                        <p class="text-slate-400 font-bold text-sm">Tidak ada antrean paket aktif saat ini.</p>
                     </div>
                 ) : (
                     <div class="flex flex-col">
@@ -63,77 +74,73 @@ const cancelledPackages = packageData.filter((item: any) => ['dibatalkan', 'dito
                 )}
             </div>
 
-            <!-- BAGIAN 2: PAKET SELESAI -->
-            <div>
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-xl font-black text-slate-800 tracking-tight flex items-center gap-2">
-                        <span class="w-3 h-3 rounded-full bg-emerald-500 block"></span>
-                        Paket Selesai
-                    </h3>
-                    <span class="px-3 py-1 bg-emerald-50 text-emerald-600 font-bold text-[10px] rounded-full">{completedPackages.length} Riwayat</span>
-                </div>
-
+            <div id="tab-completed" class="tab-content hidden">
                 {completedPackages.length === 0 ? (
-                    <div class="bg-white border border-slate-100 rounded-3xl p-12 text-center shadow-sm">
-                        <p class="text-slate-400 font-bold text-sm">Belum ada riwayat pengiriman selesai.</p>
+                    <div class="text-center py-12">
+                        <p class="text-slate-400 font-bold text-sm">Belum ada paket selesai.</p>
                     </div>
                 ) : (
                     <div class="flex flex-col">
-                        {completedPackages.slice(0, 3).map((pkg: any) => (
+                        {completedPackages.map((pkg: any) => (
                             <PackageRow pkg={pkg} fleetsData={fleetsData} />
                         ))}
-                        
-                        {completedPackages.length > 3 && (
-                            <div class="mt-4">
-                                <a href="/admin/history/completed?type=PACKAGE" class="block w-full py-4 text-center bg-emerald-50 hover:bg-emerald-100 text-emerald-600 text-xs font-bold uppercase tracking-widest rounded-xl transition-colors">
-                                    Lihat Keseluruhan ({completedPackages.length} Data)
-                                </a>
-                            </div>
-                        )}
                     </div>
                 )}
             </div>
 
-            <!-- BAGIAN 3: PAKET DIBATALKAN -->
-            <div>
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-xl font-black text-slate-800 tracking-tight flex items-center gap-2">
-                        <span class="w-3 h-3 rounded-full bg-rose-500 block"></span>
-                        Paket Dibatalkan
-                    </h3>
-                    <span class="px-3 py-1 bg-rose-50 text-rose-600 font-bold text-[10px] rounded-full">{cancelledPackages.length} Riwayat</span>
-                </div>
-
+            <div id="tab-cancelled" class="tab-content hidden">
                 {cancelledPackages.length === 0 ? (
-                    <div class="bg-white border border-slate-100 rounded-3xl p-12 text-center shadow-sm">
-                        <p class="text-slate-400 font-bold text-sm">Belum ada riwayat paket dibatalkan.</p>
+                    <div class="text-center py-12">
+                        <p class="text-slate-400 font-bold text-sm">Belum ada pesanan dibatalkan.</p>
                     </div>
                 ) : (
                     <div class="flex flex-col">
-                        {cancelledPackages.slice(0, 3).map((pkg: any) => (
+                        {cancelledPackages.map((pkg: any) => (
                             <PackageRow pkg={pkg} fleetsData={fleetsData} />
                         ))}
-                        
-                        {cancelledPackages.length > 3 && (
-                            <div class="mt-4">
-                                <a href="/admin/history/cancelled?type=PACKAGE" class="block w-full py-4 text-center bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold uppercase tracking-widest rounded-xl transition-colors">
-                                    Lihat Keseluruhan ({cancelledPackages.length} Data)
-                                </a>
-                            </div>
-                        )}
                     </div>
                 )}
             </div>
-
         </div>
-    </section>
-
-    <!-- Modal Pratinjau Bukti -->
-    <PaymentPreviewModal />
+    </div>
 </AdminLayout>
 
 <script>
     import { apiFetch } from '../../services/api';
+
+    const setupTabs = () => {
+        const btns = document.querySelectorAll('.tab-btn');
+        const contents = document.querySelectorAll('.tab-content');
+
+        btns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const target = btn.getAttribute('data-target');
+
+                btns.forEach(b => {
+                    b.classList.remove('active', 'bg-white', 'text-primary', 'shadow-sm', 'border', 'border-slate-100');
+                    b.classList.add('text-slate-500', 'hover:bg-slate-100', 'hover:text-slate-700');
+                    const badge = b.querySelector('span');
+                    if(badge) {
+                        badge.classList.remove('bg-amber-100', 'text-amber-600');
+                        badge.classList.add('bg-slate-200', 'text-slate-600');
+                    }
+                });
+
+                contents.forEach(c => c.classList.add('hidden'));
+
+                btn.classList.add('active', 'bg-white', 'text-primary', 'shadow-sm', 'border', 'border-slate-100');
+                btn.classList.remove('text-slate-500', 'hover:bg-slate-100', 'hover:text-slate-700');
+                const badge = btn.querySelector('span');
+                if(badge) {
+                    badge.classList.add('bg-amber-100', 'text-amber-600');
+                    badge.classList.remove('bg-slate-200', 'text-slate-600');
+                }
+
+                const targetContent = document.getElementById(target as string);
+                if (targetContent) targetContent.classList.remove('hidden');
+            });
+        });
+    };
 
     const setupPackageAccordion = () => {
         const mainRows = document.querySelectorAll('.package-main-row');

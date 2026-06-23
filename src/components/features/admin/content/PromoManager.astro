@@ -24,7 +24,10 @@ import Button from "@ui/Button.astro";
                     Payload Utama Promo
                 </h4>
                 
-                <InputGroup label="Tagline Promo" id="tagline" name="tagline" placeholder="Contoh: Mudik Ceria 2026" required={true} />
+                <div class="grid grid-cols-2 gap-4">
+                    <InputGroup label="Tagline Promo" id="tagline" name="tagline" placeholder="Contoh: Mudik Ceria 2026" required={true} />
+                    <InputGroup label="Kode Promo" id="promo_code" name="promo_code" placeholder="Contoh: MUDIK10" />
+                </div>
                 
                 <div class="flex flex-col gap-2">
                     <label class="font-secondary text-sm font-bold text-primary">Deskripsi Promo</label>
@@ -56,10 +59,20 @@ import Button from "@ui/Button.astro";
 
         <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col gap-4">
             <h5 class="text-[10px] font-black text-slate-800 uppercase tracking-widest">Penempatan Promo</h5>
-            <div class="flex flex-wrap gap-4">
-                <label class="flex items-center gap-2 cursor-pointer group">
-                    <input type="checkbox" id="is-active" name="is_active" class="w-4 h-4 rounded border-slate-300 text-primary focus:ring-primary">
-                    <span class="text-xs font-bold text-slate-600 group-hover:text-primary transition-colors">Tampilkan sebagai Promo Aktif Utama</span>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start mt-2">
+                <div class="flex flex-col gap-2">
+                    <label class="font-secondary text-xs font-bold text-primary">Target Layanan</label>
+                    <select id="target_service" name="target_service" class="bg-white border border-slate-200 rounded-xl px-4 py-3 font-secondary text-sm text-slate-700 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary w-full">
+                        <option value="all">Semua Layanan (Global)</option>
+                        <option value="travel">Hanya Travel Regular</option>
+                        <option value="charter">Hanya Carter Drop</option>
+                        <option value="package">Hanya Paket Ekspedisi</option>
+                    </select>
+                </div>
+                
+                <label class="flex items-center gap-3 cursor-pointer group mt-0 md:mt-8 bg-white border border-slate-200 p-3 rounded-xl hover:border-primary transition-colors">
+                    <input type="checkbox" id="is-active" name="is_active" class="w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary">
+                    <span class="text-sm font-bold text-slate-600 group-hover:text-primary transition-colors">Tampilkan sebagai Promo Aktif</span>
                 </label>
             </div>
         </div>
@@ -108,6 +121,8 @@ import Button from "@ui/Button.astro";
                             description: formData.get('description'),
                             discount: formData.get('discount'),
                             max_discount: formData.get('max_discount'),
+                            promo_code: formData.get('promo_code'),
+                            target_service: formData.get('target_service'),
                             is_active: form.querySelector('input[name="is_active"]:checked') ? true : false
                         };
                         await adminContentService.savePromotion(jsonPayload);
@@ -156,6 +171,8 @@ import Button from "@ui/Button.astro";
                 (document.getElementById('description') as HTMLInputElement).value = data.description || '';
                 (document.getElementById('discount') as HTMLInputElement).value = data.discount || '';
                 (document.getElementById('max_discount') as HTMLInputElement).value = data.max_discount || '';
+                (document.getElementById('promo_code') as HTMLInputElement).value = data.promo_code || '';
+                (document.getElementById('target_service') as HTMLSelectElement).value = data.target_service || 'all';
                 (document.getElementById('is-active') as HTMLInputElement).checked = data.isActive === true || data.is_active === true;
                 
                 // Show delete button
