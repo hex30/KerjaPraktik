@@ -23,6 +23,8 @@ if (order.type === "travel") {
 let statusClass = "";
 let statusText = "";
 let showPayButton = false;
+let showPaymentMethodSelection = false;
+let showQrisButton = false;
 
 const isNew = order.status === 'menunggu_konfirmasi' && !meta.payment_proof_url;
 const isProofUploaded = order.status === 'menunggu_konfirmasi' && !!meta.payment_proof_url;
@@ -34,6 +36,8 @@ if (isNew) {
     statusClass = "bg-amber-50 text-amber-600 border-amber-100";
     statusText = "Menunggu Pembayaran Anda";
     showPayButton = true;
+    showPaymentMethodSelection = !meta.payment_method;
+    showQrisButton = meta.payment_method === 'cashless';
 } else if (isProofUploaded) {
     statusClass = "bg-sky-50 text-sky-600 border-sky-100";
     statusText = "Menunggu Verifikasi Pembayaran";
@@ -89,7 +93,20 @@ const formattedPrice = new Intl.NumberFormat('id-ID', { style: 'currency', curre
             {statusText}
         </span>
 
-        {showPayButton && (
+        {showPaymentMethodSelection && (
+            <div class="w-full mt-2 grid grid-cols-2 gap-2">
+                <button type="button" onclick={`window.selectPaymentMethod('${order.id}', '${order.type}', 'cash')`} class="w-full border-2 border-emerald-200 bg-emerald-50 hover:bg-emerald-100 rounded-xl py-3 flex flex-col items-center justify-center gap-1 transition-all group">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-600"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>
+                    <span class="block text-[9px] font-bold text-emerald-700 uppercase tracking-wide">Bayar Tunai</span>
+                </button>
+                <button type="button" onclick={`window.selectPaymentMethod('${order.id}', '${order.type}', 'cashless')`} class="w-full border-2 border-sky-200 bg-sky-50 hover:bg-sky-100 rounded-xl py-3 flex flex-col items-center justify-center gap-1 transition-all group">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-sky-600"><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+                    <span class="block text-[9px] font-bold text-sky-700 uppercase tracking-wide">Transfer (QRIS)</span>
+                </button>
+            </div>
+        )}
+
+        {showQrisButton && (
             <div class="w-full mt-2 border-2 border-dashed border-sky-200 bg-sky-50 rounded-xl p-3 flex flex-col items-center justify-center gap-2 transition-all hover:bg-sky-100 cursor-pointer group" onclick={`window.openPaymentModal('${order.id}', '${order.type}')`}>
                 <div class="bg-white p-1.5 rounded-lg shadow-sm group-hover:scale-105 transition-transform">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-sky-600"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></svg>

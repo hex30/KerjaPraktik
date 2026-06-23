@@ -7,12 +7,13 @@ interface Props {
     value: string;
     label: string;
     days: string;
+    [key: string]: any;
 }
 
-const { value, label, days } = Astro.props;
+const { value, label, days, ...rest } = Astro.props;
 ---
 
-<RadioCard name="rute" value={value} required>
+<RadioCard name="rute" value={value} required {...rest}>
     <span class="block font-bold mb-1 text-primary group-peer-checked:text-black transition-colors">{label}</span>
     <Badge variant="info">{days}</Badge>
 </RadioCard>

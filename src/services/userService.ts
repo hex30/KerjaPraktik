@@ -91,5 +91,16 @@ export const userService = {
       console.error("Gagal menarik data riwayat gabungan:", error);
       return []; // graceful degradation: kembalikan array kosong agar UI tak rusak
     }
+  },
+
+  async updatePaymentMethod(orderId: string, type: 'travel' | 'charter', method: 'cash' | 'cashless'): Promise<any> {
+    const endpoint = type === 'travel' 
+      ? `/api/travel/bookings/${orderId}/payment-method`
+      : `/api/charter/request/${orderId}/payment-method`;
+    
+    return apiFetch(endpoint, {
+      method: 'PUT',
+      body: JSON.stringify({ payment_method: method })
+    });
   }
 };

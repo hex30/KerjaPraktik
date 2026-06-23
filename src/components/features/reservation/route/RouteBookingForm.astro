@@ -9,6 +9,7 @@ import QuantitySelector from "@ui/QuantitySelector.astro";
 import Button from "@ui/Button.astro";
 import HeroAside from "@ui/HeroAside.astro";
 import AlertCard from "@ui/AlertCard.astro";
+import { travelService } from "@services/travelService";
 
 interface Props {
     title?: string;
@@ -19,6 +20,14 @@ const {
     title = "Detail Perjalanan Travel", 
     subtitle = "Lengkapi rute, jadwal keberangkatan, dan bagasi Anda." 
 } = Astro.props;
+
+let routeData: any[] = [];
+try {
+    const routes = await travelService.getRoutes();
+    routeData = Array.isArray(routes) ? routes : routes.data || [];
+} catch (error) {
+    console.error("Gagal memuat rute:", error);
+}
 ---
 
 <div class="w-full relative font-main">
@@ -39,17 +48,26 @@ const {
                             Rute dan Jadwal Perjalanan
                         </h3>
                         
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <RouteSelectionItem 
-                                value="jakarta_panawangan" 
-                                label="Jakarta ➔ Panawangan" 
-                                days="Senin, Rabu dan Minggu"
-                            />
-                            <RouteSelectionItem 
-                                value="panawangan_jakarta" 
-                                label="Panawangan ➔ Jakarta" 
-                                days="Selasa, Kamis dan Jum'at"
-                            />
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+                            {routeData.map((route) => {
+                                // Logika hari hardcode sementara
+                                let days = "Setiap Hari";
+                                const originLower = route.origin.toLowerCase();
+                                if (originLower.includes("jakarta")) {
+                                    days = "Selasa, Kamis, Sabtu dan Minggu";
+                                } else if (originLower.includes("panawangan")) {
+                                    days = "Senin, Rabu dan Jum'at";
+                                }
+
+                                return (
+                                    <RouteSelectionItem 
+                                        value={route.id} 
+                                        label={`${route.origin} ➔ ${route.destination}`} 
+                                        days={days}
+                                        data-origin={route.origin}
+                                    />
+                                );
+                            })}
                         </div>
 
                         <div class="flex flex-col gap-3 mt-2">
@@ -231,8 +249,7 @@ const {
     const generateDates = (routeValue: string) => {
         const dates = [];
         const today = new Date();
-        
-        const allowedDays = routeValue === "panawangan_jakarta" ? [1, 3, 5] : [2, 4, 0];
+        const allowedDays = routeValue === "panawangan_jakarta" ? [1, 3, 5] : [2, 4, 6, 0];
 
         for (let i = 0; i < 14; i++) {
             const nextDate = new Date();
@@ -354,6 +371,7 @@ const {
         ruteRadios.forEach((radio) => {
             radio.addEventListener("change", async (e) => {
                 const target = e.target as HTMLInputElement;
+                selectedRouteId = target.value;
                 if (!dateContainer) return;
 
                 dateContainer.innerHTML = `
@@ -366,8 +384,19 @@ const {
                 selectedScheduleId = "";
                 selectedRouteId = target.value;
 
+                // Mendapatkan origin dari atribut data-origin radio button yang diklik
+                const routeOrigin = target.getAttribute("data-origin") || "";
+                
+                // Route name format yang digunakan oleh generateDates: "panawangan_jakarta" atau "jakarta_panawangan"
+                let routeNameValue = "";
+                if (routeOrigin.toLowerCase().includes("panawangan")) {
+                    routeNameValue = "panawangan_jakarta";
+                } else {
+                    routeNameValue = "jakarta_panawangan";
+                }
+
                 // Generate dates via JS
-                const baseSchedules = generateDates(target.value);
+                const baseSchedules = generateDates(routeNameValue);
                 
                 try {
                     // Endpoint untuk cek ketersediaan kursi via tanggal belum ada, ini mock simulasi
@@ -459,8 +488,6 @@ const {
                 const formData = new FormData(form2);
                 const data = Object.fromEntries(formData.entries()) as Record<string, any>;
                 
-                // Format Address
-                const address = `Kec. ${data.tujuan_kecamatan}, Desa ${data.tujuan_desa}, Dusun ${data.tujuan_dusun}, RT ${data.tujuan_rt}/RW ${data.tujuan_rw}, Patokan: ${data.tujuan_patokan || '-'}`;
                 const seatValues = (document.getElementById("input-selected-seats") as HTMLInputElement)?.value || "";
                 const firstSeat = parseInt(seatValues.split(',')[0]);
 
@@ -469,9 +496,13 @@ const {
                     departure_date: selectedRawDate,
                     seat_number: firstSeat,
                     pickup_address: "Pool Rini Trans Putri",
-                    dropoff_address: address,
-                    payment_method: "menunggu_konfirmasi", // Alur baru: user tidak bayar di awal
-                    payment_status: "menunggu_konfirmasi", 
+                    dropoff_address: JSON.stringify({
+                        kecamatan: data.sub_district || "-",
+                        desa: data.village || "-",
+                        dusun: data.hamlet || "-",
+                        rt_rw: `${data.rt || "-"}/${data.rw || "-"}`,
+                        patokan: data.landmark || "-"
+                    }),
                     baggage_description: "Bawaan Penumpang Reguler",
                     baggage_weight: data.berat_bagasi && parseFloat(data.berat_bagasi) > 0 ? parseFloat(data.berat_bagasi) : 1,
                     baggage_dimension: data.dimensi_bagasi || "kecil"

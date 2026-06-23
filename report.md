@@ -334,9 +334,19 @@ Tindakan yang Dibutuhkan dari Tim Backend:
 - Tambahkan logika pada Endpoint Update Status Pesanan (atau saat proses Checkout) untuk mengecek promo aktif (dari tabel promotions).
 - Lakukan kalkulasi pemotongan harga tiket awal berdasarkan discount (persentase) namun tidak melebihi nilai maksimal pemotongan yang ada di max_discount.
 - Simpan **Harga Akhir** (setelah didiskon) ke dalam kolom price pada tabel travel_bookings.
+- Simpan **Harga Akhir** (setelah didiskon) ke dalam kolom price pada tabel travel_bookings.
 
 
 ## [Frontend Fix] Perbaikan Form Booking Admin (CORS & Payload)
 Pada file src/components/features/admin/bookings/BookingTable.astro telah dilakukan perbaikan krusial:
 1. **Migrasi ke apiFetch**: Mengganti fetch API mentah ke apiFetch() bawaan layanan Frontend untuk menghindari masalah pemblokiran CORS dari browser (karena Astro berjalan di port 4321 dan BE di 5000).
 2. **Pengiriman Data Paralel (RUTE)**: Sebelumnya, saat Admin menetapkan Harga, Armada, dan Supir untuk rute, Frontend hanya mengirim status dan harga ke BE. Armada dan supir dibuang. Sekarang Frontend memanggil dua endpoint sekaligus secara otomatis: endpoint status (/status) dan endpoint assign armada (/assign).
+
+## 4. Laporan Bug API (Booking & Packages) - WARNING UNTUK BE
+
+1. **Charter 500 (Gagal membuat pengajuan charter):**
+   BE masih membatasi `car_type` secara *hardcode* di *controller* ("Luxio" / "Elf"). Segera hapus validasi *hardcode* ini karena FE sudah menyuplai `car_type` secara dinamis dari data armada di DB!
+2. **Paket 500 (Gagal membuat pengiriman paket):**
+   Fungsi `PackageModel.createShipment()` *crash* karena struktur tabel DB `package_shipments` belum memiliki kolom alamat seperti `pickup_address` atau wadah untuk *Nested JSON*. FE sudah mengirim payload secara rapi, tolong selesaikan skema tabel di BE!
+3. **Rute 400 (Format route_id tidak valid):**
+   **Peringatan Keras untuk Tim BE!** Saat ini, tim FE sudah mengubah cara pengambilan data Rute secara PERMANEN menjadi dinamis melalui *endpoint* `GET /api/content/routes`. Namun karena BE belum membuat endpoint ini, dropdown rute di UI Frontend kosong, dan UUID rute (`route_id`) tidak terkirim, yang menyebabkan pesan *error* "Format route_id tidak valid". BE **Wajib Segera** membuat endpoint `GET /api/content/routes` yang mengembalikan objek `id` (UUID riil) dan `route_name` (Asal-Tujuan) agar FE bisa melengkapi data ke dalam dropdown secara otomatis tanpa menyebabkan 400 Bad Request. **FE TIDAK AKAN DIUBAH LAGI, BE YANG HARUS MENYESUAIKAN!**

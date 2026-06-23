@@ -512,11 +512,13 @@ try {
                         car_type: data1.jenis_armada as string,
                         departure_date: data1.tanggal_sewa as string,
                         return_date: data1.tanggal_kepulangan as string,
-                        full_name: data2.full_name as string,
-                        sub_district: data2.sub_district as string,
-                        village: data2.village as string,
-                        pickup_address: data2.alamat_lengkap as string || data2.village as string,
-                        landmark: data2.landmark as string,
+                        pickup_address: {
+                            kecamatan: data2.sub_district || "-",
+                            desa: data2.village || "-",
+                            dusun: data2.hamlet || "-",
+                            rt_rw: `${data2.rt || "-"}/${data2.rw || "-"}`,
+                            patokan: data2.landmark || "-"
+                        },
                         payment_method: "menunggu_konfirmasi", // Alur baru
                     };
 

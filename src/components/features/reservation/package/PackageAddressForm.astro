@@ -46,8 +46,41 @@ const placeholderNama = isPengirim ? 'Nama lengkap Anda' : 'Nama lengkap tujuan'
             />
         </div>
     </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-2">
+        <InputGroup
+            label="Kecamatan"
+            id={`kecamatan_${type}`}
+            name={`sub_district_${type}`}
+            placeholder="Contoh : Panawangan"
+            required={true}
+        />
+        <InputGroup
+            label="Desa"
+            id={`desa_${type}`}
+            name={`village_${type}`}
+            placeholder="Contoh : Nagarajaya"
+            required={true}
+        />
+    </div>
     
     <AddressGrid type={type} dusunLabel="Nama Dusun/Jalan" />
+
+    <div class="flex flex-col gap-2 w-full mt-2">
+        <label
+            for={`patokan_${type}`}
+            class="font-secondary text-sm font-bold text-primary"
+        >
+            Patokan Bangunan
+        </label>
+        <textarea
+            name={`landmark_${type}`}
+            id={`patokan_${type}`}
+            rows="3"
+            placeholder="Contoh : Sebelah Masjid Agung"
+            class="resize-none w-full bg-slate-100 border border-slate-200 rounded-lg px-4 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-slate-400"
+        ></textarea>
+    </div>
     </div>
 </section>
 

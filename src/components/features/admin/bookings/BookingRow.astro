@@ -147,6 +147,19 @@ if (isNew) {
                                 </div>
                             </div>
                         </div>
+
+                        <div class="space-y-4">
+                            <h5 class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                <div class="w-1 h-1 rounded-full bg-sky-500"></div>
+                                Informasi Pembayaran
+                            </h5>
+                            <div class="bg-slate-50 p-4 md:p-6 rounded-2xl border border-slate-100/50 flex flex-col items-center justify-center text-center">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Metode Pembayaran</span>
+                                <span class={`text-lg font-black uppercase ${item.payment_method === 'cash' ? 'text-emerald-500' : item.payment_method === 'cashless' ? 'text-sky-500' : 'text-slate-400'}`}>
+                                    {item.payment_method ? (item.payment_method === 'cashless' ? 'TRANSFER (CASHLESS)' : 'TUNAI (CASH)') : 'BELUM MEMILIH'}
+                                </span>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Action Column -->

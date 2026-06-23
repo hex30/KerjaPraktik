@@ -4,6 +4,19 @@ import { apiFetch } from "./api";
  * Service untuk menangani alur pemesanan Layanan Rute (Travel Reguler)
  */
 export const travelService = {
+  // dokumentasi: Mengambil daftar rute publik dari backend
+  getRoutes: async () => {
+    try {
+      const response = await apiFetch('/api/content/routes', {
+        method: 'GET'
+      });
+      return response;
+    } catch (error) {
+      console.error("Gagal mengambil data rute:", error);
+      return []; 
+    }
+  },
+
   // dokumentasi: Mengambil jadwal aktif dari backend sesuai kriteria pencarian
   getSchedules: async (params: { date?: string; origin?: string; destination?: string }) => {
     try {

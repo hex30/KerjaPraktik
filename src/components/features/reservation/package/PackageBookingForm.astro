@@ -269,10 +269,22 @@ import AlertCard from "@components/ui/AlertCard.astro";
                 const payload = {
                     sender_name: data.nama_pengirim as string,
                     sender_phone: data.telp_pengirim as string,
-                    pickup_address: `Kec: ${data.sub_district_pengirim || '-'}, Desa: ${data.village_pengirim || '-'}, ${data.alamat_lengkap_pengirim || '-'}, Patokan: ${data.landmark_pengirim || '-'}`,
+                    pickup_address: {
+                        kecamatan: data.sub_district_pengirim || "-",
+                        desa: data.village_pengirim || "-",
+                        dusun: data.pengirim_hamlet || "-",
+                        rt_rw: `${data.pengirim_rt || "-"}/${data.pengirim_rw || "-"}`,
+                        patokan: data.landmark_pengirim || "-"
+                    },
                     receiver_name: data.nama_penerima as string,
                     receiver_phone: data.telp_penerima as string,
-                    receiver_address: `Kec: ${data.sub_district_penerima || '-'}, Desa: ${data.village_penerima || '-'}, ${data.alamat_lengkap_penerima || '-'}, Patokan: ${data.landmark_penerima || '-'}`,
+                    receiver_address: {
+                        kecamatan: data.sub_district_penerima || "-",
+                        desa: data.village_penerima || "-",
+                        dusun: data.penerima_hamlet || "-",
+                        rt_rw: `${data.penerima_rt || "-"}/${data.penerima_rw || "-"}`,
+                        patokan: data.landmark_penerima || "-"
+                    },
                     package_description: data.deskripsi_paket as string,
                     weight: Number(data.berat_paket),
                     dimension: data.dimensi_paket as 'kecil' | 'sedang' | 'besar' | 'super_besar',

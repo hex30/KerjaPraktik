@@ -6,6 +6,7 @@ interface Props {
     id?: string;
     required?: boolean;
     class?: string;
+    [key: string]: any;
 }
 
 const { 
@@ -13,7 +14,8 @@ const {
     value, 
     id, 
     required = false,
-    class: className = ""
+    class: className = "",
+    ...rest
 } = Astro.props;
 ---
 
@@ -25,6 +27,7 @@ const {
         id={id}
         class="peer sr-only"
         required={required}
+        {...rest}
     />
     <div
         class="p-4 rounded-xl border-2 border-slate-200 peer-checked:border-primary/50 peer-checked:bg-primary/20 hover:border-primary/100 transition-all"
