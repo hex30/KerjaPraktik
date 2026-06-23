@@ -29,17 +29,17 @@ interface Props {
  * You can fetch this data at the page level and pass it as the 'promoData' prop.
  */
 const emptyPromo: PromoContent = {
-    image: "",
-    discount: "-",
-    noteTitle: "-",
-    noteDesc: "-",
-    textRow1: "-",
-    textDesc1: "-",
-    textRow2: "-",
-    textRow3: "-",
-    textDesc2: "-",
-    btnLink: "#",
-    btnText: "-",
+    image: "/images/dummy-promo.jpg",
+    discount: "AMAN dan MUDAH",
+    noteTitle: "INFO PROMO",
+    noteDesc: "Tidak ada promosi yang aktif saat ini",
+    textRow1: "KEMUDAHAN",
+    textDesc1: "Dengan hadirnya PT. RINI TRANS PUTRI akan membuat perjalanan anda menjadi jauh lebih mudah dan aman.",
+    textRow2: "DALAM",
+    textRow3: "PERJALANAN",
+    textDesc2: "Kenyamanan dan keamanan anda adalah prioritas utama kami.",
+    btnLink: "/services",
+    btnText: "Pesan Tiket Sekarang",
 };
 
 const { promoData = emptyPromo } = Astro.props;

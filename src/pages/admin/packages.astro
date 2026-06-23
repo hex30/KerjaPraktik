@@ -204,25 +204,27 @@ const cancelledPackages = packageData.filter((item: any) => ['dibatalkan', 'dito
                         await apiFetch(`/api/admin/master/package-shipments/${packageId}`, {
                             method: 'PUT',
                             headers,
-                            body: JSON.stringify({ transaction_status: 'selesai' })
+                            body: JSON.stringify({ transaction_status: 'selesai', status: 'delivered' })
                         });
                         alert('Paket berhasil diselesaikan dan masuk ke riwayat!');
                     } else if (currentState === 'isProofUploaded') {
-                        // Verifikasi pembayaran paket (ASUMSI BE ADA ENDPOINT INI)
-                        await apiFetch(`/api/admin/master/package-shipments/${packageId}/verify`, {
+                        // Verifikasi pembayaran paket
+                        await apiFetch(`/api/admin/master/package-shipments/${packageId}`, {
                             method: 'PUT',
-                            headers
+                            headers,
+                            body: JSON.stringify({ transaction_status: 'selesai', status: 'on_transit' })
                         });
                         alert('Pembayaran paket berhasil dikonfirmasi!');
                     } else if (currentState === 'isNew') {
                         // Tetapkan harga dan kirim tagihan
-                        const endpoint = `/api/admin/master/package-shipments/${packageId}/assign`;
+                        const endpoint = `/api/admin/master/package-shipments/${packageId}`;
                         const priceRaw = payload.price as string;
                         const parsedPrice = priceRaw ? parseFloat(priceRaw.replace(/\./g, '')) : undefined;
 
                         const bodyData = {
                             fleet_id: payload.fleet_id || undefined,
-                            price: parsedPrice
+                            total_price: parsedPrice,
+                            transaction_status: 'menunggu_pembayaran'
                         };
 
                         await apiFetch(endpoint, {
@@ -244,9 +246,11 @@ const cancelledPackages = packageData.filter((item: any) => ['dibatalkan', 'dito
         });
     };
 
+    setupTabs();
     setupPackageAccordion();
     setupActionForms();
     document.addEventListener('astro:page-load', () => {
+        setupTabs();
         setupPackageAccordion();
         setupActionForms();
     });

@@ -47,7 +47,7 @@ try {
 
 // dokumentasi: Mengambil data Promosi (Ambil item pertama sebagai Highlight)
 try {
-  const promoRes = await contentService.getPromotions();
+  const promoRes = await contentService.getPromotions('home');
   if (promoRes?.data && promoRes.data.length > 0) {
      const p = promoRes.data[0];
      
@@ -73,9 +73,40 @@ try {
         btnLink: "/services",
         btnText: "Pesan Sekarang"
      };
-  }
+   } else {
+     // Fallback jika tidak ada promo aktif
+     promoData = {
+        image: "/images/dummy-promo.jpg",
+        discount: "AMAN dan MUDAH",
+        noteTitle: "INFO LAYANAN",
+        noteDesc: "Kenyamanan Perjalanan Anda",
+        textRow1: "PERJALANAN",
+        textRow2: "AMAN DAN",
+        textRow3: "NYAMAN",
+        textDesc1: "Kemudahan Dalam Setiap Pemesanan Layanan",
+        textDesc2: "Sistem Terpadu PT. RINI TRANS PUTRI",
+        btnLink: "/services",
+        btnText: "Pesan Sekarang",
+        isFallback: true
+     };
+   }
 } catch (e) {
   console.error("Gagal load promo:", e);
+  // Fallback on error
+  promoData = {
+    image: "/images/dummy-promo.jpg",
+    discount: "AMAN dan MUDAH",
+    noteTitle: "INFO LAYANAN",
+    noteDesc: "Kenyamanan Perjalanan Anda",
+    textRow1: "PERJALANAN",
+    textRow2: "AMAN DAN",
+    textRow3: "NYAMAN",
+    textDesc1: "Kemudahan Dalam Setiap Pemesanan Layanan",
+    textDesc2: "Sistem Terpadu PT. RINI TRANS PUTRI",
+    btnLink: "/services",
+    btnText: "Pesan Sekarang",
+    isFallback: true
+  };
 }
 ---
 

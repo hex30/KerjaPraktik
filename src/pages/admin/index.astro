@@ -110,96 +110,106 @@ const stats = [
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6" id="assigned-fleets-grid">
-                {assignedFleets.map((fleet, index) => (
-                    <div class:list={[
-                        "bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-6 relative overflow-hidden group hover:shadow-xl transition-all duration-500 fleet-card",
-                        index >= 2 ? "hidden extra-fleet" : ""
-                    ]}>
-                        <!-- BG Accent -->
-                        <div class:list={["absolute top-0 right-0 w-32 h-32 opacity-5 rounded-full -translate-y-1/2 translate-x-1/2", fleet.type === 'RUTE' ? 'bg-primary' : 'bg-secondary']}></div>
-                        
-                        <div class="flex items-center justify-between relative z-10">
-                            <div class="flex flex-col gap-1">
-                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">{fleet.id}</span>
-                                <h3 class="text-2xl font-black text-primary">{fleet.fleet_code || fleet.name}</h3>
+                {assignedFleets.length > 0 ? 
+                    assignedFleets.map((fleet, index) => (
+                        <div class:list={[
+                            "bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-6 relative overflow-hidden group hover:shadow-xl transition-all duration-500 fleet-card",
+                            index >= 2 ? "hidden extra-fleet" : ""
+                        ]}>
+                            <!-- BG Accent -->
+                            <div class:list={["absolute top-0 right-0 w-32 h-32 opacity-5 rounded-full -translate-y-1/2 translate-x-1/2", fleet.type === 'RUTE' ? 'bg-primary' : 'bg-secondary']}></div>
+                            
+                            <div class="flex items-center justify-between relative z-10">
+                                <div class="flex flex-col gap-1">
+                                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">{fleet.id}</span>
+                                    <h3 class="text-2xl font-black text-primary">{fleet.fleet_code || fleet.name}</h3>
+                                </div>
+                                <Badge variant={fleet.type === 'rute' || fleet.type === 'RUTE' ? 'sky' : 'warning'} class="px-4 py-1.5 text-[10px]">
+                                    {fleet.badge_label || fleet.type}
+                                </Badge>
                             </div>
-                            <Badge variant={fleet.type === 'rute' || fleet.type === 'RUTE' ? 'sky' : 'warning'} class="px-4 py-1.5 text-[10px]">
-                                {fleet.badge_label || fleet.type}
-                            </Badge>
-                        </div>
 
-                        <div class="grid grid-cols-1 gap-4 relative z-10">
-                            {fleet.type === 'rute' || fleet.type === 'RUTE' ? (
-                                <>
-                                    <div class="flex justify-between items-center py-3 border-b border-dashed border-slate-100">
-                                        <span class="text-xs font-bold text-slate-400 uppercase">Rute Perjalanan</span>
-                                        <span class="text-sm font-black text-slate-900">{fleet.route || fleet.details?.path || '-'}</span>
-                                    </div>
-                                    <div class="grid grid-cols-2 gap-4">
-                                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100/50">
-                                            <span class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Total Penumpang</span>
-                                            <span class="text-sm font-black text-primary">{fleet.total_passengers ?? fleet.details?.pax ?? 0} Orang</span>
+                            <div class="grid grid-cols-1 gap-4 relative z-10">
+                                {fleet.type === 'rute' || fleet.type === 'RUTE' ? (
+                                    <>
+                                        <div class="flex justify-between items-center py-3 border-b border-dashed border-slate-100">
+                                            <span class="text-xs font-bold text-slate-400 uppercase">Rute Perjalanan</span>
+                                            <span class="text-sm font-black text-slate-900">{fleet.route || fleet.details?.path || '-'}</span>
                                         </div>
-                                        <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100/50">
-                                            <span class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Total Paket</span>
-                                            <span class="text-sm font-black text-primary">{fleet.total_packages ?? fleet.details?.packages ?? 0} Item</span>
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100/50">
+                                                <span class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Total Penumpang</span>
+                                                <span class="text-sm font-black text-primary">{fleet.total_passengers ?? fleet.details?.pax ?? 0} Orang</span>
+                                            </div>
+                                            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100/50">
+                                                <span class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Total Paket</span>
+                                                <span class="text-sm font-black text-primary">{fleet.total_packages ?? fleet.details?.packages ?? 0} Item</span>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="flex flex-col gap-2">
-                                        <span class="text-[9px] font-bold text-slate-400 uppercase">Supir Bertugas</span>
-                                        <div class="flex gap-2">
-                                            {(fleet.drivers || fleet.details?.drivers || []).map(d => (
-                                                <span class="px-3 py-1 bg-sky-50 text-sky-600 text-[10px] font-black rounded-lg">{d}</span>
-                                            ))}
+                                        <div class="flex flex-col gap-2">
+                                            <span class="text-[9px] font-bold text-slate-400 uppercase">Supir Bertugas</span>
+                                            <div class="flex gap-2">
+                                                {(fleet.drivers || fleet.details?.drivers || []).map(d => (
+                                                    <span class="px-3 py-1 bg-sky-50 text-sky-600 text-[10px] font-black rounded-lg">{d}</span>
+                                                ))}
+                                            </div>
                                         </div>
-                                    </div>
-                                </>
-                            ) : (
-                                <>
-                                    <div class="flex flex-col gap-1 py-3 border-b border-dashed border-slate-100">
-                                        <span class="text-[8px] font-bold text-slate-400 uppercase">Pelanggan</span>
-                                        <div class="flex justify-between items-end">
-                                            <span class="text-sm font-black text-slate-900">{fleet.customer_name || fleet.details?.customer || '-'}</span>
-                                            <span class="text-[10px] font-bold text-slate-500">{fleet.customer_phone || fleet.details?.phone || '-'}</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div class="flex flex-col gap-1 py-3 border-b border-dashed border-slate-100">
+                                            <span class="text-[8px] font-bold text-slate-400 uppercase">Pelanggan</span>
+                                            <div class="flex justify-between items-end">
+                                                <span class="text-sm font-black text-slate-900">{fleet.customer_name || fleet.details?.customer || '-'}</span>
+                                                <span class="text-[10px] font-bold text-slate-500">{fleet.customer_phone || fleet.details?.phone || '-'}</span>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div class="flex flex-col gap-1">
-                                            <span class="text-[8px] font-bold text-slate-400 uppercase">Lokasi Jemput</span>
-                                            <p class="text-[10px] font-bold text-slate-600 line-clamp-1">{fleet.pickup_address || fleet.details?.pickup || '-'}</p>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div class="flex flex-col gap-1">
+                                                <span class="text-[8px] font-bold text-slate-400 uppercase">Lokasi Jemput</span>
+                                                <p class="text-[10px] font-bold text-slate-600 line-clamp-1">{fleet.pickup_address || fleet.details?.pickup || '-'}</p>
+                                            </div>
+                                            <div class="flex flex-col gap-1">
+                                                <span class="text-[8px] font-bold text-slate-400 uppercase">Destinasi</span>
+                                                <p class="text-[10px] font-bold text-slate-600">{fleet.destination || fleet.details?.destination || '-'}</p>
+                                            </div>
                                         </div>
-                                        <div class="flex flex-col gap-1">
-                                            <span class="text-[8px] font-bold text-slate-400 uppercase">Destinasi</span>
-                                            <p class="text-[10px] font-bold text-slate-600">{fleet.destination || fleet.details?.destination || '-'}</p>
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100/50 text-center">
+                                                <span class="text-[8px] font-bold text-slate-400 uppercase block mb-1">Pick Up</span>
+                                                <span class="text-[10px] font-black text-slate-900">{fleet.pickup_date || fleet.details?.date_pickup || '-'}</span>
+                                            </div>
+                                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100/50 text-center">
+                                                <span class="text-[8px] font-bold text-slate-400 uppercase block mb-1">Kembali</span>
+                                                <span class="text-[10px] font-black text-slate-900">{fleet.return_date || fleet.details?.date_return || '-'}</span>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="grid grid-cols-2 gap-4">
-                                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100/50 text-center">
-                                            <span class="text-[8px] font-bold text-slate-400 uppercase block mb-1">Pick Up</span>
-                                            <span class="text-[10px] font-black text-slate-900">{fleet.pickup_date || fleet.details?.date_pickup || '-'}</span>
+                                        <div class="flex justify-between items-center pt-2">
+                                            <span class="text-[9px] font-bold text-slate-400 uppercase">Supir Bertugas</span>
+                                            <span class="px-3 py-1 bg-amber-50 text-amber-600 text-[10px] font-black rounded-lg">{(fleet.drivers && fleet.drivers[0]) || fleet.details?.driver || '-'}</span>
                                         </div>
-                                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-100/50 text-center">
-                                            <span class="text-[8px] font-bold text-slate-400 uppercase block mb-1">Kembali</span>
-                                            <span class="text-[10px] font-black text-slate-900">{fleet.return_date || fleet.details?.date_return || '-'}</span>
-                                        </div>
-                                    </div>
-                                    <div class="flex justify-between items-center pt-2">
-                                        <span class="text-[9px] font-bold text-slate-400 uppercase">Supir Bertugas</span>
-                                        <span class="px-3 py-1 bg-amber-50 text-amber-600 text-[10px] font-black rounded-lg">{(fleet.drivers && fleet.drivers[0]) || fleet.details?.driver || '-'}</span>
-                                    </div>
-                                </>
-                            )}
-                        </div>
+                                    </>
+                                )}
+                            </div>
 
-                        <!-- Revenue Footer -->
-                        <div class="mt-4 pt-6 border-t border-slate-50 flex items-center justify-between relative z-10">
-                            <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Estimated Revenue</span>
-                            <span class="text-xl font-main font-black text-primary tracking-tight">
-                                {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(fleet.estimated_revenue || fleet.details?.revenue || 0)}
-                            </span>
+                            <!-- Revenue Footer -->
+                            <div class="mt-4 pt-6 border-t border-slate-50 flex items-center justify-between relative z-10">
+                                <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Estimated Revenue</span>
+                                <span class="text-xl font-main font-black text-primary tracking-tight">
+                                    {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(fleet.estimated_revenue || fleet.details?.revenue || 0)}
+                                </span>
+                            </div>
                         </div>
+                    ))
+                 : (
+                    <div class="p-8 text-center bg-slate-50 border border-slate-100 rounded-[2rem] flex flex-col items-center justify-center col-span-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-slate-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span class="text-sm font-bold text-slate-500">Belum Ada Armada Bertugas Hari Ini</span>
+                        <span class="text-[10px] text-slate-400 mt-1">Data armada yang sedang dalam perjalanan akan muncul di sini.</span>
                     </div>
-                ))}
+                )}
             </div>
             <button id="toggle-fleet-btn" class="mx-auto mt-2 px-6 py-3 bg-slate-100 text-slate-600 rounded-full font-bold text-xs hover:bg-slate-200 transition-all cursor-pointer flex items-center gap-2">
                 <span id="toggle-fleet-text">Lihat Semua Armada</span>
