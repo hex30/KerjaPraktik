@@ -76,9 +76,12 @@ const fallbackAddress = (): AddressDetail => ({
 });
 
 export const adminBookingService = {
-    async getTravelBookings(): Promise<TravelBookingAdmin[]> {
+    async getTravelBookings(token?: string): Promise<TravelBookingAdmin[]> {
         try {
-            const response = await apiFetch('/api/admin/master/travel-bookings', { method: 'GET' });
+            const headers: Record<string, string> = {};
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
+            const response = await apiFetch('/api/admin/master/travel-bookings', { method: 'GET', headers });
             if (!response?.data) return [];
             
             return response.data.map((item: any) => ({
@@ -105,9 +108,12 @@ export const adminBookingService = {
         }
     },
 
-    async getCharterBookings(): Promise<CharterBookingAdmin[]> {
+    async getCharterBookings(token?: string): Promise<CharterBookingAdmin[]> {
         try {
-            const response = await apiFetch('/api/charter/history', { method: 'GET' });
+            const headers: Record<string, string> = {};
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
+            const response = await apiFetch('/api/charter/history', { method: 'GET', headers });
             if (!response?.data) return [];
 
             return response.data.map((item: any) => ({
@@ -133,9 +139,12 @@ export const adminBookingService = {
         }
     },
 
-    async getPackageShipments(): Promise<PackageShipmentAdmin[]> {
+    async getPackageShipments(token?: string): Promise<PackageShipmentAdmin[]> {
         try {
-            const response = await apiFetch('/api/admin/master/package-shipments', { method: 'GET' });
+            const headers: Record<string, string> = {};
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
+            const response = await apiFetch('/api/admin/master/package-shipments', { method: 'GET', headers });
             if (!response?.data) return [];
 
             return response.data.map((item: any) => ({
@@ -160,6 +169,32 @@ export const adminBookingService = {
             }));
         } catch (error) {
             console.error("Gagal mengambil data paket:", error);
+            return [];
+        }
+    },
+
+    async getMasterFleets(token?: string): Promise<any[]> {
+        try {
+            const headers: Record<string, string> = {};
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+            const response = await apiFetch('/api/admin/master/fleets', { method: 'GET', headers });
+            return response?.data || [];
+        } catch (error) {
+            console.error("Gagal mengambil data fleets:", error);
+            return [];
+        }
+    },
+
+    async getMasterDrivers(token?: string): Promise<any[]> {
+        try {
+            const headers: Record<string, string> = {};
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+            const response = await apiFetch('/api/admin/master/users', { method: 'GET', headers });
+            if (!response?.data) return [];
+            // Filter hanya user yang memiliki role 'driver'
+            return response.data.filter((u: any) => u.role === 'driver');
+        } catch (error) {
+            console.error("Gagal mengambil data drivers:", error);
             return [];
         }
     }

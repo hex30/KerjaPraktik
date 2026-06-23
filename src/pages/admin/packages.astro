@@ -4,8 +4,11 @@ import AdminLayout from "@layouts/AdminLayout.astro";
 import AdminBadge from "@ui/AdminBadge.astro";
 import { adminBookingService } from "@services/adminBookingService";
 
+// Baca token dari cookies saat mode SSR
+const token = Astro.cookies.get('token')?.value;
+
 // Fetch data paket dari Backend via SSR
-const packageData = await adminBookingService.getPackageShipments();
+const packageData = await adminBookingService.getPackageShipments(token);
 ---
 
 <AdminLayout title="Manajemen Paket">

@@ -256,29 +256,49 @@ const stats = [
         const assignedFleetsGrid = document.getElementById('assigned-fleets-grid');
 
         approveBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => {
+            btn.addEventListener('click', async (e) => {
                 const target = e.target as HTMLElement;
                 const card = target.closest('.approval-card') as HTMLElement;
+                const reqId = card.getAttribute('data-id');
+                const token = localStorage.getItem('token');
                 
-                // Add fade out animation
-                card.style.opacity = '0';
-                card.style.transform = 'scale(0.95)';
-                card.style.transition = 'all 0.3s ease';
+                try {
+                    const originalText = target.textContent;
+                    target.textContent = 'Proses...';
+                    target.classList.add('opacity-50', 'pointer-events-none');
 
-                setTimeout(() => {
-                    // Extract data to build a new fleet card (Simulated visual move)
-                    card.style.display = 'none';
+                    const API_URL = import.meta.env?.PUBLIC_API_URL || 'http://localhost:5000';
+                    const res = await fetch(`${API_URL}/api/admin/dashboard/departure-requests/${reqId}/approve`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
+
+                    if (!res.ok) throw new Error('Gagal menyetujui armada');
                     
-                    // In a real app, we'd trigger an API, then append the newly built HTML.
-                    // For pure Front-End PRD, we just hide the approval card and could theoretically append a new node to assignedFleetsGrid.
-                    alert('Driver disetujui! Memindahkan data ke Daftar Armada Bertugas...');
-                    
-                    // Optional: remove section if empty
-                    const remainingCards = document.querySelectorAll('.approval-card[style*="display: none"]');
-                    if(remainingCards.length === approveBtns.length) {
-                        document.getElementById('approval-section')?.remove();
-                    }
-                }, 300);
+                    // Animasi menghilang jika API sukses
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.95)';
+                    card.style.transition = 'all 0.3s ease';
+
+                    setTimeout(() => {
+                        card.remove();
+                        const remainingCards = document.querySelectorAll('.approval-card');
+                        if(remainingCards.length === 0) {
+                            document.getElementById('approval-section')?.remove();
+                        }
+                        
+                        alert('Berhasil disetujui! (Catatan: Halaman sengaja tidak di-refresh otomatis agar data dummy Backend tidak muncul ulang)');
+                    }, 300);
+
+                } catch (error) {
+                    console.error(error);
+                    alert('Gagal mengirim persetujuan ke server.');
+                    target.textContent = 'Menyetujui';
+                    target.classList.remove('opacity-50', 'pointer-events-none');
+                }
             });
         });
 

@@ -4,10 +4,13 @@ import AdminLayout from "@layouts/AdminLayout.astro";
 import BookingTable from "@features/admin/bookings/BookingTable.astro";
 import { adminBookingService } from "@services/adminBookingService";
 
+// Baca token dari cookies saat mode SSR
+const token = Astro.cookies.get('token')?.value;
+
 // Fetch data dari Backend via SSR
 const [ruteData, charterData] = await Promise.all([
-    adminBookingService.getTravelBookings(),
-    adminBookingService.getCharterBookings()
+    adminBookingService.getTravelBookings(token),
+    adminBookingService.getCharterBookings(token)
 ]);
 ---
 
