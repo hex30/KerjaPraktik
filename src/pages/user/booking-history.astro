@@ -2,6 +2,7 @@
 // File: src/pages/user/booking-history.astro
 import Layout from '@layouts/MainLayout.astro';
 import OrderItem from '@features/user/OrderItem.astro';
+import PaymentPopup from '@features/user/PaymentPopup.astro';
 import { userService } from '@services/userService';
 
 // Terapkan AuthGuard & ambil data secara SSR
@@ -54,7 +55,9 @@ const orderHistory = await userService.getUserHistory();
         </div>
     </section>
 
-</UserLayout>
+    <PaymentPopup />
+
+</Layout>
 
 
 

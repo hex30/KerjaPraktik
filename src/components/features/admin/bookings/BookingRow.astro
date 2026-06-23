@@ -1,0 +1,254 @@
+---
+// File: src/components/features/admin/bookings/BookingRow.astro
+import type { BookingItem } from './BookingTable.astro';
+
+interface Props {
+    item: BookingItem;
+    bookingType: "RUTE" | "CHARTER" | "PACKAGE";
+    fleets?: any[];
+    drivers?: any[];
+}
+
+const { item, bookingType, fleets = [], drivers = [] } = Astro.props;
+
+// LOGIC STATE MAPPER (Support Selesai & Dibatalkan)
+const isNew = item.booking_status === 'menunggu_konfirmasi' && !item.payment_proof_url;
+const isWaitingPayment = item.booking_status === 'menunggu_pembayaran';
+const isProofUploaded = item.booking_status === 'menunggu_konfirmasi' && !!item.payment_proof_url;
+// ASUMSI: 'dalam_penjemputan' dipakai jika diverifikasi
+const isPickupList = item.booking_status === 'dalam_penjemputan' || (item.booking_status === 'selesai' && bookingType !== 'PACKAGE'); // HACK: karna BE belum support 'dalam_penjemputan', kita masih map 'selesai' ke pickup list di form utama.
+// Jika di sub-kategori, kita mapping 'selesai' sbg benar-benar selesai. 
+// Untuk membedakannya, kita cek apakah komponen ini dirender untuk section apa. Tapi kita bisa pakai property isArchived
+const isDone = item.booking_status === 'selesai_final' || item.booking_status === 'completed'; // Nantinya BE harus bedakan
+const isCancelled = item.booking_status === 'dibatalkan' || item.booking_status === 'ditolak';
+
+// Teks Status Utama
+let displayBadge = "";
+let badgeClass = "";
+
+if (isNew) {
+    displayBadge = "MENUNGGU";
+    badgeClass = "bg-amber-100 text-amber-600";
+} else if (isWaitingPayment) {
+    displayBadge = "MENUNGGU PEMBAYARAN";
+    badgeClass = "bg-amber-100 text-amber-600";
+} else if (isProofUploaded) {
+    displayBadge = "BUTUH PENGECEKAN";
+    badgeClass = "bg-sky-100 text-sky-600";
+} else if (isPickupList) {
+    displayBadge = "DALAM DAFTAR PENJEMPUTAN";
+    badgeClass = "bg-emerald-100 text-emerald-600";
+} else if (isCancelled) {
+    displayBadge = item.booking_status.toUpperCase();
+    badgeClass = "bg-rose-100 text-rose-600";
+} else {
+    displayBadge = item.booking_status.toUpperCase();
+    badgeClass = "bg-slate-100 text-slate-600";
+}
+
+---
+
+<div class="booking-card bg-white border border-slate-100 rounded-[1.5rem] shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md group mb-4">
+    <!-- Main Row -->
+    <div 
+        class="booking-main-row flex flex-col md:flex-row justify-between p-4 md:p-6 w-full cursor-pointer items-start md:items-center gap-6 toggle-trigger" 
+        data-id={item.id}
+    >
+        <div class="flex flex-col gap-1 w-full md:w-auto">
+            <h2 class="text-lg md:text-xl font-black text-slate-800 tracking-tight group-hover:text-primary transition-colors">
+                {item.user.name}
+            </h2>
+            <p class="font-secondary text-sm text-text-secondary flex items-center gap-2 mt-1">
+                <span class="font-bold text-slate-700">{item.user.address_detail?.kecamatan || 'Kecamatan'}</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+                <span class="font-bold text-slate-700">{item.destination}</span>
+            </p>
+            <span class="text-[10px] text-slate-400 font-secondary mt-1">
+                {item.user.phone} • {item.date} {bookingType === 'CHARTER' && item.time ? `| ${item.time}` : ''}
+            </span>
+        </div>
+
+        <div class="flex flex-row justify-between items-center mt-4 pt-4 border-t border-slate-100 w-full md:mt-0 md:pt-0 md:border-0 md:w-auto md:flex-col md:justify-between md:items-end gap-4 md:gap-2">
+            <span class={`px-3 py-1 rounded-full text-[10px] font-black ${badgeClass}`}>
+                {displayBadge}
+            </span>
+            <div class="flex items-center gap-2 text-slate-400">
+                <span class="text-[10px] font-bold uppercase tracking-widest hidden md:block">Kelola & Detail</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform duration-300 chevron-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+                </svg>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Expanded Row -->
+    <div class="booking-detail-row expand-content max-h-0 overflow-hidden transition-all duration-500 ease-in-out bg-slate-50/50">
+        <div class="p-4 md:p-6 border-t border-slate-100">
+            <div class="animate-fade-in">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                    <!-- Detail Column -->
+                    <div class="flex flex-col gap-6">
+                        <div class="grid grid-cols-2 gap-4">
+                            {bookingType === 'RUTE' ? (
+                                <>
+                                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100/50">
+                                        <span class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Nomor Kursi</span>
+                                        <span class="text-sm font-black text-primary">{item.user.seat_number}</span>
+                                    </div>
+                                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100/50">
+                                        <span class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Barang Bawaan</span>
+                                        <span class="text-sm font-bold text-slate-700">{item.user.luggage || '-'}</span>
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100/50">
+                                        <span class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Tgl Berangkat</span>
+                                        <span class="text-sm font-black text-primary">{item.user.departure_date}</span>
+                                    </div>
+                                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100/50">
+                                        <span class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Tgl Pulang</span>
+                                        <span class="text-sm font-black text-primary">{item.user.return_date || '-'}</span>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+
+                        <div class="space-y-4">
+                            <h5 class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                <div class="w-1 h-1 rounded-full bg-primary"></div>
+                                {bookingType === 'RUTE' ? 'Detail Alamat Jemput & Tujuan' : 'Detail Alamat Jemput & Lokasi Akhir'}
+                            </h5>
+                            
+                            <div class="bg-slate-50 p-4 md:p-6 rounded-2xl border border-slate-100/50 space-y-3">
+                                <div>
+                                    <span class="text-[8px] font-bold text-slate-400 uppercase block">ALAMAT JEMPUT (START)</span>
+                                    <p class="text-xs text-slate-600 leading-relaxed mt-1">
+                                        Kec. {item.user.address_detail?.kecamatan}, Desa {item.user.address_detail?.desa}, 
+                                        Dusun {item.user.address_detail?.dusun || '-'}, RT/RW {item.user.address_detail?.rt_rw || '-'}
+                                        <br/>
+                                        <span class="font-bold text-slate-900 dynamic-text-class">Patokan: {item.user.address_detail?.patokan || '-'}</span>
+                                    </p>
+                                </div>
+                                <div class="border-t border-slate-200/50 pt-3">
+                                    <span class="text-[8px] font-bold text-slate-400 uppercase block">ALAMAT TUJUAN (END)</span>
+                                    {bookingType === 'RUTE' ? (
+                                        <p class="text-xs text-slate-600 leading-relaxed mt-1">
+                                            Kec. {item.destination_detail?.kecamatan || '-'}, Desa {item.destination_detail?.desa || '-'}, 
+                                            RT/RW {item.destination_detail?.rt_rw || '-'}
+                                            <br/>
+                                            <span class="font-bold text-slate-900 dynamic-text-class">Patokan: {item.destination_detail?.patokan || '-'}</span>
+                                        </p>
+                                    ) : (
+                                        <p class="text-sm md:text-base text-slate-900 font-bold leading-relaxed mt-1 dynamic-text-class">
+                                            {item.destination}
+                                        </p>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Column -->
+                    <div class="flex flex-col gap-6">
+                        <h5 class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                            <div class="w-1 h-1 rounded-full bg-amber-500"></div>
+                            {isCancelled || isDone ? 'Data Terkunci' : 'Alokasi Armada & Supir'}
+                        </h5>
+
+                        <form class="admin-action-form bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-5 relative" data-booking-id={item.id} data-booking-type={bookingType} data-schedule-id={item.schedule_id || ''} data-current-state={isNew ? 'isNew' : isWaitingPayment ? 'isWaitingPayment' : isProofUploaded ? 'isProofUploaded' : isPickupList ? 'isPickupList' : 'isDone'}>
+                            
+                            <!-- Delete Button (Only for Done or Cancelled) -->
+                            {(isCancelled || isDone || isPickupList) && (
+                                <button type="button" onclick={`window.deleteOrderHistory('${item.id}', '${bookingType}')`} class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center bg-rose-50 hover:bg-rose-100 text-rose-500 rounded-lg transition-colors" title="Hapus Riwayat">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                                </button>
+                            )}
+
+                            <div class="grid grid-cols-1 gap-4">
+                                <div class="flex flex-col gap-2">
+                                    <label class="text-[9px] font-bold text-slate-500 uppercase">Pilih Armada (Unit)</label>
+                                    <select name="fleet_id" disabled={!isNew} class={`w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 outline-none ${!isNew ? 'opacity-70 cursor-not-allowed' : 'focus:ring-2 focus:ring-primary/10'}`}>
+                                        <option value="">Pilih Armada...</option>
+                                        {fleets.map(f => (
+                                            <option value={f.id} selected={f.car_type === item.fleet || f.id === item.fleet_id}>{f.car_type} ({f.plate_number})</option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="flex flex-col gap-2">
+                                        <label class="text-[9px] font-bold text-slate-500 uppercase">Supir 1 (Wajib)</label>
+                                        <select name="driver_1" disabled={!isNew} class={`w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2 text-xs font-bold text-slate-700 outline-none ${!isNew ? 'opacity-70 cursor-not-allowed' : ''}`}>
+                                            <option value="">Pilih Supir...</option>
+                                            {drivers.map(d => (
+                                                <option value={d.id} selected={d.id === item.driver_id}>{d.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                    <div class="flex flex-col gap-2">
+                                        <label class="text-[9px] font-bold text-slate-500 uppercase">Supir 2 (Opsional)</label>
+                                        <select name="driver_2" disabled={!isNew} class={`w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2 text-xs font-bold text-slate-700 outline-none ${!isNew ? 'opacity-70 cursor-not-allowed' : ''}`}>
+                                            <option value="">Tanpa Cadangan</option>
+                                            {drivers.map(d => (
+                                                <option value={d.id} selected={d.id === item.driver_2_id}>{d.name}</option>
+                                            ))}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="flex flex-col gap-2">
+                                        <label class="text-[9px] font-bold text-slate-500 uppercase">Harga (IDR)</label>
+                                        <div class="relative">
+                                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[10px]">Rp</span>
+                                            <input 
+                                                type="text" 
+                                                name="price"
+                                                readonly={!isNew}
+                                                placeholder="Harga..." 
+                                                value={item.price || (bookingType === 'RUTE' ? "250.000" : "")}
+                                                class={`w-full bg-slate-100 border border-slate-200 rounded-xl pl-8 pr-3 py-3 text-xs font-black text-primary outline-none ${!isNew ? 'opacity-70 cursor-not-allowed' : 'focus:ring-2 focus:ring-primary/10'}`}
+                                            />
+                                        </div>
+                                    </div>
+                                    {bookingType === 'RUTE' && (
+                                        <div class="flex flex-col gap-2">
+                                            <label class="text-[9px] font-bold text-slate-500 uppercase">Est. Penjemputan</label>
+                                            <input 
+                                                type="time" 
+                                                name="pickup_time"
+                                                readonly={!isNew}
+                                                value={item.time || ""}
+                                                class={`w-full bg-slate-50 border border-slate-100 rounded-xl px-3 py-3 text-xs font-bold text-slate-700 outline-none ${!isNew ? 'opacity-70 cursor-not-allowed' : 'focus:ring-2 focus:ring-primary/10'}`}
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div class="pt-2 flex flex-col gap-2">
+                                {isProofUploaded && item.payment_proof_url && (
+                                    <button type="button" onclick={`window.openPaymentPreview('${item.id}', '${item.payment_proof_url}')`} class="w-full text-sky-600 bg-sky-50 hover:bg-sky-100 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-colors flex items-center justify-center gap-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        Lihat Bukti Pembayaran
+                                    </button>
+                                )}
+                                
+                                {!(isDone || isCancelled) && (
+                                    <button 
+                                        type={isWaitingPayment ? "button" : "submit"} 
+                                        onclick={isWaitingPayment ? "alert('Sedang menunggu user melakukan pembayaran.'); return false;" : undefined}
+                                        class={`w-full text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${isWaitingPayment ? 'bg-amber-500 hover:shadow-xl hover:shadow-amber-500/20' : isProofUploaded ? 'bg-sky-500 hover:shadow-xl hover:shadow-sky-500/20 active:scale-95' : isPickupList ? 'bg-emerald-500 hover:shadow-xl hover:shadow-emerald-500/20 active:scale-95' : 'bg-primary hover:shadow-xl hover:shadow-primary/20 active:scale-95'}`}
+                                    >
+                                        {isNew ? "Simpan & Kirim Tagihan" : isWaitingPayment ? "Menunggu Pembayaran User" : isProofUploaded ? "Konfirmasi Pembayaran" : isPickupList ? "Selesai (Tuntaskan Pesanan)" : "Simpan"}
+                                    </button>
+                                )}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

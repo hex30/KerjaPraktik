@@ -24,34 +24,28 @@ let statusClass = "";
 let statusText = "";
 let showPayButton = false;
 
-switch (order.status) {
-    case "PENDING_CONFIRMATION":
-        statusClass = "bg-slate-100 text-slate-600 border-slate-200";
-        statusText = "Menunggu Admin Menetapkan Harga";
-        break;
-    case "PENDING_PAYMENT":
-        statusClass = "bg-amber-50 text-amber-600 border-amber-100";
-        statusText = "Menunggu Pembayaran Anda";
-        showPayButton = true;
-        break;
-    case "PENDING_CHECKING":
-        statusClass = "bg-sky-50 text-sky-600 border-sky-100";
-        statusText = "Menunggu Verifikasi Pembayaran";
-        break;
-    case "COMPLETED":
-    case "APPROVED":
-        statusClass = "bg-emerald-50 text-emerald-600 border-emerald-100";
-        statusText = "Selesai / Disetujui (ACC)";
-        break;
-    case "REJECTED":
-    case "CANCELLED":
-        statusClass = "bg-rose-50 text-rose-600 border-rose-100";
-        statusText = "Dibatalkan / Ditolak";
-        break;
-    default:
-        statusClass = "bg-slate-50 text-slate-500 border-slate-100";
-        statusText = order.status || "Status Tidak Diketahui";
-        break;
+const isNew = order.status === 'menunggu_konfirmasi' && !meta.payment_proof_url;
+const isProofUploaded = order.status === 'menunggu_konfirmasi' && !!meta.payment_proof_url;
+
+if (isNew) {
+    statusClass = "bg-slate-100 text-slate-600 border-slate-200";
+    statusText = "Menunggu Admin Menetapkan Harga";
+} else if (order.status === 'menunggu_pembayaran') {
+    statusClass = "bg-amber-50 text-amber-600 border-amber-100";
+    statusText = "Menunggu Pembayaran Anda";
+    showPayButton = true;
+} else if (isProofUploaded) {
+    statusClass = "bg-sky-50 text-sky-600 border-sky-100";
+    statusText = "Menunggu Verifikasi Pembayaran";
+} else if (order.status === 'selesai' || order.status === 'COMPLETED' || order.status === 'APPROVED') {
+    statusClass = "bg-emerald-50 text-emerald-600 border-emerald-100";
+    statusText = "Selesai / Lunas (Siap Dijemput)";
+} else if (order.status === 'dibatalkan' || order.status === 'ditolak' || order.status === 'REJECTED') {
+    statusClass = "bg-rose-50 text-rose-600 border-rose-100";
+    statusText = "Dibatalkan / Ditolak";
+} else {
+    statusClass = "bg-slate-50 text-slate-500 border-slate-100";
+    statusText = order.status ? order.status.toUpperCase() : "Status Tidak Diketahui";
 }
 
 // Format harga IDR
@@ -96,9 +90,15 @@ const formattedPrice = new Intl.NumberFormat('id-ID', { style: 'currency', curre
         </span>
 
         {showPayButton && (
-            <button class="w-full mt-2 px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white text-xs font-bold rounded-xl transition-colors shadow-sm animate-pulse-slow">
-                BAYAR SEKARANG
-            </button>
+            <div class="w-full mt-2 border-2 border-dashed border-sky-200 bg-sky-50 rounded-xl p-3 flex flex-col items-center justify-center gap-2 transition-all hover:bg-sky-100 cursor-pointer group" onclick={`window.openPaymentModal('${order.id}', '${order.type}')`}>
+                <div class="bg-white p-1.5 rounded-lg shadow-sm group-hover:scale-105 transition-transform">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-sky-600"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></svg>
+                </div>
+                <div class="text-center">
+                    <span class="block text-[10px] font-bold text-sky-700 uppercase tracking-wide">Bayar via QRIS</span>
+                    <span class="block text-[9px] text-sky-500 font-secondary mt-0.5">Klik untuk melihat kode QR</span>
+                </div>
+            </div>
         )}
     </div>
 </div>

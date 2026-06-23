@@ -58,7 +58,7 @@ try {
      const textRow3 = words.length > 2 ? words.slice(2).join(" ") : "";
 
      // Parsing persentase diskon menjadi bilangan bulat (misal: 20.00 menjadi 20)
-     const discountValue = Math.round(parseFloat(p.discount_percentage || 0));
+     const discountValue = Math.round(parseFloat(p.discount || p.discount_percentage || 0));
 
      promoData = {
         image: p.image_url || p.image || "",

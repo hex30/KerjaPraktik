@@ -10,18 +10,21 @@ interface Props {
     price: string | number;
     image: string;
     isHidden?: boolean;
+    isAvailable?: boolean;
 }
 
-const { car_type, value, seat_capacity, description, price, image, isHidden = false } = Astro.props;
+const { car_type, value, seat_capacity, description, price, image, isHidden = false, isAvailable = true } = Astro.props;
 ---
 
 <div 
     class:list={[
-        "fleet-card-wrapper cursor-pointer rounded-2xl transition-all duration-300 relative group/wrapper select-none",
-        isHidden ? "hidden extra-card" : ""
+        "fleet-card-wrapper rounded-2xl transition-all duration-300 relative group/wrapper select-none",
+        isHidden ? "hidden extra-card" : "",
+        isAvailable ? "cursor-pointer" : "cursor-not-allowed opacity-80 grayscale-[30%]"
     ]} 
     data-value={value} 
     data-name={car_type}
+    data-available={isAvailable ? "true" : "false"}
 >
     <FleetCard 
         name={car_type} 
@@ -29,6 +32,7 @@ const { car_type, value, seat_capacity, description, price, image, isHidden = fa
         description={description} 
         price={price.toString()} 
         image={image} 
+        isAvailable={isAvailable}
     />
     <div class="absolute inset-0 pointer-events-none rounded-2xl transition-all duration-300 border-2 border-transparent group-hover/wrapper:border-primary/40 selected-ring"></div>
     <div class="absolute top-4 right-4 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center opacity-0 scale-50 transition-all duration-300 selected-check">

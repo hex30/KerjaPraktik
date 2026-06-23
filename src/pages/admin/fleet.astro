@@ -138,10 +138,10 @@ const fleets = await adminContentService.getFleetsAdmin(token);
 
                     <div class="md:col-span-2 flex flex-col gap-2">
                         <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Gambar Armada (Rasio 16:9)</label>
-                        <div class="relative w-full h-40 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 flex flex-col items-center justify-center gap-3 hover:border-primary transition-all cursor-pointer group overflow-hidden">
-                            <input type="file" name="image" id="fleet_image" class="absolute inset-0 opacity-0 cursor-pointer z-10" />
+                        <div class="relative w-full h-40 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 flex flex-col items-center justify-center gap-3 hover:border-primary hover:bg-primary/5 transition-all cursor-pointer group overflow-hidden">
+                            <input type="file" name="image" id="fleet_image" accept="image/png, image/jpeg, image/jpg" class="image-upload-input absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-300 group-hover:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                            <span class="text-xs font-bold text-slate-400 group-hover:text-primary transition-colors">Upload File Gambar</span>
+                            <span class="image-upload-text text-xs font-bold text-slate-400 group-hover:text-primary transition-colors px-4 text-center line-clamp-1">Pilih Gambar / Drag & Drop</span>
                         </div>
                     </div>
 
@@ -308,7 +308,27 @@ const fleets = await adminContentService.getFleetsAdmin(token);
             if (inputId) inputId.value = '';
             if (formTitle) formTitle.textContent = "Tambah Armada Baru";
             if (formDesc) formDesc.textContent = "Lengkapi informasi unit kendaraan untuk ditampilkan pada sistem pemesanan pelanggan.";
+            
+            // Reset text file name
+            const uploadText = form.querySelector('.image-upload-text');
+            if (uploadText) uploadText.textContent = "Pilih Gambar / Drag & Drop";
         });
+
+        // UI/UX Update Image Name
+        const imageInput = form.querySelector('.image-upload-input') as HTMLInputElement;
+        const uploadText = form.querySelector('.image-upload-text');
+        if (imageInput && uploadText) {
+            imageInput.addEventListener('change', (e) => {
+                const target = e.target as HTMLInputElement;
+                if (target.files && target.files.length > 0) {
+                    uploadText.textContent = target.files[0].name;
+                    uploadText.classList.add('text-primary');
+                } else {
+                    uploadText.textContent = "Pilih Gambar / Drag & Drop";
+                    uploadText.classList.remove('text-primary');
+                }
+            });
+        }
     };
 
     document.addEventListener('DOMContentLoaded', setupFleetLogic);

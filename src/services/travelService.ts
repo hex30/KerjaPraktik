@@ -45,8 +45,7 @@ export const travelService = {
   // dokumentasi: Mengunggah bukti pembayaran tiket reguler (membutuhkan JWT Token).
   uploadPaymentProof: async (bookingId: string, formData: FormData, token: string) => {
     try {
-      // Karena mengirim FormData, tidak menggunakan apiFetch biasa yang men-set Content-Type: application/json
-      const response = await fetch(`${import.meta.env.PUBLIC_API_URL || 'http://localhost:5000'}/api/travel/bookings/${bookingId}/payment-proof`, {
+      const response = await apiFetch(`/api/travel/bookings/${bookingId}/payment-proof`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -54,15 +53,10 @@ export const travelService = {
         body: formData
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `API Error: ${response.status}`);
-      }
-
-      return await response.json();
+      return response;
     } catch (error) {
-      console.error("Gagal mengunggah bukti pembayaran:", error);
+      console.error("Gagal unggah bukti bayar:", error);
       throw error;
     }
-  }
+  },
 };

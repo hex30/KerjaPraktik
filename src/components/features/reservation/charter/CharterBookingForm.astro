@@ -12,14 +12,27 @@ import { charterService } from "@services/charterService";
 let fleetData: any[] = [];
 try {
     const allFleets = await charterService.getFleets();
-    // Filter to only unique car_types (Elf and Luxio) as requested
-    const uniqueFleetsMap = new Map();
+    
+    // Group by car_type to calculate availability
+    const fleetGroups = new Map();
     for (const fleet of allFleets) {
-        if (!uniqueFleetsMap.has(fleet.car_type)) {
-            uniqueFleetsMap.set(fleet.car_type, fleet);
+        if (!fleetGroups.has(fleet.car_type)) {
+            fleetGroups.set(fleet.car_type, { 
+                ...fleet, 
+                totalUnits: 0, 
+                availableUnits: 0 
+            });
+        }
+        
+        const group = fleetGroups.get(fleet.car_type);
+        group.totalUnits += 1;
+        // Hanya yang statusnya active yang dihitung tersedia
+        if (fleet.status === 'active' || fleet.status === 'Tersedia') {
+            group.availableUnits += 1;
         }
     }
-    fleetData = Array.from(uniqueFleetsMap.values());
+    
+    fleetData = Array.from(fleetGroups.values());
 } catch (error) {
     console.error("Gagal memuat katalog armada charter:", error);
     fleetData = [];
@@ -78,8 +91,8 @@ try {
                                         <option value="" disabled selected>Pilih kendaraan...</option>
                                         {
                                             fleetData.map((unit) => (
-                                                <option value={unit.car_type}>
-                                                    {unit.car_type}
+                                                <option value={unit.car_type} disabled={unit.availableUnits === 0}>
+                                                    {unit.car_type} {unit.availableUnits === 0 ? "(Tidak Tersedia)" : ""}
                                                 </option>
                                             ))
                                         }
@@ -150,7 +163,9 @@ try {
                             <FleetSelectionItem
                                 {...unit}
                                 value={unit.car_type}
+                                image={unit.image_url}
                                 isHidden={index > 1}
+                                isAvailable={unit.availableUnits > 0}
                             />
                         ))
                     ) : (
@@ -173,7 +188,15 @@ try {
             </div>
 
             <div id="right-step-2" class="hidden animate-fade-in w-full">
-                <PassengerDataForm formId="form-data-diri-booking" />
+                <form id="form-data-diri-booking" class="flex flex-col gap-8">
+                    <PassengerDataForm />
+
+                    <div class="pt-4 border-t border-slate-100">
+                        <Button type="submit" size="lg" class="w-full md:w-auto">
+                            Selesaikan Pemesanan
+                        </Button>
+                    </div>
+                </form>
             </div>
         </section>
     </article>
@@ -330,6 +353,12 @@ try {
 
             card.addEventListener("click", (e) => {
                 if (checkGuest(e)) return;
+                
+                const isAvailable = card.getAttribute("data-available") === "true";
+                if (!isAvailable) {
+                    alert("Mohon maaf, saat ini armada jenis ini sedang disewa seluruhnya (tidak tersedia). Silakan pilih armada lain.");
+                    return;
+                }
 
                 const value = card.getAttribute("data-value");
                 if (!value) return;

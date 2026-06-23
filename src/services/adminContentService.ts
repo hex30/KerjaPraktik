@@ -40,7 +40,7 @@ export interface UserAdmin {
 const getAuthHeaders = (tokenParam?: string): Record<string, string> => {
     // Gunakan token dari parameter jika ada (biasanya dari cookie saat SSR)
     if (tokenParam) return { 'Authorization': `Bearer ${tokenParam}` };
-    
+
     // Pada saat build SSR Astro, localStorage tidak ada.
     if (typeof window !== 'undefined') {
         const token = localStorage.getItem('token') || localStorage.getItem('jwt_token');
@@ -70,11 +70,29 @@ export const adminContentService = {
             const isFormData = data instanceof FormData;
             const headers = getAuthHeaders();
 
-            // Jika multipart/form-data, browser akan set Content-Type otomatis (hapus Content-Type bawaan apiFetch)
+            const id = isFormData ? data.get('id') : data.id;
+            const method = id ? 'PUT' : 'POST';
+            const endpoint = id ? `/api/admin/cms/promotions/${id}` : '/api/admin/cms/promotions';
+
+            let cleanData: any;
+            if (isFormData) {
+                data.delete('id');
+
+                const imageFile = data.get('image');
+                if (imageFile instanceof File && imageFile.size === 0) {
+                    data.delete('image');
+                } else if (typeof imageFile === 'string' && !imageFile) {
+                    data.delete('image');
+                }
+                cleanData = data;
+            } else {
+                cleanData = JSON.stringify(data);
+            }
+
             const options: RequestInit = {
-                method: 'POST', // Asumsi selalu POST untuk replace active promo
+                method,
                 headers: isFormData ? headers : { ...headers, 'Content-Type': 'application/json' },
-                body: isFormData ? data : JSON.stringify(data)
+                body: cleanData
             };
 
             // Menghapus Content-Type agar browser bisa set boundary multipart jika pakai FormData
@@ -83,7 +101,7 @@ export const adminContentService = {
                 delete options.headers['Content-Type'];
             }
 
-            return await apiFetch('/api/admin/cms/promotions', options);
+            return await apiFetch(endpoint, options);
         } catch (error) {
             console.error("Gagal menyimpan promo:", error);
             throw error;
@@ -121,6 +139,16 @@ export const adminContentService = {
             const id = data.get('id');
             const method = id ? 'PUT' : 'POST';
             const endpoint = id ? `/api/admin/cms/destinations/${id}` : '/api/admin/cms/destinations';
+
+            data.delete('id'); // Hapus ID dari body payload
+
+            // Hapus payload gambar kosong agar multer Backend tidak melempar error "File tidak didukung"
+            const imageFile = data.get('image');
+            if (imageFile instanceof File && imageFile.size === 0) {
+                data.delete('image');
+            } else if (typeof imageFile === 'string' && !imageFile) {
+                data.delete('image');
+            }
 
             const options: RequestInit = {
                 method,
@@ -182,11 +210,25 @@ export const adminContentService = {
             const method = id ? 'PUT' : 'POST';
             const endpoint = id ? `/api/admin/cms/fleets/${id}` : '/api/admin/cms/fleets';
 
+            data.delete('id'); // Hapus ID dari body payload
+
+            // Hapus payload gambar kosong agar multer Backend tidak melempar error "File tidak didukung"
+            const imageFile = data.get('image');
+            if (imageFile instanceof File && imageFile.size === 0) {
+                data.delete('image');
+            } else if (typeof imageFile === 'string' && !imageFile) {
+                data.delete('image');
+            }
+
             const options: RequestInit = {
                 method,
                 headers,
                 body: data
             };
+
+            // Menghapus Content-Type agar browser bisa set boundary multipart
+            // @ts-ignore
+            delete options.headers['Content-Type'];
 
             return await apiFetch(endpoint, options);
         } catch (error) {

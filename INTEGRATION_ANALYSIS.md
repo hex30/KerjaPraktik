@@ -51,3 +51,9 @@ Tim Backend **belum menyelesaikan** penyesuaian yang diminta. Integrasi saat ini
 2. Cabut enum ketat armada di Charter.
 3. Tambahkan endpoint `POST /api/travel/schedules/availability`, `GET /api/travel/seats`, `GET /api/content/fleets`, dan `departure-requests` di Dashboard.
 4. Sesuaikan `keys` JSON di Dashboard Metrics.
+
+## 8. Modul Kelola Konten (Bug Form Edit)
+- **`PUT /api/admin/cms/promotions/:id`, `destinations/:id`, `fleets/:id`**
+  - **Status BE:** ❌ **Menyebabkan Error Silent (Gagal Simpan)**.
+  - **Penyebab 1 (Tabrakan Primary Key):** Saat Frontend mengirimkan _form update_ yang berisi payload `id` dalam `req.body`, instruksi `updateRecord` di `masterData.model.js` akan mencoba mengeksekusi `UPDATE ... SET id = ...` pada PostgreSQL. Hal ini terlarang dan akan membuat proses *update* gagal total. **Saran untuk BE:** Hapus properti `id` dari `req.body` sebelum memasukkannya ke fungsi `.update(data)` di Knex.
+  - **Penyebab 2 (Ketidaksesuaian Nama Field Diskon):** Form Frontend mengirimkan payload diskon dengan atribut `discount`, namun kolom tabel di Database Backend bernama `discount_percentage`. Proses _update_ dari Frontend akan gagal karena PostgreSQL memunculkan pesan error "column 'discount' of relation 'promotions' does not exist". **Saran untuk BE:** Sesuaikan nama kolom `discount_percentage` menjadi `discount` di Database ATAU pastikan `masterData.model.js` menerjemahkan `discount` menjadi `discount_percentage` saat menerima _request_.

@@ -36,6 +36,7 @@ export const userService = {
             meta: {
               seat_number: item.seat_number,
               payment_method: item.payment_method,
+              payment_proof_url: item.payment_proof_url,
               ...item
             }
           });
@@ -54,6 +55,7 @@ export const userService = {
             status: item.status || 'PENDING',
             meta: {
               pickup_address: item.pickup_address,
+              payment_proof_url: item.payment_proof_url,
               notes: item.notes,
               ...item
             }

@@ -65,9 +65,15 @@ Tugas-tugas di bawah ini masih tertunda, sebagian besar karena masalah kecocokan
 - [ ] **Validasi Tipe Armada Charter:** Endpoint `POST /api/charter/request` masih membatasi `car_type` secara statis (hanya "Luxio" atau "Elf"). Backend harus merombak ini agar bisa menerima input armada bebas atau ID armada dari database.
 - [ ] **Endpoint Penjadwalan Dinamis:** Pembuatan endpoint `POST /api/travel/schedules/availability` untuk mengecek ketersediaan kursi secara massal tanpa memerlukan UUID spesifik sebelumnya.
 - [ ] **Endpoint Izin Keberangkatan (Admin Dashboard):** Membuat rute baru `GET /api/admin/dashboard/departure-requests` untuk memvalidasi permintaan tugas supir harian.
+- [ ] **Enum Status Baru (Dalam Daftar Penjemputan):** Backend harus menambahkan enum `dalam_penjemputan` pada database PostgreSQL untuk `booking_status` (Travel), `status` (Charter), dan `transaction_status` (Paket).
+- [ ] **Modifikasi Endpoint Verifikasi & Selesai:** Ubah endpoint `/verify` agar mengubah status pesanan menjadi `dalam_penjemputan`, dan tambahkan kapabilitas endpoint `/status` agar bisa merubah pesanan menjadi `selesai`.
+- [ ] **Endpoint Hapus Riwayat (Delete):** Tambahkan endpoint `DELETE /api/admin/master/travel-bookings/:id`, `DELETE /api/charter/:id`, dan `DELETE /api/admin/master/package-shipments/:id` untuk fitur Hapus Riwayat secara permanen dari UI Admin.
+- [ ] **Endpoint Unggah Bukti Bayar:** Pastikan endpoint `/payment-proof` tersedia dan berfungsi untuk Travel, Charter, dan Paket Ekspedisi guna memproses gambar resi QRIS.
 
 ### 🔵 Tugas Integrasi Frontend (Modul yang Belum Disentuh)
 - [ ] **Modul Area Supir (Driver Dashboard):** Halaman `src/pages/driver/report.astro` belum disinkronisasi. Harus dihubungkan untuk tugas melihat jadwal, merubah status tugas (board/driving), mengajukan biaya operasional bensin/tol (`POST /api/driver/expenses`), dan log perawatan.
 - [ ] **Modul Keuangan Admin (Ledger & Cashflow):** Halaman `src/pages/admin/finance.astro` belum diintegrasikan dengan rute `GET /api/admin/cashflow/summary` dan `GET /api/admin/cashflow/transactions`.
 - [ ] **Proses "Verify & Assign" (Admin Bookings):** Menambahkan interaksi bagi Admin untuk memverifikasi pembayaran (`PUT /api/travel-bookings/:id/verify`) dan mengatur jadwal penjemputan.
 - [ ] **Profil Akun Pengguna / Pengaturan (Opsional):** Jika ada halaman UI untuk pengguna mereset kata sandi atau memperbarui data (Berdasarkan endpoint `/api/auth/reset-password`).
+
+- [ ] **Perhitungan Otomatis Diskon Promosi:** Saat Admin menyetujui pemesanan (meng-input harga), Backend (updateTravelBookingStatus) wajib memotong nilai harga (price) tersebut secara otomatis jika ada promo aktif berdasarkan parameter discount dan max_discount. Saat ini BE hanya menerima price mentah tanpa diproses.

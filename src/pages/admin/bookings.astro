@@ -8,10 +8,23 @@ import { adminBookingService } from "@services/adminBookingService";
 const token = Astro.cookies.get('token')?.value;
 
 // Fetch data dari Backend via SSR
-const [ruteData, charterData] = await Promise.all([
+const [ruteData, charterData, rawFleets, driversData] = await Promise.all([
     adminBookingService.getTravelBookings(token),
-    adminBookingService.getCharterBookings(token)
+    adminBookingService.getCharterBookings(token),
+    adminBookingService.getMasterFleets(token),
+    adminBookingService.getMasterDrivers(token)
 ]);
+
+// Filter fleet (Elf pertama, lalu Luxio) dan mapping data
+const fleetsData = rawFleets
+    .filter(f => f.car_type?.toLowerCase().includes('elf') || f.car_type?.toLowerCase().includes('luxio'))
+    .sort((a, b) => {
+        const aType = a.car_type?.toLowerCase() || '';
+        const bType = b.car_type?.toLowerCase() || '';
+        if (aType.includes('elf') && !bType.includes('elf')) return -1;
+        if (!aType.includes('elf') && bType.includes('elf')) return 1;
+        return 0;
+    });
 ---
 
 <AdminLayout title="Manajemen Pemesanan">
@@ -30,7 +43,7 @@ const [ruteData, charterData] = await Promise.all([
             </div>
             
             {/* @ts-ignore */}
-            <BookingTable bookingType="RUTE" bookingData={ruteData} />
+            <BookingTable bookingType="RUTE" bookingData={ruteData} fleets={fleetsData} drivers={driversData} />
         </section>
 
         <!-- Bagian Booking/Charter -->
@@ -46,7 +59,7 @@ const [ruteData, charterData] = await Promise.all([
             </div>
             
             {/* @ts-ignore */}
-            <BookingTable bookingType="CHARTER" bookingData={charterData} />
+            <BookingTable bookingType="CHARTER" bookingData={charterData} fleets={fleetsData} drivers={driversData} />
         </section>
 
     </div>

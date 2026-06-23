@@ -23,7 +23,10 @@ export interface TravelBookingAdmin {
     date: string;
     time?: string;
     status: string;
+    booking_status: string;
+    payment_proof_url: string | null;
     price: number | null;
+    schedule_id?: string;
 }
 
 export interface CharterBookingAdmin {
@@ -41,7 +44,10 @@ export interface CharterBookingAdmin {
     date: string;
     fleet: string;
     status: string;
+    booking_status: string;
+    payment_proof_url: string | null;
     price: number | null;
+    schedule_id?: string;
 }
 
 export interface PackageShipmentAdmin {
@@ -99,8 +105,11 @@ export const adminBookingService = {
                 destination: item.destination || 'N/A',
                 date: item.departure_date || item.created_at || new Date().toISOString(),
                 time: item.departure_time || '-',
-                status: item.status || 'PENDING',
-                price: item.total_price || null
+                status: item.booking_status || 'PENDING',
+                booking_status: item.booking_status,
+                payment_proof_url: item.payment_proof_url || null,
+                price: item.price || null,
+                schedule_id: item.schedule_id || null
             }));
         } catch (error) {
             console.error("Gagal mengambil data pemesanan travel:", error);
@@ -131,7 +140,10 @@ export const adminBookingService = {
                 date: item.created_at || new Date().toISOString(),
                 fleet: item.car_type || 'Armada Belum Dipilih',
                 status: item.status || 'PENDING',
-                price: item.total_price || null
+                booking_status: item.status || 'PENDING',
+                payment_proof_url: item.payment_proof_url || null,
+                price: item.offered_price || null,
+                schedule_id: null
             }));
         } catch (error) {
             console.error("Gagal mengambil data sewa charter:", error);

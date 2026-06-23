@@ -69,14 +69,20 @@ const { formId } = Astro.props;
 
 <script>
     const setupPassengerAutofill = () => {
-        const inputNama = document.getElementById("nama-lengkap") as HTMLInputElement;
+        const inputNamas = document.querySelectorAll('input[name="full_name"]');
         
         const userDataStr = localStorage.getItem("user_data");
-        if (userDataStr && inputNama) {
+        if (userDataStr && inputNamas.length > 0) {
             try {
                 const user = JSON.parse(userDataStr);
-                if (user.name || user.nama) {
-                    inputNama.value = user.name || user.nama;
+                const userName = user.full_name || user.username || user.name || user.nama;
+                if (userName) {
+                    inputNamas.forEach((input) => {
+                        const inputEl = input as HTMLInputElement;
+                        if (!inputEl.value) {
+                            inputEl.value = userName;
+                        }
+                    });
                 }
             } catch (e) {
                 console.error("Gagal membaca user_data", e);

@@ -2,6 +2,8 @@
 // File: src/components/features/admin/bookings/BookingTable.astro
 import AdminBadge from "@ui/AdminBadge.astro";
 import Button from "@ui/Button.astro";
+import BookingRow from "./BookingRow.astro";
+import PaymentPreviewModal from "./PaymentPreviewModal.astro";
 
 /**
  * DATA CONTRACT: The expected structure for a booking item from the Back-End.
@@ -36,206 +38,125 @@ export interface BookingItem {
     time?: string;
     price?: number;
     fleet?: string;
+    fleet_id?: string;
+    driver_id?: string;
+    driver_2_id?: string;
+    booking_status: string;
+    payment_proof_url?: string;
+    schedule_id?: string;
 }
 
 interface Props {
-    bookingType: "RUTE" | "CHARTER";
+    bookingType: "RUTE" | "CHARTER" | "PACKAGE";
     bookingData: BookingItem[];
+    fleets?: any[];
+    drivers?: any[];
 }
 
-const { bookingType, bookingData } = Astro.props;
+const { bookingType, bookingData, fleets = [], drivers = [] } = Astro.props;
+
+// PISAHKAN DATA BERDASARKAN KATEGORI
+// Asumsi BE belum punya 'dalam_penjemputan'. Nanti isDone harusnya !== 'selesai' kl BE blm update.
+// Tapi kita map 'selesai' sbg isPickupList kalau dia belum benar-benar finished.
+// Jika status 'selesai_final' atau 'completed' itu benar2 selesai.
+// Untuk sekarang, asumsikan 'selesai' kita simpan di tabel Selesai.
+const activeBookings = bookingData.filter(item => !['selesai', 'selesai_final', 'completed', 'dibatalkan', 'ditolak', 'cancelled', 'received'].includes(item.booking_status.toLowerCase()));
+const completedBookings = bookingData.filter(item => ['selesai', 'selesai_final', 'completed', 'received'].includes(item.booking_status.toLowerCase()));
+const cancelledBookings = bookingData.filter(item => ['dibatalkan', 'ditolak', 'cancelled'].includes(item.booking_status.toLowerCase()));
+
 ---
 
-<div class="flex flex-col gap-4 booking-container">
-        <tbody class="booking-tbody">
-            {bookingData.map((item) => (
-                <div class="booking-card bg-white border border-slate-100 rounded-[1.5rem] shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md group">
-                    <!-- Main Row -->
-                    <div 
-                        class="booking-main-row flex flex-col md:flex-row justify-between p-4 md:p-6 w-full cursor-pointer items-start md:items-center gap-6 toggle-trigger" 
-                        data-id={item.id}
-                    >
-                        <div class="flex flex-col gap-1 w-full md:w-auto">
-                            <h2 class="text-lg md:text-xl font-black text-slate-800 tracking-tight group-hover:text-primary transition-colors">
-                                {item.user.name}
-                            </h2>
-                            <p class="font-secondary text-sm text-text-secondary flex items-center gap-2 mt-1">
-                                <span class="font-bold text-slate-700">{item.user.address_detail.kecamatan}</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
-                                <span class="font-bold text-slate-700">{item.destination}</span>
-                            </p>
-                            <span class="text-[10px] text-slate-400 font-secondary mt-1">
-                                {item.user.phone} • {item.date} {bookingType === 'CHARTER' && item.time ? `| ${item.time}` : ''}
-                            </span>
-                        </div>
-
-                        <div class="flex flex-row justify-between items-center mt-4 pt-4 border-t border-slate-100 w-full md:mt-0 md:pt-0 md:border-0 md:w-auto md:flex-col md:justify-between md:items-end gap-4 md:gap-2">
-                            {item.price ? (
-                                <AdminBadge status="WAITING_PAYMENT" />
-                            ) : (
-                                <span class="px-3 py-1 rounded-full text-[10px] font-black bg-amber-100 text-amber-600">MENUNGGU</span>
-                            )}
-                            <div class="flex items-center gap-2 text-slate-400">
-                                <span class="text-[10px] font-bold uppercase tracking-widest hidden md:block">Kelola & Detail</span>
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform duration-300 chevron-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Expanded Row -->
-                    <div class="booking-detail-row expand-content max-h-0 overflow-hidden transition-all duration-500 ease-in-out bg-slate-50/50">
-                        <div class="p-4 md:p-6 border-t border-slate-100">
-                            <div class="animate-fade-in">
-                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                                    <!-- Detail Column -->
-                                    <div class="flex flex-col gap-6">
-                                        <div class="grid grid-cols-2 gap-4">
-                                            {bookingType === 'RUTE' ? (
-                                                <>
-                                                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100/50">
-                                                        <span class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Nomor Kursi</span>
-                                                        <span class="text-sm font-black text-primary">{item.user.seat_number}</span>
-                                                    </div>
-                                                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100/50">
-                                                        <span class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Barang Bawaan</span>
-                                                        <span class="text-sm font-bold text-slate-700">{item.user.luggage}</span>
-                                                    </div>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100/50">
-                                                        <span class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Tgl Keberangkatan</span>
-                                                        <span class="text-sm font-black text-primary">{item.user.departure_date}</span>
-                                                    </div>
-                                                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100/50">
-                                                        <span class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Tgl Kepulangan</span>
-                                                        <span class="text-sm font-black text-primary">{item.user.return_date}</span>
-                                                    </div>
-                                                </>
-                                            )}
-                                        </div>
-
-                                        <div class="space-y-4">
-                                            <h5 class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                                                <div class="w-1 h-1 rounded-full bg-primary"></div>
-                                                {bookingType === 'RUTE' ? 'Detail Alamat Jemput & Tujuan' : 'Detail Alamat Jemput & Lokasi Akhir'}
-                                            </h5>
-                                            
-                                            <div class="bg-slate-50 p-4 md:p-6 rounded-2xl border border-slate-100/50 space-y-3">
-                                                <div>
-                                                    <span class="text-[8px] font-bold text-slate-400 uppercase block">ALAMAT JEMPUT (START)</span>
-                                                    <p class="text-xs text-slate-600 leading-relaxed mt-1">
-                                                        Kec. {item.user.address_detail.kecamatan}, Desa {item.user.address_detail.desa}, 
-                                                        Dusun {item.user.address_detail.dusun}, RT/RW {item.user.address_detail.rt_rw}
-                                                        <br/>
-                                                        <span class="font-bold text-slate-900 dynamic-text-class">Patokan: {item.user.address_detail.patokan}</span>
-                                                    </p>
-                                                </div>
-                                                <div class="border-t border-slate-200/50 pt-3">
-                                                    <span class="text-[8px] font-bold text-slate-400 uppercase block">ALAMAT TUJUAN (END)</span>
-                                                    {bookingType === 'RUTE' ? (
-                                                        <p class="text-xs text-slate-600 leading-relaxed mt-1">
-                                                            Kec. {item.user.destination_detail.kecamatan}, Desa {item.user.destination_detail.desa}, 
-                                                            RT/RW {item.user.destination_detail.rt_rw}
-                                                            <br/>
-                                                            <span class="font-bold text-slate-900 dynamic-text-class">Patokan: {item.user.destination_detail.patokan}</span>
-                                                        </p>
-                                                    ) : (
-                                                        <p class="text-sm md:text-base text-slate-900 font-bold leading-relaxed mt-1 dynamic-text-class">
-                                                            {item.destination}
-                                                        </p>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Action Column -->
-                                    <div class="flex flex-col gap-6">
-                                        <h5 class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                                            <div class="w-1 h-1 rounded-full bg-amber-500"></div>
-                                            Alokasi Armada & Supir
-                                        </h5>
-
-                                        <form class="admin-action-form bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-5" data-booking-id={item.id}>
-                                            <div class="grid grid-cols-1 gap-4">
-                                                <div class="flex flex-col gap-2">
-                                                    <label class="text-[9px] font-bold text-slate-500 uppercase">Pilih Armada (Unit)</label>
-                                                    <select name="fleet_id" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-primary/10">
-                                                        <option value="">Pilih Armada...</option>
-                                                        <option value="H01" selected={item.fleet === "Toyota Hiace Commuter"}>Hiace Commuter (Z 1234 XX)</option>
-                                                        <option value="H02">Hiace Premio (Z 5678 YY)</option>
-                                                        <option value="E01">Elf Long (Z 9012 ZZ)</option>
-                                                    </select>
-                                                </div>
-
-                                                <div class="grid grid-cols-2 gap-4">
-                                                    <div class="flex flex-col gap-2">
-                                                        <label class="text-[9px] font-bold text-slate-500 uppercase">Supir 1 (Wajib)</label>
-                                                        <select name="driver_1" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2 text-xs font-bold text-slate-700 outline-none">
-                                                            <option value="">Pilih Supir...</option>
-                                                            <option value="D1">Budi Santoso</option>
-                                                            <option value="D2">Agus Setiawan</option>
-                                                            <option value="D3">Iwan Fals</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="flex flex-col gap-2">
-                                                        <label class="text-[9px] font-bold text-slate-500 uppercase">Supir 2 (Opsional)</label>
-                                                        <select name="driver_2" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-2 text-xs font-bold text-slate-700 outline-none">
-                                                            <option value="">Tanpa Cadangan</option>
-                                                            <option value="D1">Budi Santoso</option>
-                                                            <option value="D2">Agus Setiawan</option>
-                                                            <option value="D3">Iwan Fals</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-
-                                                <div class="grid grid-cols-2 gap-4">
-                                                    <div class="flex flex-col gap-2">
-                                                        <label class="text-[9px] font-bold text-slate-500 uppercase">Harga (IDR)</label>
-                                                        <div class="relative">
-                                                            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[10px]">Rp</span>
-                                                            <input 
-                                                                type="text" 
-                                                                name="price"
-                                                                placeholder="Harga..." 
-                                                                value={item.price || (bookingType === 'RUTE' ? "250.000" : "")}
-                                                                class="w-full bg-slate-100 border border-slate-200 rounded-xl pl-8 pr-3 py-3 text-xs font-black text-primary outline-none focus:ring-2 focus:ring-primary/10"
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                    {bookingType === 'RUTE' && (
-                                                        <div class="flex flex-col gap-2">
-                                                            <label class="text-[9px] font-bold text-slate-500 uppercase">Est. Penjemputan</label>
-                                                            <input 
-                                                                type="time" 
-                                                                name="pickup_time"
-                                                                class="w-full bg-slate-50 border border-slate-100 rounded-xl px-3 py-3 text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-primary/10"
-                                                            />
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-
-                                            <div class="pt-2">
-                                                <button type="submit" class="w-full bg-primary text-white py-4 rounded-2xl text-[10px] font-black hover:shadow-xl hover:shadow-primary/20 transition-all active:scale-95 uppercase tracking-widest">
-                                                    Simpan & Kirim Tagihan
-                                                </button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            ))}
+<div class="flex flex-col gap-12 booking-container">
+    
+    <!-- BAGIAN 1: ANTRIAN AKTIF -->
+    <div>
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-black text-slate-800 tracking-tight">Antrean Aktif</h3>
+            <span class="px-3 py-1 bg-primary/10 text-primary font-bold text-[10px] rounded-full">{activeBookings.length} Pesanan</span>
         </div>
+        
+        {activeBookings.length === 0 ? (
+            <div class="bg-white border border-slate-100 rounded-3xl p-12 text-center shadow-sm">
+                <p class="text-slate-400 font-bold text-sm">Tidak ada pesanan aktif saat ini.</p>
+            </div>
+        ) : (
+            <div class="booking-tbody">
+                {activeBookings.map((item) => (
+                    <BookingRow item={item} bookingType={bookingType} fleets={fleets} drivers={drivers} />
+                ))}
+            </div>
+        )}
     </div>
 
+    <!-- BAGIAN 2: PESANAN SELESAI -->
+    <div>
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-black text-slate-800 tracking-tight flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-emerald-500 block"></span>
+                Pesanan Selesai
+            </h3>
+            <span class="px-3 py-1 bg-emerald-50 text-emerald-600 font-bold text-[10px] rounded-full">{completedBookings.length} Riwayat</span>
+        </div>
+
+        {completedBookings.length === 0 ? (
+            <div class="bg-white border border-slate-100 rounded-3xl p-12 text-center shadow-sm">
+                <p class="text-slate-400 font-bold text-sm">Belum ada riwayat pesanan selesai.</p>
+            </div>
+        ) : (
+            <div class="flex flex-col">
+                {completedBookings.slice(0, 3).map((item) => (
+                    <BookingRow item={item} bookingType={bookingType} fleets={fleets} drivers={drivers} />
+                ))}
+                
+                {completedBookings.length > 3 && (
+                    <div class="mt-4">
+                        <a href={`/admin/history/completed?type=${bookingType}`} class="block w-full py-4 text-center bg-emerald-50 hover:bg-emerald-100 text-emerald-600 text-xs font-bold uppercase tracking-widest rounded-xl transition-colors">
+                            Lihat Keseluruhan ({completedBookings.length} Data)
+                        </a>
+                    </div>
+                )}
+            </div>
+        )}
+    </div>
+
+    <!-- BAGIAN 3: PESANAN DIBATALKAN -->
+    <div>
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xl font-black text-slate-800 tracking-tight flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-rose-500 block"></span>
+                Pesanan Dibatalkan
+            </h3>
+            <span class="px-3 py-1 bg-rose-50 text-rose-600 font-bold text-[10px] rounded-full">{cancelledBookings.length} Riwayat</span>
+        </div>
+
+        {cancelledBookings.length === 0 ? (
+            <div class="bg-white border border-slate-100 rounded-3xl p-12 text-center shadow-sm">
+                <p class="text-slate-400 font-bold text-sm">Belum ada riwayat pesanan dibatalkan.</p>
+            </div>
+        ) : (
+            <div class="flex flex-col">
+                {cancelledBookings.slice(0, 3).map((item) => (
+                    <BookingRow item={item} bookingType={bookingType} fleets={fleets} drivers={drivers} />
+                ))}
+                
+                {cancelledBookings.length > 3 && (
+                    <div class="mt-4">
+                        <a href={`/admin/history/cancelled?type=${bookingType}`} class="block w-full py-4 text-center bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold uppercase tracking-widest rounded-xl transition-colors">
+                            Lihat Keseluruhan ({cancelledBookings.length} Data)
+                        </a>
+                    </div>
+                )}
+            </div>
+        )}
+    </div>
+
+</div>
+
+<!-- Render the Payment Preview Modal -->
+<PaymentPreviewModal />
+
 <script>
+    import { apiFetch } from '../../../../services/api';
     const setupAccordion = () => {
         const mainRows = document.querySelectorAll('.booking-main-row');
         
@@ -273,14 +194,103 @@ const { bookingType, bookingData } = Astro.props;
         forms.forEach(form => {
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
-                const bookingId = (form as HTMLElement).dataset.bookingId;
-                const formData = new FormData(form as HTMLFormElement);
+                const formEl = form as HTMLFormElement;
+                const bookingId = formEl.dataset.bookingId;
+                const scheduleId = formEl.dataset.scheduleId;
+                const isCharter = formEl.dataset.bookingType === 'CHARTER';
+                const currentState = formEl.dataset.currentState;
+                const formData = new FormData(formEl);
                 const payload = Object.fromEntries(formData.entries());
-
-                console.log(`[API Ready] Sending update for Booking ID: ${bookingId}`, payload);
                 
-                // PLACEHOLDER: API Call logic for FE-BE separation
-                alert('Simulasi: Data booking berhasil disimpan!');
+                const btn = formEl.querySelector('button[type="submit"]');
+                const originalText = btn?.textContent;
+                if(btn) { btn.textContent = 'Memproses...'; btn.classList.add('opacity-50', 'pointer-events-none'); }
+
+                try {
+                    const token = localStorage.getItem('jwt_token') || localStorage.getItem('token');
+                    const headers = {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    };
+
+                    if (!isCharter) {
+                        if (currentState === 'isPickupList') {
+                            const statusBody = { booking_status: 'selesai' };
+                            await apiFetch(`/api/admin/master/travel-bookings/${bookingId}/status`, {
+                                method: 'PUT',
+                                headers,
+                                body: JSON.stringify(statusBody)
+                            });
+                        } else if (currentState === 'isProofUploaded') {
+                            await apiFetch(`/api/admin/master/travel-bookings/${bookingId}/verify`, {
+                                method: 'PUT',
+                                headers
+                            });
+                        } else if (currentState === 'isNew') {
+                            const statusBody = {
+                                booking_status: 'menunggu_pembayaran',
+                                price: payload.price ? parseFloat((payload.price as string).replace(/\./g, '')) : undefined,
+                                eta: payload.pickup_time || undefined
+                            };
+                            
+                            await apiFetch(`/api/admin/master/travel-bookings/${bookingId}/status`, {
+                                method: 'PUT',
+                                headers,
+                                body: JSON.stringify(statusBody)
+                            });
+
+                            if (scheduleId && payload.fleet_id && payload.driver_1) {
+                                const assignBody = {
+                                    fleet_id: payload.fleet_id,
+                                    driver_id: payload.driver_1,
+                                    driver_2_id: payload.driver_2 || undefined
+                                };
+                                await apiFetch(`/api/admin/master/schedules/${scheduleId}/assign`, {
+                                    method: 'PUT',
+                                    headers,
+                                    body: JSON.stringify(assignBody)
+                                });
+                            }
+                        }
+                    } else if (isCharter) {
+                        if (currentState === 'isPickupList') {
+                            await apiFetch(`/api/charter/${bookingId}/status`, {
+                                method: 'PUT',
+                                headers,
+                                body: JSON.stringify({ status: 'selesai' })
+                            });
+                        } else {
+                            const bodyData = {
+                                fleet_id: payload.fleet_id || undefined,
+                                driver_id: payload.driver_1 || undefined,
+                                driver_2_id: payload.driver_2 || undefined,
+                                offered_price: payload.price ? parseFloat((payload.price as string).replace(/\./g, '')) : undefined
+                            };
+                            await apiFetch(`/api/charter/${bookingId}/verify`, {
+                                method: 'PUT',
+                                headers,
+                                body: JSON.stringify(bodyData)
+                            });
+                        }
+                    } else if (bookingType === 'PACKAGE') {
+                        // Package handling placeholder
+                        if (currentState === 'isPickupList') {
+                            await apiFetch(`/api/admin/master/package-shipments/${bookingId}`, {
+                                method: 'PUT',
+                                headers,
+                                body: JSON.stringify({ transaction_status: 'selesai' })
+                            });
+                        }
+                    }
+
+                    alert(currentState === 'isProofUploaded' ? 'Pembayaran berhasil dikonfirmasi dan armada telah ditugaskan!' : currentState === 'isPickupList' ? 'Pesanan berhasil diselesaikan dan masuk ke riwayat!' : 'Data pemesanan berhasil disimpan & dikirim ke Pelanggan!');
+                    window.location.reload();
+
+                } catch (error: any) {
+                    console.error('Error submit form:', error);
+                    alert(`Gagal: ${error.message}`);
+                    if(btn) { btn.textContent = originalText || 'Simpan & Kirim Tagihan'; btn.classList.remove('opacity-50', 'pointer-events-none'); }
+                }
             });
         });
     }

@@ -222,6 +222,8 @@ const stats = [
 </AdminLayout>
 
 <script>
+    import { apiFetch } from '../../services/api';
+
     const setupDashboardInteractions = () => {
         // Toggle Fleet Button Logic (8.1)
         const toggleFleetBtn = document.getElementById('toggle-fleet-btn');
@@ -267,16 +269,14 @@ const stats = [
                     target.textContent = 'Proses...';
                     target.classList.add('opacity-50', 'pointer-events-none');
 
-                    const API_URL = import.meta.env?.PUBLIC_API_URL || 'http://localhost:5000';
-                    const res = await fetch(`${API_URL}/api/admin/dashboard/departure-requests/${reqId}/approve`, {
+                    const endpoint = `/api/admin/dashboard/departure-requests/${reqId}/approve`;
+                    await apiFetch(endpoint, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
                             'Authorization': `Bearer ${token}`
                         }
                     });
-
-                    if (!res.ok) throw new Error('Gagal menyetujui armada');
                     
                     // Animasi menghilang jika API sukses
                     card.style.opacity = '0';

@@ -1,0 +1,189 @@
+---
+// File: src/components/features/admin/bookings/PackageRow.astro
+
+interface Props {
+    pkg: any;
+    fleetsData?: any[];
+}
+
+const { pkg, fleetsData = [] } = Astro.props;
+
+// Logic State (Mirip dengan BookingRow)
+const isNew = pkg.transaction_status === 'menunggu_konfirmasi' && !pkg.payment_proof_url;
+const isWaitingPayment = pkg.transaction_status === 'menunggu_pembayaran';
+const isProofUploaded = pkg.transaction_status === 'menunggu_konfirmasi' && !!pkg.payment_proof_url;
+const isPickupList = pkg.transaction_status === 'dalam_penjemputan' || pkg.transaction_status === 'received'; 
+const isDone = pkg.transaction_status === 'selesai' || pkg.transaction_status === 'completed';
+const isCancelled = pkg.transaction_status === 'dibatalkan' || pkg.transaction_status === 'ditolak';
+
+let displayBadge = "";
+let badgeClass = "";
+
+if (isNew) {
+    displayBadge = "MENUNGGU";
+    badgeClass = "bg-amber-100 text-amber-600";
+} else if (isWaitingPayment) {
+    displayBadge = "MENUNGGU PEMBAYARAN";
+    badgeClass = "bg-amber-100 text-amber-600";
+} else if (isProofUploaded) {
+    displayBadge = "BUTUH PENGECEKAN";
+    badgeClass = "bg-sky-100 text-sky-600";
+} else if (isPickupList) {
+    displayBadge = "DIKIRIM (DALAM PENGANTARAN)";
+    badgeClass = "bg-emerald-100 text-emerald-600";
+} else if (isCancelled) {
+    displayBadge = pkg.transaction_status.toUpperCase();
+    badgeClass = "bg-rose-100 text-rose-600";
+} else {
+    displayBadge = pkg.transaction_status.toUpperCase();
+    badgeClass = "bg-slate-100 text-slate-600";
+}
+
+---
+
+<div class="package-card bg-white border border-slate-100 rounded-[1.5rem] shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md group mb-4">
+    <!-- Main Row -->
+    <div 
+        class="package-main-row flex flex-col md:flex-row justify-between p-4 md:p-6 w-full cursor-pointer items-start md:items-center gap-6 toggle-trigger" 
+    >
+        <div class="flex flex-col gap-3 w-full md:w-auto">
+            <div class="flex items-center gap-4">
+                <div class="flex flex-col">
+                    <span class="text-[8px] font-bold uppercase text-sky-500 block">DARI</span>
+                    <span class="font-bold text-slate-900 text-sm md:text-base">{pkg.sender.name}</span>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+                <div class="flex flex-col">
+                    <span class="text-[8px] font-bold uppercase text-amber-500 block">UNTUK</span>
+                    <span class="font-bold text-slate-900 text-sm md:text-base">{pkg.receiver.name}</span>
+                </div>
+            </div>
+            
+            <div class="flex flex-wrap items-center gap-2 mt-1">
+                <span class="text-xs font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded">{pkg.type}</span>
+                <span class="text-xs text-slate-500 font-secondary">Berat: {pkg.weight}</span>
+                {pkg.is_super_besar && (
+                    <span class="px-2 py-1 bg-rose-100 text-rose-600 text-[9px] font-black uppercase rounded tracking-tighter">
+                        Memakan 2 Kursi
+                    </span>
+                )}
+            </div>
+            
+            <p class="font-secondary text-sm text-text-secondary flex items-center gap-2 mt-1">
+                <span class="font-bold text-slate-700">{pkg.sender.address_detail.kecamatan}</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+                <span class="font-bold text-slate-700">{pkg.destination}</span>
+            </p>
+        </div>
+
+        <div class="flex flex-row justify-between items-center mt-4 pt-4 border-t border-slate-100 w-full md:mt-0 md:pt-0 md:border-0 md:w-auto md:flex-col md:justify-between md:items-end gap-4 md:gap-2">
+            <span class={`px-3 py-1 rounded-full text-[10px] font-black ${badgeClass}`}>
+                {displayBadge}
+            </span>
+            <div class="flex items-center gap-2 text-slate-400">
+                <span class="text-[10px] font-bold uppercase tracking-widest hidden md:block">Kelola & Detail</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform duration-300 chevron-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+                </svg>
+            </div>
+        </div>
+    </div>
+    <!-- Expanded Row -->
+    <div class="package-detail-row expand-content max-h-0 overflow-hidden transition-all duration-500 ease-in-out bg-slate-50/50">
+        <div class="p-4 md:p-6 border-t border-slate-100">
+            <div class="animate-fade-in">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+                    <!-- Detailed Addresses -->
+                    <div class="flex flex-col gap-6">
+                        <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                            <div class="w-1 h-1 rounded-full bg-primary"></div>
+                            Detail Alamat Pengirim & Penerima
+                        </h4>
+                        
+                        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100/50 space-y-3">
+                            <div>
+                                <span class="text-[8px] font-bold text-slate-400 uppercase block">ALAMAT PENGIRIM</span>
+                                <p class="text-xs text-slate-600 leading-relaxed mt-1">
+                                    Kec. {pkg.sender.address_detail.kecamatan}, Desa {pkg.sender.address_detail.desa}, 
+                                    Dusun {pkg.sender.address_detail.dusun || '-'}, RT/RW {pkg.sender.address_detail.rt_rw}
+                                    <br/>
+                                    <span class="font-bold text-slate-900">Patokan: {pkg.sender.address_detail.patokan}</span>
+                                </p>
+                            </div>
+                            <div class="border-t border-slate-200/50 pt-3">
+                                <span class="text-[8px] font-bold text-slate-400 uppercase block">ALAMAT PENERIMA</span>
+                                <p class="text-xs text-slate-600 leading-relaxed mt-1">
+                                    Kec. {pkg.receiver.address_detail.kecamatan}, Desa {pkg.receiver.address_detail.desa}, 
+                                    RT/RW {pkg.receiver.address_detail.rt_rw}
+                                    <br/>
+                                    <span class="font-bold text-slate-900">Patokan: {pkg.receiver.address_detail.patokan}</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions: Unit & Price -->
+                    <div class="flex flex-col gap-6">
+                        <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                            <div class="w-1 h-1 rounded-full bg-amber-500"></div>
+                            {isCancelled || isDone ? 'Data Terkunci' : 'Alokasi Armada & Harga Ongkir'}
+                        </h4>
+                        <form class="package-action-form bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-5 relative" data-package-id={pkg.id} data-current-state={isNew ? 'isNew' : isWaitingPayment ? 'isWaitingPayment' : isProofUploaded ? 'isProofUploaded' : isPickupList ? 'isPickupList' : 'isDone'}>
+                            
+                            <!-- Delete Button (Only for Done or Cancelled) -->
+                            {(isCancelled || isDone || isPickupList) && (
+                                <button type="button" onclick={`window.deleteOrderHistory('${pkg.id}', 'PACKAGE')`} class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center bg-rose-50 hover:bg-rose-100 text-rose-500 rounded-lg transition-colors" title="Hapus Riwayat">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                                </button>
+                            )}
+
+                            <div class="flex flex-col gap-3">
+                                <label class="text-[10px] font-bold text-slate-500 uppercase">Alokasi ke Unit (Armada)</label>
+                                <select name="fleet_id" disabled={!isNew} class={`w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 outline-none ${!isNew ? 'opacity-70 cursor-not-allowed' : 'focus:ring-2 focus:ring-primary/10 transition-all'}`}>
+                                    <option value="">Pilih Unit Armada...</option>
+                                    {fleetsData.map(f => (
+                                        <option value={f.id}>{f.type} ({f.plate_number})</option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            <div class="flex flex-col gap-3">
+                                <label class="text-[10px] font-bold text-slate-500 uppercase">Harga Ongkos Kirim (IDR)</label>
+                                <div class="relative">
+                                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">Rp</span>
+                                    <input 
+                                        type="text" 
+                                        name="price"
+                                        readonly={!isNew}
+                                        placeholder="Tentukan harga..." 
+                                        value={pkg.price}
+                                        class={`w-full bg-slate-50 border border-slate-100 rounded-xl pl-12 pr-4 py-3 text-sm font-black text-primary outline-none ${!isNew ? 'opacity-70 cursor-not-allowed' : 'focus:ring-2 focus:ring-primary/10 transition-all'}`}
+                                    />
+                                </div>
+                            </div>
+
+                            <div class="pt-2 flex flex-col gap-2">
+                                {isProofUploaded && pkg.payment_proof_url && (
+                                    <button type="button" onclick={`window.openPaymentPreview('${pkg.id}', '${pkg.payment_proof_url}')`} class="w-full text-sky-600 bg-sky-50 hover:bg-sky-100 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-colors flex items-center justify-center gap-2">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+                                        Lihat Bukti Pembayaran
+                                    </button>
+                                )}
+                                
+                                {!(isDone || isCancelled) && (
+                                    <button 
+                                        type={isWaitingPayment ? "button" : "submit"} 
+                                        onclick={isWaitingPayment ? "alert('Sedang menunggu user melakukan pembayaran.'); return false;" : undefined}
+                                        class={`w-full text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${isWaitingPayment ? 'bg-amber-500 hover:shadow-xl hover:shadow-amber-500/20' : isProofUploaded ? 'bg-sky-500 hover:shadow-xl hover:shadow-sky-500/20 active:scale-95' : isPickupList ? 'bg-emerald-500 hover:shadow-xl hover:shadow-emerald-500/20 active:scale-95' : 'bg-primary hover:shadow-xl hover:shadow-primary/20 active:scale-95'}`}
+                                    >
+                                        {isNew ? "Simpan & Kirim Tagihan" : isWaitingPayment ? "Menunggu Pembayaran User" : isProofUploaded ? "Konfirmasi Pembayaran" : isPickupList ? "Selesai (Tuntaskan Pesanan)" : "Update Resi & Harga"}
+                                    </button>
+                                )}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

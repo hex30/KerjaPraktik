@@ -2,157 +2,139 @@
 // File: src/pages/admin/packages.astro
 import AdminLayout from "@layouts/AdminLayout.astro";
 import AdminBadge from "@ui/AdminBadge.astro";
+import PackageRow from "@features/admin/bookings/PackageRow.astro";
+import PaymentPreviewModal from "@features/admin/bookings/PaymentPreviewModal.astro";
 import { adminBookingService } from "@services/adminBookingService";
 
 // Baca token dari cookies saat mode SSR
 const token = Astro.cookies.get('token')?.value;
 
-// Fetch data paket dari Backend via SSR
-const packageData = await adminBookingService.getPackageShipments(token);
+// Fetch data paket dan armada dari Backend via SSR
+const [packageData, rawFleets] = await Promise.all([
+    adminBookingService.getPackageShipments(token),
+    adminBookingService.getMasterFleets(token)
+]);
+
+// Filter fleet (Elf pertama, lalu Luxio) dan mapping data
+const fleetsData = rawFleets
+    .filter(f => f.type?.toLowerCase().includes('elf') || f.type?.toLowerCase().includes('luxio'))
+    .sort((a, b) => {
+        const aType = a.type?.toLowerCase() || '';
+        const bType = b.type?.toLowerCase() || '';
+        if (aType.includes('elf') && !bType.includes('elf')) return -1;
+        if (!aType.includes('elf') && bType.includes('elf')) return 1;
+        return 0;
+    });
+
+// PISAHKAN DATA BERDASARKAN KATEGORI
+const activePackages = packageData.filter((item: any) => !['selesai', 'selesai_final', 'completed', 'dibatalkan', 'ditolak', 'cancelled'].includes(item.transaction_status?.toLowerCase()));
+const completedPackages = packageData.filter((item: any) => ['selesai', 'selesai_final', 'completed'].includes(item.transaction_status?.toLowerCase()));
+const cancelledPackages = packageData.filter((item: any) => ['dibatalkan', 'ditolak', 'cancelled'].includes(item.transaction_status?.toLowerCase()));
 ---
 
 <AdminLayout title="Manajemen Paket">
     <section>
-        <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center justify-between mb-8">
             <div>
-                <h2 class="text-xl font-black text-slate-900">Data Penitipan Paket</h2>
-                <p class="text-xs text-slate-400 font-secondary mt-1">Daftar kiriman barang kilat dari pelanggan.</p>
+                <h2 class="text-2xl font-black text-slate-900 tracking-tight">Data Penitipan Paket</h2>
+                <p class="text-sm text-slate-500 font-secondary mt-1">Kelola daftar kiriman barang kilat dari pelanggan.</p>
             </div>
         </div>
 
-        <div class="flex flex-col gap-4 package-container">
-                    {packageData.map((pkg) => (
-                        <div class="package-card bg-white border border-slate-100 rounded-[1.5rem] shadow-sm overflow-hidden transition-all duration-300 hover:shadow-md group">
-                            <!-- Main Row -->
-                            <div 
-                                class="package-main-row flex flex-col md:flex-row justify-between p-4 md:p-6 w-full cursor-pointer items-start md:items-center gap-6 toggle-trigger" 
-                            >
-                                <div class="flex flex-col gap-3 w-full md:w-auto">
-                                    <div class="flex items-center gap-4">
-                                        <div class="flex flex-col">
-                                            <span class="text-[8px] font-bold uppercase text-sky-500 block">DARI</span>
-                                            <span class="font-bold text-slate-900 text-sm md:text-base">{pkg.sender.name}</span>
-                                        </div>
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-                                        <div class="flex flex-col">
-                                            <span class="text-[8px] font-bold uppercase text-amber-500 block">UNTUK</span>
-                                            <span class="font-bold text-slate-900 text-sm md:text-base">{pkg.receiver.name}</span>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="flex flex-wrap items-center gap-2 mt-1">
-                                        <span class="text-xs font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded">{pkg.type}</span>
-                                        <span class="text-xs text-slate-500 font-secondary">Berat: {pkg.weight}</span>
-                                        {pkg.is_super_besar && (
-                                            <span class="px-2 py-1 bg-rose-100 text-rose-600 text-[9px] font-black uppercase rounded tracking-tighter">
-                                                Memakan 2 Kursi
-                                            </span>
-                                        )}
-                                    </div>
-                                    
-                                    <p class="font-secondary text-sm text-text-secondary flex items-center gap-2 mt-1">
-                                        <span class="font-bold text-slate-700">{pkg.sender.address_detail.kecamatan}</span>
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
-                                        <span class="font-bold text-slate-700">{pkg.destination}</span>
-                                    </p>
-                                </div>
+        <div class="flex flex-col gap-12 package-container">
+            
+            <!-- BAGIAN 1: ANTREAN AKTIF -->
+            <div>
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-black text-slate-800 tracking-tight">Antrean Aktif</h3>
+                    <span class="px-3 py-1 bg-primary/10 text-primary font-bold text-[10px] rounded-full">{activePackages.length} Paket</span>
+                </div>
+                
+                {activePackages.length === 0 ? (
+                    <div class="bg-white border border-slate-100 rounded-3xl p-12 text-center shadow-sm">
+                        <p class="text-slate-400 font-bold text-sm">Tidak ada paket aktif saat ini.</p>
+                    </div>
+                ) : (
+                    <div class="flex flex-col">
+                        {activePackages.map((pkg: any) => (
+                            <PackageRow pkg={pkg} fleetsData={fleetsData} />
+                        ))}
+                    </div>
+                )}
+            </div>
 
-                                <div class="flex flex-row justify-between items-center mt-4 pt-4 border-t border-slate-100 w-full md:mt-0 md:pt-0 md:border-0 md:w-auto md:flex-col md:justify-between md:items-end gap-4 md:gap-2">
-                                    {pkg.price ? (
-                                        <AdminBadge status="WAITING_PAYMENT" />
-                                    ) : (
-                                        <span class="px-3 py-1 rounded-full text-[10px] font-black bg-amber-100 text-amber-600">MENUNGGU</span>
-                                    )}
-                                    <div class="flex items-center gap-2 text-slate-400">
-                                        <span class="text-[10px] font-bold uppercase tracking-widest hidden md:block">Kelola & Detail</span>
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform duration-300 chevron-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
-                                        </svg>
-                                    </div>
-                                </div>
+            <!-- BAGIAN 2: PAKET SELESAI -->
+            <div>
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-black text-slate-800 tracking-tight flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-emerald-500 block"></span>
+                        Paket Selesai
+                    </h3>
+                    <span class="px-3 py-1 bg-emerald-50 text-emerald-600 font-bold text-[10px] rounded-full">{completedPackages.length} Riwayat</span>
+                </div>
+
+                {completedPackages.length === 0 ? (
+                    <div class="bg-white border border-slate-100 rounded-3xl p-12 text-center shadow-sm">
+                        <p class="text-slate-400 font-bold text-sm">Belum ada riwayat pengiriman selesai.</p>
+                    </div>
+                ) : (
+                    <div class="flex flex-col">
+                        {completedPackages.slice(0, 3).map((pkg: any) => (
+                            <PackageRow pkg={pkg} fleetsData={fleetsData} />
+                        ))}
+                        
+                        {completedPackages.length > 3 && (
+                            <div class="mt-4">
+                                <a href="/admin/history/completed?type=PACKAGE" class="block w-full py-4 text-center bg-emerald-50 hover:bg-emerald-100 text-emerald-600 text-xs font-bold uppercase tracking-widest rounded-xl transition-colors">
+                                    Lihat Keseluruhan ({completedPackages.length} Data)
+                                </a>
                             </div>
-                            <!-- Expanded Row -->
-                            <div class="package-detail-row expand-content max-h-0 overflow-hidden transition-all duration-500 ease-in-out bg-slate-50/50">
-                                <div class="p-4 md:p-6 border-t border-slate-100">
-                                    <div class="animate-fade-in">
-                                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                                            <!-- Detailed Addresses -->
-                                            <div class="flex flex-col gap-6">
-                                                <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                                                    <div class="w-1 h-1 rounded-full bg-primary"></div>
-                                                    Detail Alamat Pengirim & Penerima
-                                                </h4>
-                                                
-                                                <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100/50 space-y-3">
-                                                    <div>
-                                                        <span class="text-[8px] font-bold text-slate-400 uppercase block">ALAMAT PENGIRIM</span>
-                                                        <p class="text-xs text-slate-600 leading-relaxed mt-1">
-                                                            Kec. {pkg.sender.address_detail.kecamatan}, Desa {pkg.sender.address_detail.desa}, 
-                                                            Dusun {pkg.sender.address_detail.dusun || '-'}, RT/RW {pkg.sender.address_detail.rt_rw}
-                                                            <br/>
-                                                            <span class="font-bold text-slate-900">Patokan: {pkg.sender.address_detail.patokan}</span>
-                                                        </p>
-                                                    </div>
-                                                    <div class="border-t border-slate-200/50 pt-3">
-                                                        <span class="text-[8px] font-bold text-slate-400 uppercase block">ALAMAT PENERIMA</span>
-                                                        <p class="text-xs text-slate-600 leading-relaxed mt-1">
-                                                            Kec. {pkg.receiver.address_detail.kecamatan}, Desa {pkg.receiver.address_detail.desa}, 
-                                                            RT/RW {pkg.receiver.address_detail.rt_rw}
-                                                            <br/>
-                                                            <span class="font-bold text-slate-900">Patokan: {pkg.receiver.address_detail.patokan}</span>
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
 
-                                            <!-- Actions: Unit & Price -->
-                                            <div class="flex flex-col gap-6">
-                                                <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                                                    <div class="w-1 h-1 rounded-full bg-amber-500"></div>
-                                                    Alokasi Armada & Harga Ongkir
-                                                </h4>
-                                                <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-5">
-                                                    <div class="flex flex-col gap-3">
-                                                        <label class="text-[10px] font-bold text-slate-500 uppercase">Alokasi ke Unit (Armada)</label>
-                                                        <select class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-primary/10 transition-all">
-                                                            <option value="">Pilih Unit Armada...</option>
-                                                            <option value="H01">Hiace Commuter (Z 1234 XX)</option>
-                                                            <option value="H02">Hiace Premio (Z 5678 YY)</option>
-                                                            <option value="E01">Elf Long (Z 9012 ZZ)</option>
-                                                        </select>
-                                                    </div>
+            <!-- BAGIAN 3: PAKET DIBATALKAN -->
+            <div>
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-xl font-black text-slate-800 tracking-tight flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-rose-500 block"></span>
+                        Paket Dibatalkan
+                    </h3>
+                    <span class="px-3 py-1 bg-rose-50 text-rose-600 font-bold text-[10px] rounded-full">{cancelledPackages.length} Riwayat</span>
+                </div>
 
-                                                    <div class="flex flex-col gap-3">
-                                                        <label class="text-[10px] font-bold text-slate-500 uppercase">Harga Ongkos Kirim (IDR)</label>
-                                                        <div class="relative">
-                                                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">Rp</span>
-                                                            <input 
-                                                                type="number" 
-                                                                placeholder="Tentukan harga..." 
-                                                                value={pkg.price}
-                                                                class="w-full bg-slate-50 border border-slate-100 rounded-xl pl-12 pr-4 py-3 text-sm font-black text-primary outline-none focus:ring-2 focus:ring-primary/10 transition-all"
-                                                            />
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="pt-2">
-                                                        <button class="w-full bg-primary text-white py-4 rounded-2xl text-[10px] font-black hover:shadow-xl hover:shadow-primary/20 transition-all active:scale-95 uppercase tracking-widest">
-                                                            Update Resi & Harga
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                    </div>
-                                </div>
+                {cancelledPackages.length === 0 ? (
+                    <div class="bg-white border border-slate-100 rounded-3xl p-12 text-center shadow-sm">
+                        <p class="text-slate-400 font-bold text-sm">Belum ada riwayat paket dibatalkan.</p>
+                    </div>
+                ) : (
+                    <div class="flex flex-col">
+                        {cancelledPackages.slice(0, 3).map((pkg: any) => (
+                            <PackageRow pkg={pkg} fleetsData={fleetsData} />
+                        ))}
+                        
+                        {cancelledPackages.length > 3 && (
+                            <div class="mt-4">
+                                <a href="/admin/history/cancelled?type=PACKAGE" class="block w-full py-4 text-center bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold uppercase tracking-widest rounded-xl transition-colors">
+                                    Lihat Keseluruhan ({cancelledPackages.length} Data)
+                                </a>
                             </div>
-                            </div>
-                        </div>
-                    ))}
+                        )}
+                    </div>
+                )}
+            </div>
+
         </div>
     </section>
+
+    <!-- Modal Pratinjau Bukti -->
+    <PaymentPreviewModal />
 </AdminLayout>
 
 <script>
+    import { apiFetch } from '../../services/api';
+
     const setupPackageAccordion = () => {
         const mainRows = document.querySelectorAll('.package-main-row');
         
@@ -187,8 +169,80 @@ const packageData = await adminBookingService.getPackageShipments(token);
         });
     };
 
+    const setupActionForms = () => {
+        const forms = document.querySelectorAll('.package-action-form');
+        forms.forEach(form => {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formEl = form as HTMLFormElement;
+                const packageId = formEl.dataset.packageId;
+                const currentState = formEl.dataset.currentState;
+                const formData = new FormData(formEl);
+                const payload = Object.fromEntries(formData.entries());
+
+                const btn = formEl.querySelector('button[type="submit"]');
+                const originalText = btn?.textContent;
+                if(btn) { btn.textContent = 'Memproses...'; btn.classList.add('opacity-50', 'pointer-events-none'); }
+
+                try {
+                    const token = localStorage.getItem('jwt_token') || localStorage.getItem('token');
+                    
+                    const headers = {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    };
+
+                    if (currentState === 'isPickupList') {
+                        // Selesaikan paket
+                        await apiFetch(`/api/admin/master/package-shipments/${packageId}`, {
+                            method: 'PUT',
+                            headers,
+                            body: JSON.stringify({ transaction_status: 'selesai' })
+                        });
+                        alert('Paket berhasil diselesaikan dan masuk ke riwayat!');
+                    } else if (currentState === 'isProofUploaded') {
+                        // Verifikasi pembayaran paket (ASUMSI BE ADA ENDPOINT INI)
+                        await apiFetch(`/api/admin/master/package-shipments/${packageId}/verify`, {
+                            method: 'PUT',
+                            headers
+                        });
+                        alert('Pembayaran paket berhasil dikonfirmasi!');
+                    } else if (currentState === 'isNew') {
+                        // Tetapkan harga dan kirim tagihan
+                        const endpoint = `/api/admin/master/package-shipments/${packageId}/assign`;
+                        const priceRaw = payload.price as string;
+                        const parsedPrice = priceRaw ? parseFloat(priceRaw.replace(/\./g, '')) : undefined;
+
+                        const bodyData = {
+                            fleet_id: payload.fleet_id || undefined,
+                            price: parsedPrice
+                        };
+
+                        await apiFetch(endpoint, {
+                            method: 'PUT',
+                            headers,
+                            body: JSON.stringify(bodyData)
+                        });
+                        alert('Tagihan berhasil dikirim ke Pelanggan!');
+                    }
+
+                    window.location.reload();
+
+                } catch (error: any) {
+                    console.error('Error submit form paket:', error);
+                    alert(`Gagal: ${error.message} (Cek kembali Endpoint BE)`);
+                    if(btn) { btn.textContent = originalText || 'Update Resi & Harga'; btn.classList.remove('opacity-50', 'pointer-events-none'); }
+                }
+            });
+        });
+    };
+
     setupPackageAccordion();
-    document.addEventListener('astro:page-load', setupPackageAccordion);
+    setupActionForms();
+    document.addEventListener('astro:page-load', () => {
+        setupPackageAccordion();
+        setupActionForms();
+    });
 </script>
 
 <style>
@@ -200,8 +254,8 @@ const packageData = await adminBookingService.getPackageShipments(token);
         to { opacity: 1; transform: translateY(0); }
     }
     
-    .package-card { box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); }
-    .package-card.active-card { box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.05), 10px 0 25px -5px rgba(0, 0, 0, 0.05), -10px 0 25px -5px rgba(0, 0, 0, 0.05); z-index: 10; border-color: #e2e8f0; }
+    :global(.package-card) { box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); }
+    :global(.package-card.active-card) { box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.05), 10px 0 25px -5px rgba(0, 0, 0, 0.05), -10px 0 25px -5px rgba(0, 0, 0, 0.05); z-index: 10; border-color: #e2e8f0; }
 </style>
 
 

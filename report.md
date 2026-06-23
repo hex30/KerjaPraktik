@@ -325,3 +325,18 @@ Dari seluruh kode yang ditulis di folder `src/`, Frontend sudah 100% menggunakan
   - Mock data telah dihapus secara keseluruhan. Halaman kini melakukan *fetch* aktif ke endpoint `/api/admin/master/users`.
   - Berdasarkan hasil validasi internal terhadap file `user.model.js` dan `validation.middleware.js` (pada skema `adminValidationSchemas.user`) milik Backend, struktur tabel `users` **telah terkonfirmasi 100% kompatibel** dengan kebutuhan atribut UI saat ini. Atribut krusial seperti `name`, `email`, `password`, `phone_number`, dan `role` (`customer`/`driver`) sudah difasilitasi penuh.
   - Kesimpulan: **Tidak ada perubahan skema atau penambahan atribut yang diperlukan** dari tim Backend untuk fitur pengelolaan pengguna dan supir ini. Fungsi mutasi hak akses (*Role Elevation*) dan ganti *password* juga sudah dapat dilayani melalui metode `PUT` ke `updateUser`.
+
+
+## [Note untuk Tim Backend] Logika Kalkulasi Diskon Promo
+Berdasarkan PRD/README.md, sistem memerlukan adanya proses kalkulasi diskon secara otomatis di Backend. Saat ini, ketika Admin menyetujui pemesanan dan menginput harga (Total Price), Backend (updateTravelBookingStatus di masterData.model.js) hanya menyimpan harga tersebut mentah-mentah ke database.
+
+Tindakan yang Dibutuhkan dari Tim Backend:
+- Tambahkan logika pada Endpoint Update Status Pesanan (atau saat proses Checkout) untuk mengecek promo aktif (dari tabel promotions).
+- Lakukan kalkulasi pemotongan harga tiket awal berdasarkan discount (persentase) namun tidak melebihi nilai maksimal pemotongan yang ada di max_discount.
+- Simpan **Harga Akhir** (setelah didiskon) ke dalam kolom price pada tabel travel_bookings.
+
+
+## [Frontend Fix] Perbaikan Form Booking Admin (CORS & Payload)
+Pada file src/components/features/admin/bookings/BookingTable.astro telah dilakukan perbaikan krusial:
+1. **Migrasi ke apiFetch**: Mengganti fetch API mentah ke apiFetch() bawaan layanan Frontend untuk menghindari masalah pemblokiran CORS dari browser (karena Astro berjalan di port 4321 dan BE di 5000).
+2. **Pengiriman Data Paralel (RUTE)**: Sebelumnya, saat Admin menetapkan Harga, Armada, dan Supir untuk rute, Frontend hanya mengirim status dan harga ke BE. Armada dan supir dibuang. Sekarang Frontend memanggil dua endpoint sekaligus secara otomatis: endpoint status (/status) dan endpoint assign armada (/assign).
