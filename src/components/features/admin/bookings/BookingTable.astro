@@ -57,101 +57,15 @@ interface Props {
 
 const { bookingType, bookingData, fleets = [], drivers = [] } = Astro.props;
 
-// PISAHKAN DATA BERDASARKAN KATEGORI
-// Asumsi BE belum punya 'dalam_penjemputan'. Nanti isDone harusnya !== 'selesai' kl BE blm update.
-// Tapi kita map 'selesai' sbg isPickupList kalau dia belum benar-benar finished.
-// Jika status 'selesai_final' atau 'completed' itu benar2 selesai.
-// Untuk sekarang, asumsikan 'selesai' kita simpan di tabel Selesai.
-const activeBookings = bookingData.filter(item => !['selesai', 'selesai_final', 'completed', 'dibatalkan', 'ditolak', 'cancelled', 'received'].includes(item.booking_status.toLowerCase()));
-const completedBookings = bookingData.filter(item => ['selesai', 'selesai_final', 'completed', 'received'].includes(item.booking_status.toLowerCase()));
-const cancelledBookings = bookingData.filter(item => ['dibatalkan', 'ditolak', 'cancelled'].includes(item.booking_status.toLowerCase()));
-
+// (We rely on parent components like route.astro or charter.astro to pass the pre-filtered data)
 ---
 
 <div class="flex flex-col gap-12 booking-container">
-    
-    <!-- BAGIAN 1: ANTRIAN AKTIF -->
-    <div>
-        <div class="flex items-center justify-between mb-6">
-            <h3 class="text-xl font-black text-slate-800 tracking-tight">Antrean Aktif</h3>
-            <span class="px-3 py-1 bg-primary/10 text-primary font-bold text-[10px] rounded-full">{activeBookings.length} Pesanan</span>
-        </div>
-        
-        {activeBookings.length === 0 ? (
-            <div class="bg-white border border-slate-100 rounded-3xl p-12 text-center shadow-sm">
-                <p class="text-slate-400 font-bold text-sm">Tidak ada pesanan aktif saat ini.</p>
-            </div>
-        ) : (
-            <div class="booking-tbody">
-                {activeBookings.map((item) => (
-                    <BookingRow item={item} bookingType={bookingType} fleets={fleets} drivers={drivers} />
-                ))}
-            </div>
-        )}
+    <div class="booking-tbody">
+        {bookingData.map((item) => (
+            <BookingRow item={item} bookingType={bookingType} fleets={fleets} drivers={drivers} />
+        ))}
     </div>
-
-    <!-- BAGIAN 2: PESANAN SELESAI -->
-    <div>
-        <div class="flex items-center justify-between mb-6">
-            <h3 class="text-xl font-black text-slate-800 tracking-tight flex items-center gap-2">
-                <span class="w-3 h-3 rounded-full bg-emerald-500 block"></span>
-                Pesanan Selesai
-            </h3>
-            <span class="px-3 py-1 bg-emerald-50 text-emerald-600 font-bold text-[10px] rounded-full">{completedBookings.length} Riwayat</span>
-        </div>
-
-        {completedBookings.length === 0 ? (
-            <div class="bg-white border border-slate-100 rounded-3xl p-12 text-center shadow-sm">
-                <p class="text-slate-400 font-bold text-sm">Belum ada riwayat pesanan selesai.</p>
-            </div>
-        ) : (
-            <div class="flex flex-col">
-                {completedBookings.slice(0, 3).map((item) => (
-                    <BookingRow item={item} bookingType={bookingType} fleets={fleets} drivers={drivers} />
-                ))}
-                
-                {completedBookings.length > 3 && (
-                    <div class="mt-4">
-                        <a href={`/admin/history/completed?type=${bookingType}`} class="block w-full py-4 text-center bg-emerald-50 hover:bg-emerald-100 text-emerald-600 text-xs font-bold uppercase tracking-widest rounded-xl transition-colors">
-                            Lihat Keseluruhan ({completedBookings.length} Data)
-                        </a>
-                    </div>
-                )}
-            </div>
-        )}
-    </div>
-
-    <!-- BAGIAN 3: PESANAN DIBATALKAN -->
-    <div>
-        <div class="flex items-center justify-between mb-6">
-            <h3 class="text-xl font-black text-slate-800 tracking-tight flex items-center gap-2">
-                <span class="w-3 h-3 rounded-full bg-rose-500 block"></span>
-                Pesanan Dibatalkan
-            </h3>
-            <span class="px-3 py-1 bg-rose-50 text-rose-600 font-bold text-[10px] rounded-full">{cancelledBookings.length} Riwayat</span>
-        </div>
-
-        {cancelledBookings.length === 0 ? (
-            <div class="bg-white border border-slate-100 rounded-3xl p-12 text-center shadow-sm">
-                <p class="text-slate-400 font-bold text-sm">Belum ada riwayat pesanan dibatalkan.</p>
-            </div>
-        ) : (
-            <div class="flex flex-col">
-                {cancelledBookings.slice(0, 3).map((item) => (
-                    <BookingRow item={item} bookingType={bookingType} fleets={fleets} drivers={drivers} />
-                ))}
-                
-                {cancelledBookings.length > 3 && (
-                    <div class="mt-4">
-                        <a href={`/admin/history/cancelled?type=${bookingType}`} class="block w-full py-4 text-center bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-bold uppercase tracking-widest rounded-xl transition-colors">
-                            Lihat Keseluruhan ({cancelledBookings.length} Data)
-                        </a>
-                    </div>
-                )}
-            </div>
-        )}
-    </div>
-
 </div>
 
 <!-- Render the Payment Preview Modal -->
