@@ -13,26 +13,17 @@ let fleetData: any[] = [];
 try {
     const allFleets = await charterService.getFleets();
     
-    // Group by car_type to calculate availability
-    const fleetGroups = new Map();
-    for (const fleet of allFleets) {
-        if (!fleetGroups.has(fleet.car_type)) {
-            fleetGroups.set(fleet.car_type, { 
-                ...fleet, 
-                totalUnits: 0, 
-                availableUnits: 0 
-            });
-        }
-        
-        const group = fleetGroups.get(fleet.car_type);
-        group.totalUnits += 1;
-        // Hanya yang statusnya active yang dihitung tersedia
-        if (fleet.status === 'active' || fleet.status === 'Tersedia') {
-            group.availableUnits += 1;
-        }
-    }
-    
-    fleetData = Array.from(fleetGroups.values());
+    // allFleets dari backend (content.controller.js -> getFleets) sudah ter-grouping berdasarkan car_type
+    // dan sudah membawa informasi total_units, available_units, seat_capacity, dsb.
+    fleetData = allFleets.map(fleet => ({
+        ...fleet,
+        // Normalisasi nama property untuk frontend
+        totalUnits: fleet.total_units || 0,
+        availableUnits: fleet.available_units || 0,
+        seat_capacity: fleet.seat_capacity || (fleet.car_type === 'Elf' ? 14 : 7),
+        description: fleet.description || `Armada ${fleet.car_type} yang nyaman dan terawat.`,
+        image_url: fleet.image_url || '/placeholder-car.jpg'
+    }));
 } catch (error) {
     console.error("Gagal memuat katalog armada charter:", error);
     fleetData = [];
@@ -425,9 +416,72 @@ try {
             }
         });
 
-        // Removed Expand/Collapse Logic as we only show max 2 unique cards now
+        // 3. LOGIKA VALIDASI TANGGAL & CEK KETERSEDIAAN
+        const checkAvailability = async (date: string) => {
+            if (!date) return;
+            try {
+                const beHost = import.meta.env.PUBLIC_API_URL || 'http://localhost:5000';
+                const res = await fetch(`${beHost}/api/charter/availability?date=${date}`);
+                if (!res.ok) throw new Error('Gagal mengecek ketersediaan');
+                
+                const availabilityData = await res.json();
+                
+                fleetCards.forEach((card) => {
+                    const carType = card.getAttribute("data-name");
+                    if (!carType) return;
+                    
+                    const unitData = availabilityData[carType];
+                    const isAvailable = unitData && unitData.available;
+                    const sisaUnit = unitData ? unitData.sisa_unit : 0;
+                    
+                    card.setAttribute("data-available", isAvailable ? "true" : "false");
+                    
+                    const badgeContainer = card.querySelector('.availability-badge-container');
+                    if (badgeContainer) {
+                        if (!isAvailable) {
+                            badgeContainer.innerHTML = `<span class="bg-red-500/90 backdrop-blur-sm text-white text-xs font-bold px-3 py-2 rounded-full shadow-sm whitespace-nowrap">Penuh</span>`;
+                        } else {
+                            badgeContainer.innerHTML = `<span class="bg-emerald-500/90 backdrop-blur-sm text-white text-xs font-bold px-3 py-2 rounded-full shadow-sm whitespace-nowrap">Tersedia ${sisaUnit} Unit</span>`;
+                        }
+                    }
+                    
+                    if (!isAvailable) {
+                        card.classList.remove("cursor-pointer");
+                        card.classList.add("cursor-not-allowed", "opacity-80", "grayscale-[30%]");
+                    } else {
+                        card.classList.add("cursor-pointer");
+                        card.classList.remove("cursor-not-allowed", "opacity-80", "grayscale-[30%]");
+                    }
+                    
+                    const option = selectArmada.querySelector(`option[value="${card.getAttribute('data-value')}"]`) as HTMLOptionElement;
+                    if (option) {
+                        option.disabled = !isAvailable;
+                        option.text = `${carType} ${!isAvailable ? '(Penuh)' : `(${sisaUnit} Unit Tersedia)`}`;
+                    }
+                });
+                
+                const currentSelectedOption = selectArmada.options[selectArmada.selectedIndex];
+                if (currentSelectedOption && currentSelectedOption.disabled && currentSelectedOption.value !== "") {
+                    alert(`Maaf, armada ${currentSelectedOption.value} tidak tersedia pada tanggal ${date}. Silakan pilih armada lain.`);
+                    selectArmada.value = "";
+                    fleetCards.forEach((c) => {
+                        const ring = c.querySelector(".selected-ring");
+                        const check = c.querySelector(".selected-check");
+                        if (ring) {
+                            ring.classList.remove("ring-4", "border-primary", "bg-primary/5");
+                            ring.classList.add("border-transparent");
+                        }
+                        if (check) {
+                            check.classList.remove("opacity-100", "scale-100");
+                            check.classList.add("opacity-0", "scale-50");
+                        }
+                    });
+                }
+            } catch (err) {
+                console.error("Gagal cek ketersediaan:", err);
+            }
+        };
 
-        // 3. LOGIKA VALIDASI TANGGAL
         if (inputTanggalSewa && inputTanggalKepulangan) {
             const today = new Date().toISOString().split("T")[0];
             inputTanggalSewa.min = today;
@@ -441,6 +495,8 @@ try {
                 ) {
                     inputTanggalKepulangan.value = "";
                 }
+                
+                checkAvailability(dateBerangkat);
             });
         }
 

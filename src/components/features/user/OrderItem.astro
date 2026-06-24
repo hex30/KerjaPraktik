@@ -19,7 +19,19 @@ const getPaymentMethodText = (method: string) => {
 if (order.type === "travel") {
     detailsText = `Kursi: ${meta.seat_number || 'Belum dipilih'} | Metode: ${getPaymentMethodText(meta.payment_method)}`;
 } else if (order.type === "charter") {
-    detailsText = `Jemput: ${meta.pickup_address || '-'} | Metode: ${getPaymentMethodText(meta.payment_method)}`;
+    let formattedPickup = meta.pickup_address || '-';
+    if (typeof formattedPickup === 'string' && formattedPickup.startsWith('{')) {
+        try {
+            const parsed = JSON.parse(formattedPickup);
+            const parts = [];
+            if (parsed.kecamatan) parts.push(`Kec. ${parsed.kecamatan}`);
+            if (parsed.desa) parts.push(`Desa ${parsed.desa}`);
+            if (parts.length > 0) {
+                formattedPickup = parts.join(', ');
+            }
+        } catch(e) {}
+    }
+    detailsText = `Jemput: ${formattedPickup} | Metode: ${getPaymentMethodText(meta.payment_method)}`;
 } else if (order.type === "package") {
     detailsText = `Resi: ${meta.waybill_number || '-'} | Metode: ${getPaymentMethodText(meta.payment_method)}`;
 }
