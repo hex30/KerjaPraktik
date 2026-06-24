@@ -33,6 +33,7 @@ export interface BookingUser {
 export interface BookingItem {
     id: string | number;
     user: BookingUser;
+    origin?: string;
     destination: string;
     date: string;
     time?: string;

@@ -11,8 +11,8 @@ const token = Astro.cookies.get('token')?.value;
 
 // Fetch data secara riil dari Backend via SSR
 const metrics = await adminDashboardService.getDashboardMetrics(token);
-const approvalDriverData = await adminDashboardService.getDepartureRequests(token);
 const assignedFleets = await adminDashboardService.getActiveFleets(token);
+const recentBookings = await adminDashboardService.getRecentBookings(token);
 
 // Map metrics ke komponen StatCard
 const stats = [
@@ -45,59 +45,6 @@ const stats = [
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {stats.map(stat => (
                     <StatCard {...stat} />
-                ))}
-            </div>
-        </section>
-
-        <!-- Modul Baru: Kartu Permintaan Persetujuan Driver (Task 8.2) -->
-        <section id="approval-section" class="flex flex-col gap-6">
-            <h2 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Permintaan Persetujuan Driver</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6" id="approval-grid">
-                {approvalDriverData.map(req => (
-                    <div class="approval-card bg-white rounded-xl border border-slate-200 p-6 flex flex-col gap-5 shadow-sm hover:shadow-md transition-all duration-300" data-id={req.id}>
-                        <div class="flex items-center justify-between border-b border-dashed border-slate-100 pb-4">
-                            <div class="flex flex-col">
-                                <span class="text-[10px] font-bold text-slate-400 uppercase">Jadwal Keberangkatan</span>
-                                <span class="text-sm font-black text-primary">{req.date}</span>
-                            </div>
-                            <Badge variant={req.type === 'RUTE' ? 'sky' : 'warning'} class="px-3 py-1 text-[9px]">{req.type}</Badge>
-                        </div>
-                        
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="flex flex-col gap-1">
-                                <span class="text-[9px] font-bold text-slate-400 uppercase block">Rute / Tujuan</span>
-                                <span class="text-xs font-bold text-slate-900">{req.path}</span>
-                            </div>
-                            <div class="flex flex-col gap-1">
-                                <span class="text-[9px] font-bold text-slate-400 uppercase block">Unit Armada</span>
-                                <span class="text-xs font-bold text-slate-900">{req.unit_name}</span>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100/50">
-                                <span class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Total Penumpang</span>
-                                <span class="text-xs font-black text-primary">{req.pax} Orang</span>
-                            </div>
-                            <div class="bg-slate-50 p-3 rounded-xl border border-slate-100/50">
-                                <span class="text-[9px] font-bold text-slate-400 uppercase block mb-1">Total Paket</span>
-                                <span class="text-xs font-black text-primary">{req.packages} Item</span>
-                            </div>
-                        </div>
-
-                        <div class="flex flex-col gap-2">
-                            <span class="text-[9px] font-bold text-slate-400 uppercase block">Driver Diajukan</span>
-                            <div class="flex gap-2">
-                                <span class="px-2.5 py-1 bg-primary/10 text-primary text-[10px] font-black rounded-md">D1: {req.driver1}</span>
-                                {req.driver2 && <span class="px-2.5 py-1 bg-slate-100 text-slate-600 text-[10px] font-black rounded-md">D2: {req.driver2}</span>}
-                            </div>
-                        </div>
-
-                        <div class="mt-2 pt-4 border-t border-slate-50 flex items-center justify-between gap-3">
-                            <button class="reject-btn flex-1 border border-rose-200 text-rose-600 hover:bg-rose-50 px-4 py-2 rounded-lg text-sm font-medium transition-colors">Tolak</button>
-                            <button class="approve-btn flex-1 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-lg shadow-emerald-600/20">Menyetujui</button>
-                        </div>
-                    </div>
                 ))}
             </div>
         </section>
@@ -217,17 +164,59 @@ const stats = [
             </button>
         </section>
 
-        <!-- Quick Message -->
-        <div class="bg-btn-linear rounded-[2.5rem] p-10 text-white flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden shadow-2xl shadow-primary/30">
-             <div class="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]"></div>
-             <div class="relative z-10 flex flex-col gap-2 max-w-xl text-center md:text-left">
-                 <h3 class="text-3xl font-black tracking-tight">Pusat Pesan Operasional</h3>
-                 <p class="text-white/80 font-medium leading-relaxed">Pantau status armada dan pastikan semua supir telah melaporkan titik koordinat terakhir mereka setiap 3 jam sekali.</p>
-             </div>
-             <a href="/admin/bookings" class="relative z-10 bg-white text-primary px-10 py-5 rounded-2xl font-black text-sm uppercase tracking-widest shadow-xl hover:scale-105 active:scale-95 transition-all">
-                Cek Antrean Detail
-             </a>
-        </div>
+        <!-- Recent Bookings -->
+        <section class="flex flex-col gap-6">
+            <h2 class="text-xl font-black text-slate-900 tracking-tight">Data Pemesan Terbaru</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Card Travel Reguler -->
+                <a href="/admin/route" class="group relative bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col gap-4 overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500"></div>
+                    <div class="flex items-center justify-between relative z-10">
+                        <Badge variant="sky" class="px-3 py-1 text-[10px]">TRAVEL REGULER</Badge>
+                        <span class="text-[10px] font-bold text-slate-400">Baru Saja</span>
+                    </div>
+                    {recentBookings.travel ? (
+                        <div class="flex flex-col gap-2 relative z-10">
+                            <h3 class="text-lg font-black text-slate-900">{recentBookings.travel.customer_name || 'Tanpa Nama'}</h3>
+                            <p class="text-xs font-bold text-slate-500 flex justify-between items-center border-b border-dashed border-slate-100 pb-2">
+                                <span>Kursi: <span class="text-primary">{recentBookings.travel.seat_number}</span></span>
+                                <span>Total: {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(Number(recentBookings.travel.price || 0))}</span>
+                            </p>
+                            <span class="text-[10px] font-medium text-slate-400">Rute: {recentBookings.travel.route_origin} - {recentBookings.travel.route_destination}</span>
+                        </div>
+                    ) : (
+                        <div class="py-4 text-center text-xs font-bold text-slate-400 relative z-10">Belum ada pesanan Travel Reguler</div>
+                    )}
+                    <div class="mt-auto pt-4 flex items-center justify-end text-xs font-bold text-primary group-hover:text-primary/80 transition-colors relative z-10">
+                        Kelola Rute &rarr;
+                    </div>
+                </a>
+
+                <!-- Card Charter -->
+                <a href="/admin/charter" class="group relative bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col gap-4 overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-warning/5 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500"></div>
+                    <div class="flex items-center justify-between relative z-10">
+                        <Badge variant="warning" class="px-3 py-1 text-[10px]">CHARTER PARIWISATA</Badge>
+                        <span class="text-[10px] font-bold text-slate-400">Baru Saja</span>
+                    </div>
+                    {recentBookings.charter ? (
+                        <div class="flex flex-col gap-2 relative z-10">
+                            <h3 class="text-lg font-black text-slate-900">{recentBookings.charter.customer_name || 'Tanpa Nama'}</h3>
+                            <p class="text-xs font-bold text-slate-500 flex justify-between items-center border-b border-dashed border-slate-100 pb-2">
+                                <span>Armada: <span class="text-amber-600">{recentBookings.charter.car_type}</span></span>
+                                <span>Total: {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(Number(recentBookings.charter.total_price || 0))}</span>
+                            </p>
+                            <span class="text-[10px] font-medium text-slate-400">Tujuan: {recentBookings.charter.destination}</span>
+                        </div>
+                    ) : (
+                        <div class="py-4 text-center text-xs font-bold text-slate-400 relative z-10">Belum ada pesanan Charter</div>
+                    )}
+                    <div class="mt-auto pt-4 flex items-center justify-end text-xs font-bold text-amber-600 group-hover:text-amber-700 transition-colors relative z-10">
+                        Kelola Charter &rarr;
+                    </div>
+                </a>
+            </div>
+        </section>
     </div>
 </AdminLayout>
 
@@ -260,77 +249,6 @@ const stats = [
             if (toggleFleetText) {
                 toggleFleetText.textContent = isHidden ? 'Sembunyikan Armada' : 'Lihat Semua Armada';
             }
-        });
-
-        // Approve Driver Logic (8.2)
-        const approveBtns = document.querySelectorAll('.approve-btn');
-        const rejectBtns = document.querySelectorAll('.reject-btn');
-        const assignedFleetsGrid = document.getElementById('assigned-fleets-grid');
-
-        approveBtns.forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-                const target = e.target as HTMLElement;
-                const card = target.closest('.approval-card') as HTMLElement;
-                const reqId = card.getAttribute('data-id');
-                const token = localStorage.getItem('token');
-                
-                try {
-                    const originalText = target.textContent;
-                    target.textContent = 'Proses...';
-                    target.classList.add('opacity-50', 'pointer-events-none');
-
-                    const endpoint = `/api/admin/dashboard/departure-requests/${reqId}/approve`;
-                    await apiFetch(endpoint, {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
-                    
-                    // Animasi menghilang jika API sukses
-                    card.style.opacity = '0';
-                    card.style.transform = 'scale(0.95)';
-                    card.style.transition = 'all 0.3s ease';
-
-                    setTimeout(() => {
-                        card.remove();
-                        const remainingCards = document.querySelectorAll('.approval-card');
-                        if(remainingCards.length === 0) {
-                            document.getElementById('approval-section')?.remove();
-                        }
-                        
-                        alert('Berhasil disetujui! (Catatan: Halaman sengaja tidak di-refresh otomatis agar data dummy Backend tidak muncul ulang)');
-                    }, 300);
-
-                } catch (error) {
-                    console.error(error);
-                    alert('Gagal mengirim persetujuan ke server.');
-                    target.textContent = 'Menyetujui';
-                    target.classList.remove('opacity-50', 'pointer-events-none');
-                }
-            });
-        });
-
-        rejectBtns.forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const target = e.target as HTMLElement;
-                const card = target.closest('.approval-card') as HTMLElement;
-                
-                if(confirm("Tolak pengajuan driver ini?")) {
-                    card.style.opacity = '0';
-                    card.style.transform = 'scale(0.95)';
-                    card.style.transition = 'all 0.3s ease';
-
-                    setTimeout(() => {
-                        card.remove();
-                        const allCards = document.querySelectorAll('.approval-card');
-                        if(allCards.length === 0) {
-                            document.getElementById('approval-section')?.remove();
-                        }
-                    }, 300);
-                }
-            });
         });
     };
 
