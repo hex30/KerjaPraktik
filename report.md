@@ -87,3 +87,35 @@ Agar Frontend bisa murni bertindak sebagai "Penarik Data" (*Dumb Component* yang
   2. **Parsing Multipart (Gambar):** BE wajib memasangkan *middleware* `multer` pada endpoint `PUT` (tidak hanya pada `POST`) agar data gambar yang dikirim FE bisa diproses.
   3. **Data Translation:** FE mengirimkan kolom diskon dengan nama `discount`, BE bertugas menerjemahkannya untuk disimpan ke kolom `discount_percentage` di *database*.
   4. **Nested JSON Adress:** BE bertugas memastikan format alamat bersarang (Kecamatan, Desa, detail) yang dikirim FE disimpan dengan aman (misalnya sebagai *JSON String*) dan dikembalikan ke panel Admin secara utuh tanpa rusak.
+
+---
+
+## 3. Alur dan Logic Keseluruhan Sistem (Dynamic Seat & Fleet Allocation)
+
+Sistem saat ini menerapkan logika kalkulasi kursi dan penentuan unit (fleet) secara dinamis murni di Backend. Berikut adalah alur berjalannya sistem saat pengguna memesan tiket Travel Reguler:
+
+1. **Inisialisasi Pemilihan Jadwal (FE -> BE)**
+   - Saat pengguna di Frontend memilih rute, FE langsung meminta data ketersediaan tanggal untuk 14 hari ke depan ke endpoint `/api/travel/schedules/availability`.
+   - Backend memproses *On-The-Fly*: Mengecek rute (hari operasional) dan menghitung sisa kursi pada setiap tanggal berdasarkan kapasitas unit.
+
+2. **Kalkulasi Beban Dinamis & Penentuan Unit (BE)**
+   - Backend menghitung beban aktual pada tanggal terkait dengan menggabungkan:
+     - Jumlah kursi terpesan oleh Penumpang Reguler (termasuk extra kursi jika barang bawaan > 60kg).
+     - Beban dari Pengiriman Paket pada tanggal tersebut.
+   - Berdasarkan total beban yang terhitung, Backend menentukan kapasitas unit secara dinamis:
+     - **<= 10 Kursi terpakai**: Backend menugaskan unit **Luxio** (Kapasitas maksimal 10).
+     - **> 10 Kursi terpakai**: Backend otomatis melakukan *upgrade* sistem penugasan menjadi unit **Elf** (Kapasitas maksimal 14).
+     - Jika tidak tersedia Elf, atau beban melampaui 14, sistem membagi menjadi **2 Unit Luxio**.
+   - Sistem melakukan pengecekan ketersediaan armada fisik secara internal, untuk memastikan status armada siap bertugas.
+
+3. **Penyajian Data ke Frontend (BE -> FE)**
+   - Backend mengembalikan Array yang berisi informasi tanggal, *status ketersediaan*, jumlah sisa kursi, dan *tipe armada (unit)*.
+   - Frontend me-render *Card Tanggal*. Jika sisa kursi = 0 atau status = penuh, card akan non-aktif (disabled).
+   - Pengguna meng-klik tanggal yang diinginkan, kemudian FE memanggil endpoint `/api/travel/seats` untuk mendapatkan Array posisi kursi yang sudah dipesan.
+   - FE me-render *Seat Map*. Kursi yang indeksnya lebih dari `max_capacity` (misalnya kursi 11-14 pada unit Luxio) otomatis disembunyikan/di-disable oleh Frontend.
+
+4. **Eksekusi Pemesanan & Alokasi Otomatis (FE -> BE -> Database)**
+   - Setelah kursi dan data diri diisi, FE mengirim request pembuatan pesanan.
+   - Jika belum ada data *Schedule* pada tabel, BE akan otomatis membuatkannya (`status: scheduled`).
+   - Sistem akan menyematkan tagihan (`price`) berdasarkan data di sistem dan biaya tambahan bagasi jika ada, lalu mengunci status kursi menjadi `menunggu_pembayaran` selama 10 menit.
+   - **Dashboard Admin:** Pada panel admin, dropdown pemilihan armada telah dihilangkan dan diganti dengan *Badge Alokasi Otomatis*. Sistem backend akan menugaskan secara terpusat nomor plat mobil (ID Armada) sesuai tipe unit hasil kalkulasi `calculateLoad`. Admin tinggal menugaskan data Supir terkait pesanan tersebut.

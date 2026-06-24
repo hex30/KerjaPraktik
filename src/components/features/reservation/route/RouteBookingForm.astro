@@ -263,26 +263,14 @@ try {
         month: new Intl.DateTimeFormat("id-ID", { month: "short" })
     };
 
-    const generateDates = (routeValue: string) => {
-        const dates = [];
-        const today = new Date();
-        const allowedDays = routeValue === "panawangan_jakarta" ? [1, 3, 5] : [2, 4, 6, 0];
-
-        for (let i = 0; i < 14; i++) {
-            const nextDate = new Date();
-            nextDate.setDate(today.getDate() + i);
-            
-            if (allowedDays.includes(nextDate.getDay())) {
-                dates.push({
-                    id: `DUMMY-${routeValue}-${nextDate.getTime()}`, // Not real schedule ID, but used for UI
-                    raw_date: nextDate.toISOString().split('T')[0], // The actual date user selected
-                    departure_time: nextDate.toISOString(),
-                    available_seats: 15,
-                    base_price: 250000
-                });
-            }
+    const generateDates = async (routeId: string) => {
+        try {
+            const response = await travelService.getSchedulesAvailability(routeId);
+            return Array.isArray(response.data) ? response.data : [];
+        } catch (error) {
+            console.error("Gagal mengambil jadwal:", error);
+            return [];
         }
-        return dates;
     };
 
     const createScheduleCard = (schedule: any) => {
@@ -299,7 +287,7 @@ try {
                     <span class="text-4xl font-black leading-none my-1">${formatters.date.format(dateObj)}</span>
                     <span class="text-sm text-slate-500 font-secondary mt-1 font-bold">${formatters.month.format(dateObj)}</span>
                     <span class="text-xs ${isFull ? 'text-red-500' : 'text-green-600'} font-bold mt-2 bg-white px-2 py-0.5 rounded-full border shadow-sm">
-                        ${isFull ? 'Penuh' : `Sisa ${schedule.available_seats}`}
+                        ${isFull ? 'Penuh' : `Sisa ${schedule.sisa_kursi} Kursi`}
                     </span>
                 </div>
             </label>
@@ -412,12 +400,8 @@ try {
                     routeNameValue = "jakarta_panawangan";
                 }
 
-                // Generate dates via JS
-                const baseSchedules = generateDates(routeNameValue);
-                
                 try {
-                    // Endpoint untuk cek ketersediaan kursi via tanggal belum ada, ini mock simulasi
-                    // await travelService.checkSchedulesAvailability(target.value, ...);
+                    const baseSchedules = await generateDates(target.value);
                     
                     if (baseSchedules.length === 0) {
                         dateContainer.innerHTML = `
@@ -428,9 +412,22 @@ try {
                         return;
                     }
 
-                    dateContainer.innerHTML = baseSchedules.map(createScheduleCard).join("");
+                    // Mapping backend properties to template usage
+                    const formattedSchedules = baseSchedules.map((s: any) => ({
+                        id: s.schedule_id || `NEW-${s.date}`,
+                        raw_date: s.date,
+                        departure_time: s.departure_time,
+                        available_seats: s.sisa_kursi,
+                        sisa_kursi: s.sisa_kursi
+                    }));
+
+                    dateContainer.innerHTML = formattedSchedules.map(createScheduleCard).join("");
                 } catch (error) {
-                    dateContainer.innerHTML = baseSchedules.map(createScheduleCard).join("");
+                    dateContainer.innerHTML = `
+                        <div class="w-full flex items-center justify-center p-8 border-2 border-dashed border-slate-200 rounded-2xl bg-red-50 text-red-500 text-sm font-medium">
+                            Gagal memuat jadwal. Silakan coba lagi.
+                        </div>
+                    `;
                 }
             });
         });
@@ -453,8 +450,13 @@ try {
 
                 try {
                     // Panggil API riil ke backend
-                    const response = await travelService.getSeatsAvailability(selectedRouteId, selectedRawDate);
-                    const lockedSeats = Array.isArray(response.data) ? response.data : [];
+                    const response = await travelService.getSeatsOccupancy(selectedRouteId, selectedRawDate);
+                    const seatInfo = response.data || {};
+                    const lockedSeats = Array.isArray(seatInfo.occupied_seats_list) ? seatInfo.occupied_seats_list : [];
+                    const maxCapacity = seatInfo.max_capacity || 10;
+                    
+                    // Kita bisa simpan status unit dari backend jika perlu untuk UI
+                    // const unitName = seatInfo.unit;
 
                     const allSeats = document.querySelectorAll(".seat-btn");
                     allSeats.forEach((btn) => {
@@ -464,25 +466,25 @@ try {
                         // Bersihkan pilihan sebelumnya
                         btnEl.setAttribute("data-selected", "false");
 
-                        if (lockedSeats.includes(seatNumber)) {
-                            // Jika kursi sudah dipesan
+                        // Jika kursi tersebut di luar maxCapacity unit yang dialokasikan (misal unit Luxio max 10, tapi ada seat 11-14 di UI)
+                        if (seatNumber > maxCapacity) {
                             btnEl.setAttribute("disabled", "true");
-                            btnEl.classList.add("opacity-40", "grayscale", "cursor-not-allowed");
+                            btnEl.classList.add("opacity-20", "grayscale", "cursor-not-allowed", "hidden");
                         } else {
-                            // Jika kursi kosong
-                            btnEl.removeAttribute("disabled");
-                            btnEl.classList.remove("opacity-40", "grayscale", "cursor-not-allowed");
+                            btnEl.classList.remove("hidden");
+                            if (lockedSeats.includes(seatNumber)) {
+                                // Jika kursi sudah dipesan
+                                btnEl.setAttribute("disabled", "true");
+                                btnEl.classList.add("opacity-40", "grayscale", "cursor-not-allowed");
+                            } else {
+                                // Jika kursi kosong
+                                btnEl.removeAttribute("disabled");
+                                btnEl.classList.remove("opacity-40", "grayscale", "cursor-not-allowed");
+                            }
                         }
                     });
                 } catch (err) {
-                    console.error("Gagal mengambil data kursi riil, menganggap semua kosong sebagai fallback", err);
-                    const allSeats = document.querySelectorAll(".seat-btn");
-                    allSeats.forEach((btn) => {
-                        const btnEl = btn as HTMLButtonElement;
-                        btnEl.setAttribute("data-selected", "false");
-                        btnEl.removeAttribute("disabled");
-                        btnEl.classList.remove("opacity-40", "grayscale", "cursor-not-allowed");
-                    });
+                    console.error("Gagal mengambil data kursi riil", err);
                 }
             }
         });
@@ -573,11 +575,32 @@ try {
 
                 await travelService.createTravelBooking(bookingPayload, token);
 
+                const successMessage = `
+                    <div class="flex flex-col gap-3 text-left">
+                        <p class="text-slate-600 text-sm mb-2 text-center">Pemesanan Anda telah berhasil dikirim ke sistem! Anda telah mengunci kursi ini.</p>
+                        
+                        <!-- Alert Card 2: Payment Timeout -->
+                        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex gap-3 items-start shadow-sm mt-1">
+                            <div class="bg-amber-100 text-amber-600 p-1.5 rounded-lg shrink-0 mt-0.5">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div class="flex flex-col gap-0.5">
+                                <h4 class="font-bold text-amber-800 text-sm">Batas Waktu Pembayaran</h4>
+                                <p class="text-amber-700 text-[11px] font-secondary leading-tight">
+                                    Pesanan Anda harus segera dibayar dalam waktu <strong>10 menit</strong>. Jika melewati batas waktu, pesanan akan dibatalkan secara otomatis oleh sistem.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
                 (window as any).showFeedbackModal(
                     'success', 
                     'Pemesanan Berhasil', 
-                    'Pemesanan Anda telah berhasil dikirim ke sistem! Anda telah mengunci kursi ini.',
-                    '/'
+                    successMessage,
+                    '/user/booking-history'
                 );
             } catch (error: any) {
                 (window as any).showFeedbackModal('error', 'Pemesanan Gagal', error.message || 'Terjadi kesalahan saat memproses pesanan Anda.');

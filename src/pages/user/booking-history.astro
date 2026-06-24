@@ -63,8 +63,10 @@ const orderHistory = await userService.getUserHistory(token);
 <script>
     // Assign ke window object agar bisa dipanggil dari HTML onclick
     (window as any).selectPaymentMethod = async (orderId: string, type: string, method: string) => {
-        if (!confirm(`Apakah Anda yakin ingin memilih metode pembayaran ${method.toUpperCase()}?`)) {
-            return;
+        if (method === 'cash') {
+            if (!confirm(`Pilih metode pembayaran TUNAI? Anda akan membayar langsung ke sopir saat dijemput.`)) return;
+        } else {
+            if (!confirm(`Pilih metode pembayaran QRIS (Transfer)? Anda akan diminta untuk mengunggah bukti pembayaran.`)) return;
         }
         
         try {
@@ -75,10 +77,6 @@ const orderHistory = await userService.getUserHistory(token);
             
             // Perbaiki host backend
             const beHost = import.meta.env.PUBLIC_API_URL || 'http://localhost:5000';
-            
-            // Ambil kode promo jika ada
-            const promoInput = document.getElementById(`promo-${orderId}`) as HTMLInputElement;
-            const promoCode = promoInput ? promoInput.value.trim() : "";
 
             const res = await fetch(`${beHost}${endpoint}`, {
                 method: 'PUT',
@@ -86,12 +84,17 @@ const orderHistory = await userService.getUserHistory(token);
                     'Content-Type': 'application/json',
                     ...(token && { 'Authorization': `Bearer ${token}` })
                 },
-                body: JSON.stringify({ payment_method: method, promo_code: promoCode })
+                body: JSON.stringify({ payment_method: method })
             });
 
             if (res.ok) {
-                alert('Metode pembayaran berhasil dipilih!');
-                window.location.reload();
+                if (method === 'cash') {
+                    alert('Terima kasih banyak! Silakan bayarkan uang Anda saat sudah dijemput oleh driver.');
+                    window.location.reload();
+                } else {
+                    // Jika QRIS, langsung buka modal unggah bukti bayar
+                    (window as any).openPaymentModal(orderId, type);
+                }
             } else {
                 const data = await res.json();
                 alert(`Gagal: ${data.message || 'Terjadi kesalahan'}`);

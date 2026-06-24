@@ -35,7 +35,7 @@
         if (!modal) return;
 
         titleEl.textContent = title;
-        messageEl.textContent = message;
+        messageEl.innerHTML = message; // Changed to innerHTML to support rich text/cards
 
         // Reset class container ikon
         iconContainer.className = "w-14 h-14 rounded-full flex items-center justify-center shadow-sm border";

@@ -30,7 +30,7 @@ const { car_type, value, seat_capacity, description, price, image, isHidden = fa
         name={car_type} 
         capacity={`${seat_capacity} Kursi`} 
         description={description} 
-        price={price.toString()} 
+        price={price?.toString() || '0'} 
         image={image} 
         isAvailable={isAvailable}
     />

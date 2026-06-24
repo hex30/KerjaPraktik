@@ -6,6 +6,7 @@ export interface UnifiedOrder {
   title: string;
   date: string;
   price: number;
+  original_price?: number;
   status: string;
   meta: Record<string, any>;
 }
@@ -30,11 +31,12 @@ export const userService = {
       if (travelRes.status === 'fulfilled' && travelRes.value?.data) {
         travelRes.value.data.forEach((item: any) => {
           mergedHistory.push({
-            id: item.id || 'N/A',
+            id: item.booking_id || item.id || 'N/A',
             type: 'travel',
             title: `Perjalanan Rute: ${item.route_name || 'Reguler'}`,
             date: item.departure_date || item.created_at || new Date().toISOString(),
             price: item.price || item.total_price || 0,
+            original_price: item.original_price || undefined,
             status: item.booking_status || item.status || 'PENDING',
             meta: {
               seat_number: item.seat_number,
@@ -55,6 +57,7 @@ export const userService = {
             title: `Sewa Armada: ${item.car_type || 'Charter'}`,
             date: item.start_date || item.created_at || new Date().toISOString(),
             price: item.total_price || 0,
+            original_price: item.original_price || undefined,
             status: item.status || 'PENDING',
             meta: {
               pickup_address: item.pickup_address,
@@ -75,6 +78,7 @@ export const userService = {
             title: `Pengiriman Paket`,
             date: item.created_at || new Date().toISOString(),
             price: item.total_price || item.price || 0,
+            original_price: item.original_price || undefined,
             status: item.transaction_status || item.status || 'PENDING',
             meta: {
               waybill_number: item.waybill_number,

@@ -46,6 +46,10 @@ Sistem tidak hanya bergantung pada komponen dasar. AI CLI diwajibkan untuk **men
 * `RadioCard`: Komponen pilihan radio button berdesain kartu.
 * `SectionHeader`: Header dengan judul dan subjudul untuk seksi konten.
 * `MainLayout`, `AdminLayout`, `DriverLayout`: Komponen tata letak struktur halaman.
+* `RouteSelectionItem`: Pilihan destinasi travel harian.
+* `SeatMap`: Komponen perender peta denah tempat duduk interaktif.
+* `PassengerDataForm`: Komponen standarisasi pengisian data diri penumpang.
+* `BookingTable` & `BookingRow`: Sistem tabel untuk antarmuka admin/driver.
 
 ---
 

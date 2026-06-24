@@ -217,13 +217,18 @@ if (isNew) {
 
                             <div class="grid grid-cols-1 gap-4">
                                 <div class="flex flex-col gap-2">
-                                    <label class="text-[9px] font-bold text-slate-500 uppercase">Pilih Armada (Unit)</label>
-                                    <select name="fleet_id" disabled={!isNew} class={`w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 outline-none ${!isNew ? 'opacity-70 cursor-not-allowed' : 'focus:ring-2 focus:ring-primary/10'}`}>
-                                        <option value="">Pilih Armada...</option>
-                                        {fleets.map(f => (
-                                            <option value={f.id} selected={f.car_type === item.fleet || f.id === item.fleet_id}>{f.car_type} ({f.plate_number})</option>
-                                        ))}
-                                    </select>
+                                    <label class="text-[9px] font-bold text-slate-500 uppercase">Unit Armada (Auto-Allocated)</label>
+                                    <div class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 flex items-center justify-between">
+                                        <span>
+                                            {item.fleet_id 
+                                                ? `${fleets.find(f => f.id === item.fleet_id)?.car_type || 'Unit'} - ${fleets.find(f => f.id === item.fleet_id)?.plate_number || 'N/A'}`
+                                                : (bookingType === 'RUTE' ? 'Menunggu Sistem Alokasi' : 'Pilih Unit (Charter)')}
+                                        </span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-500" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                    <input type="hidden" name="fleet_id" value={item.fleet_id || ''} />
                                 </div>
 
                                 <div class="grid grid-cols-2 gap-4">

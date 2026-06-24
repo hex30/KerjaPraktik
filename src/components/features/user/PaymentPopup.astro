@@ -130,10 +130,6 @@ const qrisImageUrl = "https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=
                     return;
                 }
 
-                // Kita simulasi upload gambar dengan Base64 karena kita tidak yakin BE mendukung FormData File
-                // Jika BE mendukung multipart/form-data, kita kirim file mentah.
-                // Tapi untuk demo ini, kita kirim fake URL atau Base64
-                
                 try {
                     isSubmitting = true;
                     if (submitBtn) {

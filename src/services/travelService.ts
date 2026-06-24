@@ -73,8 +73,21 @@ export const travelService = {
     }
   },
 
-  // dokumentasi: Cek kursi yang terkunci (availability)
-  getSeatsAvailability: async (routeId: string, date: string) => {
+  // dokumentasi: Cek ketersediaan jadwal 14 hari ke depan
+  getSchedulesAvailability: async (routeId: string) => {
+    try {
+      const response = await apiFetch(`/api/travel/schedules/availability?route_id=${routeId}`, {
+        method: 'GET'
+      });
+      return response;
+    } catch (error) {
+      console.error("Gagal mengambil ketersediaan jadwal:", error);
+      throw error;
+    }
+  },
+
+  // dokumentasi: Cek okupansi kursi
+  getSeatsOccupancy: async (routeId: string, date: string) => {
     try {
       const response = await apiFetch(`/api/travel/seats?route_id=${routeId}&date=${date}`, {
         method: 'GET'
