@@ -140,16 +140,16 @@ if (isNew) {
                                 <div class="border-t border-slate-200/50 pt-3">
                                     <span class="text-[8px] font-bold text-slate-400 uppercase block">ALAMAT TUJUAN (END)</span>
                                     {bookingType === 'RUTE' ? (
-                                        item.destination_detail?.kecamatan && item.destination_detail.kecamatan !== '-' ? (
+                                        item.user.destination_detail?.kecamatan && item.user.destination_detail.kecamatan !== '-' ? (
                                             <p class="text-xs text-slate-600 leading-relaxed mt-1">
-                                                Kec. {item.destination_detail.kecamatan}, Desa {item.destination_detail.desa}, 
-                                                RT/RW {item.destination_detail.rt_rw || '-'}
+                                                Kec. {item.user.destination_detail.kecamatan}, Desa {item.user.destination_detail.desa}, 
+                                                RT/RW {item.user.destination_detail.rt_rw || '-'}
                                                 <br/>
-                                                <span class="font-bold text-slate-900 dynamic-text-class">Patokan: {item.destination_detail.patokan || '-'}</span>
+                                                <span class="font-bold text-slate-900 dynamic-text-class">Patokan: {item.user.destination_detail.patokan || '-'}</span>
                                             </p>
                                         ) : (
                                             <p class="text-sm text-slate-900 font-bold leading-relaxed mt-1 dynamic-text-class">
-                                                {item.destination_detail?.patokan || item.destination || '-'}
+                                                {item.user.destination_detail?.patokan || item.destination || '-'}
                                             </p>
                                         )
                                     ) : (

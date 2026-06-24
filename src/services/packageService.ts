@@ -12,7 +12,7 @@ export interface PackageShipmentData {
     dimension: 'kecil' | 'sedang' | 'besar' | 'super_besar';
     seat_qty: number;
     departure_date: string;
-    payment_method: string;
+    payment_method?: string;
 }
 
 export const packageService = {

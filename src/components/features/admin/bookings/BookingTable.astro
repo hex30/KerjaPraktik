@@ -11,7 +11,7 @@ import PaymentPreviewModal from "./PaymentPreviewModal.astro";
 export interface BookingUser {
     name: string;
     phone: string;
-    seat_number?: number;
+    seat_number?: number | string;
     luggage?: string;
     departure_date?: string;
     return_date?: string;
@@ -36,13 +36,13 @@ export interface BookingItem {
     destination: string;
     date: string;
     time?: string;
-    price?: number;
+    price?: number | null;
     fleet?: string;
     fleet_id?: string;
     driver_id?: string;
     driver_2_id?: string;
     booking_status: string;
-    payment_proof_url?: string;
+    payment_proof_url?: string | null;
     payment_method?: string;
     schedule_id?: string;
 }
@@ -273,7 +273,7 @@ const cancelledBookings = bookingData.filter(item => ['dibatalkan', 'ditolak', '
                                 body: JSON.stringify(bodyData)
                             });
                         }
-                    } else if (bookingType === 'PACKAGE') {
+                    } else if (formEl.dataset.bookingType === 'PACKAGE') {
                         // Package handling placeholder
                         if (currentState === 'isPickupList') {
                             await apiFetch(`/api/admin/master/package-shipments/${bookingId}`, {

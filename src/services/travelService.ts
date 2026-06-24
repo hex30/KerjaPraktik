@@ -72,4 +72,17 @@ export const travelService = {
       throw error;
     }
   },
+
+  // dokumentasi: Cek kursi yang terkunci (availability)
+  getSeatsAvailability: async (routeId: string, date: string) => {
+    try {
+      const response = await apiFetch(`/api/travel/seats?route_id=${routeId}&date=${date}`, {
+        method: 'GET'
+      });
+      return response;
+    } catch (error) {
+      console.error("Gagal mengecek kursi:", error);
+      throw error;
+    }
+  },
 };

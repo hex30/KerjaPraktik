@@ -196,7 +196,7 @@ const stats = [
                             <div class="mt-4 pt-6 border-t border-slate-50 flex items-center justify-between relative z-10">
                                 <span class="text-[10px] font-black text-slate-300 uppercase tracking-widest">Estimated Revenue</span>
                                 <span class="text-xl font-main font-black text-primary tracking-tight">
-                                    {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(fleet.estimated_revenue || fleet.details?.revenue || 0)}
+                                    {new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(Number(fleet.estimated_revenue || fleet.details?.revenue || 0))}
                                 </span>
                             </div>
                         </div>

@@ -2,28 +2,30 @@
 // File: src/components/ui/InputGroup.astro
 interface Props {
     label: string;
-    id: string;
+    id?: string;
     name: string;
     type?: "text" | "number" | "email" | "date" | "password" | "tel";
     placeholder?: string;
     required?: boolean;
     value?: string;
     suffix?: string; // Tambahan prop untuk teks di ujung kanan input
+    class?: string;
 }
 
 const { 
     label, 
-    id, 
     name, 
+    id = name,
     type = "text", 
     placeholder = "", 
     required = false,
     value,
-    suffix
+    suffix,
+    class: className = ""
 } = Astro.props;
 ---
 
-<div class="flex flex-col gap-2 w-full">
+<div class={`flex flex-col gap-2 w-full ${className}`}>
     <label for={id} class="font-secondary text-sm font-bold text-primary">
         {label}
     </label>

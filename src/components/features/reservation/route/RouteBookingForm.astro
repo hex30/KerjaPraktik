@@ -452,9 +452,30 @@ try {
                 }
 
                 try {
-                    // Karena scheduleId di-generate JS (bukan riil DB), kita pakai mockup agar kursi bisa diklik
-                    throw new Error("Gunakan Fallback Murni");
+                    // Panggil API riil ke backend
+                    const response = await travelService.getSeatsAvailability(selectedRouteId, selectedRawDate);
+                    const lockedSeats = Array.isArray(response.data) ? response.data : [];
+
+                    const allSeats = document.querySelectorAll(".seat-btn");
+                    allSeats.forEach((btn) => {
+                        const btnEl = btn as HTMLButtonElement;
+                        const seatNumber = parseInt(btnEl.textContent || '0');
+
+                        // Bersihkan pilihan sebelumnya
+                        btnEl.setAttribute("data-selected", "false");
+
+                        if (lockedSeats.includes(seatNumber)) {
+                            // Jika kursi sudah dipesan
+                            btnEl.setAttribute("disabled", "true");
+                            btnEl.classList.add("opacity-40", "grayscale", "cursor-not-allowed");
+                        } else {
+                            // Jika kursi kosong
+                            btnEl.removeAttribute("disabled");
+                            btnEl.classList.remove("opacity-40", "grayscale", "cursor-not-allowed");
+                        }
+                    });
                 } catch (err) {
+                    console.error("Gagal mengambil data kursi riil, menganggap semua kosong sebagai fallback", err);
                     const allSeats = document.querySelectorAll(".seat-btn");
                     allSeats.forEach((btn) => {
                         const btnEl = btn as HTMLButtonElement;

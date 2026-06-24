@@ -22,7 +22,20 @@ export interface AssignedFleet {
   id: string;
   name: string;
   type: string;
-  details: {
+  fleet_code?: string;
+  badge_label?: string;
+  route?: string;
+  total_passengers?: number;
+  total_packages?: number;
+  drivers?: string[];
+  customer_name?: string;
+  customer_phone?: string;
+  pickup_address?: string;
+  pickup_date?: string;
+  return_date?: string;
+  destination?: string;
+  estimated_revenue?: number;
+  details?: {
     path?: string;
     pax?: number;
     packages?: number;
@@ -34,7 +47,7 @@ export interface AssignedFleet {
     date_pickup?: string;
     date_return?: string;
     driver?: string;
-    revenue: string;
+    revenue?: string | number;
   };
 }
 

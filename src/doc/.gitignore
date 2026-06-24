@@ -20,23 +20,11 @@ pnpm-debug.log*
 # macOS-specific files
 .DS_Store
 
-# jetbrains settindea/
+# jetbrains setting folder
+.idea/
 
 .vercel
 
 # AI Documentation
 PRD.md
 GEMINI.md
-tsconfig.json
-report_fe.md
-To Do.md
-HaveDone.md'
-report_fe.md'
-report fe.md'
-updates.md'
-INTEGRATION_ANALYSIS.md
-issue.md'
-GEMINI.md
-PRD.md
-To Do.md
-implementation_plan.md

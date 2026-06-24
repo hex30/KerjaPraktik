@@ -11,9 +11,11 @@ export interface Promo {
 export interface Destination {
     id?: string | number;
     name: string;
+    title?: string;
     location: string;
     description: string;
     image_url: string;
+    image?: string;
     price: string | number;
     is_active?: boolean;
 }

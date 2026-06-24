@@ -10,6 +10,6 @@ export async function GET() {
     });
     return new Response(JSON.stringify({ status: 200, data }), { headers: { 'Content-Type': 'application/json' } });
   } catch (e) {
-    return new Response(JSON.stringify({ error: e.message }));
+    return new Response(JSON.stringify({ error: (e as Error).message }));
   }
 }

@@ -62,3 +62,17 @@ Sistem ini menggunakan mekanisme penetapan harga dinamis (oleh Admin) sebelum pe
 
    * *Untuk Cashless:* Begitu Admin memverifikasi uang masuk, status menjadi Selesai dengan catatan *"Silakan tunggu dijemput"*.
    * *Untuk Cash:* Begitu User memilih *Cash* (langsung), Admin dapat memverifikasinya nanti, atau otomatis status berubah dengan catatan *"Bayar nanti saat sudah dijemput"*.
+
+## 🎁 Alur Proses Promosi (Promotion Flow)
+Tampilan promo di halaman Home (Beranda) dan Layanan (Services) dikendalikan secara mutlak oleh satu sumber data (*Single Global Promo*) dari Backend. Berikut adalah logika yang diterapkan:
+1. **Penarikan Data Tunggal:** Frontend hanya memanggil satu endpoint global (`GET /api/content/promotions`) yang akan mengembalikan 1 promo aktif. 
+2. **Pemetaan UI Dinamis:** 
+   * **Besaran Diskon:** Angka persentase diskon (`discount_percentage`) dibulatkan dan ditampilkan secara masif (misal "20% OFF") di Beranda dan Layanan.
+   * **Tagline Promo:** Teks `tagline` dari *database* ditampilkan utuh di halaman Layanan, namun secara otomatis dipotong menjadi 3 baris di halaman Beranda untuk menyesuaikan desain visual (*hero layout*).
+   * **Gambar Latar:** Elemen gambar pada *banner* promosi murni menggunakan `image_url` dari respons Backend. Jika Backend tidak merespons atau gambar kosong, komponen promosi akan menyembunyikan dirinya secara otomatis (*failsafe/graceful degradation*).
+3. **Ketiadaan Konsep "Klaim Manual":** Tombol pada banner promo tidak berfungsi sebagai tombol "Klaim/Simpan Voucher". Tombol tersebut hanya berfungsi sebagai pengarah (*redirect*) ke halaman pemesanan layanan rute reguler (`/services`).
+4. **Penerapan Diskon Otomatis (Oleh BE):** Jika pelanggan memesan layanan dan kebetulan terdapat Promo yang sedang aktif, maka **Backend wajib melakukan kalkulasi diskon secara otomatis**.
+5. **Proses Admin:** Saat Admin menginput harga (*Total Price*) untuk pesanan yang masuk, Backend akan memotong harga tersebut secara sistem (dengan mempertimbangkan parameter `max_discount`) **sebelum** harga final tersebut dikembalikan sebagai respons API dan ditampilkan kepada pengguna di halaman "Riwayat Pesanan".
+
+---
+© 2026 PT Rini Trans Putri. All Rights Reserved.

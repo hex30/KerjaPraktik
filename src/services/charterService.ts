@@ -20,7 +20,7 @@ export interface CharterRequestData {
     dropoff_address?: string;
     with_driver?: boolean;
     notes?: string;
-    payment_method: string;
+    payment_method?: string;
 
     // Additional passenger/pickup details from Form UI
     full_name?: string;

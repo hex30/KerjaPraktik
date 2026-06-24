@@ -243,7 +243,7 @@ import AlertCard from "@components/ui/AlertCard.astro";
 
         const checkDoubleCharge = () => {
             const isLarge = dimensionSelect.value === 'besar' || dimensionSelect.value === 'super_besar';
-            const isHeavy = parseInt(weightInput.value) > 20;
+            const isHeavy = parseInt(weightInput.value) > 60;
             
             let notice = document.getElementById('double-charge-notice');
             
@@ -259,7 +259,7 @@ import AlertCard from "@components/ui/AlertCard.astro";
                         <div>
                             <p class="text-sm font-bold text-amber-900">Double Charge Notice</p>
                             <p class="text-xs text-amber-700 mt-1 leading-relaxed">
-                                Paket dengan dimensi besar atau berat di atas 20kg akan dikenakan biaya tambahan setara 1 kursi penumpang.
+                                Paket dengan dimensi besar atau berat di atas 60kg akan dikenakan biaya tambahan setara 1 kursi penumpang.
                             </p>
                         </div>
                     `;
@@ -300,27 +300,27 @@ import AlertCard from "@components/ui/AlertCard.astro";
                 const formData = new FormData(form);
                 const data = Object.fromEntries(formData.entries());
                 
-                const isDouble = dimensionSelect.value === 'besar' || dimensionSelect.value === 'super_besar' || parseInt(weightInput.value) > 20;
+                const isDouble = dimensionSelect.value === 'besar' || dimensionSelect.value === 'super_besar' || parseInt(weightInput.value) > 60;
 
                 const payload = {
                     sender_name: data.nama_pengirim as string,
                     sender_phone: data.telp_pengirim as string,
-                    pickup_address: {
+                    pickup_address: JSON.stringify({
                         kecamatan: data.sub_district_pengirim || "-",
                         desa: data.village_pengirim || "-",
                         dusun: data.pengirim_hamlet || "-",
                         rt_rw: `${data.pengirim_rt || "-"}/${data.pengirim_rw || "-"}`,
                         patokan: data.landmark_pengirim || "-"
-                    },
+                    }),
                     receiver_name: data.nama_penerima as string,
                     receiver_phone: data.telp_penerima as string,
-                    receiver_address: {
+                    receiver_address: JSON.stringify({
                         kecamatan: data.sub_district_penerima || "-",
                         desa: data.village_penerima || "-",
                         dusun: data.penerima_hamlet || "-",
                         rt_rw: `${data.penerima_rt || "-"}/${data.penerima_rw || "-"}`,
                         patokan: data.landmark_penerima || "-"
-                    },
+                    }),
                     package_description: data.deskripsi_paket as string,
                     weight: Number(data.berat_paket),
                     dimension: data.dimensi_paket as 'kecil' | 'sedang' | 'besar' | 'super_besar',

@@ -249,14 +249,14 @@ import Button from "@ui/Button.astro";
                 homeSection?.classList.remove('hidden');
                 serviceSection?.classList.add('hidden');
                 (document.getElementById('promo-home-form') as HTMLFormElement)?.reset();
-                document.querySelector('#promo-home-form .promo-id')!.value = '';
+                (document.querySelector('#promo-home-form .promo-id') as HTMLInputElement).value = '';
                 document.querySelector('#promo-home-form .delete-promo-btn')?.classList.add('hidden');
             });
             btnNewService.addEventListener('click', () => {
                 serviceSection?.classList.remove('hidden');
                 homeSection?.classList.add('hidden');
                 (document.getElementById('promo-service-form') as HTMLFormElement)?.reset();
-                document.querySelector('#promo-service-form .promo-id')!.value = '';
+                (document.querySelector('#promo-service-form .promo-id') as HTMLInputElement).value = '';
                 document.querySelector('#promo-service-form .delete-promo-btn')?.classList.add('hidden');
             });
         }
