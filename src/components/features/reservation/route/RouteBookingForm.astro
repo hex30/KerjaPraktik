@@ -566,8 +566,8 @@ try {
                         patokan: data.landmark || "-"
                     }),
                     baggage_description: "Bawaan Penumpang Reguler",
-                    baggage_weight: data.berat_bagasi && parseFloat(data.berat_bagasi) > 0 ? parseFloat(data.berat_bagasi) : 1,
-                    baggage_dimension: data.dimensi_bagasi || "kecil"
+                    baggage_weight: beratBagasiInput?.value && parseFloat(beratBagasiInput.value) > 0 ? parseFloat(beratBagasiInput.value) : 1,
+                    baggage_dimension: dimensiBagasiSelect?.value || "kecil"
                 };
 
                 const token = localStorage.getItem("jwt_token");
