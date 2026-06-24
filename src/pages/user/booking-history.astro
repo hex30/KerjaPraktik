@@ -135,6 +135,86 @@ const orderHistory = await userService.getUserHistory(token);
                 });
             });
         });
+
+        // -------------------------------------------------------------
+        // LOGIKA PEMBATALAN & PENGHAPUSAN PESANAN
+        // -------------------------------------------------------------
+        
+        // 1. Batalkan Pesanan
+        document.querySelectorAll('.btn-action-cancel').forEach((btn) => {
+            btn.addEventListener('click', async (e) => {
+                const target = e.currentTarget as HTMLButtonElement;
+                const orderId = target.getAttribute('data-order-id');
+                const orderType = target.getAttribute('data-order-type'); // travel, charter, package
+                
+                if (!orderId || !orderType) return;
+
+                const confirmed = window.confirm('Batalkan Pesanan?\n\nPesanan yang dibatalkan tidak dapat dikembalikan. Apakah Anda yakin?');
+
+                if (confirmed) {
+                    try {
+                        const token = localStorage.getItem('jwt_token') || document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+                        if (!token) throw new Error("Token tidak ditemukan. Silakan login ulang.");
+                        
+                        // Menentukan Endpoint Berdasarkan Tipe
+                        // Sesuai instruksi, kita membuat rute ini untuk travel, tapi fleksibel untuk tipe lain
+                        const endpoint = `/api/${orderType}/bookings/${orderId}/cancel`;
+                        const beHost = 'http://localhost:5000';
+                        
+                        const res = await fetch(`${beHost}${endpoint}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+                        
+                        if (!res.ok) throw new Error("Gagal membatalkan pesanan. Endpoint mungkin belum didukung untuk tipe ini.");
+                        
+                        alert('Dibatalkan! Pesanan Anda berhasil dibatalkan.');
+                        window.location.reload();
+                    } catch (error: any) {
+                        alert(`Gagal! ${error.message}`);
+                    }
+                }
+            });
+        });
+
+        // 2. Hapus Riwayat
+        document.querySelectorAll('.btn-action-delete').forEach((btn) => {
+            btn.addEventListener('click', async (e) => {
+                const target = e.currentTarget as HTMLButtonElement;
+                const orderId = target.getAttribute('data-order-id');
+                const orderType = target.getAttribute('data-order-type'); 
+                
+                if (!orderId || !orderType) return;
+
+                const confirmed = window.confirm('Hapus Riwayat?\n\nPerhatian! Aksi ini akan MENGHAPUS PERMANEN data pesanan ini dari Database. Lanjutkan?');
+
+                if (confirmed) {
+                    try {
+                        const token = localStorage.getItem('jwt_token') || document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+                        if (!token) throw new Error("Token tidak ditemukan.");
+                        
+                        const endpoint = `/api/${orderType}/bookings/${orderId}`;
+                        const beHost = 'http://localhost:5000';
+                        
+                        const res = await fetch(`${beHost}${endpoint}`, {
+                            method: 'DELETE',
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        });
+                        
+                        if (!res.ok) throw new Error("Gagal menghapus riwayat pesanan.");
+                        
+                        alert('Terhapus! Data pesanan telah dihapus permanen.');
+                        window.location.reload();
+                    } catch (error: any) {
+                        alert(`Gagal! ${error.message}`);
+                    }
+                }
+            });
+        });
     });
 </script>
 
