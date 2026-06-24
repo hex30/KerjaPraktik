@@ -2,28 +2,76 @@
 // File: src/components/features/admin/bookings/PaymentPreviewModal.astro
 ---
 
-<div id="admin-payment-modal" class="fixed inset-0 z-[100] bg-slate-900/80 backdrop-blur-sm hidden items-center justify-center p-4">
-    <div class="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden transform scale-95 opacity-0 transition-all duration-300" id="admin-payment-modal-content">
+<div
+    id="admin-payment-modal"
+    class="fixed inset-0 z-[100] bg-slate-900/80 backdrop-blur-sm hidden items-center justify-center p-4"
+>
+    <div
+        class="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden transform scale-95 opacity-0 transition-all duration-300"
+        id="admin-payment-modal-content"
+    >
         <!-- Header -->
-        <div class="bg-slate-50 p-6 border-b border-slate-100 flex justify-between items-center relative">
-            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-sky-400 to-indigo-500"></div>
-            <div>
-                <h3 class="font-black text-xl text-slate-800 tracking-tight">Bukti Transfer</h3>
-                <p class="text-xs text-slate-500 mt-1 font-secondary" id="modal-payment-order-id">Memuat data...</p>
+        <div
+            class="bg-slate-50 p-6 border-b border-slate-100 flex justify-between items-center relative cursor-pointer"
+            id="admin-payment-modal-header"
+            title="Tutup"
+        >
+            <div
+                class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-sky-400 to-indigo-500"
+            >
             </div>
-            <button type="button" id="close-admin-modal-btn" class="w-8 h-8 flex items-center justify-center rounded-full bg-slate-200 text-slate-500 hover:bg-slate-300 hover:text-slate-700 transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-            </button>
+            <div>
+                <h3 class="font-black text-xl text-slate-800 tracking-tight">
+                    Bukti Transfer
+                </h3>
+                <p
+                    class="text-xs text-slate-500 mt-1 font-secondary"
+                    id="modal-payment-order-id"
+                >
+                    Memuat data...
+                </p>
+            </div>
+            <div
+                class="text-xs font-bold text-slate-400 px-3 py-1 bg-slate-200/50 rounded-full"
+            >
+                Ketuk untuk menutup
+            </div>
         </div>
 
         <!-- Body -->
-        <div class="p-6 bg-slate-100/50 flex justify-center items-center min-h-[300px]">
-            <img id="admin-proof-image" src="" alt="Bukti Transfer" class="max-w-full max-h-[60vh] object-contain rounded-xl shadow-md border border-slate-200 hidden" />
-            <div id="admin-proof-loading" class="flex flex-col items-center justify-center text-slate-400">
+        <div
+            class="p-6 bg-slate-100/50 flex justify-center items-center min-h-[300px] cursor-pointer"
+            id="admin-payment-modal-body"
+            title="Tutup"
+        >
+            <img
+                id="admin-proof-image"
+                src=""
+                alt="Bukti Transfer"
+                class="max-w-full max-h-[60vh] object-contain rounded-xl shadow-md border border-slate-200 hidden cursor-pointer"
+                title="Tutup Gambar"
+            />
+            <div
+                id="admin-proof-loading"
+                class="flex flex-col items-center justify-center text-slate-400"
+            >
                 <span class="animate-spin mb-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        ><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg
+                    >
                 </span>
-                <span class="text-xs font-bold uppercase tracking-wider">Memuat Gambar...</span>
+                <span class="text-xs font-bold uppercase tracking-wider"
+                    >Memuat Gambar...</span
+                >
             </div>
         </div>
     </div>
@@ -32,89 +80,100 @@
 <script>
     // Fungsi global untuk membuka modal preview
     window.openPaymentPreview = (orderId: string, imageUrl: string) => {
-        const modal = document.getElementById('admin-payment-modal');
-        const content = document.getElementById('admin-payment-modal-content');
-        const idText = document.getElementById('modal-payment-order-id');
-        const imgEl = document.getElementById('admin-proof-image') as HTMLImageElement;
-        const loader = document.getElementById('admin-proof-loading');
+        const modal = document.getElementById("admin-payment-modal");
+        const content = document.getElementById("admin-payment-modal-content");
+        const idText = document.getElementById("modal-payment-order-id");
+        const imgEl = document.getElementById(
+            "admin-proof-image",
+        ) as HTMLImageElement;
+        const loader = document.getElementById("admin-proof-loading");
 
         if (modal && content && idText && imgEl && loader) {
             idText.textContent = `Order ID: #${orderId}`;
-            
+
             // Setup Loading Image
-            imgEl.classList.add('hidden');
-            loader.classList.remove('hidden');
-            
+            imgEl.classList.add("hidden");
+            loader.classList.remove("hidden");
+
             imgEl.onload = () => {
-                loader.classList.add('hidden');
-                imgEl.classList.remove('hidden');
-            };
-            
-            // Kasih fallback jika imageUrl kosong/error
-            imgEl.onerror = () => {
-                loader.innerHTML = '<span class="text-rose-500 font-bold">Gagal memuat gambar atau gambar tidak tersedia.</span>';
+                loader.classList.add("hidden");
+                imgEl.classList.remove("hidden");
             };
 
-            imgEl.src = imageUrl || 'https://via.placeholder.com/400x600?text=Bukti+Tidak+Tersedia';
-            
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            
+            // Kasih fallback jika imageUrl kosong/error
+            imgEl.onerror = () => {
+                loader.innerHTML =
+                    '<span class="text-rose-500 font-bold">Gagal memuat gambar atau gambar tidak tersedia.</span>';
+            };
+
+            imgEl.src =
+                imageUrl ||
+                "https://via.placeholder.com/400x600?text=Bukti+Tidak+Tersedia";
+
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+
             // Animasi masuk
             setTimeout(() => {
-                content.classList.remove('scale-95', 'opacity-0');
-                content.classList.add('scale-100', 'opacity-100');
+                content.classList.remove("scale-95", "opacity-0");
+                content.classList.add("scale-100", "opacity-100");
             }, 10);
         }
     };
 
     // Fungsi global untuk menutup modal preview
     window.closePaymentPreview = () => {
-        const modal = document.getElementById('admin-payment-modal');
-        const content = document.getElementById('admin-payment-modal-content');
-        const imgEl = document.getElementById('admin-proof-image') as HTMLImageElement;
+        const modal = document.getElementById("admin-payment-modal");
+        const content = document.getElementById("admin-payment-modal-content");
+        const imgEl = document.getElementById(
+            "admin-proof-image",
+        ) as HTMLImageElement;
 
         if (modal && content) {
-            content.classList.remove('scale-100', 'opacity-100');
-            content.classList.add('scale-95', 'opacity-0');
-            
+            content.classList.remove("scale-100", "opacity-100");
+            content.classList.add("scale-95", "opacity-0");
+
             setTimeout(() => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-                if (imgEl) imgEl.src = ''; // clear memory
+                modal.classList.add("hidden");
+                modal.classList.remove("flex");
+                if (imgEl) imgEl.src = ""; // clear memory
             }, 300);
         }
     };
 
     // Global Delete Function for Admin
-    import { apiFetch } from '../../../../services/api';
+    import { apiFetch } from "../../../../services/api";
 
     window.deleteOrderHistory = async (orderId: string, orderType: string) => {
-        const confirmDelete = window.confirm("Peringatan!\n\nApakah Anda yakin ingin menghapus data riwayat ini secara PERMANEN? Tindakan ini tidak dapat dibatalkan.");
-        
+        const confirmDelete = window.confirm(
+            "Peringatan!\n\nApakah Anda yakin ingin menghapus data riwayat ini secara PERMANEN? Tindakan ini tidak dapat dibatalkan.",
+        );
+
         if (confirmDelete) {
             try {
-                const token = localStorage.getItem('jwt_token') || localStorage.getItem('token');
+                const token =
+                    localStorage.getItem("jwt_token") ||
+                    localStorage.getItem("token");
                 const headers = {
-                    'Authorization': `Bearer ${token}`
+                    Authorization: `Bearer ${token}`,
                 };
 
-                let endpoint = '';
-                if (orderType === 'RUTE') {
+                let endpoint = "";
+                if (orderType === "RUTE") {
                     endpoint = `/api/admin/master/travel-bookings/${orderId}`;
-                } else if (orderType === 'CHARTER') {
+                } else if (orderType === "CHARTER") {
                     endpoint = `/api/charter/${orderId}`;
-                } else if (orderType === 'PACKAGE') {
+                } else if (orderType === "PACKAGE") {
                     endpoint = `/api/admin/master/package-shipments/${orderId}`;
                 }
 
                 // Call DELETE API using apiFetch
                 await apiFetch(endpoint, {
-                    method: 'DELETE',
-                    headers
+                    method: "DELETE",
+                    headers,
                 });
 
-                alert('Data berhasil dihapus secara permanen dari sistem!');
+                alert("Data berhasil dihapus secara permanen dari sistem!");
                 window.location.reload();
             } catch (error: any) {
                 console.error("Delete Error:", error);
@@ -123,17 +182,31 @@
         }
     };
 
-    document.addEventListener('astro:page-load', () => {
-        const closeBtn = document.getElementById('close-admin-modal-btn');
-        const modal = document.getElementById('admin-payment-modal');
+    document.addEventListener("astro:page-load", () => {
+        const modal = document.getElementById("admin-payment-modal");
+        const imgEl = document.getElementById("admin-proof-image");
+        const modalHeader = document.getElementById(
+            "admin-payment-modal-header",
+        );
+        const modalBody = document.getElementById("admin-payment-modal-body");
 
-        if (closeBtn) closeBtn.addEventListener('click', window.closePaymentPreview);
-
+        // Menutup modal saat klik pada overlay / luar konten
         if (modal) {
-            modal.addEventListener('click', (e) => {
+            modal.addEventListener("click", (e) => {
                 if (e.target === modal) window.closePaymentPreview();
             });
         }
+
+        // Menutup modal saat klik pada header, body, atau gambar
+        if (modalHeader)
+            modalHeader.addEventListener("click", window.closePaymentPreview);
+        if (modalBody)
+            modalBody.addEventListener("click", window.closePaymentPreview);
+        if (imgEl)
+            imgEl.addEventListener("click", (e) => {
+                e.stopPropagation(); // Biar event gak double dari parent
+                window.closePaymentPreview();
+            });
     });
 
     declare global {

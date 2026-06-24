@@ -40,6 +40,8 @@ export interface BookingItem {
     price?: number | null;
     fleet?: string;
     fleet_id?: string;
+    fleet_plate_number?: string;
+    fleet_car_type?: string;
     driver_id?: string;
     driver_2_id?: string;
     booking_status: string;
@@ -145,8 +147,7 @@ const { bookingType, bookingData, fleets = [], drivers = [] } = Astro.props;
                         } else if (currentState === 'isNew') {
                             const statusBody = {
                                 booking_status: 'menunggu_pembayaran',
-                                price: payload.price ? parseFloat((payload.price as string).replace(/\./g, '')) : undefined,
-                                eta: payload.pickup_time || undefined
+                                price: payload.price ? parseFloat((payload.price as string).replace(/\./g, '')) : undefined
                             };
                             
                             await apiFetch(`/api/admin/master/travel-bookings/${bookingId}/status`, {
@@ -154,19 +155,6 @@ const { bookingType, bookingData, fleets = [], drivers = [] } = Astro.props;
                                 headers,
                                 body: JSON.stringify(statusBody)
                             });
-
-                            if (scheduleId && payload.fleet_id && payload.driver_1) {
-                                const assignBody = {
-                                    fleet_id: payload.fleet_id,
-                                    driver_id: payload.driver_1,
-                                    driver_2_id: payload.driver_2 || undefined
-                                };
-                                await apiFetch(`/api/admin/master/schedules/${scheduleId}/assign`, {
-                                    method: 'PUT',
-                                    headers,
-                                    body: JSON.stringify(assignBody)
-                                });
-                            }
                         }
                     } else if (isCharter) {
                         if (currentState === 'isPickupList') {
@@ -177,9 +165,6 @@ const { bookingType, bookingData, fleets = [], drivers = [] } = Astro.props;
                             });
                         } else {
                             const bodyData = {
-                                fleet_id: payload.fleet_id || undefined,
-                                driver_id: payload.driver_1 || undefined,
-                                driver_2_id: payload.driver_2 || undefined,
                                 offered_price: payload.price ? parseFloat((payload.price as string).replace(/\./g, '')) : undefined
                             };
                             await apiFetch(`/api/charter/${bookingId}/verify`, {
