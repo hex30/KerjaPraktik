@@ -12,15 +12,17 @@ interface Props {
 const { item, bookingType, fleets = [], drivers = [] } = Astro.props;
 
 // LOGIC STATE MAPPER (Support Selesai & Dibatalkan)
-const isNew = item.booking_status === 'menunggu_konfirmasi' && !item.payment_proof_url;
-const isWaitingPayment = item.booking_status === 'menunggu_pembayaran';
-const isProofUploaded = item.booking_status === 'menunggu_konfirmasi' && !!item.payment_proof_url;
+const actualStatus = item.booking_status || item.status || item.transaction_status || 'PENDING';
+
+const isNew = actualStatus === 'menunggu_konfirmasi' && !item.payment_proof_url;
+const isWaitingPayment = actualStatus === 'menunggu_pembayaran';
+const isProofUploaded = actualStatus === 'menunggu_konfirmasi' && !!item.payment_proof_url;
 // ASUMSI: 'dalam_penjemputan' dipakai jika diverifikasi
-const isPickupList = item.booking_status === 'dalam_penjemputan' || (item.booking_status === 'selesai' && bookingType !== 'PACKAGE'); // HACK: karna BE belum support 'dalam_penjemputan', kita masih map 'selesai' ke pickup list di form utama.
+const isPickupList = actualStatus === 'dalam_penjemputan' || (actualStatus === 'selesai' && bookingType !== 'PACKAGE'); // HACK: karna BE belum support 'dalam_penjemputan', kita masih map 'selesai' ke pickup list di form utama.
 // Jika di sub-kategori, kita mapping 'selesai' sbg benar-benar selesai. 
 // Untuk membedakannya, kita cek apakah komponen ini dirender untuk section apa. Tapi kita bisa pakai property isArchived
-const isDone = item.booking_status === 'selesai_final' || item.booking_status === 'completed'; // Nantinya BE harus bedakan
-const isCancelled = item.booking_status === 'dibatalkan' || item.booking_status === 'ditolak';
+const isDone = actualStatus === 'selesai_final' || actualStatus === 'completed'; // Nantinya BE harus bedakan
+const isCancelled = actualStatus === 'dibatalkan' || actualStatus === 'ditolak';
 
 // Teks Status Utama
 let displayBadge = "";
@@ -40,10 +42,10 @@ if (isNew) {
     displayBadge = "MENUNGGU PENJEMPUTAN";
     badgeClass = "bg-emerald-100 text-emerald-600";
 } else if (isCancelled) {
-    displayBadge = item.booking_status.toUpperCase();
+    displayBadge = actualStatus.toUpperCase();
     badgeClass = "bg-rose-100 text-rose-600";
 } else {
-    displayBadge = item.booking_status.toUpperCase();
+    displayBadge = actualStatus.toUpperCase();
     badgeClass = "bg-slate-100 text-slate-600";
 }
 

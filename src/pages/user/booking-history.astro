@@ -65,12 +65,6 @@ const orderHistory = await userService.getUserHistory(token);
 <script>
     // Assign ke window object agar bisa dipanggil dari HTML onclick
     (window as any).selectPaymentMethod = async (orderId: string, type: string, method: string) => {
-        if (method === 'cash') {
-            if (!confirm(`Pilih metode pembayaran TUNAI? Anda akan membayar langsung ke sopir saat dijemput.`)) return;
-        } else {
-            if (!confirm(`Pilih metode pembayaran QRIS (Transfer)? Anda akan diminta untuk mengunggah bukti pembayaran.`)) return;
-        }
-        
         try {
             const token = localStorage.getItem('jwt_token') || document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
             const endpoint = type === 'travel' 
@@ -92,11 +86,8 @@ const orderHistory = await userService.getUserHistory(token);
             if (res.ok) {
                 if (method === 'cash') {
                     alert('Terima kasih banyak! Silakan bayarkan uang Anda saat sudah dijemput oleh driver.');
-                    window.location.reload();
-                } else {
-                    // Jika QRIS, langsung buka modal unggah bukti bayar
-                    (window as any).openPaymentModal(orderId, type);
                 }
+                window.location.reload();
             } else {
                 const data = await res.json();
                 alert(`Gagal: ${data.message || 'Terjadi kesalahan'}`);

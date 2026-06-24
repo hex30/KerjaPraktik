@@ -57,15 +57,16 @@ if (isNew) {
     statusText = order.status ? order.status.toUpperCase() : "Status Tidak Diketahui";
 }
 
-// Format harga IDR
-const formattedPrice = new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' })
-    .format(order.price || 0)
-    .replace(',00', '');
+// --- FORMATTING HARGA & EXTRA CHARGE ---
+// Jika ada charge bagasi, kita pisahkan dari harga final dan harga awal untuk visualisasi UI
+const extraCharge = meta.is_baggage_charge ? 250000 : 0;
+const originalBasePrice = order.original_price ? order.original_price - extraCharge : 0;
+const discountedBasePrice = order.price - extraCharge;
+const hasPromo = originalBasePrice > discountedBasePrice;
 
-const hasPromo = order.original_price && order.original_price > order.price;
-const formattedOriginalPrice = order.original_price 
-    ? new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(order.original_price).replace(',00', '')
-    : '';
+const formatCurrency = (val: number) => {
+    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(val).replace(',00', '');
+};
 
 const displayId = order.id && order.id.length > 10 
     ? `${order.type === 'travel' ? 'TRV' : order.type === 'charter' ? 'CHR' : 'PKG'}-${order.id.substring(0, 8).toUpperCase()}`
@@ -99,14 +100,28 @@ const displayId = order.id && order.id.length > 10
 
     <div class="flex flex-col justify-between items-start md:items-end w-full md:w-1/4 border-t md:border-t-0 border-slate-100 pt-4 md:pt-0 gap-3">
         <div class="text-left md:text-right w-full flex md:flex-col justify-between md:justify-end items-center md:items-end">
-            <span class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">Total Tagihan</span>
+            <span class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-0.5">Ringkasan Biaya</span>
             <div class="flex flex-col items-end">
                 {hasPromo && (
                     <span class="text-xs text-rose-500 line-through font-secondary mb-0.5">
-                        {formattedOriginalPrice}
+                        {formatCurrency(originalBasePrice)}
                     </span>
                 )}
-                <span class="font-main font-black text-primary text-xl">{formattedPrice}</span>
+                <span class="font-main font-black text-primary text-xl">
+                    {formatCurrency(discountedBasePrice)}
+                </span>
+                {meta.is_baggage_charge && (
+                    <div class="flex flex-col items-end mt-1 text-amber-600">
+                        <span class="text-[10px] font-bold uppercase tracking-wider">+ Charge Bagasi</span>
+                        <span class="text-sm font-bold">{formatCurrency(extraCharge)}</span>
+                    </div>
+                )}
+                {meta.is_baggage_charge && (
+                    <div class="w-full mt-2 pt-2 border-t border-slate-100 flex justify-between gap-4">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Total</span>
+                        <span class="text-lg font-black text-slate-800">{formatCurrency(order.price)}</span>
+                    </div>
+                )}
             </div>
         </div>
         

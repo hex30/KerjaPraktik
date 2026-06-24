@@ -130,7 +130,7 @@ export const adminBookingService = {
                     address_detail: parseAddressDetail(item.address_detail),
                     destination_detail: parseAddressDetail(item.destination_detail),
                     seat_number: item.seat_number || '-',
-                    luggage: item.luggage || '-'
+                    luggage: item.baggage_weight ? `${item.baggage_weight}Kg (${item.baggage_dimension}) ${item.is_baggage_charge ? '[+Charge]' : ''}` : '-'
                 },
                 origin: item.origin || 'N/A',
                 destination: item.destination || 'N/A',

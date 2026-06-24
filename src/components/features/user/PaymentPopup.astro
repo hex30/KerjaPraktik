@@ -96,7 +96,7 @@ const qrisImageUrl = "https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=
     };
 
     // Setup event listeners
-    document.addEventListener('astro:page-load', () => {
+    const initPaymentModal = () => {
         const closeBtn = document.getElementById('close-modal-btn');
         const form = document.getElementById('payment-proof-form');
         const modal = document.getElementById('payment-modal');
@@ -115,7 +115,11 @@ const qrisImageUrl = "https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=
         }
 
         if (form) {
-            form.addEventListener('submit', async (e) => {
+            // Remove previous listener to avoid duplicates if called multiple times
+            const newForm = form.cloneNode(true);
+            form.parentNode?.replaceChild(newForm, form);
+            
+            newForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 if (isSubmitting) return;
 
@@ -152,7 +156,7 @@ const qrisImageUrl = "https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=
                     if (orderType === "travel") {
                         endpoint = `/api/travel/bookings/${orderId}/payment-proof`;
                     } else if (orderType === "charter") {
-                        endpoint = `/api/charter/${orderId}/payment-proof`;
+                        endpoint = `/api/charter/request/${orderId}/payment-proof`;
                     } else if (orderType === "package") {
                         endpoint = `/api/packages/shipments/${orderId}/payment-proof`;
                     }
@@ -186,7 +190,11 @@ const qrisImageUrl = "https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=
                 }
             });
         }
-    });
+    };
+
+    // Eksekusi inisialisasi
+    initPaymentModal();
+    document.addEventListener('astro:page-load', initPaymentModal);
 
     // Deklarasikan di window agar TS tidak error (opsional)
     declare global {
