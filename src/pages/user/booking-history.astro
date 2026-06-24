@@ -22,10 +22,10 @@ const orderHistory = await userService.getUserHistory(token);
                     <p class="font-secondary text-sm text-text-secondary">Pantau status persetujuan tiket dan pengiriman paket Anda secara real-time.</p>
                 </div>
                 
-                <div class="flex gap-2 bg-white p-1.5 rounded-xl border border-slate-200 w-max text-xs font-bold font-secondary shadow-xs">
-                    <button class="px-4 py-2 bg-primary text-white rounded-lg">Semua</button>
-                    <button class="px-4 py-2 text-text-secondary hover:bg-slate-100 rounded-lg">Menunggu</button>
-                    <button class="px-4 py-2 text-text-secondary hover:bg-slate-100 rounded-lg">Selesai</button>
+                <div class="flex gap-2 bg-white p-1.5 rounded-xl border border-slate-200 w-max text-xs font-bold font-secondary shadow-xs" id="filter-buttons">
+                    <button class="px-4 py-2 bg-primary text-white rounded-lg filter-btn" data-filter="all">Semua</button>
+                    <button class="px-4 py-2 text-text-secondary hover:bg-slate-100 rounded-lg filter-btn" data-filter="menunggu">Menunggu</button>
+                    <button class="px-4 py-2 text-text-secondary hover:bg-slate-100 rounded-lg filter-btn" data-filter="selesai">Selesai</button>
                 </div>
             </header>
 
@@ -39,9 +39,11 @@ const orderHistory = await userService.getUserHistory(token);
                     <a href="/services" class="inline-block mt-6 px-6 py-2.5 bg-primary text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all">Pesan Sekarang</a>
                 </div>
             ) : (
-                <div class="flex flex-col gap-6">
+                <div class="flex flex-col gap-6" id="history-list">
                     {orderHistory.map((order) => (
-                        <OrderItem order={order} />
+                        <div class="history-item transition-all duration-300" data-status={order.status.toLowerCase()}>
+                            <OrderItem order={order} />
+                        </div>
                     ))}
                 </div>
             )}
@@ -104,6 +106,45 @@ const orderHistory = await userService.getUserHistory(token);
             alert('Gagal terhubung ke server');
         }
     };
+
+    // --- FILTER LOGIC ---
+    document.addEventListener('DOMContentLoaded', () => {
+        const buttons = document.querySelectorAll('.filter-btn');
+        const items = document.querySelectorAll('.history-item');
+
+        buttons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Update styling active button
+                buttons.forEach(b => {
+                    b.classList.remove('bg-primary', 'text-white');
+                    b.classList.add('text-text-secondary', 'hover:bg-slate-100');
+                });
+                btn.classList.remove('text-text-secondary', 'hover:bg-slate-100');
+                btn.classList.add('bg-primary', 'text-white');
+
+                const filterValue = btn.getAttribute('data-filter');
+
+                items.forEach(item => {
+                    const status = item.getAttribute('data-status') || '';
+                    if (filterValue === 'all') {
+                        item.classList.remove('hidden');
+                    } else if (filterValue === 'menunggu') {
+                        if (status.includes('menunggu') || status === 'pending') {
+                            item.classList.remove('hidden');
+                        } else {
+                            item.classList.add('hidden');
+                        }
+                    } else if (filterValue === 'selesai') {
+                        if (status === 'selesai' || status === 'completed' || status === 'approved') {
+                            item.classList.remove('hidden');
+                        } else {
+                            item.classList.add('hidden');
+                        }
+                    }
+                });
+            });
+        });
+    });
 </script>
 
 
