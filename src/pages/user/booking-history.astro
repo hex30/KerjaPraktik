@@ -168,7 +168,10 @@ const orderHistory = await userService.getUserHistory(token);
                             }
                         });
                         
-                        if (!res.ok) throw new Error("Gagal membatalkan pesanan. Endpoint mungkin belum didukung untuk tipe ini.");
+                        if (!res.ok) {
+                            const errData = await res.json().catch(() => ({}));
+                            throw new Error(errData.message || "Gagal membatalkan pesanan. Terjadi kesalahan pada server.");
+                        }
                         
                         alert('Dibatalkan! Pesanan Anda berhasil dibatalkan.');
                         window.location.reload();
@@ -205,8 +208,10 @@ const orderHistory = await userService.getUserHistory(token);
                             }
                         });
                         
-                        if (!res.ok) throw new Error("Gagal menghapus riwayat pesanan.");
-                        
+                        if (!res.ok) {
+                            const errData = await res.json().catch(() => ({}));
+                            throw new Error(errData.message || "Gagal menghapus pesanan. Terjadi kesalahan pada server.");
+                        }                   
                         alert('Terhapus! Data pesanan telah dihapus permanen.');
                         window.location.reload();
                     } catch (error: any) {
