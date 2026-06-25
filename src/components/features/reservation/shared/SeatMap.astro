@@ -210,12 +210,7 @@ const boxClassBase =
     </div>
   </div>
 
-  <input
-    type="hidden"
-    name="seat_number"
-    id="input-selected-seats"
-    required
-  />
+  <input type="hidden" name="seat_number" id="input-selected-seats" required />
 </section>
 
 <script>
@@ -233,38 +228,44 @@ const boxClassBase =
     section.parentNode?.replaceChild(newSection, section);
 
     newSection.addEventListener("click", (e) => {
-        const target = (e.target as HTMLElement).closest(".seat-btn") as HTMLButtonElement;
-        
-        if (!target || target.hasAttribute("disabled")) return;
+      const target = (e.target as HTMLElement).closest(
+        ".seat-btn",
+      ) as HTMLButtonElement;
 
-        // AUTH GUARD CHECK
-        if (!authGuard.isLoggedIn()) {
-            e.preventDefault();
-            e.stopPropagation();
-            authGuard.requireAuth();
-            return;
+      if (!target || target.hasAttribute("disabled")) return;
+
+      // AUTH GUARD CHECK
+      if (!authGuard.isLoggedIn()) {
+        e.preventDefault();
+        e.stopPropagation();
+        authGuard.requireAuth();
+        return;
+      }
+
+      const seatNum = target.getAttribute("data-seat");
+      if (!seatNum) return;
+
+      if (selectedSeat === seatNum) {
+        selectedSeat = null;
+        target.setAttribute("data-selected", "false");
+      } else {
+        if (selectedSeat) {
+          const prevBtn = newSection.querySelector(
+            `.seat-btn[data-seat="${selectedSeat}"]`,
+          );
+          if (prevBtn) prevBtn.setAttribute("data-selected", "false");
         }
+        selectedSeat = seatNum;
+        target.setAttribute("data-selected", "true");
+      }
 
-        const seatNum = target.getAttribute("data-seat");
-        if (!seatNum) return;
-
-        if (selectedSeat === seatNum) {
-            selectedSeat = null;
-            target.setAttribute("data-selected", "false");
-        } else {
-            if (selectedSeat) {
-                const prevBtn = newSection.querySelector(`.seat-btn[data-seat="${selectedSeat}"]`);
-                if (prevBtn) prevBtn.setAttribute("data-selected", "false");
-            }
-            selectedSeat = seatNum;
-            target.setAttribute("data-selected", "true");
-        }
-
-        updateUI();
+      updateUI();
     });
 
     const updateUI = () => {
-      const activeHiddenInput = document.getElementById("input-selected-seats") as HTMLInputElement;
+      const activeHiddenInput = document.getElementById(
+        "input-selected-seats",
+      ) as HTMLInputElement;
       if (activeHiddenInput) {
         activeHiddenInput.value = selectedSeat || "";
         activeHiddenInput.dispatchEvent(new Event("change", { bubbles: true }));
@@ -275,10 +276,3 @@ const boxClassBase =
   document.addEventListener("DOMContentLoaded", setupSeatSelection);
   document.addEventListener("astro:page-load", setupSeatSelection);
 </script>
-
-
-
-
-
-
-

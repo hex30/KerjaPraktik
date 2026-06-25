@@ -513,6 +513,64 @@ try {
         // Removed Expand/Collapse Logic as we only show max 2 unique cards now
 
         // 3. LOGIKA VALIDASI TANGGAL
+        const checkFleetCards = async () => {
+            const startDate = inputTanggalSewa?.value;
+            let endDate = inputTanggalKepulangan?.value;
+            
+            if (!startDate) return;
+            if (!endDate) endDate = startDate;
+            
+            try {
+                // Fetch dynamic availability from BE
+                const availability = await charterService.checkAvailability(startDate, endDate);
+                
+                fleetCards.forEach((card) => {
+                    const carType = card.getAttribute("data-value");
+                    // If carType is true in availability, it's available. If undefined or false, it's busy/locked.
+                    const isAvailable = carType ? (availability[carType] === true) : false;
+                    
+                    const badge = card.querySelector(".badge-ketersediaan");
+                    if (isAvailable) {
+                        card.classList.remove("opacity-80", "grayscale-[30%]", "cursor-not-allowed", "pointer-events-none");
+                        card.classList.add("cursor-pointer");
+                        card.setAttribute("data-available", "true");
+                        
+                        if (badge) {
+                            badge.textContent = "Tersedia";
+                            badge.className = "badge-ketersediaan bg-emerald-500/90 backdrop-blur-sm text-white text-xs font-bold px-3 py-2 rounded-full shadow-sm";
+                        }
+                    } else {
+                        card.classList.add("opacity-80", "grayscale-[30%]", "cursor-not-allowed", "pointer-events-none");
+                        card.classList.remove("cursor-pointer");
+                        card.setAttribute("data-available", "false");
+                        
+                        // Deselect if it was previously selected
+                        if (selectArmada.value === carType) {
+                            selectArmada.value = "";
+                            card.classList.remove(
+                                "border-primary",
+                                "ring-2",
+                                "ring-primary",
+                                "bg-primary/5",
+                            );
+                            const checkIcon = card.querySelector(".selected-check");
+                            if (checkIcon) {
+                                checkIcon.classList.remove("opacity-100", "scale-100");
+                                checkIcon.classList.add("opacity-0", "scale-50");
+                            }
+                        }
+                        
+                        if (badge) {
+                            badge.textContent = "Sedang Disewa";
+                            badge.className = "badge-ketersediaan bg-red-500/90 backdrop-blur-sm text-white text-xs font-bold px-3 py-2 rounded-full shadow-sm";
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error("Gagal mengecek ketersediaan armada:", e);
+            }
+        };
+
         if (inputTanggalSewa && inputTanggalKepulangan) {
             const today = new Date().toISOString().split("T")[0];
             inputTanggalSewa.min = today;
@@ -526,7 +584,10 @@ try {
                 ) {
                     inputTanggalKepulangan.value = "";
                 }
+                checkFleetCards();
             });
+
+            inputTanggalKepulangan.addEventListener("change", checkFleetCards);
         }
 
         // 4. LOGIKA SUBMIT STEP 1 -> STEP 2

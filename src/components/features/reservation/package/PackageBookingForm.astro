@@ -481,6 +481,7 @@ import AlertCard from "@components/ui/AlertCard.astro";
                         parseInt(weightInput.value) >= 60;
 
                     const payload = {
+                        receiver_kecamatan: data.sub_district_penerima || "-",
                         sender_name: data.nama_pengirim as string,
                         sender_phone: data.telp_pengirim as string,
                         pickup_address: JSON.stringify({

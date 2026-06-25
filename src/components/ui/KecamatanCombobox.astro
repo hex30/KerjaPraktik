@@ -1,0 +1,164 @@
+---
+// File: src/components/ui/KecamatanCombobox.astro
+interface Props {
+    label: string;
+    id?: string;
+    name: string;
+    placeholder?: string;
+    required?: boolean;
+    value?: string;
+    class?: string;
+}
+
+const { 
+    label, 
+    name, 
+    id = name,
+    placeholder = 'Pilih Kecamatan...', 
+    required = false,
+    value = '',
+    class: className = ''
+} = Astro.props;
+---
+
+<div class={`flex flex-col gap-2 w-full relative combobox-container ${className}`} data-id={id}>
+    <label for={id} class="font-secondary text-sm font-bold text-primary">
+        {label}
+        {required && <span class="text-rose-500 ml-1">*</span>}
+    </label>
+    
+    <div class="relative">
+        <!-- Hidden input for form submission -->
+        <input type="hidden" id={id} name={name} value={value} required={required} />
+        
+        <!-- Dropdown trigger button -->
+        <button 
+            type="button" 
+            id={`btn-${id}`}
+            class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-secondary outline-none focus:ring-2 focus:ring-primary/10 transition-all text-left flex justify-between items-center"
+        >
+            <span id={`text-${id}`} class="text-slate-500">{value || placeholder}</span>
+            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        </button>
+
+        <!-- Dropdown menu -->
+        <div 
+            id={`dropdown-${id}`}
+            class="hidden absolute z-50 w-full mt-1 bg-white border border-slate-100 rounded-xl shadow-lg overflow-hidden flex flex-col"
+        >
+            <!-- Search Input Inside Dropdown -->
+            <div class="p-2 border-b border-slate-100 sticky top-0 bg-white">
+                <input 
+                    type="search"
+                    id={`search-${id}`}
+                    placeholder="Ketik untuk mencari..."
+                    class="w-full bg-slate-50 border border-slate-100 rounded-lg px-3 py-2 text-sm font-secondary outline-none focus:ring-1 focus:ring-primary/20"
+                    autocomplete="off"
+                />
+            </div>
+            
+            <!-- Options List -->
+            <div id={`list-${id}`} class="max-h-48 overflow-y-auto">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const jabodetabekList = ["cempaka putih","gambir","johar baru","kemayoran","menteng","sawah besar","senen","tanah abang","cilincing","kelapa gading","koja","pademangan","penjaringan","tanjung priok","cengkareng","grogol petamburan","taman sari","tambora","kebon jeruk","kalideres","palmerah","kembangan","cilandak","jagakarsa","kebayoran baru","kebayoran lama","mampang prapatan","pancoran","pasar minggu","pesanggrahan","setiabudi","tebet","cakung","cipayung","ciracas","duren sawit","jatinegara","kramat jati","makasar","matraman","pasar rebo","pulo gadung","kepulauan seribu utara","kepulauan seribu selatan","bogor barat","bogor selatan","bogor tengah","bogor timur","bogor utara","tanah sareal","babakan madang","bojonggede","caringin","cariu","ciampea","ciawi","cibinong","cibungbulang","cigombong","cigudeg","cijeruk","cileungsi","ciomas","cisarua","ciseeng","citeureup","dramaga","gunung putri","gunung sindur","jasinga","jonggol","kemang","klapanunggal","leuwiliang","leuwisadeng","megamendung","nanggung","pamijahan","parung","parung panjang","ranca bungur","rumpin","sukajaya","sukamakmur","sukaraja","tajur halang","tamansari","tenjo","tenjolaya","tanjungsari","beji","bojongsari","cilodong","cimanggis","cinere","cipayung","limo","pancoran mas","sawangan","sukmajaya","tapos","batuceper","benda","cibodas","ciledug","cipondoh","jatiuwang","karangtengah","karawaci","larangan","neglasari","periuk","pinang","tangerang","ciputat","ciputat timur","pamulang","pondok aren","serpong","serpong utara","setu","balaraja","cikupa","cisauk","cisoka","curug","gunungkaler","jambe","jayanti","kelapa dua","kemiri","kosambi","kresek","kronjo","legok","mauk","mekarbaru","pagedangan","pakuhaji","panongan","pasar kemis","rajeg","sepatan","sepatan timur","sindang jaya","solear","sukadiri","sukamulya","teluknaga","tigaraksa","bantar gebang","bekasi barat","bekasi selatan","bekasi timur","bekasi utara","jatiasih","jatisampurna","medan satria","mustika jaya","pondok gede","pondok melati","rawalumbu","babelan","bojongmangu","cabangbungin","cibarusah","cibitung","cikarang barat","cikarang pusat","cikarang selatan","cikarang utara","cikarang timur","kedungwaringin","karangbahagia","muaragembong","pebayuran","serang baru","setu","sukakarya","sukawangi","sukatani","tarumajaya","tambun selatan","tambun utara","tambelang"];
+
+    // Mengurutkan dan memformat string menjadi huruf kapital di awal
+    const formattedList = jabodetabekList.sort().map(item => item.replace(/\b\w/g, l => l.toUpperCase()));
+
+    const setupCombobox = () => {
+        document.querySelectorAll('.combobox-container').forEach(container => {
+            const inputId = container.getAttribute('data-id');
+            if(!inputId) return;
+            
+            const hiddenInput = document.getElementById(inputId) as HTMLInputElement;
+            const btn = document.getElementById(`btn-${inputId}`);
+            const btnText = document.getElementById(`text-${inputId}`);
+            const dropdown = document.getElementById(`dropdown-${inputId}`);
+            const searchInput = document.getElementById(`search-${inputId}`) as HTMLInputElement;
+            const listContainer = document.getElementById(`list-${inputId}`);
+            
+            if(!hiddenInput || !btn || !dropdown || !searchInput || !listContainer) return;
+
+            const renderList = (query: string = "") => {
+                listContainer.innerHTML = '';
+                const q = query.toLowerCase().trim();
+                
+                const matches = q ? formattedList.filter(item => item.toLowerCase().includes(q)) : formattedList;
+
+                if (matches.length > 0) {
+                    matches.forEach(match => {
+                        const div = document.createElement('div');
+                        div.className = 'px-4 py-3 text-sm text-slate-700 hover:bg-primary/5 cursor-pointer font-bold border-b border-slate-50 last:border-0';
+                        div.textContent = match;
+                        
+                        // Menangani seleksi item
+                        div.onclick = () => {
+                            hiddenInput.value = match;
+                            if(btnText) {
+                                btnText.textContent = match;
+                                btnText.classList.remove('text-slate-500');
+                                btnText.classList.add('text-slate-800');
+                            }
+                            
+                            // Memicu event change pada hidden input manual
+                            hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
+                            
+                            dropdown.classList.add('hidden');
+                        };
+                        listContainer.appendChild(div);
+                    });
+                } else {
+                    const div = document.createElement('div');
+                    div.className = 'px-4 py-3 text-sm text-slate-400 text-center italic';
+                    div.textContent = 'Tidak ditemukan';
+                    listContainer.appendChild(div);
+                }
+            };
+
+            // Initial render
+            renderList();
+
+            // Toggle dropdown
+            btn.onclick = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // Tutup dropdown combobox lain yang mungkin terbuka
+                document.querySelectorAll('[id^="dropdown-"]').forEach(d => {
+                    if (d.id !== `dropdown-${inputId}`) d.classList.add('hidden');
+                });
+                
+                const isHidden = dropdown.classList.contains('hidden');
+                
+                if (isHidden) {
+                    dropdown.classList.remove('hidden');
+                    searchInput.value = ""; // Reset search saat dibuka
+                    renderList();
+                } else {
+                    dropdown.classList.add('hidden');
+                }
+            };
+
+            // Filter saat ngetik
+            searchInput.addEventListener('input', (e) => {
+                renderList((e.target as HTMLInputElement).value);
+            });
+
+            // Klik di luar dropdown untuk menutup
+            document.addEventListener('click', (e) => {
+                if (!container.contains(e.target as Node)) {
+                    dropdown.classList.add('hidden');
+                }
+            });
+        });
+    };
+
+    setupCombobox();
+    document.addEventListener('astro:page-load', setupCombobox);
+</script>

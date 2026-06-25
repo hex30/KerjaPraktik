@@ -50,6 +50,21 @@ export const charterService = {
         }
     },
 
+    async checkAvailability(startDate: string, endDate: string): Promise<Record<string, boolean>> {
+        try {
+            const response = await apiFetch(`/api/charter/availability?start_date=${startDate}&end_date=${endDate}`, {
+                method: 'GET'
+            });
+            if (response && response.data) {
+                return response.data;
+            }
+            return {};
+        } catch (error) {
+            console.error('Error checking availability:', error);
+            return {};
+        }
+    },
+
     // dokumentasi: Fungsi untuk mengirimkan data pesanan sewa charter ke BE
     async createCharterRequest(data: CharterRequestData) {
         try {

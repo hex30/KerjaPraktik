@@ -12,7 +12,7 @@ interface Props {
 const { item, bookingType, fleets = [], drivers = [] } = Astro.props;
 
 // LOGIC STATE MAPPER (Support Selesai & Dibatalkan)
-const actualStatus = item.booking_status || item.status || item.transaction_status || 'PENDING';
+const actualStatus = item.booking_status || (item as any).transaction_status || (item as any).status || 'PENDING';
 
 const isNew = actualStatus === 'menunggu_konfirmasi' && !item.payment_proof_url;
 const isWaitingPayment = actualStatus === 'menunggu_pembayaran';
@@ -179,13 +179,13 @@ if (isNew) {
                                 <label class="text-[9px] font-bold text-slate-500 uppercase">Tetapkan Harga (IDR)</label>
                                 <div class="relative mb-2">
                                     <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[10px]">Rp</span>
+                                    <input type="hidden" name="price" class="real-price-input" value={item.price ? Math.round(Number(item.price)) : (bookingType === 'RUTE' ? "250000" : "")} />
                                     <input 
                                         type="text" 
-                                        name="price"
                                         readonly={!isNew}
                                         placeholder="Harga..." 
-                                        value={item.price ? Number(item.price).toLocaleString('id-ID') : (bookingType === 'RUTE' ? "250.000" : "")}
-                                        class={`w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-3 text-sm font-black text-primary outline-none ${!isNew ? 'opacity-70 cursor-not-allowed' : 'focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white'}`}
+                                        value={item.price ? Math.round(Number(item.price)).toLocaleString('id-ID') : (bookingType === 'RUTE' ? "250.000" : "")}
+                                        class={`price-display-input w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-3 text-sm font-black text-primary outline-none ${!isNew ? 'opacity-70 cursor-not-allowed' : 'focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white'}`}
                                     />
                                 </div>
                                 

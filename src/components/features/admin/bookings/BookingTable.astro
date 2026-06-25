@@ -46,7 +46,7 @@ export interface BookingItem {
     driver_2_id?: string;
     booking_status: string;
     payment_proof_url?: string | null;
-    payment_method?: string;
+    payment_method?: string | null;
     schedule_id?: string;
 }
 
@@ -131,9 +131,9 @@ const { bookingType, bookingData, fleets = [], drivers = [] } = Astro.props;
                         'Content-Type': 'application/json'
                     };
 
-                    if (!isCharter) {
+                    if (!isCharter && formEl.dataset.bookingType !== 'PACKAGE') {
                         if (currentState === 'isPickupList') {
-                            const statusBody = { booking_status: 'selesai' };
+                            const statusBody = { booking_status: 'selesai_final' };
                             await apiFetch(`/api/admin/master/travel-bookings/${bookingId}/status`, {
                                 method: 'PUT',
                                 headers,
@@ -161,7 +161,7 @@ const { bookingType, bookingData, fleets = [], drivers = [] } = Astro.props;
                             await apiFetch(`/api/charter/${bookingId}/status`, {
                                 method: 'PUT',
                                 headers,
-                                body: JSON.stringify({ status: 'selesai' })
+                                body: JSON.stringify({ status: 'selesai_final' })
                             });
                         } else {
                             const bodyData = {
@@ -174,12 +174,11 @@ const { bookingType, bookingData, fleets = [], drivers = [] } = Astro.props;
                             });
                         }
                     } else if (formEl.dataset.bookingType === 'PACKAGE') {
-                        // Package handling placeholder
                         if (currentState === 'isPickupList') {
                             await apiFetch(`/api/admin/master/package-shipments/${bookingId}`, {
                                 method: 'PUT',
                                 headers,
-                                body: JSON.stringify({ transaction_status: 'selesai' })
+                                body: JSON.stringify({ status: 'delivered' })
                             });
                         }
                     }

@@ -24,15 +24,15 @@ const { name, capacity, description, price, image, isAvailable = true } = Astro.
             </span>
             {isAvailable ? (
                 <span
-                    class="bg-emerald-500/90 backdrop-blur-sm text-white text-xs font-bold px-3 py-2 rounded-full shadow-sm"
+                    class="badge-ketersediaan bg-emerald-500/90 backdrop-blur-sm text-white text-xs font-bold px-3 py-2 rounded-full shadow-sm"
                 >
                     Tersedia
                 </span>
             ) : (
                 <span
-                    class="bg-red-500/90 backdrop-blur-sm text-white text-xs font-bold px-3 py-2 rounded-full shadow-sm"
+                    class="badge-ketersediaan bg-red-500/90 backdrop-blur-sm text-white text-xs font-bold px-3 py-2 rounded-full shadow-sm"
                 >
-                    Penuh
+                    Sedang Disewa
                 </span>
             )}
         </div>
