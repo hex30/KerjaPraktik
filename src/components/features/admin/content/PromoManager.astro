@@ -58,21 +58,21 @@ import Button from "@ui/Button.astro";
 
             <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col gap-4">
                 <h5 class="text-[10px] font-black text-slate-800 uppercase tracking-widest">Target Layanan (Pilih Salah Satu)</h5>
-                <div class="flex flex-wrap gap-4 mt-2">
+                <div class="flex flex-wrap gap-4 mt-2" id="target-service-container">
                     <label class="flex items-center gap-2 cursor-pointer bg-white border border-slate-200 px-4 py-2 rounded-xl hover:border-primary">
-                        <input type="radio" name="target_service" value="all" class="text-primary focus:ring-primary w-4 h-4" checked>
+                        <input type="checkbox" name="target_service" value="all" class="text-primary focus:ring-primary w-4 h-4 target-service-cb" checked>
                         <span class="text-xs font-bold text-slate-600">Semua Layanan</span>
                     </label>
                     <label class="flex items-center gap-2 cursor-pointer bg-white border border-slate-200 px-4 py-2 rounded-xl hover:border-primary">
-                        <input type="radio" name="target_service" value="travel" class="text-primary focus:ring-primary w-4 h-4">
+                        <input type="checkbox" name="target_service" value="travel" class="text-primary focus:ring-primary w-4 h-4 target-service-cb">
                         <span class="text-xs font-bold text-slate-600">Travel Regular</span>
                     </label>
                     <label class="flex items-center gap-2 cursor-pointer bg-white border border-slate-200 px-4 py-2 rounded-xl hover:border-primary">
-                        <input type="radio" name="target_service" value="charter" class="text-primary focus:ring-primary w-4 h-4">
+                        <input type="checkbox" name="target_service" value="charter" class="text-primary focus:ring-primary w-4 h-4 target-service-cb">
                         <span class="text-xs font-bold text-slate-600">Carter Drop</span>
                     </label>
                     <label class="flex items-center gap-2 cursor-pointer bg-white border border-slate-200 px-4 py-2 rounded-xl hover:border-primary">
-                        <input type="radio" name="target_service" value="package" class="text-primary focus:ring-primary w-4 h-4">
+                        <input type="checkbox" name="target_service" value="package" class="text-primary focus:ring-primary w-4 h-4 target-service-cb">
                         <span class="text-xs font-bold text-slate-600">Paket Ekspedisi</span>
                     </label>
                 </div>
@@ -157,12 +157,33 @@ import Button from "@ui/Button.astro";
             });
         }
 
+        // Target Service Checkbox Logic
+        const targetServiceCBs = document.querySelectorAll('.target-service-cb') as NodeListOf<HTMLInputElement>;
+        targetServiceCBs.forEach(cb => {
+            cb.addEventListener('change', (e) => {
+                const target = e.target as HTMLInputElement;
+                if (target.value === 'all' && target.checked) {
+                    targetServiceCBs.forEach(other => {
+                        if (other.value !== 'all') other.checked = false;
+                    });
+                } else if (target.value !== 'all' && target.checked) {
+                    const allCb = Array.from(targetServiceCBs).find(c => c.value === 'all');
+                    if (allCb) allCb.checked = false;
+                }
+            });
+        });
+
         // Handle Form Reset
         if(resetBtn && form) {
             resetBtn.addEventListener('click', () => {
                 form.reset();
                 (form.querySelector('.promo-id') as HTMLInputElement).value = '';
                 document.querySelector('#promo-home-form .delete-promo-btn')?.classList.add('hidden');
+                
+                // reset checkboxes to default (all checked)
+                targetServiceCBs.forEach(cb => {
+                    cb.checked = cb.value === 'all';
+                });
             });
         }
 
@@ -182,19 +203,28 @@ import Button from "@ui/Button.astro";
                         submitBtn.textContent = "Menyimpan...";
                         submitBtn.setAttribute('disabled', 'true');
                     }
+                    
+                    const targetServices = Array.from(formData.getAll('target_service'));
+                    const finalTargetService = targetServices.includes('all') ? 'all' : (targetServices.join(',') || 'all');
+                    formData.delete('target_service');
+                    formData.set('target_service', finalTargetService);
 
                     if (hasFile) {
                         formData.set('is_active', f.querySelector('input[name="is_active"]:checked') ? 'true' : 'false');
+                        if (formData.has('discount')) {
+                            formData.set('discount_percentage', formData.get('discount') as string);
+                            formData.delete('discount');
+                        }
                         await adminContentService.savePromotion(formData);
                     } else {
                         const jsonPayload = {
                             id: formData.get('id'),
                             tagline: formData.get('tagline'),
                             description: formData.get('description'),
-                            discount: formData.get('discount'),
+                            discount_percentage: formData.get('discount'),
                             max_discount: formData.get('max_discount'),
                             promo_type: 'home',
-                            target_service: formData.get('target_service'),
+                            target_service: finalTargetService,
                             is_active: f.querySelector('input[name="is_active"]:checked') ? true : false
                         };
                         await adminContentService.savePromotion(jsonPayload);

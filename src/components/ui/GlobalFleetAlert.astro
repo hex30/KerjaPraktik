@@ -1,0 +1,66 @@
+---
+import AlertCard from "./AlertCard.astro";
+---
+
+<div id="global-no-fleet-alert" class="fixed inset-0 z-[9999] hidden items-center justify-center bg-black/50 backdrop-blur-md px-4 opacity-0 transition-opacity duration-300">
+    <div class="pointer-events-auto shadow-2xl rounded-2xl transform scale-95 transition-transform duration-300" id="global-no-fleet-inner">
+        <AlertCard 
+            type="error"
+            title="Layanan Sedang Ditutup"
+            message="Mohon maaf, saat ini armada kami belum beroperasi atau sedang dalam perbaikan. Silakan coba lagi nanti atau hubungi admin."
+            actionText="Tutup"
+            actionId="btn-close-global-fleet"
+        />
+    </div>
+</div>
+
+<script>
+    // Menyediakan fungsi global untuk memunculkan alert
+    (window as any).showGlobalFleetAlert = () => {
+        const overlay = document.getElementById('global-no-fleet-alert');
+        const inner = document.getElementById('global-no-fleet-inner');
+        
+        if (overlay && inner) {
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+            
+            // Force reflow
+            void overlay.offsetWidth;
+            
+            overlay.classList.remove('opacity-0');
+            inner.classList.remove('scale-95');
+        }
+    };
+
+    // Fungsi tutup
+    const closeGlobalAlert = () => {
+        const overlay = document.getElementById('global-no-fleet-alert');
+        const inner = document.getElementById('global-no-fleet-inner');
+        
+        if (overlay && inner) {
+            overlay.classList.add('opacity-0');
+            inner.classList.add('scale-95');
+            
+            setTimeout(() => {
+                overlay.classList.remove('flex');
+                overlay.classList.add('hidden');
+            }, 300);
+        }
+    };
+
+    // Tombol tutup
+    const btnClose = document.getElementById('btn-close-global-fleet');
+    if (btnClose) {
+        btnClose.addEventListener('click', closeGlobalAlert);
+    }
+
+    // Klik di luar alert untuk menutup
+    const overlay = document.getElementById('global-no-fleet-alert');
+    if (overlay) {
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                closeGlobalAlert();
+            }
+        });
+    }
+</script>

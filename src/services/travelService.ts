@@ -13,7 +13,7 @@ export const travelService = {
       return response;
     } catch (error) {
       console.error("Gagal mengambil data rute:", error);
-      return []; 
+      return [];
     }
   },
 
@@ -24,7 +24,7 @@ export const travelService = {
       if (params.date) queryParams.append('date', params.date);
       if (params.origin) queryParams.append('origin', params.origin);
       if (params.destination) queryParams.append('destination', params.destination);
-      
+
       const queryString = queryParams.toString();
       const endpoint = queryString ? `/api/travel/schedules?${queryString}` : '/api/travel/schedules';
 
@@ -98,4 +98,16 @@ export const travelService = {
       throw error;
     }
   },
+
+  checkFleetsAvailability: async () => {
+    try {
+      const response = await apiFetch(`/api/content/fleets/check`, {
+        method: 'GET'
+      });
+      return response;
+    } catch (error) {
+      console.error("Gagal mengecek ketersediaan armada global:", error);
+      throw error;
+    }
+  }
 };
