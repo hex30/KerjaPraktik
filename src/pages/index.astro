@@ -64,7 +64,7 @@ try {
         image: p.image_url || p.image || "/images/dummy-promo.jpg",
         discount: discountValue > 0 ? `${discountValue}% OFF` : `Diskon Rp ${Math.round(parseFloat(p.max_discount || 0))}`,
         noteTitle: p.badge_label || "INFO PROMO",
-        noteDesc: p.promo_code ? `Gunakan Kode: ${p.promo_code}` : (p.subtitle || "Berlaku Syarat & Ketentuan"),
+        noteDesc: p.subtitle || "Berlaku Syarat & Ketentuan",
         textRow1: textRow1,
         textDesc1: p.description || "Jangan lewatkan penawaran spesial ini khusus untuk Anda.",
         textRow2: textRow2,

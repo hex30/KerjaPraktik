@@ -43,22 +43,30 @@ Proyek ini mengikuti pola **Component-Based Development (CBD)** dengan struktur 
 3.  **Supir:** Mengelola manifes penumpang dan laporan biaya operasional.
 4.  **Admin:** Panel kendali penuh terhadap konten, armada, dan laporan keuangan.
 
-## 💳 Alur Pembayaran Pemesanan (Payment Flow)
-Sistem ini menggunakan mekanisme penetapan harga dinamis (oleh Admin) sebelum pelanggan melakukan pembayaran. Berikut adalah siklus hidup pemesanan dari awal hingga selesai:
+## 💳 Alur Pembayaran (Payment Flow) Baru
+Sistem menggunakan penetapan harga dinamis untuk beberapa layanan dan status verifikasi berjenjang:
+1. **Pending Confirmation:** Pemesanan paket atau charter yang belum ada harganya. Admin mengkalkulasi harga final dan merilis tagihan.
+2. **Pending Payment:** Pelanggan memilih metode pembayaran (Cash/Transfer).
+3. **Payment Upload:** Jika transfer, pelanggan mengunggah bukti pembayaran via sistem popup.
+4. **Verification:** Admin memeriksa bukti transfer pada **Payment Preview Modal** di panel Admin, lalu mengonfirmasi keabsahan uang masuk.
+5. **Verified & Settled:** Status menjadi Lunas. Kas secara otomatis tercatat di sistem Cashflow (buku besar).
 
-1. **Menunggu Konfirmasi (Pending Confirmation)**
-   * User membuat pesanan (Travel, Charter, atau Paket) tanpa langsung melakukan pembayaran.
-   * Data masuk ke panel Admin. Admin akan meninjau pesanan dan **menetapkan/menginput harga akhir** (misalnya menambahkan biaya *double charge* jika paket besar, atau harga negosiasi untuk Charter).
+## 🎁 Alur Promosi (Promotion Flow) Baru
+1. Admin membuat *Campaign/Promotion* aktif melalui panel CMS (*Content Management System*).
+2. Data promo tayang di halaman publik (Banner atau penawaran khusus).
+3. Pengguna yang melakukan pesanan akan mendapatkan penyesuaian harga atau keuntungan sesuai dengan promosi yang berlaku saat checkout (harga akan terpotong).
 
-2. **Menunggu Pembayaran (Pending Payment)**
-   * Setelah harga ditetapkan Admin, status pesanan di halaman "Riwayat Pesanan" User berubah.
-   * User kini melihat tombol aksi **"Bayar"**.
-   * User memilih metode pembayaran: **Cash** (Tunai ke Supir) atau **Cashless** (Transfer).
-   * *Jika Cashless:* Sebuah Pop-up Alert berisi **QRIS Statis** dan **Nomor Rekening** akan muncul ke tengah layar. User mentransfer sesuai nominal harga dan mengeklik tombol "Konfirmasi Sudah Bayar".
+## 🛒 Alur Pemesanan Pengguna (User Order Flow) Baru
+- **Travel Reguler:** User mencari jadwal -> Pilih kursi (Kursi terkunci otomatis 10 menit) -> Mengisi form detail Pick-up & Drop-off -> Bayar -> Tiket terbit.
+- **Sewa Charter:** User mengajukan rute destinasi pariwisata -> Admin menyetujui, menginput harga manual, serta **menugaskan armada, supir 1, dan supir 2 (cadangan)** -> User setuju dan bayar.
+- **Ekspedisi Paket:** User memasukkan detail muatan & dimensi -> Sistem menerbitkan nomor Resi unik (Waybill) -> Admin tentukan ongkir -> User bayar -> Paket dapat dilacak status pengirimannya (dikirim, dalam perjalanan, tiba).
 
-3. **Menunggu Pengecekan (Verification / Checking)**
-   * Setelah User mengkonfirmasi transfer, status berubah menjadi Menunggu Pengecekan.
-   * Admin akan memverifikasi di panel mereka apakah mutasi/dana sudah benar-benar masuk. Admin mengeklik tombol "Konfirmasi Pembayaran".
+## 👨‍💼 Hal-hal Baru yang Dikelola Admin
+- **Halaman Penugasan (Assignments):** Memungkinkan admin menugaskan armada (`fleet_id`) dan tim supir secara spesifik pada jadwal tertentu sebelum dikerjakan.
+- **Payment Preview:** Modal khusus di sisi admin untuk memvalidasi gambar *screenshot*/resi transfer.
+- **Manajemen Roles & Restriksi:** Admin memiliki kuasa menolak/menyetujui klaim operasional (bensin/tol supir), namun sistem mengunci Super Admin agar tidak dapat menghapus akun admin lainnya.
 
-   * *Untuk Cashless:* Begitu Admin memverifikasi uang masuk, status menjadi Selesai dengan catatan *"Silakan tunggu dijemput"*.
-   * *Untuk Cash:* Begitu User memilih *Cash* (langsung), Admin dapat memverifikasinya nanti, atau otomatis status berubah dengan catatan *"Bayar nanti saat sudah dijemput"*.
+## ⚙️ Hal-hal yang Otomatis Dilakukan Sistem
+1. **Auto Seat-Locking & Cancel:** Sistem menjalankan cron-job yang mengamankan kursi selama 10 menit untuk mencegah double-booking, dan otomatis membatalkan jika tak ada pembayaran.
+2. **Auto Waybill Generator:** Penciptaan otomatis nomor resi logistik yang unik bagi pelanggan paket.
+3. **Cashflow Automation (Triggers):** Perekaman transaksi finansial otomatis (Kas Masuk/Keluar) yang akan menghitung metrik Gross Profit & Net Profit di halaman Dashboard setiap kali ada transaksi disetujui.

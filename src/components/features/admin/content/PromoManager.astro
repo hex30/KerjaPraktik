@@ -1,34 +1,18 @@
 ---
-// File: src/components/features/admin/content/PromoManager.astro
 import InputGroup from "@ui/InputGroup.astro";
 import Button from "@ui/Button.astro";
 ---
 
 <div class="flex flex-col gap-12 bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
-    <header class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <header class="flex flex-col gap-4">
         <div>
             <h3 class="text-xl font-black text-slate-900 tracking-tight">Manajemen Promosi</h3>
-            <p class="text-xs text-slate-400 font-secondary mt-1">Buat promo terpisah untuk Landing Page (Home) dan Spesifik Layanan.</p>
-        </div>
-        <div class="flex gap-2">
-            <button type="button" id="btn-new-promo-home" class="px-5 py-2.5 bg-primary/10 text-primary text-xs font-black rounded-xl hover:bg-primary hover:text-white transition-all">
-                + Promo Home
-            </button>
-            <button type="button" id="btn-new-promo-service" class="px-5 py-2.5 bg-sky-500/10 text-sky-600 text-xs font-black rounded-xl hover:bg-sky-500 hover:text-white transition-all">
-                + Promo Layanan
-            </button>
+            <p class="text-xs text-slate-400 font-secondary mt-1">Buat promo yang akan ditampilkan di halaman utama dan diaplikasikan ke layanan.</p>
         </div>
     </header>
 
-    <!-- FORM PROMO HOME -->
-    <div id="section-promo-home" class="flex flex-col gap-8 pt-8 border-t border-slate-100">
-        <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
-            </div>
-            <h3 class="text-lg font-black text-slate-800">Form Promosi Home</h3>
-        </div>
-        
+    <!-- FORM PROMO -->
+    <div id="section-promo-home" class="flex flex-col gap-8 pt-4">
         <form id="promo-home-form" class="flex flex-col gap-8 promo-form" data-type="home">
             <input type="hidden" class="promo-id" name="id" value="" />
             <input type="hidden" name="promo_type" value="home" />
@@ -40,9 +24,8 @@ import Button from "@ui/Button.astro";
                         Payload Utama Promo
                     </h4>
                     
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 gap-4">
                         <InputGroup label="Tagline Promo" class="tagline-input" name="tagline" placeholder="Contoh: Mudik Ceria" required={true} />
-                        <InputGroup label="Kode Promo" class="promo-code-input" name="promo_code" placeholder="Contoh: MUDIK10" required={true} />
                     </div>
                     
                     <div class="flex flex-col gap-2">
@@ -63,7 +46,7 @@ import Button from "@ui/Button.astro";
                     </div>
 
                     <div class="flex flex-col gap-2 relative">
-                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Banner Promo (Wajib untuk Home)</label>
+                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Banner Promo</label>
                         <div class="relative w-full h-40 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 flex flex-col items-center justify-center gap-3 hover:border-primary hover:bg-primary/5 transition-all cursor-pointer group overflow-hidden">
                             <input type="file" name="image" accept="image/png, image/jpeg, image/jpg" class="image-upload-input absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-300 group-hover:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
@@ -77,7 +60,11 @@ import Button from "@ui/Button.astro";
                 <h5 class="text-[10px] font-black text-slate-800 uppercase tracking-widest">Target Layanan (Pilih Salah Satu)</h5>
                 <div class="flex flex-wrap gap-4 mt-2">
                     <label class="flex items-center gap-2 cursor-pointer bg-white border border-slate-200 px-4 py-2 rounded-xl hover:border-primary">
-                        <input type="radio" name="target_service" value="travel" class="text-primary focus:ring-primary w-4 h-4" checked>
+                        <input type="radio" name="target_service" value="all" class="text-primary focus:ring-primary w-4 h-4" checked>
+                        <span class="text-xs font-bold text-slate-600">Semua Layanan</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer bg-white border border-slate-200 px-4 py-2 rounded-xl hover:border-primary">
+                        <input type="radio" name="target_service" value="travel" class="text-primary focus:ring-primary w-4 h-4">
                         <span class="text-xs font-bold text-slate-600">Travel Regular</span>
                     </label>
                     <label class="flex items-center gap-2 cursor-pointer bg-white border border-slate-200 px-4 py-2 rounded-xl hover:border-primary">
@@ -98,78 +85,8 @@ import Button from "@ui/Button.astro";
 
             <div class="flex justify-end gap-3 pt-4 border-t border-slate-50">
                 <button type="button" class="delete-promo-btn px-8 py-3 rounded-xl font-bold text-sm text-red-500 hover:bg-red-50 transition-all hidden">Hapus Promo</button>
-                <button type="reset" class="px-8 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-slate-600 transition-all">Reset</button>
-                <Button type="submit" size="lg" class="submit-promo-btn px-12">Simpan Promo Home</Button>
-            </div>
-        </form>
-    </div>
-
-    <!-- FORM PROMO LAYANAN -->
-    <div id="section-promo-service" class="flex flex-col gap-8 pt-8 border-t border-slate-100 hidden">
-        <div class="flex items-center gap-3">
-            <div class="w-8 h-8 rounded-full bg-sky-500/10 flex items-center justify-center text-sky-600">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
-            </div>
-            <h3 class="text-lg font-black text-slate-800">Form Promosi Layanan (Multi-Apply)</h3>
-        </div>
-        
-        <form id="promo-service-form" class="flex flex-col gap-8 promo-form" data-type="service">
-            <input type="hidden" class="promo-id" name="id" value="" />
-            <input type="hidden" name="promo_type" value="service" />
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="flex flex-col gap-5">
-                    <h4 class="text-[10px] font-black text-sky-500 uppercase tracking-widest flex items-center gap-2">
-                        <div class="w-1.5 h-1.5 rounded-full bg-sky-500"></div>
-                        Payload Utama Promo
-                    </h4>
-                    
-                    <div class="grid grid-cols-2 gap-4">
-                        <InputGroup label="Tagline Promo" class="tagline-input" name="tagline" placeholder="Contoh: Spesial Rute Bandung" required={true} />
-                        <InputGroup label="Kode Promo" class="promo-code-input" name="promo_code" placeholder="Contoh: BDO20" required={true} />
-                    </div>
-                </div>
-
-                <div class="flex flex-col gap-5">
-                    <h4 class="text-[10px] font-black text-amber-500 uppercase tracking-widest flex items-center gap-2">
-                        <div class="w-1.5 h-1.5 rounded-full bg-amber-500"></div>
-                        Besaran Diskon
-                    </h4>
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <InputGroup label="Diskon (%)" class="discount-input" name="discount" type="number" placeholder="0" suffix="%" required={true} />
-                        <InputGroup label="Max Potongan" class="max-discount-input" name="max_discount" type="number" placeholder="0" suffix="Rp" required={true} />
-                    </div>
-                </div>
-            </div>
-
-            <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col gap-4">
-                <h5 class="text-[10px] font-black text-slate-800 uppercase tracking-widest">Target Layanan (Bisa Multi-Apply)</h5>
-                <div class="flex flex-wrap gap-4 mt-2">
-                    <label class="flex items-center gap-2 cursor-pointer bg-white border border-slate-200 px-4 py-2 rounded-xl hover:border-primary">
-                        <input type="checkbox" name="target_service_cb" value="travel" class="target-cb text-primary focus:ring-primary w-4 h-4 rounded">
-                        <span class="text-xs font-bold text-slate-600">Travel Regular</span>
-                    </label>
-                    <label class="flex items-center gap-2 cursor-pointer bg-white border border-slate-200 px-4 py-2 rounded-xl hover:border-primary">
-                        <input type="checkbox" name="target_service_cb" value="charter" class="target-cb text-primary focus:ring-primary w-4 h-4 rounded">
-                        <span class="text-xs font-bold text-slate-600">Carter Drop</span>
-                    </label>
-                    <label class="flex items-center gap-2 cursor-pointer bg-white border border-slate-200 px-4 py-2 rounded-xl hover:border-primary">
-                        <input type="checkbox" name="target_service_cb" value="package" class="target-cb text-primary focus:ring-primary w-4 h-4 rounded">
-                        <span class="text-xs font-bold text-slate-600">Paket Ekspedisi</span>
-                    </label>
-                </div>
-                
-                <label class="flex items-center gap-3 cursor-pointer group mt-4 bg-white border border-slate-200 p-3 rounded-xl hover:border-primary transition-colors w-max">
-                    <input type="checkbox" name="is_active" class="is-active-input w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary">
-                    <span class="text-sm font-bold text-slate-600 group-hover:text-primary transition-colors">Tampilkan sebagai Promo Aktif</span>
-                </label>
-            </div>
-
-            <div class="flex justify-end gap-3 pt-4 border-t border-slate-50">
-                <button type="button" class="delete-promo-btn px-8 py-3 rounded-xl font-bold text-sm text-red-500 hover:bg-red-50 transition-all hidden">Hapus Promo</button>
-                <button type="reset" class="px-8 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-slate-600 transition-all">Reset</button>
-                <Button type="submit" size="lg" class="submit-promo-btn px-12 bg-sky-600 hover:bg-sky-700">Simpan Promo Layanan</Button>
+                <button type="reset" id="reset-promo-btn" class="px-8 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-slate-600 transition-all">Reset / Batal Edit</button>
+                <Button type="submit" size="lg" class="submit-promo-btn px-12">Simpan Promo</Button>
             </div>
         </form>
     </div>
@@ -191,10 +108,8 @@ import Button from "@ui/Button.astro";
     import { adminContentService } from "@services/adminContentService";
 
     const setupPromoForm = () => {
-        const homeSection = document.getElementById('section-promo-home');
-        const serviceSection = document.getElementById('section-promo-service');
-        const btnNewHome = document.getElementById('btn-new-promo-home');
-        const btnNewService = document.getElementById('btn-new-promo-service');
+        const resetBtn = document.getElementById('reset-promo-btn');
+        const form = document.getElementById('promo-home-form') as HTMLFormElement;
 
         // Custom Alert Logic
         const alertModal = document.getElementById('promo-alert-modal');
@@ -226,7 +141,6 @@ import Button from "@ui/Button.astro";
             onAlertCloseCallback = cb || null;
             
             alertModal.classList.remove('hidden');
-            // trigger reflow
             void alertModal.offsetWidth;
             alertModal.classList.remove('opacity-0');
             alertCard?.classList.remove('scale-95');
@@ -243,46 +157,23 @@ import Button from "@ui/Button.astro";
             });
         }
 
-        // Toggle Views
-        if(btnNewHome && btnNewService) {
-            btnNewHome.addEventListener('click', () => {
-                homeSection?.classList.remove('hidden');
-                serviceSection?.classList.add('hidden');
-                (document.getElementById('promo-home-form') as HTMLFormElement)?.reset();
-                (document.querySelector('#promo-home-form .promo-id') as HTMLInputElement).value = '';
+        // Handle Form Reset
+        if(resetBtn && form) {
+            resetBtn.addEventListener('click', () => {
+                form.reset();
+                (form.querySelector('.promo-id') as HTMLInputElement).value = '';
                 document.querySelector('#promo-home-form .delete-promo-btn')?.classList.add('hidden');
-            });
-            btnNewService.addEventListener('click', () => {
-                serviceSection?.classList.remove('hidden');
-                homeSection?.classList.add('hidden');
-                (document.getElementById('promo-service-form') as HTMLFormElement)?.reset();
-                (document.querySelector('#promo-service-form .promo-id') as HTMLInputElement).value = '';
-                document.querySelector('#promo-service-form .delete-promo-btn')?.classList.add('hidden');
             });
         }
 
-        // Handle Submits
-        const forms = document.querySelectorAll('.promo-form');
-        forms.forEach(form => {
+        // Handle Submit
+        if (form) {
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const f = e.target as HTMLFormElement;
-                const type = f.getAttribute('data-type');
                 const submitBtn = f.querySelector('.submit-promo-btn');
                 
                 const formData = new FormData(f);
-                
-                // Get targets
-                if (type === 'service') {
-                    const checkedCbs = Array.from(f.querySelectorAll('.target-cb:checked')) as HTMLInputElement[];
-                    if(checkedCbs.length === 0) {
-                        showAlert('error', 'Validasi Gagal', "Harap pilih minimal 1 target layanan!");
-                        return;
-                    }
-                    const combinedTarget = checkedCbs.map(cb => cb.value).join(',');
-                    formData.set('target_service', combinedTarget);
-                }
-
                 const fileInput = f.querySelector('input[type="file"]') as HTMLInputElement;
                 const hasFile = fileInput && fileInput.files && fileInput.files.length > 0;
 
@@ -302,27 +193,26 @@ import Button from "@ui/Button.astro";
                             description: formData.get('description'),
                             discount: formData.get('discount'),
                             max_discount: formData.get('max_discount'),
-                            promo_code: formData.get('promo_code'),
-                            promo_type: formData.get('promo_type'),
+                            promo_type: 'home',
                             target_service: formData.get('target_service'),
                             is_active: f.querySelector('input[name="is_active"]:checked') ? true : false
                         };
                         await adminContentService.savePromotion(jsonPayload);
                     }
 
-                    showAlert('success', 'Berhasil', `Promo ${type} berhasil disimpan!`, () => {
+                    showAlert('success', 'Berhasil', `Promo berhasil disimpan!`, () => {
                         window.location.reload();
                     });
                 } catch (error: any) {
                     showAlert('error', 'Gagal', error.message || "Gagal menyimpan promo");
                 } finally {
                     if (submitBtn) {
-                        submitBtn.textContent = type === 'home' ? "Simpan Promo Home" : "Simpan Promo Layanan";
+                        submitBtn.textContent = "Simpan Promo";
                         submitBtn.removeAttribute('disabled');
                     }
                 }
             });
-        });
+        }
 
         // Handle Deletes
         const deleteBtns = document.querySelectorAll('.delete-promo-btn');
@@ -331,7 +221,6 @@ import Button from "@ui/Button.astro";
                 const f = (e.target as HTMLElement).closest('form') as HTMLFormElement;
                 const id = f.querySelector('.promo-id') as HTMLInputElement;
                 if (id && id.value) {
-                    // Custom confirm via showAlert is tricky because it's not a promise, using window.confirm for now or we can implement confirm modal later. The prompt asked for alert card when save promo is clicked. I'll just keep window.confirm for delete.
                     if (confirm("Yakin ingin menghapus promo ini secara permanen?")) {
                         try {
                             const originalText = btn.textContent;
@@ -354,43 +243,18 @@ import Button from "@ui/Button.astro";
         editButtons.forEach(btn => {
             btn.addEventListener('click', () => {
                 const data = JSON.parse(btn.getAttribute('data-promo') || '{}');
-                const isHome = data.promo_type !== 'service'; // fallback home
-                
-                const f = isHome 
-                    ? document.getElementById('promo-home-form') as HTMLFormElement
-                    : document.getElementById('promo-service-form') as HTMLFormElement;
-
-                // Show correct section
-                if(isHome) {
-                    homeSection?.classList.remove('hidden');
-                    serviceSection?.classList.add('hidden');
-                } else {
-                    serviceSection?.classList.remove('hidden');
-                    homeSection?.classList.add('hidden');
-                }
+                const f = document.getElementById('promo-home-form') as HTMLFormElement;
 
                 // Populate
                 (f.querySelector('.promo-id') as HTMLInputElement).value = data.id || '';
                 (f.querySelector('.tagline-input') as HTMLInputElement).value = data.tagline || '';
+                (f.querySelector('.description-input') as HTMLInputElement).value = data.description || '';
                 
-                if(isHome) {
-                    (f.querySelector('.description-input') as HTMLInputElement).value = data.description || '';
-                    
-                    // Single radio
-                    const radio = f.querySelector(`input[type="radio"][value="${data.target_service}"]`) as HTMLInputElement;
-                    if(radio) radio.checked = true;
-                } else {
-                    // Multi checkbox
-                    const targets = (data.target_service || '').split(',');
-                    const checkboxes = f.querySelectorAll('.target-cb') as NodeListOf<HTMLInputElement>;
-                    checkboxes.forEach(cb => {
-                        cb.checked = targets.includes(cb.value);
-                    });
-                }
+                const radio = f.querySelector(`input[type="radio"][value="${data.target_service || 'all'}"]`) as HTMLInputElement;
+                if(radio) radio.checked = true;
 
-                (f.querySelector('.discount-input') as HTMLInputElement).value = data.discount || '';
+                (f.querySelector('.discount-input') as HTMLInputElement).value = data.discount || data.discount_percentage || '';
                 (f.querySelector('.max-discount-input') as HTMLInputElement).value = data.max_discount || '';
-                (f.querySelector('.promo-code-input') as HTMLInputElement).value = data.promo_code || '';
                 (f.querySelector('.is-active-input') as HTMLInputElement).checked = data.isActive === true || data.is_active === true;
                 
                 f.querySelector('.delete-promo-btn')?.classList.remove('hidden');
