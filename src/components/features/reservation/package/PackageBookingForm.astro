@@ -151,7 +151,7 @@ import AlertCard from "@components/ui/AlertCard.astro";
 
                             <!-- Dynamic Luggage Alert Card -->
                             <div
-                                id="luggage-alert-card"
+                                id="luggage-alert-card-package"
                                 class="hidden animate-fade-in mt-4"
                             >
                                 <div
@@ -291,7 +291,7 @@ import AlertCard from "@components/ui/AlertCard.astro";
             );
 
             const luggageAlertCard =
-                document.getElementById("luggage-alert-card");
+                document.getElementById("luggage-alert-card-package");
 
             const checkLuggageAlert = () => {
                 if (!weightInput || !dimensionSelect || !luggageAlertCard)
@@ -299,7 +299,7 @@ import AlertCard from "@components/ui/AlertCard.astro";
                 const weight = parseInt(weightInput.value) || 0;
                 const dimension = dimensionSelect.value;
 
-                if (weight > 60 || dimension === "super_besar") {
+                if (weight >= 60 || dimension === "super_besar") {
                     luggageAlertCard.classList.remove("hidden");
                 } else {
                     luggageAlertCard.classList.add("hidden");
@@ -478,9 +478,10 @@ import AlertCard from "@components/ui/AlertCard.astro";
                     const isDouble =
                         dimensionSelect.value === "besar" ||
                         dimensionSelect.value === "super_besar" ||
-                        parseInt(weightInput.value) > 60;
+                        parseInt(weightInput.value) >= 60;
 
                     const payload = {
+                        receiver_kecamatan: data.sub_district_penerima || "-",
                         sender_name: data.nama_pengirim as string,
                         sender_phone: data.telp_pengirim as string,
                         pickup_address: JSON.stringify({

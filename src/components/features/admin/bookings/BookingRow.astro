@@ -12,7 +12,7 @@ interface Props {
 const { item, bookingType, fleets = [], drivers = [] } = Astro.props;
 
 // LOGIC STATE MAPPER (Support Selesai & Dibatalkan)
-const actualStatus = item.booking_status || item.status || item.transaction_status || 'PENDING';
+const actualStatus = item.booking_status || (item as any).transaction_status || (item as any).status || 'PENDING';
 
 const isNew = actualStatus === 'menunggu_konfirmasi' && !item.payment_proof_url;
 const isWaitingPayment = actualStatus === 'menunggu_pembayaran';
@@ -65,9 +65,15 @@ if (isNew) {
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
                 <span class="font-bold text-slate-700">{item.destination}</span>
             </p>
-            <span class="text-[10px] text-slate-400 font-secondary mt-1">
-                {item.user.phone} • {item.date} {bookingType === 'CHARTER' && item.time ? `| ${item.time}` : ''}
-            </span>
+            <div class="flex flex-wrap items-center gap-2 mt-2">
+                <span class="text-[10px] text-slate-400 font-secondary">
+                    {item.user.phone}
+                </span>
+                <span class="px-2 py-1 bg-primary/10 text-primary text-[10px] font-bold rounded-md flex items-center gap-1 border border-primary/20">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                    {item.date} {bookingType === 'CHARTER' && item.time ? `| ${item.time}` : ''}
+                </span>
+            </div>
         </div>
 
         <div class="flex flex-row justify-between items-center mt-4 pt-4 border-t border-slate-100 w-full md:mt-0 md:pt-0 md:border-0 md:w-auto md:flex-col md:justify-between md:items-end gap-4 md:gap-2">
@@ -179,13 +185,13 @@ if (isNew) {
                                 <label class="text-[9px] font-bold text-slate-500 uppercase">Tetapkan Harga (IDR)</label>
                                 <div class="relative mb-2">
                                     <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[10px]">Rp</span>
+                                    <input type="hidden" name="price" class="real-price-input" value={item.price ? Math.round(Number(item.price)) : (bookingType === 'RUTE' ? "250000" : "")} />
                                     <input 
                                         type="text" 
-                                        name="price"
                                         readonly={!isNew}
                                         placeholder="Harga..." 
-                                        value={item.price ? Number(item.price).toLocaleString('id-ID') : (bookingType === 'RUTE' ? "250.000" : "")}
-                                        class={`w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-3 text-sm font-black text-primary outline-none ${!isNew ? 'opacity-70 cursor-not-allowed' : 'focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white'}`}
+                                        value={item.price ? Math.round(Number(item.price)).toLocaleString('id-ID') : (bookingType === 'RUTE' ? "250.000" : "")}
+                                        class={`price-display-input w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-3 text-sm font-black text-primary outline-none ${!isNew ? 'opacity-70 cursor-not-allowed' : 'focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white'}`}
                                     />
                                 </div>
                                 

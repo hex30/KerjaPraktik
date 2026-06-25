@@ -67,9 +67,10 @@ const orderHistory = await userService.getUserHistory(token);
     (window as any).selectPaymentMethod = async (orderId: string, type: string, method: string) => {
         try {
             const token = localStorage.getItem('jwt_token') || document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
-            const endpoint = type === 'travel' 
-                ? `/api/travel/bookings/${orderId}/payment-method`
-                : `/api/charter/request/${orderId}/payment-method`;
+            let endpoint = '';
+            if (type === 'travel') endpoint = `/api/travel/bookings/${orderId}/payment-method`;
+            else if (type === 'package') endpoint = `/api/package/bookings/${orderId}/payment-method`;
+            else endpoint = `/api/charter/request/${orderId}/payment-method`;
             
             // Perbaiki host backend
             const beHost = import.meta.env.PUBLIC_API_URL || 'http://localhost:5000';

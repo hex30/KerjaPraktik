@@ -20,7 +20,7 @@ const { car_type, value, seat_capacity, description, price, image, isHidden = fa
     class:list={[
         "fleet-card-wrapper rounded-2xl transition-all duration-300 relative group/wrapper select-none",
         isHidden ? "hidden extra-card" : "",
-        isAvailable ? "cursor-pointer" : "cursor-not-allowed opacity-80 grayscale-[30%]"
+        isAvailable ? "cursor-pointer" : "cursor-not-allowed opacity-80 grayscale-[30%] pointer-events-none"
     ]} 
     data-value={value} 
     data-name={car_type}

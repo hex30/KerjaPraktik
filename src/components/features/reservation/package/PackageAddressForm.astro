@@ -1,6 +1,7 @@
 ---
 // File: src/components/layanan/PackageAdress.astro
 import InputGroup from "@ui/InputGroup.astro";
+import KecamatanCombobox from "@ui/KecamatanCombobox.astro";
 import AddressGrid from '@features/reservation/shared/AddressGrid.astro';
 
 interface Props {
@@ -48,13 +49,23 @@ const placeholderNama = isPengirim ? 'Nama lengkap Anda' : 'Nama lengkap tujuan'
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mt-2">
-        <InputGroup
-            label="Kecamatan"
-            id={`kecamatan_${type}`}
-            name={`sub_district_${type}`}
-            placeholder="Contoh : Panawangan"
-            required={true}
-        />
+        {type === 'penerima' ? (
+            <KecamatanCombobox
+                label="Kecamatan"
+                id={`kecamatan_${type}`}
+                name={`sub_district_${type}`}
+                placeholder="Contoh : Menteng"
+                required={true}
+            />
+        ) : (
+            <InputGroup
+                label="Kecamatan"
+                id={`kecamatan_${type}`}
+                name={`sub_district_${type}`}
+                placeholder="Contoh : Panawangan"
+                required={true}
+            />
+        )}
         <InputGroup
             label="Desa"
             id={`desa_${type}`}

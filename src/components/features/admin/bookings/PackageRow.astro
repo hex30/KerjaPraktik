@@ -8,13 +8,17 @@ interface Props {
 
 const { pkg, fleetsData = [] } = Astro.props;
 
-// Logic State (Mirip dengan BookingRow)
-const isNew = pkg.status === 'menunggu_konfirmasi' && !pkg.payment_proof_url;
-const isWaitingPayment = pkg.status === 'menunggu_pembayaran';
-const isProofUploaded = pkg.status === 'menunggu_konfirmasi' && !!pkg.payment_proof_url;
-const isPickupList = pkg.status === 'dalam_penjemputan' || pkg.status === 'menunggu_penjemputan' || pkg.status === 'received'; 
-const isDone = pkg.status === 'selesai' || pkg.status === 'completed' || pkg.status === 'selesai_final';
-const isCancelled = pkg.status === 'dibatalkan' || pkg.status === 'ditolak' || pkg.status === 'cancelled';
+// Logic State (Memprioritaskan transaction_status untuk payment logic)
+const paymentStatus = pkg.transaction_status || pkg.status;
+const deliveryStatus = pkg.status;
+
+const isNew = paymentStatus === 'menunggu_konfirmasi' && !pkg.payment_proof_url;
+const isWaitingPayment = paymentStatus === 'menunggu_pembayaran';
+const isProofUploaded = paymentStatus === 'menunggu_konfirmasi' && !!pkg.payment_proof_url;
+
+const isPickupList = deliveryStatus === 'dalam_penjemputan' || deliveryStatus === 'menunggu_penjemputan' || (deliveryStatus === 'received' && paymentStatus === 'dibayar'); 
+const isDone = deliveryStatus === 'selesai' || deliveryStatus === 'completed' || deliveryStatus === 'selesai_final' || deliveryStatus === 'delivered';
+const isCancelled = deliveryStatus === 'dibatalkan' || deliveryStatus === 'ditolak' || deliveryStatus === 'cancelled';
 
 let displayBadge = "";
 let badgeClass = "";
@@ -163,7 +167,7 @@ if (isNew) {
                     <div class="flex flex-col gap-6">
                         <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
                             <div class="w-1 h-1 rounded-full bg-amber-500"></div>
-                            {isCancelled || isDone ? 'Data Terkunci' : 'Alokasi Armada & Harga Ongkir'}
+                            {isCancelled || isDone ? 'Data Terkunci' : 'Tentukan Harga Ongkos Kirim'}
                         </h4>
                         <form class="package-action-form bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-5 relative" data-package-id={pkg.id} data-current-state={isNew ? 'isNew' : isWaitingPayment ? 'isWaitingPayment' : isProofUploaded ? 'isProofUploaded' : isPickupList ? 'isPickupList' : 'isDone'}>
                             
@@ -174,40 +178,28 @@ if (isNew) {
                                 </button>
                             )}
 
-                            <div class="flex flex-col gap-3">
-                                <label class="text-[10px] font-bold text-slate-500 uppercase">Alokasi ke Unit (Armada)</label>
-                                <select name="fleet_id" disabled={!isNew} class={`w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-bold text-slate-700 outline-none ${!isNew ? 'opacity-70 cursor-not-allowed' : 'focus:ring-2 focus:ring-primary/10 transition-all'}`}>
-                                    <option value="">Pilih Unit Armada...</option>
-                                    {fleetsData.map(f => (
-                                        <option value={f.id}>{f.type} ({f.plate_number})</option>
-                                    ))}
-                                </select>
-                            </div>
-
-                            <div class="flex flex-col gap-3">
-                                <label class="text-[10px] font-bold text-slate-500 uppercase">Harga Ongkos Kirim (IDR)</label>
-                                <div class="relative">
-                                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">Rp</span>
+                            <!-- Input Harga & Submit -->
+                            <div class="flex flex-col gap-2 pt-2">
+                                <label class="text-[9px] font-bold text-slate-500 uppercase">Tetapkan Harga (IDR)</label>
+                                <div class="relative mb-2">
+                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[10px]">Rp</span>
+                                    <input type="hidden" name="price" class="real-price-input" value={pkg.price ? Math.round(Number(pkg.price)) : ''} />
                                     <input 
                                         type="text" 
-                                        name="price"
                                         readonly={!isNew}
-                                        placeholder="Tentukan harga..." 
-                                        value={pkg.price ? Number(pkg.price).toLocaleString('id-ID') : ''}
-                                        class={`w-full bg-slate-50 border border-slate-100 rounded-xl pl-12 pr-4 py-3 text-sm font-black text-primary outline-none ${!isNew ? 'opacity-70 cursor-not-allowed' : 'focus:ring-2 focus:ring-primary/10 transition-all'}`}
+                                        placeholder="Harga..." 
+                                        value={pkg.price ? Math.round(Number(pkg.price)).toLocaleString('id-ID') : ''}
+                                        class={`price-display-input w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-3 text-sm font-black text-primary outline-none ${!isNew ? 'opacity-70 cursor-not-allowed' : 'focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white'}`}
                                     />
                                 </div>
-                            </div>
-
-                            <div class="pt-2 flex flex-col gap-2">
                                 
                                 {!(isDone || isCancelled) && (
                                     <button 
                                         type={isWaitingPayment ? "button" : "submit"} 
                                         onclick={isWaitingPayment ? "alert('Sedang menunggu user melakukan pembayaran.'); return false;" : undefined}
-                                        class={`w-full text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${isWaitingPayment ? 'bg-amber-500 hover:shadow-xl hover:shadow-amber-500/20' : isProofUploaded ? 'bg-sky-500 hover:shadow-xl hover:shadow-sky-500/20 active:scale-95' : isPickupList ? 'bg-emerald-500 hover:shadow-xl hover:shadow-emerald-500/20 active:scale-95' : 'bg-primary hover:shadow-xl hover:shadow-primary/20 active:scale-95'}`}
+                                        class={`w-full text-white py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${isWaitingPayment ? 'bg-amber-500 hover:bg-amber-600' : isProofUploaded ? 'bg-sky-500 hover:bg-sky-600' : isPickupList ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-primary hover:bg-[#003540]'}`}
                                     >
-                                        {isNew ? "Simpan & Kirim Tagihan" : isWaitingPayment ? "Menunggu Pembayaran User" : isProofUploaded ? "Konfirmasi Pembayaran" : isPickupList ? "Selesai (Tuntaskan Pesanan)" : "Update Resi & Harga"}
+                                        {isNew ? "Simpan Harga & Tagih" : isWaitingPayment ? "Menunggu Pembayaran User" : isProofUploaded ? "Konfirmasi Pembayaran Lunas" : isPickupList ? "Selesai (Tuntaskan Pesanan)" : "Simpan"}
                                     </button>
                                 )}
                             </div>

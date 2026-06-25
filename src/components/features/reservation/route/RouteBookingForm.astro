@@ -5,6 +5,7 @@ import SeatMap from "@features/reservation/shared/SeatMap.astro";
 import SectionHeader from "@ui/SectionHeader.astro";
 import RouteSelectionItem from "./RouteSelectionItem.astro";
 import InputGroup from "@ui/InputGroup.astro";
+import KecamatanCombobox from "@ui/KecamatanCombobox.astro";
 import QuantitySelector from "@ui/QuantitySelector.astro";
 import Button from "@ui/Button.astro";
 import HeroAside from "@ui/HeroAside.astro";
@@ -290,13 +291,13 @@ try {
                                     Detail Alamat Penurunan (Tujuan)
                                 </h3>
                                 <div
-                                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                                    class="grid grid-cols-1 md:grid-cols-2 gap-4"
                                 >
-                                    <InputGroup
+                                    <KecamatanCombobox
                                         label="Kecamatan"
                                         id="tujuan_kecamatan"
                                         name="tujuan_kecamatan"
-                                        placeholder="Contoh: Panawangan"
+                                        placeholder="Contoh: Menteng"
                                         required={true}
                                     />
                                     <InputGroup
@@ -480,6 +481,10 @@ try {
         const dateObj = new Date(schedule.departure_time);
         const isFull = schedule.available_seats <= 0;
 
+        if (isFull) {
+            return "";
+        }
+
         return `
             <label class="relative cursor-pointer snap-start shrink-0 group">
                 <input type="radio" name="pilihan_jadwal" data-raw-date="${schedule.raw_date}" value="${schedule.id}" class="peer sr-only" ${isFull ? "disabled" : ""}>
@@ -604,9 +609,17 @@ try {
 
                 // Cek armada global
                 try {
-                    const fleetCheck = await travelService.checkFleetsAvailability();
-                    if (fleetCheck && fleetCheck.data && fleetCheck.data.available === false) {
-                        if (typeof (window as any).showGlobalFleetAlert === 'function') {
+                    const fleetCheck =
+                        await travelService.checkFleetsAvailability();
+                    if (
+                        fleetCheck &&
+                        fleetCheck.data &&
+                        fleetCheck.data.available === false
+                    ) {
+                        if (
+                            typeof (window as any).showGlobalFleetAlert ===
+                            "function"
+                        ) {
                             (window as any).showGlobalFleetAlert();
                         }
                         target.checked = false;
@@ -708,7 +721,15 @@ try {
                     )
                         ? seatInfo.occupied_seats_list
                         : [];
-                    const maxCapacity = seatInfo.max_capacity || 10;
+                    const maxCapacity = seatInfo.max_capacity || 0;
+
+                    if (seatInfo.status === "full" || maxCapacity === 0) {
+                        return (window as any).showFeedbackModal(
+                            "error",
+                            "Armada Penuh",
+                            "Maaf, armada untuk jadwal ini sudah disewa penuh oleh layanan Charter/Paket atau sudah terisi penuh.",
+                        );
+                    }
 
                     // Kita bisa simpan status unit dari backend jika perlu untuk UI
                     // const unitName = seatInfo.unit;
@@ -772,7 +793,7 @@ try {
             const weight = parseInt(beratBagasiInput.value) || 0;
             const dimension = dimensiBagasiSelect.value;
 
-            if (weight > 60 || dimension === "super_besar") {
+            if (weight >= 60 || dimension === "super_besar") {
                 luggageAlertCard.classList.remove("hidden");
             } else {
                 luggageAlertCard.classList.add("hidden");
@@ -858,6 +879,7 @@ try {
                     route_id: selectedRouteId,
                     departure_date: selectedRawDate,
                     seat_number: firstSeat,
+                    tujuan_kecamatan: data1.tujuan_kecamatan || "-",
                     pickup_address: JSON.stringify({
                         kecamatan: data2.sub_district || "-",
                         desa: data2.village || "-",

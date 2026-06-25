@@ -47,6 +47,45 @@ const { title } = Astro.props;
     // Proteksi Rute (Client-Side) - Hanya Admin & Super Admin yang boleh akses
     document.addEventListener("DOMContentLoaded", () => {
         authGuard.checkPermission(['admin', 'superadmin', 'super_admin']);
+
+        // Global Format Rupiah Setup
+        const formatRupiah = (angka: string) => {
+            let number_string = angka.replace(/[^,\d]/g, '').toString();
+            let split = number_string.split(',');
+            let sisa = split[0].length % 3;
+            let rupiah = split[0].substr(0, sisa);
+            let ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+            if (ribuan) {
+                let separator = sisa ? '.' : '';
+                rupiah += separator + ribuan.join('.');
+            }
+            return rupiah ? (split[1] != undefined ? rupiah + ',' + split[1] : rupiah) : '';
+        };
+
+        const setupCurrencyInputs = () => {
+            document.querySelectorAll('.price-display-input').forEach(input => {
+                input.addEventListener('input', function(this: HTMLInputElement) {
+                    const container = this.closest('.relative') || this.parentElement;
+                    const realInput = container?.querySelector('.real-price-input') as HTMLInputElement;
+                    const cleanValue = this.value.replace(/\D/g, '');
+                    if (realInput) {
+                        realInput.value = cleanValue;
+                    }
+                    this.value = cleanValue ? formatRupiah(cleanValue) : '';
+                });
+            });
+        };
+
+        setupCurrencyInputs();
+        // Setup observer to handle dynamically added elements
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.addedNodes.length) {
+                    setupCurrencyInputs();
+                }
+            });
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
     });
 </script>
 

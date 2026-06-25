@@ -211,8 +211,11 @@ export const adminBookingService = {
                 weight: item.weight ? `${item.weight} Kg` : '-',
                 type: item.dimension || 'Reguler',
                 status: item.status || 'PENDING',
+                transaction_status: item.transaction_status || null,
+                payment_method: item.payment_method || null,
+                payment_proof_url: item.payment_proof_url || null,
                 is_super_besar: item.dimension === 'besar', // Asumsi mapping
-                price: item.total_price || null
+                price: item.price || null
             }));
         } catch (error) {
             console.error("Gagal mengambil data paket:", error);
