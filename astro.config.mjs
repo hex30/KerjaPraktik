@@ -7,6 +7,14 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
   output: "server",
   vite: {
-    plugins: [tailwindcss()]
+    plugins: [tailwindcss()],
+    server: {
+      proxy: {
+        '/uploads': {
+          target: 'http://localhost:5000',
+          changeOrigin: true,
+        }
+      }
+    }
   }
 });
