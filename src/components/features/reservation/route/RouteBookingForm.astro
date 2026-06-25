@@ -772,7 +772,7 @@ try {
             const weight = parseInt(beratBagasiInput.value) || 0;
             const dimension = dimensiBagasiSelect.value;
 
-            if (weight > 60 || dimension === "super_besar") {
+            if (weight >= 60 || dimension === "super_besar") {
                 luggageAlertCard.classList.remove("hidden");
             } else {
                 luggageAlertCard.classList.add("hidden");
