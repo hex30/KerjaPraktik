@@ -42,7 +42,7 @@ import Button from "@ui/Button.astro";
 
                     <div class="grid grid-cols-2 gap-4">
                         <InputGroup label="Diskon (%)" class="discount-input" name="discount" type="number" placeholder="0" suffix="%" required={true} />
-                        <InputGroup label="Max Potongan" class="max-discount-input" name="max_discount" type="number" placeholder="0" suffix="Rp" required={true} />
+                        <InputGroup label="Max Potongan" class="max-discount-input" name="max_discount" type="text" placeholder="0" suffix="Rp" required={true} />
                     </div>
 
                     <div class="flex flex-col gap-2 relative">
@@ -108,8 +108,30 @@ import Button from "@ui/Button.astro";
     import { adminContentService } from "@services/adminContentService";
 
     const setupPromoForm = () => {
+        function formatRupiah(angka: string) {
+            let number_string = angka.replace(/[^,\d]/g, '').toString();
+            let split = number_string.split(',');
+            let sisa = split[0].length % 3;
+            let rupiah = split[0].substr(0, sisa);
+            let ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+            if(ribuan){
+                let separator = sisa ? '.' : '';
+                rupiah += separator + ribuan.join('.');
+            }
+            return rupiah ? (split[1] != undefined ? rupiah + ',' + split[1] : rupiah) : '';
+        }
+
         const resetBtn = document.getElementById('reset-promo-btn');
         const form = document.getElementById('promo-home-form') as HTMLFormElement;
+
+        const maxDiscountInput = form?.querySelector('.max-discount-input input') as HTMLInputElement;
+        if (maxDiscountInput) {
+            maxDiscountInput.addEventListener('input', function(this: HTMLInputElement) {
+                const cleanValue = this.value.replace(/\D/g, '');
+                this.value = cleanValue ? formatRupiah(cleanValue) : '';
+            });
+        }
+
 
         // Custom Alert Logic
         const alertModal = document.getElementById('promo-alert-modal');
@@ -195,6 +217,10 @@ import Button from "@ui/Button.astro";
                 const submitBtn = f.querySelector('.submit-promo-btn');
                 
                 const formData = new FormData(f);
+                const maxDiscountRaw = formData.get('max_discount') as string;
+                if (maxDiscountRaw) {
+                    formData.set('max_discount', maxDiscountRaw.replace(/\./g, ''));
+                }
                 const fileInput = f.querySelector('input[type="file"]') as HTMLInputElement;
                 const hasFile = fileInput && fileInput.files && fileInput.files.length > 0;
 
@@ -283,8 +309,19 @@ import Button from "@ui/Button.astro";
                 const radio = f.querySelector(`input[type="radio"][value="${data.target_service || 'all'}"]`) as HTMLInputElement;
                 if(radio) radio.checked = true;
 
-                (f.querySelector('.discount-input') as HTMLInputElement).value = data.discount || data.discount_percentage || '';
-                (f.querySelector('.max-discount-input') as HTMLInputElement).value = data.max_discount || '';
+                (f.querySelector('.discount-input input') as HTMLInputElement).value = data.discount || data.discount_percentage || '';
+                
+                const maxDiscountEl = f.querySelector('.max-discount-input input') as HTMLInputElement;
+                if (maxDiscountEl) {
+                    const rawVal = data.max_discount || '';
+                    if (rawVal) {
+                        const numVal = Math.round(Number(rawVal));
+                        maxDiscountEl.value = formatRupiah(numVal.toString());
+                    } else {
+                        maxDiscountEl.value = '';
+                    }
+                }
+                
                 (f.querySelector('.is-active-input') as HTMLInputElement).checked = data.isActive === true || data.is_active === true;
                 
                 f.querySelector('.delete-promo-btn')?.classList.remove('hidden');

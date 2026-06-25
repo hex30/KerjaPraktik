@@ -315,7 +315,8 @@ const fleets = await adminContentService.getFleetsAdmin(token);
                 if (inputDescription) inputDescription.value = description || '';
                 if (inputPrice) inputPrice.value = price || '';
                 if (inputPriceDisplay && price) {
-                    inputPriceDisplay.value = formatRupiah(price.toString());
+                    const numPrice = Math.round(Number(price));
+                    inputPriceDisplay.value = formatRupiah(numPrice.toString());
                 } else if (inputPriceDisplay) {
                     inputPriceDisplay.value = '';
                 }
