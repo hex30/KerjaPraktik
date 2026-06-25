@@ -25,6 +25,7 @@ export interface TravelBookingAdmin {
     status: string;
     booking_status: string;
     payment_proof_url: string | null;
+    payment_method?: string | null;
     price: number | null;
     schedule_id?: string;
 }
@@ -46,6 +47,7 @@ export interface CharterBookingAdmin {
     status: string;
     booking_status: string;
     payment_proof_url: string | null;
+    payment_method?: string | null;
     price: number | null;
     schedule_id?: string;
 }
@@ -139,6 +141,7 @@ export const adminBookingService = {
                 status: item.booking_status || 'PENDING',
                 booking_status: item.booking_status,
                 payment_proof_url: item.payment_proof_url || null,
+                payment_method: item.payment_method || null,
                 price: item.price || null,
                 schedule_id: item.schedule_id || null
             }));
@@ -173,6 +176,7 @@ export const adminBookingService = {
                 status: item.status || 'PENDING',
                 booking_status: item.status || 'PENDING',
                 payment_proof_url: item.payment_proof_url || null,
+                payment_method: item.payment_method || null,
                 price: item.offered_price || null,
                 schedule_id: null
             }));
@@ -238,6 +242,18 @@ export const adminBookingService = {
             return response.data.filter((u: any) => u.role === 'driver');
         } catch (error) {
             console.error("Gagal mengambil data drivers:", error);
+            return [];
+        }
+    },
+
+    async getPendingAssignments(token?: string): Promise<any[]> {
+        try {
+            const headers: Record<string, string> = {};
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+            const response = await apiFetch('/api/admin/assignments/pending', { method: 'GET', headers });
+            return response?.data || [];
+        } catch (error) {
+            console.error("Gagal mengambil data pending assignments:", error);
             return [];
         }
     }

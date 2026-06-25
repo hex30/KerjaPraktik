@@ -140,7 +140,7 @@ if (isNew) {
                                             <button 
                                                 type="button" 
                                                 class="w-full h-32 rounded-xl border-2 border-dashed border-sky-200 hover:border-sky-400 overflow-hidden relative group transition-colors focus:outline-none"
-                                                onclick={`window.openPaymentPreview('${pkg.payment_proof_url}')`}
+                                                onclick={`window.openPaymentPreview('${pkg.id}', '${pkg.payment_proof_url}')`}
                                             >
                                                 <img src={pkg.payment_proof_url} alt="Bukti Pembayaran" class="w-full h-full object-cover" />
                                                 <div class="absolute inset-0 bg-slate-900/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">

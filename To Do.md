@@ -77,3 +77,6 @@ Tugas-tugas di bawah ini masih tertunda, sebagian besar karena masalah kecocokan
 - [ ] **Profil Akun Pengguna / Pengaturan (Opsional):** Jika ada halaman UI untuk pengguna mereset kata sandi atau memperbarui data (Berdasarkan endpoint `/api/auth/reset-password`).
 
 - [ ] **Perhitungan Otomatis Diskon Promosi:** Saat Admin menyetujui pemesanan (meng-input harga), Backend (updateTravelBookingStatus) wajib memotong nilai harga (price) tersebut secara otomatis jika ada promo aktif berdasarkan parameter discount dan max_discount. Saat ini BE hanya menerima price mentah tanpa diproses.
+
+25/06/26 
+besok cek integrasi antara BE dan semua halmana FE yang sudah lancar kelola destinasi, kelola armda, layanan sudah lancar hanya booking saja yang masih bug. 

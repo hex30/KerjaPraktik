@@ -5,41 +5,9 @@ import ReservationTabs from "@features/reservation/shared/ReservationTabs.astro"
 import RouteBookingForm from "@features/reservation/route/RouteBookingForm.astro";
 import CharterBookingForm from "@features/reservation/charter/CharterBookingForm.astro";
 import PackageBookingForm from "@features/reservation/package/PackageBookingForm.astro";
-import ReservationPromotion from "@features/reservation/shared/ReservationPromotion.astro";
-import { contentService } from "@services/contentService";
-
-let promoData = null;
-
-try {
-  const promoRes = await contentService.getPromotions('service');
-  if (promoRes?.data && promoRes.data.length > 0) {
-     const p = promoRes.data[0];
-     
-     // Parsing persentase diskon menjadi bilangan bulat (misal: 20.00 menjadi 20)
-     const discountValue = Math.round(parseFloat(p.discount || p.discount_percentage || 0));
-     const diskonText = discountValue > 0 ? `${discountValue}% OFF` : `Diskon Rp ${Math.round(parseFloat(p.max_discount || 0))}`;
-
-     promoData = {
-        image: p.image_url || p.image || "",
-        tagline: p.promo_code ? `${p.tagline || p.title || "Promo Spesial"} (Kode: ${p.promo_code})` : (p.tagline || p.title || ""),
-        diskon: diskonText
-     };
-  }
-} catch (e) {
-  console.error("Gagal load promo di services:", e);
-}
 ---
 
 <Layout title="Layanan | Rini Trans Putri">
-    <!-- Service Promotional Banner -->
-    {promoData && promoData.image && (
-        <ReservationPromotion 
-            image={promoData.image}
-            tagline={promoData.tagline}
-            diskon={promoData.diskon}
-        />
-    )}
-
     <!-- Main Content Section -->
     <section class="max-w-7xl mx-auto px-6 mt-8 font-main">
         <ReservationTabs />

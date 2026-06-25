@@ -6,16 +6,22 @@ export interface DashboardMetrics {
   total_drivers: string | number;
 }
 
-export interface DepartureRequest {
-  id: string;
-  driver1: string;
-  driver2?: string;
-  pax: number;
-  path: string;
-  date: string;
-  packages: number;
-  unit_name: string;
-  type: string;
+export interface RecentBookings {
+  travel?: {
+    id: string;
+    customer_name: string;
+    seat_number: string | number;
+    price: string | number;
+    route_origin: string;
+    route_destination: string;
+  };
+  charter?: {
+    id: string;
+    customer_name: string;
+    car_type: string;
+    total_price: string | number;
+    destination: string;
+  };
 }
 
 export interface AssignedFleet {
@@ -72,17 +78,17 @@ export const adminDashboardService = {
     }
   },
 
-  // dokumentasi: Mengambil antrean izin keberangkatan supir (Endpoint usulan untuk BE)
-  async getDepartureRequests(token?: string): Promise<DepartureRequest[]> {
+  // dokumentasi: Mengambil pesanan terbaru untuk Travel Reguler dan Charter
+  async getRecentBookings(token?: string): Promise<RecentBookings> {
     try {
       const headers: Record<string, string> = {};
       if (token) headers['Authorization'] = `Bearer ${token}`;
 
-      const response = await apiFetch('/api/admin/dashboard/departure-requests', { method: 'GET', headers });
-      return response?.data || [];
+      const response = await apiFetch('/api/admin/dashboard/recent-bookings', { method: 'GET', headers });
+      return response?.data || {};
     } catch (error) {
-      console.error("Endpoint departure-requests belum siap di BE:", error);
-      return []; // fallback gracefully
+      console.error("Gagal mengambil pesanan terbaru:", error);
+      return {};
     }
   },
 
