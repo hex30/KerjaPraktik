@@ -22,11 +22,17 @@ const { name, capacity, description, price, image, isAvailable = true } = Astro.
             >
                 {capacity}
             </span>
-            {!isAvailable && (
+            {isAvailable ? (
+                <span
+                    class="bg-emerald-500/90 backdrop-blur-sm text-white text-xs font-bold px-3 py-2 rounded-full shadow-sm"
+                >
+                    Tersedia
+                </span>
+            ) : (
                 <span
                     class="bg-red-500/90 backdrop-blur-sm text-white text-xs font-bold px-3 py-2 rounded-full shadow-sm"
                 >
-                    Sedang Disewa
+                    Penuh
                 </span>
             )}
         </div>
@@ -39,22 +45,20 @@ const { name, capacity, description, price, image, isAvailable = true } = Astro.
 
     <div class="p-5 flex flex-col flex-grow">
         <h3 class="text-lg font-black text-primary mb-1">{name}</h3>
-        <p
-            class="font-secondary text-xs text-text-secondary leading-relaxed mb-4 flex-grow"
-        >
-            {description}
-        </p>
+        <div class="overflow-y-auto max-h-24 pr-2 custom-scrollbar mb-4 flex-grow">
+            <p class="font-secondary text-xs text-text-secondary leading-relaxed break-words whitespace-pre-wrap">
+                {description || 'Tidak ada deskripsi.'}
+            </p>
+        </div>
         <footer
             class="flex items-center justify-between border-t border-slate-100 pt-4 mt-auto"
         >
             <div>
-                <span
-                    class="block text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-0.5"
-                >
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">
                     Mulai Dari
                 </span>
                 <div class="font-main font-black text-primary">
-                    Rp. {price}
+                    Rp {Number(price).toLocaleString('id-ID')}
                     <span class="text-xs font-medium text-slate-400">/Hari</span
                     >
                 </div>
