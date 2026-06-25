@@ -28,6 +28,7 @@ export interface Fleet {
     description: string;
     image_url: string;
     status: string;
+    price?: string | number;
 }
 
 export interface UserAdmin {

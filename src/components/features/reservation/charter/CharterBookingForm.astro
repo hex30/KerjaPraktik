@@ -13,26 +13,11 @@ let fleetData: any[] = [];
 try {
     const allFleets = await charterService.getFleets();
 
-    // Group by car_type to calculate availability
-    const fleetGroups = new Map();
-    for (const fleet of allFleets) {
-        if (!fleetGroups.has(fleet.car_type)) {
-            fleetGroups.set(fleet.car_type, {
-                ...fleet,
-                totalUnits: 0,
-                availableUnits: 0,
-            });
-        }
-
-        const group = fleetGroups.get(fleet.car_type);
-        group.totalUnits += 1;
-        // Hanya yang statusnya active yang dihitung tersedia
-        if (fleet.status === "active" || fleet.status === "Tersedia") {
-            group.availableUnits += 1;
-        }
-    }
-
-    fleetData = Array.from(fleetGroups.values());
+    fleetData = allFleets.map((fleet: any) => ({
+        ...fleet,
+        totalUnits: fleet.total_units || 0,
+        availableUnits: fleet.available_units || 0,
+    }));
 } catch (error) {
     console.error("Gagal memuat katalog armada charter:", error);
     fleetData = [];
@@ -190,6 +175,7 @@ try {
                                     {...unit}
                                     value={unit.car_type}
                                     image={unit.image_url}
+                                    price={unit.base_price}
                                     isHidden={index > 1}
                                     isAvailable={unit.availableUnits > 0}
                                 />

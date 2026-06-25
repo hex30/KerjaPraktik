@@ -184,7 +184,7 @@ if (isNew) {
                                         name="price"
                                         readonly={!isNew}
                                         placeholder="Harga..." 
-                                        value={item.price || (bookingType === 'RUTE' ? "250000" : "")}
+                                        value={item.price ? Number(item.price).toLocaleString('id-ID') : (bookingType === 'RUTE' ? "250.000" : "")}
                                         class={`w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-3 text-sm font-black text-primary outline-none ${!isNew ? 'opacity-70 cursor-not-allowed' : 'focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white'}`}
                                     />
                                 </div>

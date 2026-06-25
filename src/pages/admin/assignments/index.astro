@@ -71,7 +71,7 @@ const formatDate = (dateString: string) => {
                             </div>
                             <div>
                                 <div class="text-sm font-black text-slate-800">{item.fleet_car_type || "TBD"}</div>
-                                <div class="text-xs font-bold text-slate-500">{item.fleet_plate_number || "Menunggu Alokasi"} • Kapasitas {item.fleet_capacity || "-"}</div>
+                                <div class="text-xs font-bold text-slate-500">{item.fleet_plate_number || "Menunggu Alokasi"} ï¿½ Kapasitas {item.fleet_capacity || "-"}</div>
                             </div>
                         </div>
                     </div>
@@ -128,6 +128,27 @@ const formatDate = (dateString: string) => {
     import { apiFetch } from "../../../services/api";
 
     document.addEventListener("DOMContentLoaded", () => {
+        function formatRupiah(angka: string) {
+            let number_string = angka.replace(/[^,\d]/g, '').toString();
+            let split = number_string.split(',');
+            let sisa = split[0].length % 3;
+            let rupiah = split[0].substr(0, sisa);
+            let ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+            if(ribuan){
+                let separator = sisa ? '.' : '';
+                rupiah += separator + ribuan.join('.');
+            }
+            return rupiah ? (split[1] != undefined ? rupiah + ',' + split[1] : rupiah) : '';
+        }
+
+        const priceInputs = document.querySelectorAll('input[name="price"]');
+        priceInputs.forEach(input => {
+            input.addEventListener('input', function(this: HTMLInputElement) {
+                const cleanValue = this.value.replace(/\D/g, '');
+                this.value = cleanValue ? formatRupiah(cleanValue) : '';
+            });
+        });
+
         const forms = document.querySelectorAll(".assignment-form");
 
         forms.forEach(form => {
@@ -138,6 +159,10 @@ const formatDate = (dateString: string) => {
                 const type = f.dataset.type;
                 
                 const formData = new FormData(f);
+                if (formData.has('price')) {
+                    const priceVal = formData.get('price') as string;
+                    formData.set('price', priceVal.replace(/\./g, ''));
+                }
                 const data = Object.fromEntries(formData.entries());
 
                 const btn = f.querySelector("button[type=\"submit\"]") as HTMLButtonElement;

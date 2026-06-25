@@ -193,7 +193,7 @@ if (isNew) {
                                         name="price"
                                         readonly={!isNew}
                                         placeholder="Tentukan harga..." 
-                                        value={pkg.price}
+                                        value={pkg.price ? Number(pkg.price).toLocaleString('id-ID') : ''}
                                         class={`w-full bg-slate-50 border border-slate-100 rounded-xl pl-12 pr-4 py-3 text-sm font-black text-primary outline-none ${!isNew ? 'opacity-70 cursor-not-allowed' : 'focus:ring-2 focus:ring-primary/10 transition-all'}`}
                                     />
                                 </div>
