@@ -598,6 +598,31 @@ try {
 
                 dateContainer.innerHTML = `
                     <div class="w-full flex items-center justify-center p-8 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 text-slate-400 text-sm font-medium animate-pulse">
+                        Mengecek ketersediaan armada...
+                    </div>
+                `;
+
+                // Cek armada global
+                try {
+                    const fleetCheck = await travelService.checkFleetsAvailability();
+                    if (fleetCheck && fleetCheck.data && fleetCheck.data.available === false) {
+                        if (typeof (window as any).showGlobalFleetAlert === 'function') {
+                            (window as any).showGlobalFleetAlert();
+                        }
+                        target.checked = false;
+                        dateContainer.innerHTML = `
+                            <div class="w-full flex items-center justify-center p-8 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 text-slate-500 text-sm font-medium">
+                                Silakan pilih rute untuk melihat ketersediaan armada.
+                            </div>
+                        `;
+                        return;
+                    }
+                } catch (err) {
+                    console.error("Gagal mengecek armada:", err);
+                }
+
+                dateContainer.innerHTML = `
+                    <div class="w-full flex items-center justify-center p-8 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 text-slate-400 text-sm font-medium animate-pulse">
                         Mencari jadwal tersedia...
                     </div>
                 `;
@@ -810,10 +835,16 @@ try {
 
             try {
                 const formData1 = new FormData(form1);
-                const data1 = Object.fromEntries(formData1.entries()) as Record<string, any>;
-                
+                const data1 = Object.fromEntries(formData1.entries()) as Record<
+                    string,
+                    any
+                >;
+
                 const formData2 = new FormData(form2);
-                const data2 = Object.fromEntries(formData2.entries()) as Record<string, any>;
+                const data2 = Object.fromEntries(formData2.entries()) as Record<
+                    string,
+                    any
+                >;
 
                 const seatValues =
                     (

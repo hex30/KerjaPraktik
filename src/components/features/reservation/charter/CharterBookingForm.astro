@@ -12,26 +12,26 @@ import { charterService } from "@services/charterService";
 let fleetData: any[] = [];
 try {
     const allFleets = await charterService.getFleets();
-    
+
     // Group by car_type to calculate availability
     const fleetGroups = new Map();
     for (const fleet of allFleets) {
         if (!fleetGroups.has(fleet.car_type)) {
-            fleetGroups.set(fleet.car_type, { 
-                ...fleet, 
-                totalUnits: 0, 
-                availableUnits: 0 
+            fleetGroups.set(fleet.car_type, {
+                ...fleet,
+                totalUnits: 0,
+                availableUnits: 0,
             });
         }
-        
+
         const group = fleetGroups.get(fleet.car_type);
         group.totalUnits += 1;
         // Hanya yang statusnya active yang dihitung tersedia
-        if (fleet.status === 'active' || fleet.status === 'Tersedia') {
+        if (fleet.status === "active" || fleet.status === "Tersedia") {
             group.availableUnits += 1;
         }
     }
-    
+
     fleetData = Array.from(fleetGroups.values());
 } catch (error) {
     console.error("Gagal memuat katalog armada charter:", error);
@@ -71,11 +71,21 @@ try {
                         />
 
                         <!-- RESTRICTED AREA FOR GUEST -->
-                        <div id="restricted-area-charter" class="relative transition-all duration-300">
+                        <div
+                            id="restricted-area-charter"
+                            class="relative transition-all duration-300"
+                        >
                             <!-- Guest Alert Overlay Backdrop (Transparent Catcher) -->
-                            <div id="guest-overlay-charter" class="absolute inset-0 z-40 bg-transparent cursor-pointer rounded-2xl -mx-2 -my-2"></div>
-                            
-                            <div id="restricted-content-charter" class="flex flex-col gap-5 pointer-events-none transition-all duration-500">
+                            <div
+                                id="guest-overlay-charter"
+                                class="absolute inset-0 z-40 bg-transparent cursor-pointer rounded-2xl -mx-2 -my-2"
+                            >
+                            </div>
+
+                            <div
+                                id="restricted-content-charter"
+                                class="flex flex-col gap-5 pointer-events-none transition-all duration-500"
+                            >
                                 <div class="flex flex-col gap-2 w-full">
                                     <label
                                         for="jenis_armada"
@@ -88,11 +98,22 @@ try {
                                         required
                                         class="w-full bg-white border border-slate-200 rounded-lg px-4 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all cursor-pointer appearance-none"
                                     >
-                                        <option value="" disabled selected>Pilih kendaraan...</option>
+                                        <option value="" disabled selected
+                                            >Pilih kendaraan...</option
+                                        >
                                         {
                                             fleetData.map((unit) => (
-                                                <option value={unit.car_type} disabled={unit.availableUnits === 0}>
-                                                    {unit.car_type} {unit.availableUnits === 0 ? "(Tidak Tersedia)" : ""}
+                                                <option
+                                                    value={unit.car_type}
+                                                    disabled={
+                                                        unit.availableUnits ===
+                                                        0
+                                                    }
+                                                >
+                                                    {unit.car_type}{" "}
+                                                    {unit.availableUnits === 0
+                                                        ? "(Tidak Tersedia)"
+                                                        : ""}
                                                 </option>
                                             ))
                                         }
@@ -114,7 +135,11 @@ try {
                                     required={false}
                                 />
 
-                                <Button type="submit" class="w-full mt-2" size="lg">
+                                <Button
+                                    type="submit"
+                                    class="w-full mt-2"
+                                    size="lg"
+                                >
                                     Lanjutkan Isi Data Diri
                                 </Button>
                             </div>
@@ -158,33 +183,50 @@ try {
                     class="grid grid-cols-1 md:grid-cols-2 gap-6"
                     id="armada-grid-container"
                 >
-                    {fleetData.length > 0 ? (
-                        fleetData.map((unit, index) => (
-                            <FleetSelectionItem
-                                {...unit}
-                                value={unit.car_type}
-                                image={unit.image_url}
-                                isHidden={index > 1}
-                                isAvailable={unit.availableUnits > 0}
-                            />
-                        ))
-                    ) : (
-                        <div class="col-span-full py-10 text-center bg-slate-50 border border-slate-200 rounded-2xl">
-                            <p class="font-secondary font-bold text-slate-500 mb-2">Mohon Maaf, Layanan Sedang Terganggu</p>
-                            <p class="font-secondary text-xs text-slate-400">Saat ini data armada tidak dapat dimuat dari server. Silakan coba beberapa saat lagi.</p>
-                        </div>
-                    )}
+                    {
+                        fleetData.length > 0 ? (
+                            fleetData.map((unit, index) => (
+                                <FleetSelectionItem
+                                    {...unit}
+                                    value={unit.car_type}
+                                    image={unit.image_url}
+                                    isHidden={index > 1}
+                                    isAvailable={unit.availableUnits > 0}
+                                />
+                            ))
+                        ) : (
+                            <div class="col-span-full py-10 text-center bg-slate-50 border border-slate-200 rounded-2xl">
+                                <p class="font-secondary font-bold text-slate-500 mb-2">
+                                    Mohon Maaf, Layanan Sedang Terganggu
+                                </p>
+                                <p class="font-secondary text-xs text-slate-400">
+                                    Saat ini data armada tidak dapat dimuat dari
+                                    server. Silakan coba beberapa saat lagi.
+                                </p>
+                            </div>
+                        )
+                    }
                 </div>
 
-                {fleetData.length > 0 && (
-                    <div id="preview-seatmap-container" class="w-full hidden animate-fade-in mt-2">
-                        {fleetData.map((unit) => (
-                            <div class="seatmap-wrapper hidden" data-type={unit.car_type}>
-                                <PreviewSeatMap type={unit.car_type as "Elf" | "Luxio"} />
-                            </div>
-                        ))}
-                    </div>
-                )}
+                {
+                    fleetData.length > 0 && (
+                        <div
+                            id="preview-seatmap-container"
+                            class="w-full hidden animate-fade-in mt-2"
+                        >
+                            {fleetData.map((unit) => (
+                                <div
+                                    class="seatmap-wrapper hidden"
+                                    data-type={unit.car_type}
+                                >
+                                    <PreviewSeatMap
+                                        type={unit.car_type as "Elf" | "Luxio"}
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    )
+                }
             </div>
 
             <div id="right-step-2" class="hidden animate-fade-in w-full">
@@ -192,7 +234,11 @@ try {
                     <PassengerDataForm />
 
                     <div class="pt-4 border-t border-slate-100">
-                        <Button type="submit" size="lg" class="w-full md:w-auto">
+                        <Button
+                            type="submit"
+                            size="lg"
+                            class="w-full md:w-auto"
+                        >
                             Selesaikan Pemesanan
                         </Button>
                     </div>
@@ -219,9 +265,15 @@ try {
 </style>
 
 <!-- FIXED GUEST ALERT CARD -->
-<div id="guest-alert-card-charter" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 opacity-0 transition-opacity duration-300">
-    <div class="pointer-events-auto shadow-2xl rounded-2xl transform scale-95 transition-transform duration-300" id="guest-alert-card-inner-charter">
-        <AlertCard 
+<div
+    id="guest-alert-card-charter"
+    class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/40 backdrop-blur-sm px-4 opacity-0 transition-opacity duration-300"
+>
+    <div
+        class="pointer-events-auto shadow-2xl rounded-2xl transform scale-95 transition-transform duration-300"
+        id="guest-alert-card-inner-charter"
+    >
+        <AlertCard
             type="warning"
             title="Login Diperlukan"
             message="Silakan masuk ke akun Anda untuk melanjutkan proses pemesanan armada Charter."
@@ -234,8 +286,23 @@ try {
 <script>
     import { authGuard } from "@utils/authGuard";
     import { charterService } from "@services/charterService";
+    import { travelService } from "@services/travelService";
 
-    const setupBookingForm = () => {
+    const setupBookingForm = async () => {
+        // Cek armada global
+        let isFleetAvailable = true;
+        try {
+            const fleetCheck = await travelService.checkFleetsAvailability();
+            if (fleetCheck && fleetCheck.data && fleetCheck.data.available === false) {
+                isFleetAvailable = false;
+                if (typeof (window as any).showGlobalFleetAlert === 'function') {
+                    (window as any).showGlobalFleetAlert();
+                }
+            }
+        } catch (err) {
+            console.error("Gagal mengecek armada:", err);
+        }
+
         const formStep1 = document.getElementById("form-booking-travel");
         const selectArmada = document.getElementById(
             "jenis_armada",
@@ -271,15 +338,19 @@ try {
 
         // UX: Guest Overlay Setup
         const guestOverlay = document.getElementById("guest-overlay-charter");
-        const guestAlertCard = document.getElementById("guest-alert-card-charter");
-        const restrictedContent = document.getElementById("restricted-content-charter");
-        
+        const guestAlertCard = document.getElementById(
+            "guest-alert-card-charter",
+        );
+        const restrictedContent = document.getElementById(
+            "restricted-content-charter",
+        );
+
         if (guestAlertCard && guestAlertCard.parentElement !== document.body) {
             document.body.appendChild(guestAlertCard);
         }
 
         const setupGuestOverlay = () => {
-            if (authGuard.isLoggedIn()) {
+            if (authGuard.isLoggedIn() && isFleetAvailable) {
                 guestOverlay?.classList.add("hidden");
                 guestAlertCard?.classList.add("hidden");
                 restrictedContent?.classList.remove("pointer-events-none");
@@ -294,13 +365,21 @@ try {
 
         if (guestOverlay) {
             guestOverlay.addEventListener("click", () => {
-                if (guestAlertCard) {
-                    guestAlertCard.classList.remove("hidden");
-                    guestAlertCard.classList.add("flex");
-                    void guestAlertCard.offsetWidth;
-                    guestAlertCard.classList.remove("opacity-0");
-                    const inner = document.getElementById("guest-alert-card-inner-charter");
-                    inner?.classList.remove("scale-95");
+                if (!authGuard.isLoggedIn()) {
+                    if (guestAlertCard) {
+                        guestAlertCard.classList.remove("hidden");
+                        guestAlertCard.classList.add("flex");
+                        void guestAlertCard.offsetWidth;
+                        guestAlertCard.classList.remove("opacity-0");
+                        const inner = document.getElementById(
+                            "guest-alert-card-inner-charter",
+                        );
+                        inner?.classList.remove("scale-95");
+                    }
+                } else if (!isFleetAvailable) {
+                    if (typeof (window as any).showGlobalFleetAlert === 'function') {
+                        (window as any).showGlobalFleetAlert();
+                    }
                 }
             });
         }
@@ -309,7 +388,9 @@ try {
             guestAlertCard.addEventListener("click", (e) => {
                 if (e.target === guestAlertCard) {
                     guestAlertCard.classList.add("opacity-0");
-                    const inner = document.getElementById("guest-alert-card-inner-charter");
+                    const inner = document.getElementById(
+                        "guest-alert-card-inner-charter",
+                    );
                     inner?.classList.add("scale-95");
                     setTimeout(() => {
                         guestAlertCard.classList.remove("flex");
@@ -329,8 +410,18 @@ try {
                     guestAlertCard.classList.add("flex");
                     void guestAlertCard.offsetWidth;
                     guestAlertCard.classList.remove("opacity-0");
-                    const inner = document.getElementById("guest-alert-card-inner-charter");
+                    const inner = document.getElementById(
+                        "guest-alert-card-inner-charter",
+                    );
                     inner?.classList.remove("scale-95");
+                }
+                return true;
+            }
+            if (!isFleetAvailable) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (typeof (window as any).showGlobalFleetAlert === 'function') {
+                    (window as any).showGlobalFleetAlert();
                 }
                 return true;
             }
@@ -353,10 +444,13 @@ try {
 
             card.addEventListener("click", (e) => {
                 if (checkGuest(e)) return;
-                
-                const isAvailable = card.getAttribute("data-available") === "true";
+
+                const isAvailable =
+                    card.getAttribute("data-available") === "true";
                 if (!isAvailable) {
-                    alert("Mohon maaf, saat ini armada jenis ini sedang disewa seluruhnya (tidak tersedia). Silakan pilih armada lain.");
+                    alert(
+                        "Mohon maaf, saat ini armada jenis ini sedang disewa seluruhnya (tidak tersedia). Silakan pilih armada lain.",
+                    );
                     return;
                 }
 
@@ -396,15 +490,20 @@ try {
                 }
 
                 selectArmada.value = value;
-                
+
                 // Show PreviewSeatMap
-                const seatmapContainer = document.getElementById("preview-seatmap-container");
+                const seatmapContainer = document.getElementById(
+                    "preview-seatmap-container",
+                );
                 if (seatmapContainer) {
                     seatmapContainer.classList.remove("hidden");
-                    const wrappers = seatmapContainer.querySelectorAll(".seatmap-wrapper");
-                    wrappers.forEach(w => w.classList.add("hidden"));
-                    
-                    const activeSeatmap = seatmapContainer.querySelector(`.seatmap-wrapper[data-type="${value}"]`);
+                    const wrappers =
+                        seatmapContainer.querySelectorAll(".seatmap-wrapper");
+                    wrappers.forEach((w) => w.classList.add("hidden"));
+
+                    const activeSeatmap = seatmapContainer.querySelector(
+                        `.seatmap-wrapper[data-type="${value}"]`,
+                    );
                     if (activeSeatmap) {
                         activeSeatmap.classList.remove("hidden");
                         activeSeatmap.classList.add("animate-fade-in");
@@ -445,8 +544,22 @@ try {
         }
 
         // 4. LOGIKA SUBMIT STEP 1 -> STEP 2
-        formStep1.addEventListener("submit", (e) => {
+        formStep1.addEventListener("submit", async (e) => {
             e.preventDefault();
+            
+            // Cek armada global saat submit (fallback)
+            try {
+                const fleetCheck = await travelService.checkFleetsAvailability();
+                if (fleetCheck && fleetCheck.data && fleetCheck.data.available === false) {
+                    if (typeof (window as any).showGlobalFleetAlert === 'function') {
+                        (window as any).showGlobalFleetAlert();
+                    }
+                    return; // Berhenti
+                }
+            } catch (err) {
+                console.error("Gagal mengecek armada:", err);
+            }
+            
             if (checkGuest(e)) return;
 
             const formData = new FormData(formStep1 as HTMLFormElement);
@@ -493,7 +606,9 @@ try {
                 e.preventDefault();
                 if (checkGuest(e)) return;
 
-                const submitBtn = formStep2.querySelector('button[type="submit"]') as HTMLButtonElement | null;
+                const submitBtn = formStep2.querySelector(
+                    'button[type="submit"]',
+                ) as HTMLButtonElement | null;
                 if (submitBtn) {
                     submitBtn.disabled = true;
                     submitBtn.textContent = "Memproses...";
@@ -501,10 +616,14 @@ try {
 
                 try {
                     // Kumpulkan data dari kedua form
-                    const formData1 = new FormData(formStep1 as HTMLFormElement);
+                    const formData1 = new FormData(
+                        formStep1 as HTMLFormElement,
+                    );
                     const data1 = Object.fromEntries(formData1.entries());
 
-                    const formData2 = new FormData(formStep2 as HTMLFormElement);
+                    const formData2 = new FormData(
+                        formStep2 as HTMLFormElement,
+                    );
                     const data2 = Object.fromEntries(formData2.entries());
 
                     const payload = {
@@ -517,22 +636,26 @@ try {
                             desa: data2.village || "-",
                             dusun: data2.hamlet || "-",
                             rt_rw: `${data2.rt || "-"}/${data2.rw || "-"}`,
-                            patokan: data2.landmark || "-"
-                        })
+                            patokan: data2.landmark || "-",
+                        }),
                     };
 
                     // dokumentasi: Mengirim data booking charter ke Backend API
                     await charterService.createCharterRequest(payload);
 
                     (window as any).showFeedbackModal(
-                        'success', 
-                        'Pemesanan Berhasil', 
-                        'Booking Charter Berhasil Diajukan! Tim admin kami akan mereview pesanan Anda.',
-                        '/user/booking-history'
+                        "success",
+                        "Pemesanan Berhasil",
+                        "Booking Charter Berhasil Diajukan! Tim admin kami akan mereview pesanan Anda.",
+                        "/user/booking-history",
                     );
                 } catch (error) {
                     console.error("Submit Charter Error:", error);
-                    (window as any).showFeedbackModal('error', 'Pemesanan Gagal', 'Gagal memproses pesanan Charter. Server sedang gangguan atau tidak terhubung.');
+                    (window as any).showFeedbackModal(
+                        "error",
+                        "Pemesanan Gagal",
+                        "Gagal memproses pesanan Charter. Server sedang gangguan atau tidak terhubung.",
+                    );
                     if (submitBtn) {
                         submitBtn.disabled = false;
                         submitBtn.textContent = "Coba Lagi";
