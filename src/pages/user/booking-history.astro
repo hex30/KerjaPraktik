@@ -69,7 +69,7 @@ const orderHistory = await userService.getUserHistory(token);
             const token = localStorage.getItem('jwt_token') || document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
             let endpoint = '';
             if (type === 'travel') endpoint = `/api/travel/bookings/${orderId}/payment-method`;
-            else if (type === 'package') endpoint = `/api/package/bookings/${orderId}/payment-method`;
+            else if (type === 'package') endpoint = `/api/packages/bookings/${orderId}/payment-method`;
             else endpoint = `/api/charter/request/${orderId}/payment-method`;
             
             // Perbaiki host backend
@@ -159,7 +159,12 @@ const orderHistory = await userService.getUserHistory(token);
                         
                         // Menentukan Endpoint Berdasarkan Tipe
                         // Sesuai instruksi, kita membuat rute ini untuk travel, tapi fleksibel untuk tipe lain
-                        const endpoint = `/api/${orderType}/bookings/${orderId}/cancel`;
+                        let endpoint = '';
+                        if (orderType === 'package') {
+                            endpoint = `/api/packages/bookings/${orderId}/cancel`;
+                        } else {
+                            endpoint = `/api/${orderType}/bookings/${orderId}/cancel`;
+                        }
                         const beHost = 'http://localhost:5000';
                         
                         const res = await fetch(`${beHost}${endpoint}`, {

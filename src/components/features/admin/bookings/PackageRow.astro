@@ -16,7 +16,7 @@ const isNew = paymentStatus === 'menunggu_konfirmasi' && !pkg.payment_proof_url;
 const isWaitingPayment = paymentStatus === 'menunggu_pembayaran';
 const isProofUploaded = paymentStatus === 'menunggu_konfirmasi' && !!pkg.payment_proof_url;
 
-const isPickupList = deliveryStatus === 'dalam_penjemputan' || deliveryStatus === 'menunggu_penjemputan' || (deliveryStatus === 'received' && paymentStatus === 'dibayar'); 
+const isPickupList = deliveryStatus === 'dalam_penjemputan' || deliveryStatus === 'menunggu_penjemputan' || (deliveryStatus === 'received' && (paymentStatus === 'dibayar' || paymentStatus === 'selesai'));
 const isDone = deliveryStatus === 'selesai' || deliveryStatus === 'completed' || deliveryStatus === 'selesai_final' || deliveryStatus === 'delivered';
 const isCancelled = deliveryStatus === 'dibatalkan' || deliveryStatus === 'ditolak' || deliveryStatus === 'cancelled';
 
@@ -50,34 +50,28 @@ if (isNew) {
     <div 
         class="package-main-row flex flex-col md:flex-row justify-between p-4 md:p-6 w-full cursor-pointer items-start md:items-center gap-6 toggle-trigger" 
     >
-        <div class="flex flex-col gap-3 w-full md:w-auto">
-            <div class="flex items-center gap-4">
-                <div class="flex flex-col">
-                    <span class="text-[8px] font-bold uppercase text-sky-500 block">DARI</span>
-                    <span class="font-bold text-slate-900 text-sm md:text-base">{pkg.sender.name}</span>
-                </div>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-                <div class="flex flex-col">
-                    <span class="text-[8px] font-bold uppercase text-amber-500 block">UNTUK</span>
-                    <span class="font-bold text-slate-900 text-sm md:text-base">{pkg.receiver.name}</span>
-                </div>
-            </div>
-            
-            <div class="flex flex-wrap items-center gap-2 mt-1">
-                <span class="text-xs font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded">{pkg.type}</span>
-                <span class="text-xs text-slate-500 font-secondary">Berat: {pkg.weight}</span>
+        <div class="flex flex-col gap-1 w-full md:w-auto">
+            <h2 class="text-lg md:text-xl font-black text-slate-800 tracking-tight group-hover:text-primary transition-colors flex items-center">
+                {pkg.sender.name} <span class="text-slate-300 font-medium mx-2 text-sm">to</span> {pkg.receiver.name}
+            </h2>
+            <p class="font-secondary text-sm text-text-secondary flex flex-wrap items-center gap-2 mt-1">
+                <span class="font-bold text-slate-700 line-clamp-1">{pkg.sender.address_detail?.kecamatan || 'Alamat Asal'}</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+                <span class="font-bold text-slate-700 line-clamp-1">{pkg.receiver.address_detail?.kecamatan || pkg.destination || 'Alamat Tujuan'}</span>
+            </p>
+            <div class="flex flex-wrap items-center gap-2 mt-2">
+                <span class="text-[10px] text-slate-400 font-secondary">
+                    {pkg.sender.phone}
+                </span>
+                <span class="px-2 py-1 bg-slate-100 text-slate-600 text-[10px] font-bold rounded-md border border-slate-200">
+                    {pkg.weight} kg
+                </span>
                 {pkg.is_super_besar && (
-                    <span class="px-2 py-1 bg-rose-100 text-rose-600 text-[9px] font-black uppercase rounded tracking-tighter">
+                    <span class="px-2 py-1 bg-rose-100 text-rose-600 text-[10px] font-bold rounded-md border border-rose-200">
                         Memakan 2 Kursi
                     </span>
                 )}
             </div>
-            
-            <p class="font-secondary text-sm text-text-secondary flex items-center gap-2 mt-1">
-                <span class="font-bold text-slate-700">{pkg.sender.address_detail.kecamatan}</span>
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
-                <span class="font-bold text-slate-700">{pkg.destination}</span>
-            </p>
         </div>
 
         <div class="flex flex-row justify-between items-center mt-4 pt-4 border-t border-slate-100 w-full md:mt-0 md:pt-0 md:border-0 md:w-auto md:flex-col md:justify-between md:items-end gap-4 md:gap-2">
@@ -97,79 +91,53 @@ if (isNew) {
         <div class="p-4 md:p-6 border-t border-slate-100">
             <div class="animate-fade-in">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
-                    <!-- Detailed Addresses -->
+                    <!-- KOLOM KIRI: INFO PENUMPANG & ALOKASI -->
                     <div class="flex flex-col gap-6">
-                        <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                        <h5 class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
                             <div class="w-1 h-1 rounded-full bg-primary"></div>
-                            Detail Alamat Pengirim & Penerima
-                        </h4>
-                        
-                        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-100/50 space-y-3">
-                            <div>
-                                <span class="text-[8px] font-bold text-slate-400 uppercase block">ALAMAT PENGIRIM (START)</span>
-                                <p class="text-xs text-slate-600 leading-relaxed mt-1">
-                                    Kec. {pkg.sender.address_detail.kecamatan}, Desa {pkg.sender.address_detail.desa}, 
-                                    Dusun {pkg.sender.address_detail.dusun || '-'}, RT/RW {pkg.sender.address_detail.rt_rw}
-                                    <br/>
-                                    <span class="font-bold text-slate-900 dynamic-text-class">Patokan: {pkg.sender.address_detail.patokan}</span>
-                                </p>
-                            </div>
-                            <div class="border-t border-slate-200/50 pt-3">
-                                <span class="text-[8px] font-bold text-slate-400 uppercase block">ALAMAT PENERIMA (END)</span>
-                                <p class="text-xs text-slate-600 leading-relaxed mt-1">
-                                    Kec. {pkg.receiver.address_detail.kecamatan}, Desa {pkg.receiver.address_detail.desa}, 
-                                    RT/RW {pkg.receiver.address_detail.rt_rw}
-                                    <br/>
-                                    <span class="font-bold text-slate-900 dynamic-text-class">Patokan: {pkg.receiver.address_detail.patokan}</span>
-                                </p>
-                            </div>
-                        </div>
+                            Detail Informasi Paket
+                        </h5>
 
-                        <div class="space-y-4">
-                            <h5 class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                                <div class="w-1 h-1 rounded-full bg-sky-500"></div>
-                                Informasi Pembayaran
-                            </h5>
-                            <div class="bg-slate-50 p-4 md:p-6 rounded-2xl border border-slate-100/50 flex flex-col items-center justify-center text-center gap-4">
+                        <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm space-y-4">
+                            <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Metode Pembayaran</span>
-                                    <span class={`text-lg font-black uppercase ${pkg.payment_method === 'cash' ? 'text-emerald-500' : pkg.payment_method === 'cashless' ? 'text-sky-500' : 'text-slate-400'}`}>
-                                        {pkg.payment_method ? (pkg.payment_method === 'cashless' ? 'TRANSFER (CASHLESS)' : 'TUNAI (CASH)') : 'BELUM MEMILIH'}
-                                    </span>
+                                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Jenis Barang</span>
+                                    <span class="text-sm font-black text-slate-700 bg-slate-100 px-3 py-1 rounded-lg">{pkg.type || '-'}</span>
                                 </div>
-                                {pkg.payment_method === 'cashless' && (
-                                    <div class="w-full mt-2 pt-4 border-t border-slate-200/50">
-                                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Bukti Pembayaran</span>
-                                        {pkg.payment_proof_url ? (
-                                            <button 
-                                                type="button" 
-                                                class="w-full h-32 rounded-xl border-2 border-dashed border-sky-200 hover:border-sky-400 overflow-hidden relative group transition-colors focus:outline-none"
-                                                onclick={`window.openPaymentPreview('${pkg.id}', '${pkg.payment_proof_url}')`}
-                                            >
-                                                <img src={pkg.payment_proof_url} alt="Bukti Pembayaran" class="w-full h-full object-cover" />
-                                                <div class="absolute inset-0 bg-slate-900/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                                    <span class="text-white text-[10px] font-bold uppercase tracking-widest bg-slate-900/60 px-3 py-1.5 rounded-full">Perbesar Foto</span>
-                                                </div>
-                                            </button>
-                                        ) : (
-                                            <div class="w-full py-6 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 flex flex-col items-center justify-center">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-300 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Belum diunggah</span>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
+                                <div>
+                                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Dimensi</span>
+                                    <span class="text-sm font-black text-slate-700">{pkg.dimension ? pkg.dimension.toUpperCase() : 'BIASA'}</span>
+                                </div>
+                            </div>
+
+                            <div class="pt-2 border-t border-slate-100">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Alamat Penjemputan Pengirim</span>
+                                <span class="text-xs font-bold text-slate-700 leading-relaxed block">
+                                    {pkg.sender.address_detail?.kecamatan && pkg.sender.address_detail.kecamatan !== '-' 
+                                        ? `Patokan: ${pkg.sender.address_detail.patokan || '-'}, RT/RW ${pkg.sender.address_detail.rt_rw || '-'}, Dusun ${pkg.sender.address_detail.dusun || '-'}, Desa ${pkg.sender.address_detail.desa || '-'}, Kec. ${pkg.sender.address_detail.kecamatan}` 
+                                        : (pkg.sender.address_detail?.patokan || '-')}
+                                </span>
+                            </div>
+
+                            <div class="pt-2 border-t border-slate-100">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Alamat Tujuan Penerima</span>
+                                <span class="text-xs font-bold text-slate-700 leading-relaxed block">
+                                    {pkg.receiver.address_detail?.kecamatan && pkg.receiver.address_detail.kecamatan !== '-' 
+                                        ? `Patokan: ${pkg.receiver.address_detail.patokan || '-'}, RT/RW ${pkg.receiver.address_detail.rt_rw || '-'}, Desa ${pkg.receiver.address_detail.desa || '-'}, Kec. ${pkg.receiver.address_detail.kecamatan}` 
+                                        : (pkg.receiver.address_detail?.patokan || pkg.destination || '-')}
+                                </span>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Actions: Unit & Price -->
+                    <!-- KOLOM KANAN: INFO PEMBAYARAN & ACTION -->
                     <div class="flex flex-col gap-6">
-                        <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                        <h5 class="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
                             <div class="w-1 h-1 rounded-full bg-amber-500"></div>
-                            {isCancelled || isDone ? 'Data Terkunci' : 'Tentukan Harga Ongkos Kirim'}
-                        </h4>
-                        <form class="package-action-form bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-5 relative" data-package-id={pkg.id} data-current-state={isNew ? 'isNew' : isWaitingPayment ? 'isWaitingPayment' : isProofUploaded ? 'isProofUploaded' : isPickupList ? 'isPickupList' : 'isDone'}>
+                            Informasi Pembayaran & Aksi
+                        </h5>
+
+                        <form class="package-action-form bg-white p-5 rounded-3xl border border-slate-100 shadow-sm space-y-4 relative" data-package-id={pkg.id} data-current-state={isNew ? 'isNew' : isWaitingPayment ? 'isWaitingPayment' : isProofUploaded ? 'isProofUploaded' : isPickupList ? 'isPickupList' : 'isDone'}>
                             
                             <!-- Delete Button (Only for Done or Cancelled) -->
                             {(isCancelled || isDone || isPickupList) && (
@@ -178,9 +146,40 @@ if (isNew) {
                                 </button>
                             )}
 
+                            <!-- Payment Methods & Proof -->
+                            <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100/50 flex flex-col items-center justify-center text-center gap-3">
+                                <div>
+                                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Metode Pembayaran</span>
+                                    <span class={`text-base font-black uppercase ${pkg.payment_method === 'cash' ? 'text-emerald-500' : pkg.payment_method === 'cashless' ? 'text-sky-500' : 'text-slate-400'}`}>
+                                        {pkg.payment_method ? (pkg.payment_method === 'cashless' ? 'TRANSFER (CASHLESS)' : 'TUNAI (CASH)') : 'BELUM MEMILIH'}
+                                    </span>
+                                </div>
+
+                                <div class="w-full mt-1 pt-3 border-t border-slate-200/50">
+                                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-2">Bukti Pembayaran</span>
+                                    {pkg.payment_proof_url ? (
+                                        <button 
+                                            type="button" 
+                                            class="w-full h-32 rounded-xl border-2 border-dashed border-sky-200 hover:border-sky-400 overflow-hidden relative group transition-colors focus:outline-none"
+                                            onclick={`window.openPaymentPreview('${pkg.id}', '${pkg.payment_proof_url}')`}
+                                        >
+                                            <img src={pkg.payment_proof_url} alt="Bukti Pembayaran" class="w-full h-full object-cover" />
+                                            <div class="absolute inset-0 bg-slate-900/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <span class="text-white text-[10px] font-bold uppercase tracking-widest bg-slate-900/60 px-3 py-1.5 rounded-full">Perbesar Foto</span>
+                                            </div>
+                                        </button>
+                                    ) : (
+                                        <div class="w-full py-6 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 flex flex-col items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-300 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Belum diunggah</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
                             <!-- Input Harga & Submit -->
                             <div class="flex flex-col gap-2 pt-2">
-                                <label class="text-[9px] font-bold text-slate-500 uppercase">Tetapkan Harga (IDR)</label>
+                                <label class="text-[9px] font-bold text-slate-500 uppercase">{isCancelled || isDone ? 'Data Terkunci' : 'Tentukan Harga Ongkos Kirim'}</label>
                                 <div class="relative mb-2">
                                     <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[10px]">Rp</span>
                                     <input type="hidden" name="price" class="real-price-input" value={pkg.price ? Math.round(Number(pkg.price)) : ''} />
