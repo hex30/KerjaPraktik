@@ -19,7 +19,7 @@ const getPaymentMethodText = (method: string) => {
 if (order.type === "travel") {
     detailsText = `Kursi: ${meta.seat_number || "Belum dipilih"} | Metode: ${getPaymentMethodText(meta.payment_method)}`;
 } else if (order.type === "charter") {
-    detailsText = `Jemput: ${meta.pickup_address || "-"} | Metode: ${getPaymentMethodText(meta.payment_method)}`;
+    detailsText = `Metode: ${getPaymentMethodText(meta.payment_method)}`;
 } else if (order.type === "package") {
     detailsText = `Resi: ${meta.waybill_number || "-"} | Metode: ${getPaymentMethodText(meta.payment_method)}`;
 }

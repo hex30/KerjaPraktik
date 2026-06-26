@@ -140,7 +140,7 @@ if (isNew) {
                             Informasi Pembayaran & Aksi
                         </h5>
 
-                        <form class="admin-action-form bg-white p-5 rounded-3xl border border-slate-100 shadow-sm space-y-4 relative" data-booking-id={item.id} data-booking-type={bookingType} data-schedule-id={item.schedule_id || ''} data-current-state={isNew ? 'isNew' : isWaitingPayment ? 'isWaitingPayment' : isProofUploaded ? 'isProofUploaded' : isPickupList ? 'isPickupList' : 'isDone'}>
+                        <form class="admin-action-form bg-white p-5 rounded-3xl border border-slate-100 shadow-sm space-y-4 relative" data-booking-id={item.id} data-booking-type={bookingType} data-schedule-id={item.schedule_id || ''} data-current-state={isNew ? 'isNew' : isWaitingPayment ? 'isWaitingPayment' : isProofUploaded ? 'isProofUploaded' : isPickupList ? 'isPickupList' : 'isDone'} data-payment-method={item.payment_method || ''}>
                             
                             <!-- Delete Button (Only for Done or Cancelled) -->
                             {(isCancelled || isDone || isPickupList) && (
