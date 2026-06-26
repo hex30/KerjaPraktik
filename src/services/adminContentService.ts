@@ -8,6 +8,15 @@ export interface Promo {
     isActive: boolean;
 }
 
+export interface Banner {
+    id?: string | number;
+    title: string;
+    image_url: string;
+    badge_text: string;
+    description: string;
+    is_active?: boolean;
+}
+
 export interface Destination {
     id?: string | number;
     name: string;
@@ -122,6 +131,67 @@ export const adminContentService = {
             throw error;
         }
     },
+
+    // ==========================================
+    // BANNERS
+    // ==========================================
+    async getBanners(): Promise<Banner[]> {
+        try {
+            const response = await apiFetch('/api/admin/cms/banners', { 
+                method: 'GET',
+                headers: getAuthHeaders()
+            });
+            return response?.data || [];
+        } catch (error) {
+            console.error("Gagal mengambil data banner:", error);
+            return [];
+        }
+    },
+
+    async saveBanner(data: FormData): Promise<any> {
+        try {
+            const headers = getAuthHeaders();
+            const id = data.get('id');
+            const method = id ? 'PUT' : 'POST';
+            const endpoint = id ? `/api/admin/cms/banners/${id}` : '/api/admin/cms/banners';
+
+            data.delete('id');
+
+            const imageFile = data.get('image');
+            if (imageFile instanceof File && imageFile.size === 0) {
+                data.delete('image');
+            } else if (typeof imageFile === 'string' && !imageFile) {
+                data.delete('image');
+            }
+
+            const options: RequestInit = {
+                method,
+                headers,
+                body: data
+            };
+
+            // @ts-ignore
+            delete options.headers['Content-Type'];
+
+            return await apiFetch(endpoint, options);
+        } catch (error) {
+            console.error("Gagal menyimpan banner:", error);
+            throw error;
+        }
+    },
+
+    async deleteBanner(id: string | number): Promise<any> {
+        try {
+            return await apiFetch(`/api/admin/cms/banners/${id}`, {
+                method: 'DELETE',
+                headers: getAuthHeaders()
+            });
+        } catch (error) {
+            console.error("Gagal menghapus banner:", error);
+            throw error;
+        }
+    },
+
 
     // ==========================================
     // DESTINATIONS
