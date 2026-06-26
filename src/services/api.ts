@@ -33,7 +33,11 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
       if (errorData.errors && Array.isArray(errorData.errors)) {
           errMsg += "\n- " + errorData.errors.join("\n- ");
       }
-      throw new Error(errMsg);
+      const err = new Error(errMsg) as any;
+      if (errorData.code) err.code = errorData.code;
+      if (errorData.nearest_date) err.nearest_date = errorData.nearest_date;
+      if (errorData.nearest_schedule_id) err.nearest_schedule_id = errorData.nearest_schedule_id;
+      throw err;
     }
 
     return await response.json();
