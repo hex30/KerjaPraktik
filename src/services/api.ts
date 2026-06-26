@@ -12,6 +12,14 @@ export const apiFetch = async (endpoint: string, options: RequestInit = {}) => {
   // Cara paling aman dan standar (TypeScript-friendly) untuk menggabungkan headers
   const headers = new Headers(options.headers);
   
+  // Otomatis lampirkan token jika dijalankan di browser (client-side)
+  if (typeof document !== 'undefined') {
+    const match = document.cookie.match(new RegExp('(^| )token=([^;]+)'));
+    if (match && !headers.has('Authorization')) {
+      headers.set('Authorization', `Bearer ${match[2]}`);
+    }
+  }
+
   if (!isFormData) {
     if (!headers.has('Content-Type')) {
       headers.set('Content-Type', 'application/json');

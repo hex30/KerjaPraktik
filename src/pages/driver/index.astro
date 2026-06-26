@@ -1,154 +1,389 @@
 ---
 // File: src/pages/driver/index.astro
 import DriverLayout from "@layouts/DriverLayout.astro";
+import { driverService } from "@services/driverService";
 
-const manifest = [
-    { name: "Fahri Ramdhani", seat: "5", pickup: "Dusun Benteng Hilir, Ciamis", dropoff: "Bangka, Kemang", phone: "081234567890" },
-    { name: "Siti Aminah", seat: "12", pickup: "Sukajadi, Panawangan", dropoff: "Pool RTP Grogol", phone: "085211223344" },
-];
+const token = Astro.cookies.get('token')?.value;
+
+// Ambil jadwal aktual dari BE
+const schedules = await driverService.getSchedules(token);
+
+// Format ke dalam daftar tugas (Tasks)
+const passengerTasks: any[] = [];
+const packageTasks: any[] = [];
+
+const formatRupiah = (angka: number | string) => {
+    return new Intl.NumberFormat("id-ID", {
+        style: "currency",
+        currency: "IDR",
+        minimumFractionDigits: 0
+    }).format(Number(angka) || 0);
+};
+
+const formatAddress = (addressStr: string) => {
+    if (!addressStr) return [{ label: 'Detail', value: 'Sesuai Titik Tujuan/Penjemputan' }];
+    try {
+        const addr = JSON.parse(addressStr);
+        let parts = [];
+        if (addr.dusun) parts.push({ label: 'Dusun', value: addr.dusun });
+        if (addr.desa) parts.push({ label: 'Desa', value: addr.desa });
+        if (addr.kecamatan) parts.push({ label: 'Kecamatan', value: addr.kecamatan });
+        if (addr.rt_rw) parts.push({ label: 'RT/RW', value: addr.rt_rw });
+        if (addr.patokan) parts.push({ label: 'Patokan', value: addr.patokan });
+        
+        return parts.length > 0 ? parts : [{ label: 'Alamat Lengkap', value: addressStr }];
+    } catch (e) {
+        return [{ label: 'Alamat Lengkap', value: addressStr }]; // Fallback jika bukan JSON
+    }
+};
+
+schedules.forEach(schedule => {
+    const routeName = schedule.origin && schedule.destination 
+        ? `${schedule.origin} ➔ ${schedule.destination}`
+        : 'Rute Tidak Diketahui';
+        
+    const dateFormatted = new Date(schedule.departure_time).toLocaleDateString('id-ID', {
+        weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+    });
+
+    schedule.passengers?.forEach(p => {
+        let paymentStatus = 'MENUNGGU';
+        let statusColor = 'bg-amber-50 text-amber-600';
+        
+        if (p.payment_method?.toLowerCase() === 'cash') {
+            paymentStatus = 'BELUM LUNAS';
+            statusColor = 'bg-amber-50 text-amber-600';
+        } else if (p.booking_status === 'dibayar' || p.booking_status === 'selesai' || p.booking_status === 'selesai_final') {
+            paymentStatus = 'SUDAH LUNAS';
+            statusColor = 'bg-emerald-50 text-emerald-600';
+        }
+
+        passengerTasks.push({
+            schedule_id: schedule.id,
+            booking_id: p.booking_id,
+            route: routeName,
+            date: dateFormatted,
+            baggage: 'Standar', 
+            payment_status: paymentStatus,
+            payment_method: p.payment_method || 'QRIS/Transfer',
+            statusColor: statusColor,
+            price: p.price || schedule.base_price,
+            pickup_address: formatAddress(p.pickup_address),
+            dropoff_address: formatAddress(p.dropoff_address),
+            passenger_name: p.passenger_name || 'Tidak Diketahui',
+            initial: (p.passenger_name ? p.passenger_name.charAt(0).toUpperCase() : 'U')
+        });
+    });
+
+    schedule.packages?.forEach(pkg => {
+        let paymentStatus = 'BELUM LUNAS';
+        let statusColor = 'bg-amber-50 text-amber-600';
+        
+        if (pkg.transaction_status === 'settlement' || pkg.transaction_status === 'capture') {
+            paymentStatus = 'SUDAH LUNAS';
+            statusColor = 'bg-emerald-50 text-emerald-600';
+        }
+
+        packageTasks.push({
+            schedule_id: schedule.id,
+            package_id: pkg.package_id,
+            route: routeName,
+            date: dateFormatted,
+            dimensions: `${pkg.weight || 0}kg (${pkg.dimension || 'Standar'})`,
+            payment_status: paymentStatus,
+            payment_method: pkg.payment_method || 'Cash',
+            statusColor: statusColor,
+            price: pkg.original_price || 0,
+            sender_address: [{ label: 'Alamat Lengkap', value: 'Titik Asal / Pool' }],
+            receiver_address: formatAddress(pkg.receiver_address),
+            receiver_name: pkg.receiver_name || 'Tidak Diketahui',
+            initial: (pkg.receiver_name ? pkg.receiver_name.charAt(0).toUpperCase() : 'P')
+        });
+    });
+});
+
 ---
 
 <DriverLayout title="Manajemen Tugas">
     <div class="flex flex-col gap-10">
-        <!-- Daily Tasks Grid -->
+        <!-- Section: Tugas Hari Ini (Penumpang) -->
         <section class="flex flex-col gap-4">
-            <h2 class="text-xl font-black text-slate-900 tracking-tight">Tugas Harian Saya</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[
-                    { id: "T-1001", route: "Ciamis ➔ Jakarta", fleet: "ELF Giga (E-1)", date: "20 Okt 2026", time: "08:00 WIB", passengers: 12 },
-                    { id: "T-1002", route: "Jakarta ➔ Bandung", fleet: "Hiace Premio (H-2)", date: "21 Okt 2026", time: "14:00 WIB", passengers: 8 }
-                ].map(task => (
-                    <div class="task-card bg-white rounded-2xl border border-slate-100 shadow-sm p-6 flex flex-col gap-4 relative overflow-hidden group">
-                        <div class="task-status-badge absolute top-5 right-5 text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md bg-amber-100 text-amber-600">
-                            Menunggu
-                        </div>
-                        <div class="flex flex-col gap-1">
-                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">ID Tugas: #{task.id}</span>
-                            <h3 class="text-lg font-black text-slate-900">{task.route}</h3>
-                        </div>
-                        <div class="flex flex-col gap-3 mt-2">
-                            <div class="flex items-center gap-3 text-sm text-slate-600 font-secondary">
-                                <div class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg></div>
-                                <span class="font-bold">{task.date} | {task.time}</span>
+            <h2 class="text-xl font-black text-slate-900 tracking-tight">Tugas Hari Ini (Penumpang)</h2>
+            
+            {passengerTasks.length === 0 ? (
+                <div class="bg-slate-50 border border-slate-100 rounded-2xl p-8 text-center">
+                    <p class="text-sm font-bold text-slate-400">belum ada tugas yang dikirim admin untuk anda</p>
+                </div>
+            ) : (
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                    {passengerTasks.map((task) => (
+                        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+                            <!-- Header -->
+                            <div class="p-6 border-b border-slate-100">
+                                <div class="inline-flex items-center px-3 py-1 rounded-full bg-[#044751] text-white text-[10px] font-black uppercase tracking-widest mb-3">
+                                    RUTE
+                                </div>
+                                <h3 class="text-xl font-black text-slate-900 tracking-tight leading-tight">
+                                    Travel Reguler: {task.route}
+                                </h3>
                             </div>
-                            <div class="flex items-center gap-3 text-sm text-slate-600 font-secondary">
-                                <div class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg></div>
-                                <span class="font-bold">{task.passengers} Penumpang Manifest</span>
+                            
+                            <!-- Stats Grid -->
+                            <div class="grid grid-cols-2 gap-4 p-6 border-b border-slate-100">
+                                <div class="flex flex-col gap-1.5">
+                                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tgl Berangkat</span>
+                                    <span class="text-sm font-bold text-slate-800">{task.date}</span>
+                                </div>
+                                <div class="flex flex-col gap-1.5">
+                                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Barang Bawaan</span>
+                                    <div class="inline-flex w-fit bg-slate-100 text-slate-700 px-2 py-1 rounded-md text-xs font-bold">
+                                        {task.baggage}
+                                    </div>
+                                </div>
+                                <div class="flex flex-col gap-1.5 mt-2">
+                                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Status Pembayaran</span>
+                                    <div class={`inline-flex w-fit px-2 py-1 rounded-md text-xs font-black ${task.statusColor}`}>
+                                        {task.payment_status}
+                                    </div>
+                                    <span class="text-[10px] font-bold text-slate-500 mt-0.5">Metode: {task.payment_method}</span>
+                                </div>
+                                <div class="flex flex-col gap-1.5 mt-2">
+                                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Harga Perjalanan</span>
+                                    <span class="text-base font-black text-emerald-600">{formatRupiah(task.price)}</span>
+                                </div>
                             </div>
-                            <div class="flex items-center gap-3 text-sm text-slate-600 font-secondary">
-                                <div class="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center text-slate-400"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg></div>
-                                <span class="font-bold">{task.fleet}</span>
+                            
+                            <!-- Data Details -->
+                            <div class="p-6 hidden flex-col gap-5 mt-auto details-section">
+                                <!-- Address Wrapper -->
+                                <!-- Nama Penumpang -->
+                                    <div class="flex flex-col gap-1.5">
+                                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nama Penumpang</span>
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-black text-xs shrink-0">
+                                                {task.initial}
+                                            </div>
+                                            <span class="text-sm font-bold text-slate-800">{task.passenger_name}</span>
+                                        </div>
+                                    </div>
+                                <div class="flex justify-between gap-6">
+                                    <!-- Penjemputan -->
+                                    <div class="flex flex-col gap-1.5 w-1/2">
+                                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Alamat Detail Penjemputan</span>
+                                        <div class="flex flex-col gap-2 mt-1">
+                                            {Array.isArray(task.pickup_address) ? task.pickup_address.map((item: any) => (
+                                                <div class="flex flex-col">
+                                                    <span class="text-xs font-bold text-slate-800">{item.label}</span>
+                                                    <span class="text-xs font-normal text-slate-600">{item.value}</span>
+                                                </div>
+                                            )) : <span class="text-xs font-normal text-slate-600">{task.pickup_address}</span>}
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Tujuan -->
+                                    <div class="flex flex-col gap-1.5 w-1/2">
+                                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Alamat Detail Tujuan</span>
+                                        <div class="flex flex-col gap-2 mt-1">
+                                            {Array.isArray(task.dropoff_address) ? task.dropoff_address.map((item: any) => (
+                                                <div class="flex flex-col">
+                                                    <span class="text-xs font-bold text-slate-800">{item.label}</span>
+                                                    <span class="text-xs font-normal text-slate-600">{item.value}</span>
+                                                </div>
+                                            )) : <span class="text-xs font-normal text-slate-600">{task.dropoff_address}</span>}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Form Aksi -->
+                                <div class="mt-2 p-5 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col gap-4">
+                                    <div class="flex flex-col gap-1.5">
+                                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Aksi Penjemputan</label>
+                                        <div class="relative">
+                                            <select class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-bold text-slate-800 outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer">
+                                                <option value="menjemput">Sedang Menjemput</option>
+                                                <option value="perjalanan">Dalam Perjalanan</option>
+                                                <option value="sampai">Sudah Sampai</option>
+                                            </select>
+                                            <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button class="w-full bg-[#044751] hover:bg-[#03363e] text-white py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-md shadow-primary/20 active:scale-95">
+                                        SIMPAN
+                                    </button>
+                                </div>
                             </div>
+                            
+                            <!-- Toggle Button -->
+                            <button type="button" class="toggle-details-btn w-full py-3 flex justify-center items-center text-slate-300 hover:text-primary hover:bg-slate-50 transition-colors border-t border-slate-100 mt-auto">
+                                <svg class="chevron-icon w-5 h-5 transition-transform duration-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
                         </div>
-                        <button class="cta-task-btn w-full mt-4 bg-primary text-white py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-primary/20">
-                            Terima Tugas Ini
-                        </button>
-                    </div>
-                ))}
-            </div>
+                    ))}
+                </div>
+            )}
         </section>
 
-        <!-- Manifest List -->
-        <section class="flex flex-col gap-4 mt-4">
-            <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2 px-2">
-                <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
-                Daftar Penumpang Aktif ({manifest.length})
-            </h3>
-
-            {manifest.map((p) => (
-                <div class="manifest-card bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden transition-all duration-300">
-                    <div class="p-5 flex items-center justify-between cursor-pointer manifest-trigger">
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center font-black text-primary text-sm">
-                                {p.seat}
-                            </div>
-                            <div class="flex flex-col">
-                                <span class="text-sm font-black text-slate-800">{p.name}</span>
-                                <span class="text-[10px] text-slate-400 font-bold uppercase">{p.phone}</span>
-                            </div>
-                        </div>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-300 transition-transform duration-300 chevron-icon" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                    
-                    <div class="expand-content max-h-0 overflow-hidden bg-slate-50/50 transition-all duration-500">
-                        <div class="p-5 border-t border-slate-100 flex flex-col gap-4">
-                            <div class="flex flex-col gap-1">
-                                <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest">Titik Penjemputan</span>
-                                <p class="text-xs text-slate-700 leading-relaxed font-bold">{p.pickup}</p>
-                            </div>
-                            <div class="flex flex-col gap-1">
-                                <span class="text-[8px] font-black text-slate-400 uppercase tracking-widest">Titik Penurunan</span>
-                                <p class="text-xs text-slate-700 leading-relaxed font-bold">{p.dropoff}</p>
-                            </div>
-                            <div class="flex gap-2 pt-2">
-                                <a href={`tel:${p.phone}`} class="flex-1 bg-emerald-500 text-white py-3 rounded-xl text-[10px] font-black uppercase text-center flex items-center justify-center gap-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 005.405 5.405l.773-1.548a1 1 0 011.06-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" /></svg>
-                                    Hubungi
-                                </a>
-                                <button class="flex-1 bg-primary text-white py-3 rounded-xl text-[10px] font-black uppercase text-center">
-                                    Lihat Maps
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+        <!-- Section: Data Tugas Paket -->
+        <section class="flex flex-col gap-4">
+            <h2 class="text-xl font-black text-slate-900 tracking-tight">Tugas Paket Hari Ini</h2>
+            
+            {packageTasks.length === 0 ? (
+                <div class="bg-slate-50 border border-slate-100 rounded-2xl p-8 text-center">
+                    <p class="text-sm font-bold text-slate-400">belum ada tugas yang dikirim admin untuk anda</p>
                 </div>
-            ))}
+            ) : (
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                    {packageTasks.map((task) => (
+                        <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+                            <!-- Header -->
+                            <div class="p-6 border-b border-slate-100">
+                                <div class="inline-flex items-center px-3 py-1 rounded-full bg-[#044751] text-white text-[10px] font-black uppercase tracking-widest mb-3">
+                                    RUTE
+                                </div>
+                                <h3 class="text-xl font-black text-slate-900 tracking-tight leading-tight">
+                                    Pengiriman Paket: {task.route}
+                                </h3>
+                            </div>
+                            
+                            <!-- Stats Grid -->
+                            <div class="grid grid-cols-2 gap-4 p-6 border-b border-slate-100">
+                                <div class="flex flex-col gap-1.5">
+                                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tgl Berangkat</span>
+                                    <span class="text-sm font-bold text-slate-800">{task.date}</span>
+                                </div>
+                                <div class="flex flex-col gap-1.5">
+                                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Dimensi Paket</span>
+                                    <div class="inline-flex w-fit bg-slate-100 text-slate-700 px-2 py-1 rounded-md text-xs font-bold">
+                                        {task.dimensions}
+                                    </div>
+                                </div>
+                                <div class="flex flex-col gap-1.5 mt-2">
+                                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Status Pembayaran</span>
+                                    <div class={`inline-flex w-fit px-2 py-1 rounded-md text-xs font-black ${task.statusColor}`}>
+                                        {task.payment_status}
+                                    </div>
+                                    <span class="text-[10px] font-bold text-slate-500 mt-0.5">Metode: {task.payment_method}</span>
+                                </div>
+                                <div class="flex flex-col gap-1.5 mt-2">
+                                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Harga Pengiriman</span>
+                                    <span class="text-base font-black text-emerald-600">{formatRupiah(task.price)}</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Data Details -->
+                            <div class="p-6 hidden flex-col gap-5 mt-auto details-section">
+                                <!-- Address Wrapper -->
+                                <div class="flex justify-between gap-6">
+                                    <!-- Penjemputan -->
+                                    <div class="flex flex-col gap-1.5 w-1/2">
+                                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Alamat Detail Pengirim</span>
+                                        <div class="flex flex-col gap-2 mt-1">
+                                            {Array.isArray(task.sender_address) ? task.sender_address.map((item: any) => (
+                                                <div class="flex flex-col">
+                                                    <span class="text-xs font-bold text-slate-800">{item.label}</span>
+                                                    <span class="text-xs font-normal text-slate-600">{item.value}</span>
+                                                </div>
+                                            )) : <span class="text-xs font-normal text-slate-600">{task.sender_address}</span>}
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Tujuan -->
+                                    <div class="flex flex-col gap-1.5 w-1/2">
+                                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Alamat Detail Penerima</span>
+                                        <div class="flex flex-col gap-2 mt-1">
+                                            {Array.isArray(task.receiver_address) ? task.receiver_address.map((item: any) => (
+                                                <div class="flex flex-col">
+                                                    <span class="text-xs font-bold text-slate-800">{item.label}</span>
+                                                    <span class="text-xs font-normal text-slate-600">{item.value}</span>
+                                                </div>
+                                            )) : <span class="text-xs font-normal text-slate-600">{task.receiver_address}</span>}
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Nama Pengirim/Penerima -->
+                                <div class="flex flex-col gap-1.5">
+                                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nama Penerima</span>
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-black text-xs shrink-0">
+                                            {task.initial}
+                                        </div>
+                                        <span class="text-sm font-bold text-slate-800">{task.receiver_name}</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Form Aksi -->
+                                <div class="mt-2 p-5 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col gap-4">
+                                    <div class="flex flex-col gap-1.5">
+                                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Status Pengiriman</label>
+                                        <div class="relative">
+                                            <select class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-bold text-slate-800 outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer">
+                                                <option value="menjemput">Sedang Mengambil</option>
+                                                <option value="perjalanan">Dalam Perjalanan</option>
+                                                <option value="sampai">Sudah Diantar</option>
+                                            </select>
+                                            <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button class="w-full bg-[#044751] hover:bg-[#03363e] text-white py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-md shadow-primary/20 active:scale-95">
+                                        SIMPAN
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Toggle Button -->
+                            <button type="button" class="toggle-details-btn w-full py-3 flex justify-center items-center text-slate-300 hover:text-primary hover:bg-slate-50 transition-colors border-t border-slate-100 mt-auto">
+                                <svg class="chevron-icon w-5 h-5 transition-transform duration-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                        </div>
+                    ))}
+                </div>
+            )}
         </section>
     </div>
 </DriverLayout>
 
 <script>
-    const setupDriverDashboard = () => {
-        // Accordion Logic
-        const triggers = document.querySelectorAll('.manifest-trigger');
-        triggers.forEach(trigger => {
-            trigger.addEventListener('click', () => {
-                const parent = trigger.parentElement;
-                const content = trigger.nextElementSibling as HTMLElement;
-                const chevron = trigger.querySelector('.chevron-icon');
+    document.addEventListener("DOMContentLoaded", () => {
+        const toggleBtns = document.querySelectorAll(".toggle-details-btn");
+        toggleBtns.forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                const button = e.currentTarget as HTMLButtonElement;
+                const card = button.closest(".bg-white");
+                const details = card?.querySelector(".details-section");
+                const icon = button.querySelector(".chevron-icon");
                 
-                if (content.style.maxHeight) {
-                    content.style.maxHeight = '';
-                    chevron?.classList.remove('rotate-180');
-                } else {
-                    document.querySelectorAll('.expand-content').forEach(c => (c as HTMLElement).style.maxHeight = '');
-                    document.querySelectorAll('.chevron-icon').forEach(c => c.classList.remove('rotate-180'));
+                if (details && icon) {
+                    const isCurrentlyHidden = details.classList.contains("hidden");
                     
-                    content.style.maxHeight = content.scrollHeight + 'px';
-                    chevron?.classList.add('rotate-180');
-                }
-            });
-        });
-
-        // Task CTA Multi-State Logic
-        const taskBtns = document.querySelectorAll('.cta-task-btn');
-        taskBtns.forEach(btn => {
-            let state = 0; // 0: Menunggu, 1: Accepted, 2: Completed
-            btn.addEventListener('click', () => {
-                const badge = btn.parentElement?.querySelector('.task-status-badge');
-                if (state === 0) {
-                    state = 1;
-                    btn.textContent = "Selesaikan Perjalanan";
-                    btn.className = "cta-task-btn w-full mt-4 bg-green-500 text-white py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all active:scale-95 shadow-lg shadow-green-500/20";
-                    if (badge) {
-                        badge.textContent = "Dalam Perjalanan";
-                        badge.className = "task-status-badge absolute top-5 right-5 text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md bg-green-100 text-green-600";
-                    }
-                } else if (state === 1) {
-                    state = 2;
-                    btn.textContent = "Tugas Selesai";
-                    btn.className = "cta-task-btn w-full mt-4 bg-slate-100 text-slate-400 cursor-not-allowed py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all";
-                    if (badge) {
-                        badge.textContent = "Selesai";
-                        badge.className = "task-status-badge absolute top-5 right-5 text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-md bg-slate-100 text-slate-500";
+                    // Tutup semua card lain terlebih dahulu
+                    document.querySelectorAll(".details-section").forEach(otherDetails => {
+                        if (!otherDetails.classList.contains("hidden")) {
+                            otherDetails.classList.add("hidden");
+                            otherDetails.classList.remove("flex");
+                        }
+                    });
+                    
+                    document.querySelectorAll(".chevron-icon").forEach(otherIcon => {
+                        otherIcon.classList.remove("rotate-180");
+                    });
+                    
+                    // Jika card yang diklik sebelumnya tertutup, maka buka
+                    if (isCurrentlyHidden) {
+                        details.classList.remove("hidden");
+                        details.classList.add("flex");
+                        icon.classList.add("rotate-180");
                     }
                 }
             });
         });
-    }
-
-    document.addEventListener('DOMContentLoaded', setupDriverDashboard);
-    document.addEventListener('astro:page-load', setupDriverDashboard);
+    });
 </script>
