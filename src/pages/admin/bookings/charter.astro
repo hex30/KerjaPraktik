@@ -22,10 +22,21 @@ const fleetsData = rawFleets
         return 0;
     });
 
-// Categorize Data
-const activeBookings = charterData.filter((item: any) => !['selesai', 'selesai_final', 'completed', 'dibatalkan', 'ditolak', 'cancelled'].includes(item.booking_status?.toLowerCase()));
-const completedBookings = charterData.filter((item: any) => ['selesai', 'selesai_final', 'completed'].includes(item.booking_status?.toLowerCase()));
-const cancelledBookings = charterData.filter((item: any) => ['dibatalkan', 'ditolak', 'cancelled'].includes(item.booking_status?.toLowerCase()));
+const activeBookings = charterData.filter((item: any) => {
+    const isCash = item.payment_method === 'cash';
+    const isConfirm = item.status?.toLowerCase() === 'menunggu_konfirmasi';
+    const isPay = item.status?.toLowerCase() === 'menunggu_pembayaran';
+    const hasPrice = !!item.price;
+    return (isConfirm && !item.payment_proof_url && !isCash) || (isPay && !isCash) || (isCash && !hasPrice);
+});
+const validationBookings = charterData.filter((item: any) => {
+    const isCash = item.payment_method === 'cash';
+    const isConfirm = item.status?.toLowerCase() === 'menunggu_konfirmasi';
+    const isPay = item.status?.toLowerCase() === 'menunggu_pembayaran';
+    const hasPrice = !!item.price;
+    return (isConfirm && !!item.payment_proof_url) || (isCash && hasPrice && (isConfirm || isPay));
+});
+const cancelledBookings = charterData.filter((item: any) => ['dibatalkan', 'ditolak', 'cancelled'].includes(item.status?.toLowerCase()));
 
 ---
 
@@ -49,9 +60,9 @@ const cancelledBookings = charterData.filter((item: any) => ['dibatalkan', 'dito
                 Antrean Aktif
                 <span class="ml-2 px-2 py-0.5 bg-amber-100 text-amber-600 rounded-full text-[10px]">{activeBookings.length}</span>
             </button>
-            <button class="tab-btn px-6 py-3 rounded-2xl text-sm font-bold text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-all whitespace-nowrap" data-target="tab-completed">
-                Antrean Selesai
-                <span class="ml-2 px-2 py-0.5 bg-slate-200 text-slate-600 rounded-full text-[10px]">{completedBookings.length}</span>
+            <button class="tab-btn px-6 py-3 rounded-2xl text-sm font-bold text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-all whitespace-nowrap" data-target="tab-validation">
+                Membutuhkan Validasi
+                <span class="ml-2 px-2 py-0.5 bg-slate-200 text-slate-600 rounded-full text-[10px]">{validationBookings.length}</span>
             </button>
             <button class="tab-btn px-6 py-3 rounded-2xl text-sm font-bold text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-all whitespace-nowrap" data-target="tab-cancelled">
                 Pesanan Dibatalkan
@@ -71,13 +82,13 @@ const cancelledBookings = charterData.filter((item: any) => ['dibatalkan', 'dito
                 )}
             </div>
 
-            <div id="tab-completed" class="tab-content hidden">
-                {completedBookings.length === 0 ? (
+            <div id="tab-validation" class="tab-content hidden">
+                {validationBookings.length === 0 ? (
                     <div class="text-center py-12">
-                        <p class="text-slate-400 font-bold text-sm">Belum ada charter selesai.</p>
+                        <p class="text-slate-400 font-bold text-sm">Tidak ada pesanan yang butuh validasi saat ini.</p>
                     </div>
                 ) : (
-                    <BookingTable bookingType="CHARTER" bookingData={completedBookings} fleets={fleetsData} drivers={driversData} />
+                    <BookingTable bookingType="CHARTER" bookingData={validationBookings} fleets={fleetsData} drivers={driversData} />
                 )}
             </div>
 

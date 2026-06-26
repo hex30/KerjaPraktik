@@ -12,12 +12,12 @@ const { pkg, fleetsData = [] } = Astro.props;
 const paymentStatus = pkg.transaction_status || pkg.status;
 const deliveryStatus = pkg.status;
 
-const isNew = paymentStatus === 'menunggu_konfirmasi' && !pkg.payment_proof_url;
-const isWaitingPayment = paymentStatus === 'menunggu_pembayaran';
-const isProofUploaded = paymentStatus === 'menunggu_konfirmasi' && !!pkg.payment_proof_url;
+const isNew = paymentStatus === 'menunggu_konfirmasi' && (!pkg.payment_proof_url && pkg.payment_method !== 'cash' || !pkg.price);
+const isWaitingPayment = paymentStatus === 'menunggu_pembayaran' && pkg.payment_method !== 'cash';
+const isProofUploaded = (paymentStatus === 'menunggu_konfirmasi' && !!pkg.payment_proof_url) || (paymentStatus === 'menunggu_pembayaran' && pkg.payment_method === 'cash') || (paymentStatus === 'menunggu_konfirmasi' && pkg.payment_method === 'cash' && !!pkg.price);
 
 const isPickupList = deliveryStatus === 'dalam_penjemputan' || deliveryStatus === 'menunggu_penjemputan' || (deliveryStatus === 'received' && (paymentStatus === 'dibayar' || paymentStatus === 'selesai'));
-const isDone = deliveryStatus === 'selesai' || deliveryStatus === 'completed' || deliveryStatus === 'selesai_final' || deliveryStatus === 'delivered';
+const isDone = deliveryStatus === 'selesai' || deliveryStatus === 'completed' || deliveryStatus === 'delivered';
 const isCancelled = deliveryStatus === 'dibatalkan' || deliveryStatus === 'ditolak' || deliveryStatus === 'cancelled';
 
 let displayBadge = "";
@@ -177,15 +177,16 @@ if (isNew) {
                                 </div>
                             </div>
 
-                            <!-- Input Harga & Submit -->
-                            <div class="flex flex-col gap-2 pt-2">
-                                <label class="text-[9px] font-bold text-slate-500 uppercase">{isCancelled || isDone ? 'Data Terkunci' : 'Tentukan Harga Ongkos Kirim'}</label>
+                                <!-- Input Harga & Submit -->
+                                <div class="space-y-3 relative z-10">
+                                    <label class="text-[9px] font-bold text-slate-500 uppercase">{isCancelled || isDone ? 'Data Terkunci' : 'Tentukan Harga Ongkos Kirim'}</label>
                                 <div class="relative mb-2">
                                     <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[10px]">Rp</span>
-                                    <input type="hidden" name="price" class="real-price-input" value={pkg.price ? Math.round(Number(pkg.price)) : ''} />
                                     <input 
                                         type="text" 
+                                        name="price"
                                         readonly={!isNew}
+                                        required={isNew}
                                         placeholder="Harga..." 
                                         value={pkg.price ? Math.round(Number(pkg.price)).toLocaleString('id-ID') : ''}
                                         class={`price-display-input w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-3 text-sm font-black text-primary outline-none ${!isNew ? 'opacity-70 cursor-not-allowed' : 'focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white'}`}

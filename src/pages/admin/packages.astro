@@ -22,9 +22,20 @@ const fleetsData = rawFleets
         return 0;
     });
 
-// Categorize Data
-const activePackages = packageData.filter((item: any) => !['selesai', 'selesai_final', 'completed', 'dibatalkan', 'ditolak', 'cancelled'].includes(item.transaction_status?.toLowerCase()));
-const completedPackages = packageData.filter((item: any) => ['selesai', 'selesai_final', 'completed'].includes(item.transaction_status?.toLowerCase()));
+const activePackages = packageData.filter((item: any) => {
+    const isCash = item.payment_method === 'cash';
+    const isConfirm = item.transaction_status?.toLowerCase() === 'menunggu_konfirmasi';
+    const isPay = item.transaction_status?.toLowerCase() === 'menunggu_pembayaran';
+    const hasPrice = !!item.price;
+    return (isConfirm && !item.payment_proof_url && !isCash) || (isPay && !isCash) || (isCash && !hasPrice);
+});
+const validationPackages = packageData.filter((item: any) => {
+    const isCash = item.payment_method === 'cash';
+    const isConfirm = item.transaction_status?.toLowerCase() === 'menunggu_konfirmasi';
+    const isPay = item.transaction_status?.toLowerCase() === 'menunggu_pembayaran';
+    const hasPrice = !!item.price;
+    return (isConfirm && !!item.payment_proof_url) || (isCash && hasPrice && (isConfirm || isPay));
+});
 const cancelledPackages = packageData.filter((item: any) => ['dibatalkan', 'ditolak', 'cancelled'].includes(item.transaction_status?.toLowerCase()));
 
 ---
@@ -49,9 +60,9 @@ const cancelledPackages = packageData.filter((item: any) => ['dibatalkan', 'dito
                 Antrean Aktif
                 <span class="ml-2 px-2 py-0.5 bg-amber-100 text-amber-600 rounded-full text-[10px]">{activePackages.length}</span>
             </button>
-            <button class="tab-btn px-6 py-3 rounded-2xl text-sm font-bold text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-all whitespace-nowrap" data-target="tab-completed">
-                Antrean Selesai
-                <span class="ml-2 px-2 py-0.5 bg-slate-200 text-slate-600 rounded-full text-[10px]">{completedPackages.length}</span>
+            <button class="tab-btn px-6 py-3 rounded-2xl text-sm font-bold text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-all whitespace-nowrap" data-target="tab-validation">
+                Membutuhkan Validasi
+                <span class="ml-2 px-2 py-0.5 bg-slate-200 text-slate-600 rounded-full text-[10px]">{validationPackages.length}</span>
             </button>
             <button class="tab-btn px-6 py-3 rounded-2xl text-sm font-bold text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-all whitespace-nowrap" data-target="tab-cancelled">
                 Pesanan Dibatalkan
@@ -75,14 +86,14 @@ const cancelledPackages = packageData.filter((item: any) => ['dibatalkan', 'dito
                 )}
             </div>
 
-            <div id="tab-completed" class="tab-content hidden">
-                {completedPackages.length === 0 ? (
+            <div id="tab-validation" class="tab-content hidden">
+                {validationPackages.length === 0 ? (
                     <div class="text-center py-12">
-                        <p class="text-slate-400 font-bold text-sm">Belum ada paket selesai.</p>
+                        <p class="text-slate-400 font-bold text-sm">Tidak ada pesanan yang butuh validasi saat ini.</p>
                     </div>
                 ) : (
                     <div class="flex flex-col">
-                        {completedPackages.map((pkg: any) => (
+                        {validationPackages.map((pkg: any) => (
                             <PackageRow pkg={pkg} fleetsData={fleetsData} />
                         ))}
                     </div>
@@ -235,7 +246,7 @@ const cancelledPackages = packageData.filter((item: any) => ['dibatalkan', 'dito
                         await apiFetch(`/api/admin/master/package-shipments/${packageId}`, {
                             method: 'PUT',
                             headers,
-                            body: JSON.stringify({ transaction_status: 'selesai', status: 'on_transit' })
+                            body: JSON.stringify({ transaction_status: 'selesai', status: 'received' })
                         });
                         alert('Pembayaran paket berhasil dikonfirmasi!');
                     } else if (currentState === 'isNew') {
@@ -246,7 +257,7 @@ const cancelledPackages = packageData.filter((item: any) => ['dibatalkan', 'dito
 
                         const bodyData = {
                             fleet_id: payload.fleet_id || undefined,
-                            total_price: parsedPrice,
+                            original_price: parsedPrice,
                             transaction_status: 'menunggu_pembayaran'
                         };
 

@@ -108,6 +108,27 @@ const { bookingType, bookingData, fleets = [], drivers = [] } = Astro.props;
     };
 
     const setupActionForms = () => {
+        function formatRupiah(angka: string) {
+            let number_string = angka.replace(/[^,\d]/g, '').toString();
+            let split = number_string.split(',');
+            let sisa = split[0].length % 3;
+            let rupiah = split[0].substr(0, sisa);
+            let ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+            if(ribuan){
+                let separator = sisa ? '.' : '';
+                rupiah += separator + ribuan.join('.');
+            }
+            return rupiah ? (split[1] != undefined ? rupiah + ',' + split[1] : rupiah) : '';
+        }
+
+        const priceInputs = document.querySelectorAll('input[name="price"]');
+        priceInputs.forEach(input => {
+            input.addEventListener('input', function(this: HTMLInputElement) {
+                const cleanValue = this.value.replace(/\D/g, '');
+                this.value = cleanValue ? formatRupiah(cleanValue) : '';
+            });
+        });
+
         const forms = document.querySelectorAll('.admin-action-form');
         forms.forEach(form => {
             form.addEventListener('submit', async (e) => {
@@ -133,7 +154,7 @@ const { bookingType, bookingData, fleets = [], drivers = [] } = Astro.props;
 
                     if (!isCharter && formEl.dataset.bookingType !== 'PACKAGE') {
                         if (currentState === 'isPickupList') {
-                            const statusBody = { booking_status: 'selesai_final' };
+                            const statusBody = { booking_status: 'selesai' };
                             await apiFetch(`/api/admin/master/travel-bookings/${bookingId}/status`, {
                                 method: 'PUT',
                                 headers,
@@ -161,7 +182,7 @@ const { bookingType, bookingData, fleets = [], drivers = [] } = Astro.props;
                             await apiFetch(`/api/charter/${bookingId}/status`, {
                                 method: 'PUT',
                                 headers,
-                                body: JSON.stringify({ status: 'selesai_final' })
+                                body: JSON.stringify({ status: 'selesai' })
                             });
                         } else {
                             const bodyData = {
