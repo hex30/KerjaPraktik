@@ -168,7 +168,7 @@ const { bookingType, bookingData, fleets = [], drivers = [] } = Astro.props;
                         } else if (currentState === 'isNew') {
                             const isCash = formEl.dataset.paymentMethod === 'cash';
                             const statusBody = {
-                                booking_status: isCash ? 'dalam_penjemputan' : 'menunggu_pembayaran',
+                                booking_status: isCash ? 'dibayar' : 'menunggu_pembayaran',
                                 price: payload.price ? parseFloat((payload.price as string).replace(/\./g, '')) : undefined
                             };
                             

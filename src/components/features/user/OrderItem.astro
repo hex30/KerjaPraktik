@@ -74,6 +74,15 @@ if (isNew) {
 ) {
     statusClass = "bg-rose-50 text-rose-600 border-rose-100";
     statusText = "Dibatalkan / Ditolak";
+} else if (order.status === "dibayar") {
+    statusClass = "bg-blue-50 text-blue-600 border-blue-100";
+    statusText = "Menunggu Armada";
+} else if (order.status === "dalam_penjemputan") {
+    statusClass = "bg-amber-100 text-amber-700 border-amber-200";
+    statusText = "Armada Menuju ke Alamat Anda";
+} else if (order.status === "dalam_perjalanan") {
+    statusClass = "bg-purple-50 text-purple-600 border-purple-100";
+    statusText = "Dalam Perjalanan Ke Tujuan";
 } else if (order.status === "on_transit") {
     statusClass = "bg-indigo-50 text-indigo-600 border-indigo-100";
     statusText = "Sedang Dikirim";
