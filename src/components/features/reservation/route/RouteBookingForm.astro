@@ -875,7 +875,7 @@ try {
                     )?.value || "";
                 const firstSeat = parseInt(seatValues.split(",")[0]);
 
-                const bookingPayload = {
+                const bookingPayload: any = {
                     route_id: selectedRouteId,
                     departure_date: selectedRawDate,
                     seat_number: firstSeat,
