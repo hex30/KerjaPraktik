@@ -12,9 +12,9 @@ const { pkg, fleetsData = [] } = Astro.props;
 const paymentStatus = pkg.transaction_status || pkg.status;
 const deliveryStatus = pkg.status;
 
-const isNew = paymentStatus === 'menunggu_konfirmasi' && !pkg.payment_proof_url;
+const isNew = (paymentStatus === 'menunggu_konfirmasi' && !pkg.payment_proof_url && pkg.payment_method !== 'cash') || paymentStatus === 'menunggu_pembayaran';
 const isWaitingPayment = paymentStatus === 'menunggu_pembayaran';
-const isProofUploaded = paymentStatus === 'menunggu_konfirmasi' && !!pkg.payment_proof_url;
+const isProofUploaded = paymentStatus === 'menunggu_konfirmasi' && (!!pkg.payment_proof_url || pkg.payment_method === 'cash');
 
 const isPickupList = deliveryStatus === 'dalam_penjemputan' || deliveryStatus === 'menunggu_penjemputan' || (deliveryStatus === 'received' && (paymentStatus === 'dibayar' || paymentStatus === 'selesai'));
 const isDone = deliveryStatus === 'selesai' || deliveryStatus === 'completed' || deliveryStatus === 'selesai_final' || deliveryStatus === 'delivered';
@@ -182,9 +182,9 @@ if (isNew) {
                                 <label class="text-[9px] font-bold text-slate-500 uppercase">{isCancelled || isDone ? 'Data Terkunci' : 'Tentukan Harga Ongkos Kirim'}</label>
                                 <div class="relative mb-2">
                                     <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-[10px]">Rp</span>
-                                    <input type="hidden" name="price" class="real-price-input" value={pkg.price ? Math.round(Number(pkg.price)) : ''} />
                                     <input 
                                         type="text" 
+                                        name="price"
                                         readonly={!isNew}
                                         placeholder="Harga..." 
                                         value={pkg.price ? Math.round(Number(pkg.price)).toLocaleString('id-ID') : ''}

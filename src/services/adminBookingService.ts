@@ -249,14 +249,14 @@ export const adminBookingService = {
         }
     },
 
-    async getPendingAssignments(token?: string): Promise<any[]> {
+    async getAssignments(phase: string = 'pending', token?: string): Promise<any[]> {
         try {
             const headers: Record<string, string> = {};
             if (token) headers['Authorization'] = `Bearer ${token}`;
-            const response = await apiFetch('/api/admin/assignments/pending', { method: 'GET', headers });
+            const response = await apiFetch(`/api/admin/assignments?phase=${phase}`, { method: 'GET', headers });
             return response?.data || [];
         } catch (error) {
-            console.error("Gagal mengambil data pending assignments:", error);
+            console.error("Gagal mengambil data assignments:", error);
             return [];
         }
     }

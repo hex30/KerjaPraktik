@@ -204,8 +204,13 @@ const orderHistory = await userService.getUserHistory(token);
                         const token = localStorage.getItem('jwt_token') || document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
                         if (!token) throw new Error("Token tidak ditemukan.");
                         
-                        const endpoint = `/api/${orderType}/bookings/${orderId}`;
-                        const beHost = 'http://localhost:5000';
+                        let endpoint = '';
+                        if (orderType === 'package') {
+                            endpoint = `/api/packages/bookings/${orderId}`;
+                        } else {
+                            endpoint = `/api/${orderType}/bookings/${orderId}`;
+                        }
+                        const beHost = import.meta.env.PUBLIC_API_URL || 'http://localhost:5000';
                         
                         const res = await fetch(`${beHost}${endpoint}`, {
                             method: 'DELETE',
