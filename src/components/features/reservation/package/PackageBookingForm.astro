@@ -277,6 +277,22 @@ import AlertCard from "@components/ui/AlertCard.astro";
                 if (!dateInput.value || dateInput.value < minDate) {
                     dateInput.value = minDate;
                 }
+
+                // VALIDASI KETERSEDIAAN SAAT TANGGAL DIPILIH
+                dateInput.addEventListener("change", async (e) => {
+                    const target = e.target as HTMLInputElement;
+                    if (!target.value) return;
+
+                    try {
+                        const check = await packageService.checkAvailability(target.value);
+                        if (check && check.available === false) {
+                            alert("Mohon maaf, armada pada tanggal ini sudah disewa sepenuhnya. Silakan pilih tanggal lain.");
+                            target.value = ""; // Kosongkan kembali
+                        }
+                    } catch (error) {
+                        console.error("Gagal mengecek ketersediaan tanggal:", error);
+                    }
+                });
             }
 
             // UX: Guest Overlay Setup
@@ -520,12 +536,12 @@ import AlertCard from "@components/ui/AlertCard.astro";
                         `Pesanan paket berhasil dicatat. ${isDouble ? "Biaya tambahan (2 kursi) berlaku." : ""}`,
                         "/user/booking-history",
                     );
-                } catch (error) {
+                } catch (error: any) {
                     console.error("Submit Package Error:", error);
                     (window as any).showFeedbackModal(
                         "error",
                         "Pesanan Gagal",
-                        "Gagal mengirim pesanan paket. Server sedang gangguan.",
+                        error.message || "Gagal mengirim pesanan paket. Server sedang gangguan.",
                     );
                 } finally {
                     if (submitBtn) {

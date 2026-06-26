@@ -2,6 +2,7 @@
 // File: src/pages/admin/packages.astro
 import AdminLayout from "@layouts/AdminLayout.astro";
 import PackageRow from "@features/admin/bookings/PackageRow.astro";
+import PaymentPreviewModal from "@features/admin/bookings/PaymentPreviewModal.astro";
 import { adminBookingService } from "@services/adminBookingService";
 
 const token = Astro.cookies.get('token')?.value;
@@ -102,6 +103,7 @@ const cancelledPackages = packageData.filter((item: any) => ['dibatalkan', 'dito
                 )}
             </div>
         </div>
+        <PaymentPreviewModal />
     </div>
 </AdminLayout>
 

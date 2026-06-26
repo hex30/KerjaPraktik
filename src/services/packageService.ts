@@ -16,6 +16,19 @@ export interface PackageShipmentData {
 }
 
 export const packageService = {
+    // dokumentasi: Mengecek ketersediaan armada pada tanggal tertentu untuk paket
+    async checkAvailability(date: string) {
+        try {
+            const response = await apiFetch(`/api/packages/availability?date=${date}`, {
+                method: 'GET'
+            });
+            return response.data;
+        } catch (error) {
+            console.error('Error checking package availability:', error);
+            throw error;
+        }
+    },
+
     // dokumentasi: Mengirim form pendaftaran paket ke backend API
     async createPackageShipment(data: PackageShipmentData) {
         try {

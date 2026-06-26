@@ -182,7 +182,7 @@
         }
     };
 
-    document.addEventListener("astro:page-load", () => {
+    const initPaymentModal = () => {
         const modal = document.getElementById("admin-payment-modal");
         const imgEl = document.getElementById("admin-proof-image");
         const modalHeader = document.getElementById(
@@ -207,7 +207,13 @@
                 e.stopPropagation(); // Biar event gak double dari parent
                 window.closePaymentPreview();
             });
-    });
+    };
+
+    // Initialize modal listeners immediately since the script is deferred by Astro
+    initPaymentModal();
+
+    // Re-initialize if view transitions are used in the future
+    document.addEventListener("astro:page-load", initPaymentModal);
 
     declare global {
         interface Window {
