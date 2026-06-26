@@ -240,7 +240,7 @@ const cancelledPackages = packageData.filter((item: any) => ['dibatalkan', 'dito
                         await apiFetch(`/api/admin/master/package-shipments/${packageId}`, {
                             method: 'PUT',
                             headers,
-                            body: JSON.stringify({ transaction_status: 'selesai', status: 'menunggu_penjemputan' })
+                            body: JSON.stringify({ transaction_status: 'selesai', status: 'received' })
                         });
                         alert('Pembayaran paket berhasil dikonfirmasi!');
                     } else if (currentState === 'isNew') {
