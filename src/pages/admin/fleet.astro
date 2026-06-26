@@ -56,7 +56,7 @@ const fleets = await adminContentService.getFleetsAdmin(token);
                             </div>
 
                             <img
-                                src={fleet.image_url}
+                                src={fleet.image_url || 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&q=80'}
                                 alt={`${fleet.car_type} - ${fleet.plate_number}`}
                                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                             />
@@ -156,7 +156,6 @@ const fleets = await adminContentService.getFleetsAdmin(token);
                             <span class="image-upload-text text-xs font-bold text-slate-400 group-hover:text-primary transition-colors px-4 text-center line-clamp-1">Pilih Gambar / Drag & Drop</span>
                         </div>
                     </div>
-
                     <div class="md:col-span-2 flex flex-col gap-2">
                         <label for="fleet_description" class="font-secondary text-sm font-bold text-primary">Deskripsi Teks</label>
                         <textarea id="fleet_description" name="description" rows="4" class="w-full bg-slate-100 border border-slate-200 rounded-lg px-4 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-none" placeholder="Jelaskan spesifikasi atau keunggulan unit ini..."></textarea>
