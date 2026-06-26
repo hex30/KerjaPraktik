@@ -135,11 +135,11 @@ export const adminContentService = {
     // ==========================================
     // BANNERS
     // ==========================================
-    async getBanners(): Promise<Banner[]> {
+    async getBanners(token?: string): Promise<Banner[]> {
         try {
             const response = await apiFetch('/api/admin/cms/banners', { 
                 method: 'GET',
-                headers: getAuthHeaders()
+                headers: getAuthHeaders(token)
             });
             return response?.data || [];
         } catch (error) {
