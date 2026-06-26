@@ -79,7 +79,7 @@ export const userService = {
             date: item.created_at || new Date().toISOString(),
             price: item.total_price || item.price || 0,
             original_price: item.original_price || undefined,
-            status: item.transaction_status || item.status || 'PENDING',
+            status: (item.transaction_status === 'menunggu_pembayaran' || item.transaction_status === 'menunggu_konfirmasi') ? item.transaction_status : (item.status || 'PENDING'),
             meta: {
               waybill_number: item.waybill_number,
               weight: item.weight,
