@@ -438,7 +438,12 @@ import AlertCard from "@components/ui/AlertCard.astro";
                             </p>
                         </div>
                     `;
-                        form.insertBefore(notice, form.querySelector(".pt-2"));
+                        const submitContainer = form.querySelector(".pt-2");
+                        if (submitContainer && submitContainer.parentNode) {
+                            submitContainer.parentNode.insertBefore(notice, submitContainer);
+                        } else {
+                            form.appendChild(notice);
+                        }
                     }
                 } else if (notice) {
                     notice.remove();

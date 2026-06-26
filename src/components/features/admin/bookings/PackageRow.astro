@@ -12,12 +12,12 @@ const { pkg, fleetsData = [] } = Astro.props;
 const paymentStatus = pkg.transaction_status || pkg.status;
 const deliveryStatus = pkg.status;
 
-const isNew = (paymentStatus === 'menunggu_konfirmasi' && !pkg.payment_proof_url && pkg.payment_method !== 'cash') || paymentStatus === 'menunggu_pembayaran';
-const isWaitingPayment = paymentStatus === 'menunggu_pembayaran';
-const isProofUploaded = paymentStatus === 'menunggu_konfirmasi' && (!!pkg.payment_proof_url || pkg.payment_method === 'cash');
+const isNew = paymentStatus === 'menunggu_konfirmasi' && (!pkg.payment_proof_url && pkg.payment_method !== 'cash' || !pkg.price);
+const isWaitingPayment = paymentStatus === 'menunggu_pembayaran' && pkg.payment_method !== 'cash';
+const isProofUploaded = (paymentStatus === 'menunggu_konfirmasi' && !!pkg.payment_proof_url) || (paymentStatus === 'menunggu_pembayaran' && pkg.payment_method === 'cash') || (paymentStatus === 'menunggu_konfirmasi' && pkg.payment_method === 'cash' && !!pkg.price);
 
 const isPickupList = deliveryStatus === 'dalam_penjemputan' || deliveryStatus === 'menunggu_penjemputan' || (deliveryStatus === 'received' && (paymentStatus === 'dibayar' || paymentStatus === 'selesai'));
-const isDone = deliveryStatus === 'selesai' || deliveryStatus === 'completed' || deliveryStatus === 'selesai_final' || deliveryStatus === 'delivered';
+const isDone = deliveryStatus === 'selesai' || deliveryStatus === 'completed' || deliveryStatus === 'delivered';
 const isCancelled = deliveryStatus === 'dibatalkan' || deliveryStatus === 'ditolak' || deliveryStatus === 'cancelled';
 
 let displayBadge = "";
@@ -186,6 +186,7 @@ if (isNew) {
                                         type="text" 
                                         name="price"
                                         readonly={!isNew}
+                                        required={isNew}
                                         placeholder="Harga..." 
                                         value={pkg.price ? Math.round(Number(pkg.price)).toLocaleString('id-ID') : ''}
                                         class={`price-display-input w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-3 text-sm font-black text-primary outline-none ${!isNew ? 'opacity-70 cursor-not-allowed' : 'focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white'}`}

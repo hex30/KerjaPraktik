@@ -14,14 +14,14 @@ const { item, bookingType, fleets = [], drivers = [] } = Astro.props;
 // LOGIC STATE MAPPER (Support Selesai & Dibatalkan)
 const actualStatus = item.booking_status || (item as any).transaction_status || (item as any).status || 'PENDING';
 
-const isNew = (actualStatus === 'menunggu_konfirmasi' && !item.payment_proof_url && item.payment_method !== 'cash') || actualStatus === 'menunggu_pembayaran';
-const isWaitingPayment = actualStatus === 'menunggu_pembayaran';
-const isProofUploaded = actualStatus === 'menunggu_konfirmasi' && (!!item.payment_proof_url || item.payment_method === 'cash');
+const isNew = actualStatus === 'menunggu_konfirmasi' && (!item.payment_proof_url && item.payment_method !== 'cash' || !item.price);
+const isWaitingPayment = actualStatus === 'menunggu_pembayaran' && item.payment_method !== 'cash';
+const isProofUploaded = (actualStatus === 'menunggu_konfirmasi' && !!item.payment_proof_url) || (actualStatus === 'menunggu_pembayaran' && item.payment_method === 'cash') || (actualStatus === 'menunggu_konfirmasi' && item.payment_method === 'cash' && !!item.price);
 // ASUMSI: 'dalam_penjemputan' dipakai jika diverifikasi
 const isPickupList = actualStatus === 'dalam_penjemputan' || (actualStatus === 'selesai' && bookingType !== 'PACKAGE'); // HACK: karna BE belum support 'dalam_penjemputan', kita masih map 'selesai' ke pickup list di form utama.
 // Jika di sub-kategori, kita mapping 'selesai' sbg benar-benar selesai. 
 // Untuk membedakannya, kita cek apakah komponen ini dirender untuk section apa. Tapi kita bisa pakai property isArchived
-const isDone = actualStatus === 'selesai_final' || actualStatus === 'completed'; // Nantinya BE harus bedakan
+const isDone = actualStatus === 'selesai' || actualStatus === 'completed'; // Nantinya BE harus bedakan
 const isCancelled = actualStatus === 'dibatalkan' || actualStatus === 'ditolak';
 
 // Teks Status Utama
@@ -189,6 +189,7 @@ if (isNew) {
                                         type="text" 
                                         name="price"
                                         readonly={!isNew}
+                                        required={isNew}
                                         placeholder="Harga..." 
                                         value={item.price ? Math.round(Number(item.price)).toLocaleString('id-ID') : (bookingType === 'RUTE' ? "250.000" : "")}
                                         class={`price-display-input w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-3 text-sm font-black text-primary outline-none ${!isNew ? 'opacity-70 cursor-not-allowed' : 'focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white'}`}

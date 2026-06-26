@@ -22,14 +22,20 @@ const fleetsData = rawFleets
         return 0;
     });
 
-// Categorize Data
-const activeBookings = charterData.filter((item: any) => 
-    item.status?.toLowerCase() === 'menunggu_pembayaran' || 
-    (item.status?.toLowerCase() === 'menunggu_konfirmasi' && !item.payment_proof_url && item.payment_method !== 'cash')
-);
-const validationBookings = charterData.filter((item: any) => 
-    item.status?.toLowerCase() === 'menunggu_konfirmasi' && (!!item.payment_proof_url || item.payment_method === 'cash')
-);
+const activeBookings = charterData.filter((item: any) => {
+    const isCash = item.payment_method === 'cash';
+    const isConfirm = item.status?.toLowerCase() === 'menunggu_konfirmasi';
+    const isPay = item.status?.toLowerCase() === 'menunggu_pembayaran';
+    const hasPrice = !!item.price;
+    return (isConfirm && !item.payment_proof_url && !isCash) || (isPay && !isCash) || (isCash && !hasPrice);
+});
+const validationBookings = charterData.filter((item: any) => {
+    const isCash = item.payment_method === 'cash';
+    const isConfirm = item.status?.toLowerCase() === 'menunggu_konfirmasi';
+    const isPay = item.status?.toLowerCase() === 'menunggu_pembayaran';
+    const hasPrice = !!item.price;
+    return (isConfirm && !!item.payment_proof_url) || (isCash && hasPrice && (isConfirm || isPay));
+});
 const cancelledBookings = charterData.filter((item: any) => ['dibatalkan', 'ditolak', 'cancelled'].includes(item.status?.toLowerCase()));
 
 ---

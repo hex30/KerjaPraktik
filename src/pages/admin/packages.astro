@@ -22,14 +22,20 @@ const fleetsData = rawFleets
         return 0;
     });
 
-// Categorize Data
-const activePackages = packageData.filter((item: any) => 
-    item.transaction_status?.toLowerCase() === 'menunggu_pembayaran' || 
-    (item.transaction_status?.toLowerCase() === 'menunggu_konfirmasi' && !item.payment_proof_url && item.payment_method !== 'cash')
-);
-const validationPackages = packageData.filter((item: any) => 
-    item.transaction_status?.toLowerCase() === 'menunggu_konfirmasi' && (!!item.payment_proof_url || item.payment_method === 'cash')
-);
+const activePackages = packageData.filter((item: any) => {
+    const isCash = item.payment_method === 'cash';
+    const isConfirm = item.transaction_status?.toLowerCase() === 'menunggu_konfirmasi';
+    const isPay = item.transaction_status?.toLowerCase() === 'menunggu_pembayaran';
+    const hasPrice = !!item.price;
+    return (isConfirm && !item.payment_proof_url && !isCash) || (isPay && !isCash) || (isCash && !hasPrice);
+});
+const validationPackages = packageData.filter((item: any) => {
+    const isCash = item.payment_method === 'cash';
+    const isConfirm = item.transaction_status?.toLowerCase() === 'menunggu_konfirmasi';
+    const isPay = item.transaction_status?.toLowerCase() === 'menunggu_pembayaran';
+    const hasPrice = !!item.price;
+    return (isConfirm && !!item.payment_proof_url) || (isCash && hasPrice && (isConfirm || isPay));
+});
 const cancelledPackages = packageData.filter((item: any) => ['dibatalkan', 'ditolak', 'cancelled'].includes(item.transaction_status?.toLowerCase()));
 
 ---
@@ -251,7 +257,7 @@ const cancelledPackages = packageData.filter((item: any) => ['dibatalkan', 'dito
 
                         const bodyData = {
                             fleet_id: payload.fleet_id || undefined,
-                            total_price: parsedPrice,
+                            original_price: parsedPrice,
                             transaction_status: 'menunggu_pembayaran'
                         };
 

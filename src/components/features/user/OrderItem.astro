@@ -35,10 +35,14 @@ const isNew = order.status === "menunggu_konfirmasi" && !meta.payment_proof_url;
 const isProofUploaded =
     order.status === "menunggu_konfirmasi" && !!meta.payment_proof_url;
 
+const isAssigned = 
+    (order.type === 'travel' || order.type === 'package') && 
+    (meta.schedule_status === 'scheduled' || meta.schedule_status === 'on_going' || meta.schedule_status === 'departed' || order.status === 'on_transit' || order.status === 'dalam_penjemputan');
+
 const showCancelButton =
-    order.status === "selesai" ||
+    (order.status === "selesai" ||
     order.status === "COMPLETED" ||
-    order.status === "APPROVED";
+    order.status === "APPROVED") && !isAssigned;
 const showDeleteButton =
     order.status === "dibatalkan" ||
     order.status === "ditolak" ||
