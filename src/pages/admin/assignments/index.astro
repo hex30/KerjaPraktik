@@ -5,11 +5,16 @@ import { adminBookingService } from "@services/adminBookingService";
 const token = Astro.cookies.get("token")?.value;
 const activeTab = Astro.url.searchParams.get("phase") || "pending";
 
-const [assignments, drivers, fleets] = await Promise.all([
+const [rawAssignments, drivers, fleets] = await Promise.all([
     adminBookingService.getAssignments(activeTab, token),
     adminBookingService.getMasterDrivers(token),
     adminBookingService.getMasterFleets(token),
 ]);
+
+const assignments = rawAssignments.filter((item: any) => {
+    if (item.type === "CHARTER") return true;
+    return item.total_passengers > 0 || item.total_packages > 0;
+});
 
 const formatDate = (dateString: string) => {
     if (!dateString) return "-";

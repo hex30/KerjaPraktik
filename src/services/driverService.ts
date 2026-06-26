@@ -59,5 +59,19 @@ export const driverService = {
       console.error("Gagal mengambil tugas driver:", error);
       return [];
     }
+  },
+
+  // Update status penumpang (booking) oleh driver
+  async updatePassengerStatus(bookingId: string, status: string): Promise<any> {
+    try {
+      const response = await apiFetch(`/api/driver/schedules/bookings/${bookingId}/status`, {
+        method: 'PUT',
+        body: JSON.stringify({ status })
+      });
+      return response;
+    } catch (error) {
+      console.error("Gagal update status penumpang:", error);
+      throw error;
+    }
   }
 };
