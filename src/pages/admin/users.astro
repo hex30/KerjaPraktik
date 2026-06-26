@@ -4,7 +4,7 @@ import AdminLayout from "@layouts/AdminLayout.astro";
 import { adminContentService } from "@services/adminContentService";
 
 // Baca token dari cookies saat mode SSR
-const token = Astro.cookies.get('token')?.value;
+const token = Astro.cookies.get("token")?.value;
 
 // Fetch data dari API Backend secara nyata
 const users = await adminContentService.getUsersAdmin(token);
@@ -15,75 +15,154 @@ const currentRole = Astro.url.searchParams.get("role") || "customer";
 <AdminLayout title="Kelola Pengguna & Driver">
     <div class="flex flex-col gap-10 font-main">
         <header>
-            <h2 class="text-2xl font-black text-slate-900 tracking-tight">Manajemen Akun</h2>
-            <p class="text-sm text-slate-500 mt-1 font-secondary">Kelola daftar pengguna, supir, serta mutasi akses (Role Elevation) secara interaktif.</p>
+            <h2 class="text-2xl font-black text-slate-900 tracking-tight">
+                Manajemen Akun
+            </h2>
+            <p class="text-sm text-slate-500 mt-1 font-secondary">
+                Kelola daftar pengguna, supir, serta mutasi akses (Role
+                Elevation) secara interaktif.
+            </p>
         </header>
 
         <!-- Grid Container -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="users-grid">
-            {users.map(user => (
-                <div 
-                    class="user-card bg-white rounded-xl shadow-sm border border-slate-100 p-5 flex flex-col justify-between transition-all hover:shadow-md animate-fade-in" 
-                    data-id={user.id} 
-                    data-role={user.role}
-                    style={user.role === currentRole ? "" : "display: none;"}
-                >
-                    <div class="flex flex-col gap-4">
-                        <div class="flex justify-between items-start">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-black text-primary text-lg">
-                                    {user.name.charAt(0)}
+        <div
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+            id="users-grid"
+        >
+            {
+                users.map((user) => (
+                    <div
+                        class="user-card bg-white rounded-xl shadow-sm border border-slate-100 p-5 flex flex-col justify-between transition-all hover:shadow-md animate-fade-in"
+                        data-id={user.id}
+                        data-role={user.role}
+                        style={
+                            user.role === currentRole ? "" : "display: none;"
+                        }
+                    >
+                        <div class="flex flex-col gap-4">
+                            <div class="flex justify-between items-start">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-black text-primary text-lg">
+                                        {user.name.charAt(0)}
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="font-bold text-slate-900 leading-tight">
+                                            {user.name}
+                                        </span>
+                                        <span class="text-xs text-slate-500 font-secondary">
+                                            {user.phone_number || "-"}
+                                        </span>
+                                    </div>
                                 </div>
-                                <div class="flex flex-col">
-                                    <span class="font-bold text-slate-900 leading-tight">{user.name}</span>
-                                    <span class="text-xs text-slate-500 font-secondary">{user.phone_number || '-'}</span>
+                            </div>
+
+                            <div class="flex flex-col gap-3">
+                                <div class="flex flex-col gap-1">
+                                    <label class="text-[10px] font-bold text-slate-500 uppercase">
+                                        Email (Read-Only)
+                                    </label>
+                                    <input
+                                        type="email"
+                                        value={user.email}
+                                        readonly
+                                        class="w-full bg-slate-50 border border-slate-100 rounded-lg px-3 py-2 text-sm text-slate-500 cursor-not-allowed"
+                                    />
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <label class="text-[10px] font-bold text-slate-500 uppercase">
+                                        Kata Sandi Baru
+                                    </label>
+                                    <input
+                                        type="password"
+                                        placeholder="••••••••"
+                                        class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all"
+                                    />
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <label class="text-[10px] font-bold text-slate-500 uppercase">
+                                        Role Akun
+                                    </label>
+                                    <select class="role-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all">
+                                        <option
+                                            value="customer"
+                                            selected={user.role === "customer"}
+                                        >
+                                            Customer
+                                        </option>
+                                        <option
+                                            value="driver"
+                                            selected={user.role === "driver"}
+                                        >
+                                            Driver
+                                        </option>
+                                        <option
+                                            value="admin"
+                                            selected={user.role === "admin"}
+                                        >
+                                            Admin
+                                        </option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="flex flex-col gap-3">
-                            <div class="flex flex-col gap-1">
-                                <label class="text-[10px] font-bold text-slate-500 uppercase">Email (Read-Only)</label>
-                                <input type="email" value={user.email} readonly class="w-full bg-slate-50 border border-slate-100 rounded-lg px-3 py-2 text-sm text-slate-500 cursor-not-allowed" />
-                            </div>
-                            <div class="flex flex-col gap-1">
-                                <label class="text-[10px] font-bold text-slate-500 uppercase">Kata Sandi Baru</label>
-                                <input type="password" placeholder="••••••••" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all" />
-                            </div>
-                            <div class="flex flex-col gap-1">
-                                <label class="text-[10px] font-bold text-slate-500 uppercase">Role Akun</label>
-                                <select class="role-select w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all">
-                                    <option value="customer" selected={user.role === 'customer'}>Customer</option>
-                                    <option value="driver" selected={user.role === 'driver'}>Driver</option>
-                                    <option value="admin" selected={user.role === 'admin'}>Admin</option>
-                                </select>
-                            </div>
+                        <div class="mt-5 pt-4 border-t border-slate-100 flex justify-end">
+                            <button class="save-role-btn px-4 py-2 bg-slate-100 hover:bg-primary hover:text-white text-slate-600 font-bold text-xs rounded-lg transition-all">
+                                Simpan Perubahan
+                            </button>
                         </div>
                     </div>
-
-                    <div class="mt-5 pt-4 border-t border-slate-100 flex justify-end">
-                        <button class="save-role-btn px-4 py-2 bg-slate-100 hover:bg-primary hover:text-white text-slate-600 font-bold text-xs rounded-lg transition-all">Simpan Perubahan</button>
-                    </div>
-                </div>
-            ))}
+                ))
+            }
         </div>
     </div>
 
     <!-- Confirmation Modal -->
-    <div id="user-confirm-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity duration-300 flex">
-        <div class="bg-white p-6 rounded-2xl shadow-2xl border border-slate-100 max-w-sm w-full text-center flex flex-col items-center gap-4 mx-4">
-            <div class="w-14 h-14 rounded-full flex items-center justify-center shadow-sm border bg-amber-50 text-amber-500 border-amber-100">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+    <div
+        id="user-confirm-modal"
+        class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity duration-300 flex"
+    >
+        <div
+            class="bg-white p-6 rounded-2xl shadow-2xl border border-slate-100 max-w-sm w-full text-center flex flex-col items-center gap-4 mx-4"
+        >
+            <div
+                class="w-14 h-14 rounded-full flex items-center justify-center shadow-sm border bg-amber-50 text-amber-500 border-amber-100"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    class="w-7 h-7"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    ><rect x="3" y="11" width="18" height="11" rx="2" ry="2"
+                    ></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg
+                >
             </div>
             <div>
                 <h4 class="font-bold text-lg text-primary mb-1">Konfirmasi</h4>
-                <p class="text-sm text-slate-500 font-secondary leading-relaxed">Apakah anda yakin ingin merubah role atau password pengguna ini?</p>
+                <p
+                    class="text-sm text-slate-500 font-secondary leading-relaxed"
+                >
+                    Apakah anda yakin ingin merubah role atau password pengguna
+                    ini?
+                </p>
             </div>
             <div class="flex gap-3 w-full mt-2">
-                <button type="button" id="user-confirm-no" class="flex-1 py-2.5 px-4 bg-slate-100 text-slate-600 font-bold rounded-xl text-sm hover:bg-slate-200 transition-colors">
+                <button
+                    type="button"
+                    id="user-confirm-no"
+                    class="flex-1 py-2.5 px-4 bg-slate-100 text-slate-600 font-bold rounded-xl text-sm hover:bg-slate-200 transition-colors"
+                >
                     Batal
                 </button>
-                <button type="button" id="user-confirm-yes" class="flex-1 py-2.5 px-4 bg-primary text-white font-bold rounded-xl text-sm hover:bg-opacity-90 transition-colors shadow-md shadow-primary/20">
+                <button
+                    type="button"
+                    id="user-confirm-yes"
+                    class="flex-1 py-2.5 px-4 bg-primary text-white font-bold rounded-xl text-sm hover:bg-opacity-90 transition-colors shadow-md shadow-primary/20"
+                >
                     Ya, Yakin
                 </button>
             </div>
@@ -95,21 +174,22 @@ const currentRole = Astro.url.searchParams.get("role") || "customer";
     import { adminContentService } from "@services/adminContentService";
 
     const setupUserManagement = () => {
-        const cards = document.querySelectorAll('.user-card');
+        const cards = document.querySelectorAll(".user-card");
 
         // URL Param matching
         const urlParams = new URLSearchParams(window.location.search);
-        let activeTab = urlParams.get('role') === 'driver' ? 'driver' : 'customer';
+        let activeTab =
+            urlParams.get("role") === "driver" ? "driver" : "customer";
 
         const updateTabUI = () => {
-            cards.forEach(card => {
+            cards.forEach((card) => {
                 const c = card as HTMLElement;
                 if (c.dataset.role === activeTab) {
-                    c.style.display = '';
-                    c.classList.add('animate-fade-in');
+                    c.style.display = "";
+                    c.classList.add("animate-fade-in");
                 } else {
-                    c.style.display = 'none';
-                    c.classList.remove('animate-fade-in');
+                    c.style.display = "none";
+                    c.classList.remove("animate-fade-in");
                 }
             });
         };
@@ -118,22 +198,22 @@ const currentRole = Astro.url.searchParams.get("role") || "customer";
         updateTabUI();
 
         // Mutasi Role Logic (Tombol Simpan Perubahan)
-        const saveBtns = document.querySelectorAll('.save-role-btn');
+        const saveBtns = document.querySelectorAll(".save-role-btn");
         let currentUpdateAction: null | (() => Promise<void>) = null;
 
-        const confirmModal = document.getElementById('user-confirm-modal');
-        const confirmBtnYes = document.getElementById('user-confirm-yes');
-        const confirmBtnNo = document.getElementById('user-confirm-no');
+        const confirmModal = document.getElementById("user-confirm-modal");
+        const confirmBtnYes = document.getElementById("user-confirm-yes");
+        const confirmBtnNo = document.getElementById("user-confirm-no");
 
         if (confirmBtnYes && confirmBtnNo && confirmModal) {
-            confirmBtnNo.addEventListener('click', () => {
-                confirmModal.classList.add('hidden');
+            confirmBtnNo.addEventListener("click", () => {
+                confirmModal.classList.add("hidden");
                 currentUpdateAction = null;
             });
 
-            confirmBtnYes.addEventListener('click', async () => {
+            confirmBtnYes.addEventListener("click", async () => {
                 if (currentUpdateAction) {
-                    confirmModal.classList.add('hidden');
+                    confirmModal.classList.add("hidden");
                     await currentUpdateAction();
                     currentUpdateAction = null;
                 }
@@ -141,57 +221,73 @@ const currentRole = Astro.url.searchParams.get("role") || "customer";
         }
 
         saveBtns.forEach((btn) => {
-            btn.addEventListener('click', (e) => {
+            btn.addEventListener("click", (e) => {
                 const target = e.target as HTMLElement;
-                const card = target.closest('.user-card') as HTMLElement;
-                const select = card.querySelector('.role-select') as HTMLSelectElement;
+                const card = target.closest(".user-card") as HTMLElement;
+                const select = card.querySelector(
+                    ".role-select",
+                ) as HTMLSelectElement;
                 const id = card.dataset.id;
 
                 if (!id) return;
 
                 const newRole = select.value;
-                const passwordInput = card.querySelector('input[type="password"]') as HTMLInputElement;
-                const newPassword = (passwordInput && passwordInput.value) ? passwordInput.value : undefined;
+                const passwordInput = card.querySelector(
+                    'input[type="password"]',
+                ) as HTMLInputElement;
+                const newPassword =
+                    passwordInput && passwordInput.value
+                        ? passwordInput.value
+                        : undefined;
 
                 // Siapkan action
                 currentUpdateAction = async () => {
                     try {
                         target.textContent = "Menyimpan...";
-                        target.setAttribute('disabled', 'true');
+                        target.setAttribute("disabled", "true");
 
-                        await adminContentService.updateUserRole(id, newRole, newPassword);
+                        await adminContentService.updateUserRole(
+                            id,
+                            newRole,
+                            newPassword,
+                        );
 
                         alert(`Berhasil! Role diset menjadi: ${newRole}`);
 
-                        if (passwordInput) passwordInput.value = '';
+                        if (passwordInput) passwordInput.value = "";
                         card.dataset.role = newRole;
-                        
+
                         // If role changed from current tab view, hide it
                         if (newRole !== activeTab) {
-                            card.classList.remove('animate-fade-in');
-                            card.style.opacity = '0';
-                            card.style.transform = 'scale(0.95)';
-                            
+                            card.classList.remove("animate-fade-in");
+                            card.style.opacity = "0";
+                            card.style.transform = "scale(0.95)";
+
                             setTimeout(() => {
-                                card.style.display = 'none';
-                                card.style.opacity = '1';
-                                card.style.transform = 'scale(1)';
+                                card.style.display = "none";
+                                card.style.opacity = "1";
+                                card.style.transform = "scale(1)";
                             }, 300);
                         }
                     } catch (error: any) {
-                        alert(error.message || "Gagal menyimpan perubahan ke server.");
+                        alert(
+                            error.message ||
+                                "Gagal menyimpan perubahan ke server.",
+                        );
                     } finally {
                         target.textContent = "Simpan Perubahan";
-                        target.removeAttribute('disabled');
+                        target.removeAttribute("disabled");
                     }
                 };
 
                 // Tampilkan Modal Konfirmasi
                 if (confirmModal) {
-                    confirmModal.classList.remove('hidden');
+                    confirmModal.classList.remove("hidden");
                 } else {
                     // Fallback jika modal tidak terender
-                    if(confirm("Apakah anda yakin ingin menyimpan perubahan?")) {
+                    if (
+                        confirm("Apakah anda yakin ingin menyimpan perubahan?")
+                    ) {
                         currentUpdateAction();
                     }
                 }
@@ -199,14 +295,22 @@ const currentRole = Astro.url.searchParams.get("role") || "customer";
         });
     };
 
-    document.addEventListener('DOMContentLoaded', setupUserManagement);
-    document.addEventListener('astro:page-load', setupUserManagement);
+    document.addEventListener("DOMContentLoaded", setupUserManagement);
+    document.addEventListener("astro:page-load", setupUserManagement);
 </script>
 
 <style>
-    .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+    .animate-fade-in {
+        animation: fadeIn 0.4s ease-out forwards;
+    }
     @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px) scale(0.95); }
-        to { opacity: 1; transform: translateY(0) scale(1); }
+        from {
+            opacity: 0;
+            transform: translateY(10px) scale(0.95);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
     }
 </style>

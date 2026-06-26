@@ -16,15 +16,15 @@ let promoData = undefined;
 try {
   const bannersRes = await contentService.getBanners();
   if (bannersRes?.data && bannersRes.data.length > 0) {
-     slidesData = bannersRes.data.map((b: any) => ({
-        id: b.id,
-        sub: b.subtitle || "INFO TERKINI",
-        title: b.title || "Rini Trans Putri",
-        desc: b.description || "",
-        btnText: b.button_text || "Lihat Detail",
-        btnLink: b.button_link || "#",
-        bgImage: b.image_url || b.image
-     }));
+    slidesData = bannersRes.data.map((b: any) => ({
+      id: b.id,
+      sub: b.badge_text || "INFO TERKINI",
+      title: b.title || "Rini Trans Putri",
+      desc: b.description || "",
+      btnText: b.button_text || "Lihat Detail",
+      btnLink: b.button_link || "#",
+      bgImage: b.image_url || b.image,
+    }));
   }
 } catch (e) {
   console.error("Gagal load banner:", e);
@@ -34,12 +34,12 @@ try {
 try {
   const destRes = await contentService.getDestinations();
   if (destRes?.data && destRes.data.length > 0) {
-     destinationsData = destRes.data.map((d: any) => ({
-        image: d.image_url || d.image,
-        title: d.name || d.title,
-        location: d.location || "Indonesia",
-        description: d.description
-     }));
+    destinationsData = destRes.data.map((d: any) => ({
+      image: d.image_url || d.image,
+      title: d.name || d.title,
+      location: d.location || "Indonesia",
+      description: d.description,
+    }));
   }
 } catch (e) {
   console.error("Gagal load destinasi:", e);
@@ -47,49 +47,59 @@ try {
 
 // dokumentasi: Mengambil data Promosi (Ambil item pertama sebagai Highlight)
 try {
-  const promoRes = await contentService.getPromotions('home');
+  const promoRes = await contentService.getPromotions("home");
   if (promoRes?.data && promoRes.data.length > 0) {
-     const p = promoRes.data[0];
-     
-     // Memecah tagline menjadi 3 baris sesuai instruksi desain awal
-     const words = (p.tagline || p.title || "Promo Menarik Hari Ini").split(" ");
-     const textRow1 = words.length > 0 ? words[0] : "Promo";
-     const textRow2 = words.length > 1 ? words[1] : "Spesial";
-     const textRow3 = words.length > 2 ? words.slice(2).join(" ") : "Rini Trans";
+    const p = promoRes.data[0];
 
-     // Parsing persentase diskon menjadi bilangan bulat (misal: 20.00 menjadi 20)
-     const discountValue = Math.round(parseFloat(p.discount || p.discount_percentage || 0));
+    // Memecah tagline menjadi 3 baris sesuai instruksi desain awal
+    const words = (p.tagline || p.title || "Promo Menarik Hari Ini").split(" ");
+    const textRow1 = words.length > 0 ? words[0] : "Promo";
+    const textRow2 = words.length > 1 ? words[1] : "Spesial";
+    const textRow3 = words.length > 2 ? words.slice(2).join(" ") : "Rini Trans";
 
-     promoData = {
-        image: p.image_url || p.image || "/images/dummy-promo.jpg",
-        discount: discountValue > 0 ? `${discountValue}% OFF` : `Diskon Rp ${Math.round(parseFloat(p.max_discount || 0))}`,
-        noteTitle: p.badge_label || "INFO PROMO",
-        noteDesc: p.subtitle || "Berlaku Syarat & Ketentuan",
-        textRow1: textRow1,
-        textDesc1: p.description || "Jangan lewatkan penawaran spesial ini khusus untuk Anda.",
-        textRow2: textRow2,
-        textRow3: textRow3,
-        textDesc2: p.target_service !== 'all' ? `*Khusus layanan ${p.target_service}` : "Syarat dan ketentuan berlaku.",
-        btnLink: "/services",
-        btnText: "Pesan Sekarang"
-     };
-   } else {
-     // Fallback jika tidak ada promo aktif
-     promoData = {
-        image: "/images/dummy-promo.jpg",
-        discount: "AMAN dan MUDAH",
-        noteTitle: "INFO LAYANAN",
-        noteDesc: "Kenyamanan Perjalanan Anda",
-        textRow1: "PERJALANAN",
-        textRow2: "AMAN DAN",
-        textRow3: "NYAMAN",
-        textDesc1: "Kemudahan Dalam Setiap Pemesanan Layanan",
-        textDesc2: "Sistem Terpadu PT. RINI TRANS PUTRI",
-        btnLink: "/services",
-        btnText: "Pesan Sekarang",
-        isFallback: true
-     };
-   }
+    // Parsing persentase diskon menjadi bilangan bulat (misal: 20.00 menjadi 20)
+    const discountValue = Math.round(
+      parseFloat(p.discount || p.discount_percentage || 0),
+    );
+
+    promoData = {
+      image: p.image_url || p.image || "/images/dummy-promo.jpg",
+      discount:
+        discountValue > 0
+          ? `${discountValue}% OFF`
+          : `Diskon Rp ${Math.round(parseFloat(p.max_discount || 0))}`,
+      noteTitle: p.badge_label || "INFO PROMO",
+      noteDesc: p.subtitle || "Berlaku Syarat & Ketentuan",
+      textRow1: textRow1,
+      textDesc1:
+        p.description ||
+        "Jangan lewatkan penawaran spesial ini khusus untuk Anda.",
+      textRow2: textRow2,
+      textRow3: textRow3,
+      textDesc2:
+        p.target_service !== "all"
+          ? `*Khusus layanan ${p.target_service}`
+          : "Syarat dan ketentuan berlaku.",
+      btnLink: "/services",
+      btnText: "Pesan Sekarang",
+    };
+  } else {
+    // Fallback jika tidak ada promo aktif
+    promoData = {
+      image: "/images/dummy-promo.jpg",
+      discount: "AMAN dan MUDAH",
+      noteTitle: "INFO LAYANAN",
+      noteDesc: "Kenyamanan Perjalanan Anda",
+      textRow1: "PERJALANAN",
+      textRow2: "AMAN DAN",
+      textRow3: "NYAMAN",
+      textDesc1: "Kemudahan Dalam Setiap Pemesanan Layanan",
+      textDesc2: "Sistem Terpadu PT. RINI TRANS PUTRI",
+      btnLink: "/services",
+      btnText: "Pesan Sekarang",
+      isFallback: true,
+    };
+  }
 } catch (e) {
   console.error("Gagal load promo:", e);
   // Fallback on error
@@ -105,25 +115,19 @@ try {
     textDesc2: "Sistem Terpadu PT. RINI TRANS PUTRI",
     btnLink: "/services",
     btnText: "Pesan Sekarang",
-    isFallback: true
+    isFallback: true,
   };
 }
 ---
 
 <Layout title="Rini Trans Putri | Home">
-    <main>
-        <!-- dokumentasi: Data Binding ke Komponen UI (Jika undefine, komponen akan merender default dummy) -->
-        <HeroSlider slides={slidesData} />
-        <FavoritDestination destinations={destinationsData} />
-        <PromoSection promoData={promoData} />
-        
-        <FeatureSection />
-        <FAQ />
-    </main>
+  <main>
+    <!-- dokumentasi: Data Binding ke Komponen UI (Jika undefine, komponen akan merender default dummy) -->
+    <HeroSlider slides={slidesData} />
+    <FavoritDestination destinations={destinationsData} />
+    <PromoSection promoData={promoData} />
+
+    <FeatureSection />
+    <FAQ />
+  </main>
 </Layout>
-
-
-
-
-
-

@@ -1,0 +1,232 @@
+---
+// File: src/components/features/admin/content/BannerManager.astro
+import Button from "@ui/Button.astro";
+import InputGroup from "@ui/InputGroup.astro";
+import { adminContentService } from "@services/adminContentService";
+
+// Fetch data banner aktual dari Backend (SSR)
+const banners = await adminContentService.getBanners();
+---
+
+<div class="flex flex-col gap-12 font-main">
+    <!-- Grid Section -->
+    <section>
+        {banners.length === 0 && (
+            <div class="p-8 text-center border-2 border-dashed border-slate-200 rounded-3xl bg-slate-50">
+                <p class="text-sm font-bold text-slate-500">Belum ada data banner.</p>
+            </div>
+        )}
+        <div class="flex flex-col gap-6" id="banner-grid">
+            {banners.map((banner, index) => (
+                <div class="relative w-full h-[400px] md:h-[500px] rounded-[2rem] overflow-hidden shadow-lg bg-slate-900 group banner-card"
+                     data-id={banner.id} 
+                     data-title={banner.title} 
+                     data-badge={banner.badge_text} 
+                     data-desc={banner.description}>
+                    
+                    <div class="absolute inset-0 w-full h-full grid md:grid-cols-12 items-center p-8 md:p-16">
+                        <div class="absolute inset-0 z-0">
+                            <img
+                                src={banner.image_url || 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?auto=format&fit=crop&q=80'}
+                                alt={banner.title}
+                                class="w-full h-full object-cover"
+                            />
+                            <div class="absolute inset-0 bg-gradient-to-r from-white/95 via-white/80 to-transparent" />
+                        </div>
+
+                        <div class="relative z-10 md:col-span-7 pl-12 md:pl-16 space-y-4 md:space-y-6">
+                            <span class="text-xs font-secondary font-bold text-secondary tracking-widest block uppercase">
+                                {banner.badge_text || 'INFO TERKINI'}
+                            </span>
+                            <h1 class="text-3xl md:text-5xl lg:text-6xl font-black text-primary leading-tight">
+                                {banner.title}
+                            </h1>
+                            <p class="text-sm md:text-base text-text-secondary font-secondary font-normal max-w-xl leading-relaxed">
+                                {banner.description}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="absolute top-4 right-4 flex gap-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                        <button class="delete-banner-btn w-10 h-10 bg-rose-500/90 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-rose-600 transition-all shadow-lg hover:scale-110" title="Hapus Banner">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                        </button>
+                        <button class="edit-banner-btn w-10 h-10 bg-white/90 backdrop-blur-md rounded-full flex items-center justify-center text-primary hover:bg-primary hover:text-white transition-all shadow-lg hover:scale-110" title="Edit Banner">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                        </button>
+                    </div>
+                </div>
+            ))}
+        </div>
+
+
+    </section>
+
+    <!-- Form Section -->
+    <section id="banner-form-section" class="bg-white p-10 rounded-[2.5rem] border border-slate-100 shadow-sm scroll-mt-28">
+        <header class="mb-10 text-center md:text-left">
+            <h3 id="banner-form-title" class="text-2xl font-black text-slate-900 tracking-tight">Tambah Banner Baru</h3>
+            <p id="banner-form-desc" class="text-sm text-slate-400 mt-2 font-secondary">Daftarkan banner promosi baru untuk ditampilkan di halaman beranda.</p>
+        </header>
+
+        <form id="banner-form" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <input type="hidden" name="id" id="banner_id" value="" />
+            <div class="flex flex-col gap-6">
+                <InputGroup label="Input Teks (Judul Banner)" id="banner_title" name="title" placeholder="Contoh: Diskon Mudik Lebaran" required={true} />
+                <InputGroup label="Badge Teks" id="banner_badge" name="badge_text" placeholder="Contoh: Promo Spesial" required={false} />
+                
+                <div class="flex flex-col gap-2">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Gambar Banner Utama</label>
+                    <div class="relative w-full h-40 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 flex flex-col items-center justify-center gap-3 hover:border-primary hover:bg-primary/5 transition-all cursor-pointer group overflow-hidden">
+                        <input type="file" name="image" id="banner_image" accept="image/png, image/jpeg, image/jpg" class="image-upload-input absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-300 group-hover:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                        <span class="image-upload-text text-xs font-bold text-slate-400 group-hover:text-primary transition-colors px-4 text-center line-clamp-1">Pilih Gambar / Drag & Drop</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex flex-col gap-6">
+                <div class="flex flex-col gap-2 h-full">
+                    <label for="banner_desc" class="font-secondary text-sm font-bold text-primary">Deskripsi Teks</label>
+                    <textarea id="banner_desc" name="description" class="flex-grow w-full bg-slate-100 border border-slate-200 rounded-2xl px-5 py-4 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-none" placeholder="Ceritakan detail promo atau informasi banner ini..."></textarea>
+                </div>
+                
+                <div class="flex gap-4 pt-4">
+                    <Button id="submit-banner-btn" type="submit" class="flex-grow shadow-lg">Simpan Banner</Button>
+                    <button type="reset" id="banner-reset-btn" class="px-10 py-4 bg-slate-100 text-slate-500 font-bold text-sm rounded-2xl hover:bg-slate-200 transition-all">Reset</button>
+                </div>
+            </div>
+        </form>
+    </section>
+</div>
+
+<script>
+    import { adminContentService } from "@services/adminContentService";
+
+    const setupBannerLogic = () => {
+        const toggleBtn = document.getElementById('toggle-banner-btn');
+        const extraBanners = document.querySelectorAll('.extra-banner');
+        const editButtons = document.querySelectorAll('.edit-banner-btn');
+        const deleteButtons = document.querySelectorAll('.delete-banner-btn');
+
+        const form = document.getElementById('banner-form') as HTMLFormElement;
+        const formTitle = document.getElementById('banner-form-title');
+        const formDesc = document.getElementById('banner-form-desc');
+        const resetBtn = document.getElementById('banner-reset-btn');
+        const submitBtn = document.getElementById('submit-banner-btn');
+        const section = document.getElementById('banner-form-section');
+
+        const inputId = document.getElementById('banner_id') as HTMLInputElement;
+        const inputTitle = document.getElementById('banner_title') as HTMLInputElement;
+        const inputBadge = document.getElementById('banner_badge') as HTMLInputElement;
+        const inputDesc = document.getElementById('banner_desc') as HTMLTextAreaElement;
+
+        // Submit Form (Create / Update)
+        if (form) {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const formData = new FormData(form);
+                
+                try {
+                    if (submitBtn) {
+                        submitBtn.textContent = "Menyimpan...";
+                        submitBtn.setAttribute('disabled', 'true');
+                    }
+                    
+                    await adminContentService.saveBanner(formData);
+                    alert("Banner berhasil disimpan!");
+                    window.location.reload();
+                } catch (error: any) {
+                    alert(error.message || "Gagal menyimpan banner");
+                } finally {
+                    if (submitBtn) {
+                        submitBtn.textContent = "Simpan Banner";
+                        submitBtn.removeAttribute('disabled');
+                    }
+                }
+            });
+        }
+
+        // Delete Logic
+        deleteButtons.forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                const card = btn.closest('.banner-card') as HTMLElement;
+                const id = card?.dataset.id;
+                
+                if (id && confirm('Hapus banner ini secara permanen dari database?')) {
+                    try {
+                        await adminContentService.deleteBanner(id);
+                        alert("Banner dihapus!");
+                        window.location.reload();
+                    } catch(err: any) {
+                        alert(err.message || "Gagal menghapus banner.");
+                    }
+                }
+            });
+        });
+
+        // Edit Logic
+        editButtons.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const card = btn.closest('.banner-card') as HTMLElement;
+                if (!card) return;
+
+                const { id, title, badge, desc } = card.dataset;
+
+                if (inputId) inputId.value = id || '';
+                if (inputTitle) inputTitle.value = title || '';
+                if (inputBadge) inputBadge.value = badge || '';
+                if (inputDesc) inputDesc.value = desc || '';
+
+                if (formTitle) formTitle.textContent = "Edit Data Banner";
+                if (formDesc) formDesc.textContent = `Memperbarui informasi untuk "${title}".`;
+
+                if (section) {
+                    section.classList.add('ring-4', 'ring-primary/20');
+                    section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    setTimeout(() => section.classList.remove('ring-4', 'ring-primary/20'), 2000);
+                }
+            });
+        });
+
+        resetBtn?.addEventListener('click', () => {
+            if (inputId) inputId.value = '';
+            if (formTitle) formTitle.textContent = "Tambah Banner Baru";
+            if (formDesc) formDesc.textContent = "Daftarkan banner promosi baru untuk ditampilkan di halaman beranda.";
+            
+            // Reset text file name
+            const uploadText = form.querySelector('.image-upload-text');
+            if (uploadText) uploadText.textContent = "Pilih Gambar / Drag & Drop";
+        });
+
+        // UI/UX Update Image Name
+        const imageInput = form.querySelector('.image-upload-input') as HTMLInputElement;
+        const uploadText = form.querySelector('.image-upload-text');
+        if (imageInput && uploadText) {
+            imageInput.addEventListener('change', (e) => {
+                const target = e.target as HTMLInputElement;
+                if (target.files && target.files.length > 0) {
+                    uploadText.textContent = target.files[0].name;
+                    uploadText.classList.add('text-primary');
+                } else {
+                    uploadText.textContent = "Pilih Gambar / Drag & Drop";
+                    uploadText.classList.remove('text-primary');
+                }
+            });
+        }
+    };
+
+    document.addEventListener('DOMContentLoaded', setupBannerLogic);
+    document.addEventListener('astro:page-load', setupBannerLogic);
+</script>
+
+<style>
+    .banner-card { animation: fadeIn 0.5s ease-out forwards; }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
