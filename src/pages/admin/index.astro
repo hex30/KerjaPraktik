@@ -169,11 +169,11 @@ const stats = [
             <h2 class="text-xl font-black text-slate-900 tracking-tight">Data Pemesan Terbaru</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <!-- Card Travel Reguler -->
-                <a href="/admin/route" class="group relative bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col gap-4 overflow-hidden">
+                <a href="/admin/bookings/route" class="group relative bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col gap-4 overflow-hidden">
                     <div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500"></div>
                     <div class="flex items-center justify-between relative z-10">
                         <Badge variant="sky" class="px-3 py-1 text-[10px]">TRAVEL REGULER</Badge>
-                        <span class="text-[10px] font-bold text-slate-400">Baru Saja</span>
+                        
                     </div>
                     {recentBookings.travel ? (
                         <div class="flex flex-col gap-2 relative z-10">
@@ -193,11 +193,11 @@ const stats = [
                 </a>
 
                 <!-- Card Charter -->
-                <a href="/admin/charter" class="group relative bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col gap-4 overflow-hidden">
+                <a href="/admin/bookings/charter" class="group relative bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col gap-4 overflow-hidden">
                     <div class="absolute top-0 right-0 w-32 h-32 bg-warning/5 rounded-full -translate-y-1/2 translate-x-1/2 group-hover:scale-150 transition-transform duration-500"></div>
                     <div class="flex items-center justify-between relative z-10">
                         <Badge variant="warning" class="px-3 py-1 text-[10px]">CHARTER PARIWISATA</Badge>
-                        <span class="text-[10px] font-bold text-slate-400">Baru Saja</span>
+                        
                     </div>
                     {recentBookings.charter ? (
                         <div class="flex flex-col gap-2 relative z-10">
