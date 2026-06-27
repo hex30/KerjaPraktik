@@ -9,9 +9,10 @@ interface Props {
         isUp: boolean;
     };
     color?: "primary" | "emerald" | "amber" | "rose" | "sky";
+    subtitle?: string;
 }
 
-const { title, value, icon, trend, color = "primary" } = Astro.props;
+const { title, value, icon, trend, color = "primary", subtitle } = Astro.props;
 
 const colors = {
     primary: "bg-primary/10 text-primary",
@@ -22,7 +23,7 @@ const colors = {
 };
 ---
 
-<div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col gap-4">
+<div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col gap-4 h-full">
     <div class="flex items-center justify-between">
         <div class:list={["p-3 rounded-xl", colors[color]]} set:html={icon} />
         {trend && (
@@ -34,6 +35,7 @@ const colors = {
     <div>
         <p class="text-slate-500 text-sm font-medium">{title}</p>
         <h3 class="text-2xl font-black text-slate-900 mt-1">{value}</h3>
+        {subtitle && <p class="text-xs text-slate-400 mt-1">{subtitle}</p>}
     </div>
 </div>
 
