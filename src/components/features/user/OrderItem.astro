@@ -37,12 +37,16 @@ const isProofUploaded =
 
 const isAssigned = 
     (order.type === 'travel' || order.type === 'package') && 
-    (meta.schedule_status === 'scheduled' || meta.schedule_status === 'on_going' || meta.schedule_status === 'departed' || order.status === 'on_transit' || order.status === 'dalam_penjemputan');
+    (meta.schedule_status === 'on_going' || meta.schedule_status === 'departed' || order.status === 'on_transit' || order.status === 'dalam_penjemputan');
 
 const showCancelButton =
     (order.status === "selesai" ||
     order.status === "COMPLETED" ||
-    order.status === "APPROVED") && !isAssigned;
+    order.status === "APPROVED" ||
+    order.status === "dibayar" ||
+    order.status === "received" ||
+    order.status === "menunggu_konfirmasi" ||
+    order.status === "menunggu_pembayaran") && !isAssigned;
 const showDeleteButton =
     order.status === "dibatalkan" ||
     order.status === "ditolak" ||
