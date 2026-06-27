@@ -197,7 +197,7 @@ const orderHistory = await userService.getUserHistory(token);
                 
                 if (!orderId || !orderType) return;
 
-                const confirmed = window.confirm('Hapus Riwayat?\n\nPerhatian! Aksi ini akan MENGHAPUS PERMANEN data pesanan ini dari Database. Lanjutkan?');
+                const confirmed = window.confirm('Hapus Riwayat?\n\nPerhatian! Aksi ini akan menghapus riwayat pesanan ini dari tampilan Anda (Histori pesanan akan tetap tersimpan di sistem admin). Lanjutkan?');
 
                 if (confirmed) {
                     try {
@@ -223,7 +223,7 @@ const orderHistory = await userService.getUserHistory(token);
                             const errData = await res.json().catch(() => ({}));
                             throw new Error(errData.message || "Gagal menghapus pesanan. Terjadi kesalahan pada server.");
                         }                   
-                        alert('Terhapus! Data pesanan telah dihapus permanen.');
+                        alert('Terhapus! Riwayat pesanan telah dihapus dari tampilan Anda.');
                         window.location.reload();
                     } catch (error: any) {
                         alert(`Gagal! ${error.message}`);
