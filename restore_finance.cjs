@@ -1,4 +1,6 @@
----
+const fs = require('fs');
+
+const astroContent = `---
 // File: src/pages/admin/finance.astro
 import AdminLayout from "@layouts/AdminLayout.astro";
 import StatCard from "@features/admin/dashboard/StatCard.astro";
@@ -7,7 +9,7 @@ import InputGroup from "@ui/InputGroup.astro";
 // Data Keuangan Dinamis (Server-Side)
 const token = Astro.cookies.get("token")?.value;
 const API_BASE = import.meta.env.PUBLIC_API_URL || "http://localhost:5000";
-const headers = { 'Authorization': `Bearer ${token}` };
+const headers = { 'Authorization': \`Bearer \${token}\` };
 
 let summary = {
     total_income: 0,
@@ -22,9 +24,9 @@ const currentFilter = Astro.url.searchParams.get('filter') || 'monthly';
 
 try {
     const [sumRes, txRes, expRes] = await Promise.all([
-        fetch(`${API_BASE}/api/admin/cashflow/summary?filter=${currentFilter}`, { headers }),
-        fetch(`${API_BASE}/api/admin/cashflow/transactions?limit=200`, { headers }),
-        fetch(`${API_BASE}/api/admin/cashflow/expenses?status=pending`, { headers })
+        fetch(\`\${API_BASE}/api/admin/cashflow/summary?filter=\${currentFilter}\`, { headers }),
+        fetch(\`\${API_BASE}/api/admin/cashflow/transactions?limit=200\`, { headers }),
+        fetch(\`\${API_BASE}/api/admin/cashflow/expenses?status=pending\`, { headers })
     ]);
     
     if (sumRes.ok) summary = (await sumRes.json()).data;
@@ -43,21 +45,21 @@ if (summary.last_month_income > 0) {
 const financialSummary = [
     {
         title: "Total Pendapatan (Bulan Ini)",
-        value: `Rp ${summary.total_income.toLocaleString('id-ID')}`,
-        icon: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`,
-        trend: { value: `${Math.abs(growth).toFixed(1)}%`, isUp: growth >= 0 },
+        value: \`Rp \${summary.total_income.toLocaleString('id-ID')}\`,
+        icon: \`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>\`,
+        trend: { value: \`\${Math.abs(growth).toFixed(1)}%\`, isUp: growth >= 0 },
         color: "emerald" as const
     },
     {
         title: "Pendapatan Bulan Lalu",
-        value: `Rp ${summary.last_month_income.toLocaleString('id-ID')}`,
-        icon: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>`,
+        value: \`Rp \${summary.last_month_income.toLocaleString('id-ID')}\`,
+        icon: \`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>\`,
         color: "amber" as const
     },
     {
         title: "Pendapatan Hari Ini",
-        value: `Rp ${summary.today_income.toLocaleString('id-ID')}`,
-        icon: `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75m0 3v.75m0 3v.75m0 3V15m15 0v.75m0 3v.75m0 3V18.75M6.75 4.5v.75m0 3v.75m0 3v.75m0 3V15m15 0v.75m0 3v.75m0 3V18.75m-15-15h15c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125H4.5c-.621 0-1.125-.504-1.125-1.125V5.625c0-.621.504-1.125 1.125-1.125z" /></svg>`,
+        value: \`Rp \${summary.today_income.toLocaleString('id-ID')}\`,
+        icon: \`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75m0 3v.75m0 3v.75m0 3V15m15 0v.75m0 3v.75m0 3V18.75M6.75 4.5v.75m0 3v.75m0 3v.75m0 3V15m15 0v.75m0 3v.75m0 3V18.75m-15-15h15c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125H4.5c-.621 0-1.125-.504-1.125-1.125V5.625c0-.621.504-1.125 1.125-1.125z" /></svg>\`,
         color: "sky" as const
     }
 ];
@@ -216,17 +218,17 @@ const financialSummary = [
                                 <td colspan="6" class="py-10 text-slate-400 text-sm font-secondary">Belum ada transaksi.</td>
                             </tr>
                         ) : transactions.map((tx: any, index: number) => (
-                            <tr class={`group hover:bg-slate-50/50 transition-colors whitespace-nowrap md:whitespace-normal ${index >= 10 ? 'hidden tx-hidden' : ''}`}>
+                            <tr class={\`group hover:bg-slate-50/50 transition-colors whitespace-nowrap md:whitespace-normal \${index >= 10 ? 'hidden tx-hidden' : ''}\`}>
                                 <td class="py-4 px-4 font-bold text-slate-900 text-sm">{tx.id.substring(0, 8).toUpperCase()}</td>
                                 <td class="py-4 px-4 text-xs text-slate-500">{new Date(tx.created_at).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'})}</td>
                                 <td class="py-4 px-4 text-sm font-medium text-slate-700 max-w-xs truncate" title={tx.description}>{tx.description || '-'}</td>
                                 <td class="py-4 px-4">
                                     <span class="text-[9px] font-black px-2 py-0.5 rounded bg-slate-100 text-slate-500 uppercase">{tx.category.replace('_', ' ')}</span>
                                 </td>
-                                <td class="py-4 px-4 text-xs font-bold text-slate-600">
-                                    {tx.payment_method ? tx.payment_method.toUpperCase() : '-'}
+                                <td class={\`py-4 px-4 text-xs font-bold \${tx.type === 'income' ? 'text-emerald-600' : 'text-rose-600'}\`}>
+                                    {tx.type === 'income' ? 'MASUK' : 'KELUAR'}
                                 </td>
-                                <td class={`py-4 px-4 text-right font-main font-black ${tx.type === 'income' ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                <td class={\`py-4 px-4 text-right font-main font-black \${tx.type === 'income' ? 'text-emerald-600' : 'text-rose-600'}\`}>
                                     {tx.type === 'income' ? '+' : '-'} Rp {Number(tx.amount).toLocaleString('id-ID')}
                                 </td>
                             </tr>
@@ -266,10 +268,10 @@ const financialSummary = [
                     const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
                     const API_BASE = "http://localhost:5000";
 
-                    const response = await fetch(`${API_BASE}/api/admin/cashflow/expense`, {
+                    const response = await fetch(\`\${API_BASE}/api/admin/cashflow/expense\`, {
                         method: 'POST',
                         headers: {
-                            'Authorization': `Bearer ${token}`
+                            'Authorization': \`Bearer \${token}\`
                         },
                         body: formData
                     });
@@ -293,16 +295,16 @@ const financialSummary = [
         }
 
         const handleApproval = async (id: string, status: 'approved' | 'rejected') => {
-            if(!confirm(`Apakah Anda yakin ingin ${status === 'approved' ? 'MENYETUJUI' : 'MENOLAK'} pengeluaran ini?`)) return;
+            if(!confirm(\`Apakah Anda yakin ingin \${status === 'approved' ? 'MENYETUJUI' : 'MENOLAK'} pengeluaran ini?\`)) return;
 
             try {
                 const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
                 const API_BASE = "http://localhost:5000";
 
-                const response = await fetch(`${API_BASE}/api/admin/cashflow/expense/${id}/status`, {
+                const response = await fetch(\`\${API_BASE}/api/admin/cashflow/expense/\${id}/status\`, {
                     method: 'PUT',
                     headers: {
-                        'Authorization': `Bearer ${token}`,
+                        'Authorization': \`Bearer \${token}\`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({ status })
@@ -355,3 +357,6 @@ const financialSummary = [
     setupExpenseTracker();
     document.addEventListener('astro:page-load', setupExpenseTracker);
 </script>
+`;
+
+fs.writeFileSync('src/pages/admin/finance.astro', astroContent);
