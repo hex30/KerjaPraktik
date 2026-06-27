@@ -351,5 +351,17 @@ export const adminContentService = {
             console.error("Gagal update user:", error);
             throw error;
         }
+    },
+
+    async deleteUser(id: string): Promise<any> {
+        try {
+            return await apiFetch(`/api/admin/master/users/${id}`, {
+                method: 'DELETE',
+                headers: getAuthHeaders()
+            });
+        } catch (error) {
+            console.error("Gagal menghapus user:", error);
+            throw error;
+        }
     }
 };

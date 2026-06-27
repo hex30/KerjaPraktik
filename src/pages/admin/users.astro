@@ -54,6 +54,9 @@ const currentRole = Astro.url.searchParams.get("role") || "customer";
                                         </span>
                                     </div>
                                 </div>
+                                <button type="button" class="delete-user-btn text-rose-400 hover:text-rose-600 bg-rose-50 hover:bg-rose-100 p-2 rounded-lg transition-colors" title="Hapus Akun">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                </button>
                             </div>
 
                             <div class="flex flex-col gap-3">
@@ -117,50 +120,43 @@ const currentRole = Astro.url.searchParams.get("role") || "customer";
         </div>
     </div>
 
-    <!-- Confirmation Modal -->
+    <!-- Dynamic Alert/Confirm Modal -->
     <div
-        id="user-confirm-modal"
-        class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity duration-300 flex"
+        id="dynamic-modal"
+        class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity duration-300 opacity-0"
     >
         <div
-            class="bg-white p-6 rounded-2xl shadow-2xl border border-slate-100 max-w-sm w-full text-center flex flex-col items-center gap-4 mx-4"
+            id="dynamic-modal-inner"
+            class="bg-white p-6 rounded-2xl shadow-2xl border border-slate-100 max-w-sm w-full text-center flex flex-col items-center gap-4 mx-4 transform scale-95 transition-transform duration-300"
         >
             <div
+                id="dynamic-modal-icon-container"
                 class="w-14 h-14 rounded-full flex items-center justify-center shadow-sm border bg-amber-50 text-amber-500 border-amber-100"
             >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    class="w-7 h-7"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    ><rect x="3" y="11" width="18" height="11" rx="2" ry="2"
-                    ></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg
-                >
+                <div id="dynamic-modal-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                </div>
             </div>
             <div>
-                <h4 class="font-bold text-lg text-primary mb-1">Konfirmasi</h4>
+                <h4 id="dynamic-modal-title" class="font-bold text-lg text-primary mb-1">Konfirmasi</h4>
                 <p
+                    id="dynamic-modal-message"
                     class="text-sm text-slate-500 font-secondary leading-relaxed"
                 >
-                    Apakah anda yakin ingin merubah role atau password pengguna
-                    ini?
+                    Apakah anda yakin?
                 </p>
             </div>
-            <div class="flex gap-3 w-full mt-2">
+            <div class="flex gap-3 w-full mt-2" id="dynamic-modal-actions">
                 <button
                     type="button"
-                    id="user-confirm-no"
+                    id="dynamic-modal-cancel"
                     class="flex-1 py-2.5 px-4 bg-slate-100 text-slate-600 font-bold rounded-xl text-sm hover:bg-slate-200 transition-colors"
                 >
                     Batal
                 </button>
                 <button
                     type="button"
-                    id="user-confirm-yes"
+                    id="dynamic-modal-confirm"
                     class="flex-1 py-2.5 px-4 bg-primary text-white font-bold rounded-xl text-sm hover:bg-opacity-90 transition-colors shadow-md shadow-primary/20"
                 >
                     Ya, Yakin
@@ -199,23 +195,79 @@ const currentRole = Astro.url.searchParams.get("role") || "customer";
 
         // Mutasi Role Logic (Tombol Simpan Perubahan)
         const saveBtns = document.querySelectorAll(".save-role-btn");
-        let currentUpdateAction: null | (() => Promise<void>) = null;
+        // Dynamic Modal Handling
+        let currentModalConfirmAction: null | (() => void) = null;
+        let hideTimeout: ReturnType<typeof setTimeout> | null = null;
+        
+        const modal = document.getElementById("dynamic-modal");
+        const modalInner = document.getElementById("dynamic-modal-inner");
+        const modalIconContainer = document.getElementById("dynamic-modal-icon-container");
+        const modalIcon = document.getElementById("dynamic-modal-icon");
+        const modalTitle = document.getElementById("dynamic-modal-title");
+        const modalMessage = document.getElementById("dynamic-modal-message");
+        const modalActions = document.getElementById("dynamic-modal-actions");
+        const modalBtnCancel = document.getElementById("dynamic-modal-cancel");
+        const modalBtnConfirm = document.getElementById("dynamic-modal-confirm");
 
-        const confirmModal = document.getElementById("user-confirm-modal");
-        const confirmBtnYes = document.getElementById("user-confirm-yes");
-        const confirmBtnNo = document.getElementById("user-confirm-no");
+        const modalStyles = {
+            warning: { bg: 'bg-amber-50', text: 'text-amber-500', border: 'border-amber-100', icon: '<svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>' },
+            error: { bg: 'bg-rose-50', text: 'text-rose-500', border: 'border-rose-100', icon: '<svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>' },
+            success: { bg: 'bg-emerald-50', text: 'text-emerald-500', border: 'border-emerald-100', icon: '<svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>' }
+        };
 
-        if (confirmBtnYes && confirmBtnNo && confirmModal) {
-            confirmBtnNo.addEventListener("click", () => {
-                confirmModal.classList.add("hidden");
-                currentUpdateAction = null;
+        const showModal = (type: 'warning'|'error'|'success', title: string, message: string, onConfirm?: () => void) => {
+            if (!modal || !modalInner || !modalIcon || !modalIconContainer || !modalTitle || !modalMessage || !modalActions || !modalBtnCancel || !modalBtnConfirm) return;
+            
+            if (hideTimeout) {
+                clearTimeout(hideTimeout);
+                hideTimeout = null;
+            }
+
+            const style = modalStyles[type];
+            modalIconContainer.className = `w-14 h-14 rounded-full flex items-center justify-center shadow-sm border ${style.bg} ${style.text} ${style.border}`;
+            modalIcon.innerHTML = style.icon;
+            modalTitle.textContent = title;
+            modalMessage.textContent = message;
+
+            if (onConfirm) {
+                // Konfirmasi Mode
+                modalBtnCancel.style.display = 'block';
+                modalBtnConfirm.textContent = "Ya, Yakin";
+                currentModalConfirmAction = onConfirm;
+            } else {
+                // Alert Mode
+                modalBtnCancel.style.display = 'none';
+                modalBtnConfirm.textContent = "Tutup";
+                currentModalConfirmAction = null;
+            }
+
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+            void modal.offsetWidth; // Reflow
+            modal.classList.remove("opacity-0");
+            modalInner.classList.remove("scale-95");
+        };
+
+        const hideModal = () => {
+            if (!modal || !modalInner) return;
+            modal.classList.add("opacity-0");
+            modalInner.classList.add("scale-95");
+            hideTimeout = setTimeout(() => {
+                modal.classList.remove("flex");
+                modal.classList.add("hidden");
+            }, 300);
+        };
+
+        if (modalBtnCancel && modalBtnConfirm) {
+            modalBtnCancel.addEventListener("click", () => {
+                hideModal();
+                currentModalConfirmAction = null;
             });
-
-            confirmBtnYes.addEventListener("click", async () => {
-                if (currentUpdateAction) {
-                    confirmModal.classList.add("hidden");
-                    await currentUpdateAction();
-                    currentUpdateAction = null;
+            modalBtnConfirm.addEventListener("click", () => {
+                hideModal();
+                if (currentModalConfirmAction) {
+                    currentModalConfirmAction();
+                    currentModalConfirmAction = null;
                 }
             });
         }
@@ -240,8 +292,7 @@ const currentRole = Astro.url.searchParams.get("role") || "customer";
                         ? passwordInput.value
                         : undefined;
 
-                // Siapkan action
-                currentUpdateAction = async () => {
+                const doSave = async () => {
                     try {
                         target.textContent = "Menyimpan...";
                         target.setAttribute("disabled", "true");
@@ -252,7 +303,10 @@ const currentRole = Astro.url.searchParams.get("role") || "customer";
                             newPassword,
                         );
 
-                        alert(`Berhasil! Role diset menjadi: ${newRole}`);
+                        const msg = newPassword 
+                            ? `Peran pengguna telah diubah menjadi ${newRole} dan kata sandi baru telah diatur.`
+                            : `Peran pengguna telah diubah menjadi ${newRole}.`;
+                        showModal("success", "Berhasil Tersimpan", msg);
 
                         if (passwordInput) passwordInput.value = "";
                         card.dataset.role = newRole;
@@ -270,10 +324,7 @@ const currentRole = Astro.url.searchParams.get("role") || "customer";
                             }, 300);
                         }
                     } catch (error: any) {
-                        alert(
-                            error.message ||
-                                "Gagal menyimpan perubahan ke server.",
-                        );
+                        showModal("error", "Gagal Menyimpan", error.message || "Gagal menyimpan perubahan ke server.");
                     } finally {
                         target.textContent = "Simpan Perubahan";
                         target.removeAttribute("disabled");
@@ -281,16 +332,38 @@ const currentRole = Astro.url.searchParams.get("role") || "customer";
                 };
 
                 // Tampilkan Modal Konfirmasi
-                if (confirmModal) {
-                    confirmModal.classList.remove("hidden");
-                } else {
-                    // Fallback jika modal tidak terender
-                    if (
-                        confirm("Apakah anda yakin ingin menyimpan perubahan?")
-                    ) {
-                        currentUpdateAction();
-                    }
-                }
+                showModal("warning", "Konfirmasi Perubahan", "Apakah Anda yakin ingin merubah role atau password pengguna ini?", doSave);
+            });
+        });
+
+        // Delete Logic
+        const deleteBtns = document.querySelectorAll(".delete-user-btn");
+        deleteBtns.forEach((btn) => {
+            btn.addEventListener("click", (e) => {
+                const target = e.currentTarget as HTMLElement;
+                const card = target.closest(".user-card") as HTMLElement;
+                const id = card.dataset.id;
+                const name = card.querySelector(".font-bold")?.textContent?.trim();
+
+                if (!id) return;
+
+                const doDelete = () => {
+                    target.setAttribute("disabled", "true");
+                    target.innerHTML = `<svg class="animate-spin h-4 w-4 text-rose-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
+
+                    adminContentService.deleteUser(id)
+                        .then(() => {
+                            showModal("success", "Berhasil Dihapus", `Akun pengguna ${name || ''} telah dihapus.`);
+                            setTimeout(() => window.location.reload(), 1500);
+                        })
+                        .catch((error: any) => {
+                            showModal("error", "Gagal Menghapus", error.message || "Terjadi kesalahan saat menghapus akun pengguna.");
+                            target.removeAttribute("disabled");
+                            target.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>`;
+                        });
+                };
+
+                showModal("error", "Konfirmasi Hapus", `Apakah Anda yakin ingin menghapus akun ${name || 'ini'} secara permanen? Aksi ini tidak dapat dibatalkan.`, doDelete);
             });
         });
     };
