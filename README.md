@@ -1,72 +1,85 @@
-# PT Rini Trans Putri - Reservation & Promotion System
+# PT Rini Trans Putri - Sistem Manajemen Reservasi dan Promosi
 
-Sistem Informasi Manajemen Reservasi dan Promosi PT Rini Trans Putri dibangun menggunakan teknologi modern untuk memberikan pengalaman pemesanan tiket perjalanan dan pengiriman paket yang cepat, aman, dan intuitif.
+## 📖 Ringkasan (Overview)
+**PT Rini Trans Putri** adalah sebuah platform Sistem Informasi Manajemen Reservasi dan Promosi modern yang terintegrasi. Sistem ini dirancang untuk menangani operasional bisnis inti dari penyedia jasa transportasi (travel reguler, sewa/charter armada) dan logistik (pengiriman paket). Sistem ini memfasilitasi seluruh proses secara *end-to-end*, mulai dari interaksi pelanggan, otomatisasi penugasan armada dan supir, pelacakan pengiriman (waybill), hingga pencatatan transaksi keuangan (cashflow) secara terpusat.
 
-## 🚀 Stack Teknologi
-*   **Framework:** [Astro 6.0+](https://astro.build/) - Pengembangan berbasis komponen dengan performa maksimal.
-*   **Styling:** [Tailwind CSS 4.0](https://tailwindcss.com/) - Desain UI modern dan responsif.
-*   **Runtime:** [Node.js 22+](https://nodejs.org/) - Lingkungan eksekusi sisi server yang stabil.
-*   **Bahasa:** [TypeScript](https://www.typescriptlang.org/) - Keamanan tipe data untuk pemeliharaan jangka panjang.
+Sistem dibangun dengan prinsip keamanan tinggi, skalabilitas, dan antarmuka yang ramah pengguna, menjadikannya solusi andal bagi manajemen dalam memantau operasi harian serta merencanakan strategi promosi.
 
-## 🏗️ Arsitektur Proyek
-Proyek ini mengikuti pola **Component-Based Development (CBD)** dengan struktur folder sebagai berikut:
+---
 
-```text
-/
-├── public/              # Aset statis publik (favicon, etc)
-├── src/
-│   ├── assets/          # Aset desain (images, fonts, icons)
-│   ├── components/
-│   │   ├── features/    # Komponen fungsional spesifik fitur (Admin, User, Driver)
-│   │   ├── shared/      # Komponen global (Navbar, Footer)
-│   │   └── ui/          # Komponen dasar atomik (Button, Input, Badge)
-│   ├── layouts/         # Template struktur halaman utama
-│   ├── pages/           # Routing halaman utama sistem
-│   ├── services/        # Logika integrasi API backend
-│   ├── styles/          # Konfigurasi CSS Global
-│   └── utils/           # Fungsi pembantu dan pengaman (AuthGuard)
-└── tsconfig.json        # Konfigurasi Path Aliases (@ui, @features, etc)
-```
+## 🚀 Stack Teknologi (Tech Stack)
+Aplikasi ini dikembangkan dengan pendekatan *Component-Based Development (CBD)* menggunakan tumpukan teknologi modern untuk memastikan performa yang maksimal dan pemeliharaan jangka panjang:
 
-## 🛠️ Perintah Utama
+*   **Frontend Framework:** [Astro 6.0+](https://astro.build/) - Framework web untuk performa pemuatan yang sangat cepat melalui arsitektur modular.
+*   **Styling:** [Tailwind CSS 4.0](https://tailwindcss.com/) - *Utility-first CSS framework* untuk desain UI/UX yang modern, konsisten, dan responsif.
+*   **Runtime Environment:** [Node.js 22+](https://nodejs.org/) - Lingkungan eksekusi *server-side* dengan performa tinggi.
+*   **Bahasa Pemrograman:** [TypeScript](https://www.typescriptlang.org/) - Memberikan *static typing* secara ketat untuk mencegah *runtime error* dan memudahkan proses pengembangan kolaboratif.
 
-| Command | Deskripsi |
+---
+
+## ⚙️ Bagaimana Sistem Ini Berjalan dan Bekerja
+Sistem **Rini Trans Putri** beroperasi melalui sinkronisasi antara *client-side* (pengguna akhir) dan proses otomasi *server-side*, dengan alur kerja arsitektural sebagai berikut:
+
+1. **Otentikasi & Manajemen Sesi:** Pengguna (Pelanggan, Supir, Admin) masuk ke dalam sistem dengan tingkat akses otorisasi yang ketat. Sistem mengelola sesi dan *role-based access control* (RBAC).
+2. **Integrasi Layanan (Services):** Semua interaksi data dari antarmuka diteruskan ke *backend API* melalui lapisan *services*. Hal ini memastikan pemisahan *concern* antara presentasi (UI) dan logika bisnis.
+3. **Otomatisasi Sistem (Auto-Triggers & Cron-jobs):** Sistem secara otomatis membatalkan pemesanan dan membebaskan kursi (*seat-locking*) jika pembayaran tidak diselesaikan dalam *window time* 10 menit untuk menghindari *double-booking*.
+4. **Cashflow Automation:** Setiap validasi pembayaran sukses di sisi Admin secara otomatis memicu eksekusi fungsi yang mencatat transaksi kas (masuk/keluar), menghitung *Gross Profit*, dan *Net Profit* secara instan pada basis data laporan keuangan.
+
+---
+
+## 🛒 Alur Pemesanan (Order Flow)
+Sistem memiliki tiga pilar bisnis utama dengan alur pemesanan spesifik:
+
+### 1. Travel Reguler (Penumpang)
+*   **Pencarian & Pemilihan:** Pelanggan mencari rute dan jadwal yang tersedia.
+*   **Seat-Locking:** Saat kursi dipilih, sistem secara otomatis mengunci ketersediaan (*lock*) selama 10 menit.
+*   **Detail Penjemputan:** Pelanggan mengisi formulir titik jemput (*Pick-up*) dan tujuan (*Drop-off*).
+*   **Pembayaran & Tiket:** Setelah pembayaran dilakukan dan dikonfirmasi, sistem secara otomatis menerbitkan tiket perjalanan digital.
+
+### 2. Sewa Armada (Charter / Pariwisata)
+*   **Pengajuan Rute:** Pelanggan mengajukan rute dan tanggal untuk keperluan penyewaan armada penuh.
+*   **Penetapan Harga Dinamis:** Admin meninjau rute yang diminta, lalu menetapkan harga secara manual (status pesanan menjadi *Pending Confirmation*).
+*   **Penugasan (Assignment):** Admin mengalokasikan unit armada spesifik beserta formasi Supir Utama dan Supir Cadangan.
+*   **Penyelesaian:** Pelanggan menyetujui harga akhir, melakukan pembayaran, dan reservasi secara resmi dijadwalkan.
+
+### 3. Ekspedisi (Pengiriman Paket)
+*   **Input Detail:** Pelanggan memasukkan rincian muatan (berat, dimensi, jenis barang).
+*   **Waybill Generation:** Sistem langsung melakukan otomasi pembuatan nomor Resi / Waybill unik.
+*   **Kalkulasi Ongkir:** Admin menetapkan biaya pengiriman sesuai rincian fisik muatan.
+*   **Pelacakan (Tracking):** Setelah pembayaran selesai, paket diproses dan pelanggan dapat melacak status terkini *(dikirim, dalam perjalanan, tiba)* berbekal nomor resi.
+
+---
+
+## 💳 Alur Pembayaran dan Promosi
+
+### Manajemen Pembayaran Multi-Tahap
+1. **Pending Confirmation:** Tahap transisi menunggu Admin menentukan harga bagi layanan kustom (Charter/Paket).
+2. **Pending Payment:** Tagihan dirilis, pelanggan memilih metode pembayaran (Transfer Bank atau Tunai).
+3. **Payment Upload:** Pelanggan mengunggah bukti bayar secara digital melalui antarmuka *popup*.
+4. **Verification:** Admin menggunakan antarmuka khusus **Payment Preview** untuk memvalidasi keabsahan bukti transfer dari pelanggan.
+5. **Verified & Settled:** Transaksi berstatus Lunas. Dana otomatis dicatat oleh algoritma *Cashflow Ledger* tanpa intervensi rekapitulasi manual.
+
+### Sistem Promosi Terpusat (CMS)
+Admin memiliki kendali komprehensif untuk mendesain dan mengaktifkan *Campaign/Promotion* melalui panel CMS. Konfigurasi promosi ini secara *real-time* diproyeksikan sebagai *banner* atau penawaran khusus pada beranda pelanggan. Pada fase *checkout*, mesin perhitungan harga akan tervalidasi secara mandiri, memberikan pemotongan/penyesuaian tarif sesuai dengan promosi aktif tersebut.
+
+---
+
+## 🔐 Aksesibilitas dan Keamanan Hak Akses (User Roles)
+Hak akses dikelola dan dipartisi secara ketat dengan spesifikasi berikut:
+1.  **Guest (Tamu Publik):** Hanya memiliki otoritas untuk mengakses informasi ketersediaan, rute reguler, dan etalase promosi.
+2.  **Customer (Pelanggan Terdaftar):** Berwenang melakukan reservasi *end-to-end*, melacak pengiriman, mengelola riwayat transaksi, dan mengedit profil akun.
+3.  **Driver (Supir):** Memiliki antarmuka portabel (panel khusus) untuk meninjau penugasan harian, memantau manifes operasional penumpang, serta mendokumentasikan klaim biaya operasional harian (BBM, Tol) kepada sistem.
+4.  **Admin / Manajerial:** Memegang kendali manajerial penuh atas verifikasi arus kas, penugasan armada dan sumber daya manusia, manajemen *campaign* CMS, hingga analitik *dashboard* finansial. Skema keamanan melarang mutasi atau penghapusan level hierarki tertingginya (*Super Admin*).
+
+---
+
+## 💻 Panduan Menjalankan Sistem Secara Lokal (Development)
+
+Bagi pengembang sistem, gunakan instuksi *Command Line Interface (CLI)* berikut untuk inisialisasi lingkungan kerja lokal:
+
+| Command (Perintah) | Deskripsi Teknis |
 | :--- | :--- |
-| `npm run dev` | Menjalankan server pengembangan lokal |
-| `npm run build` | Membangun proyek untuk tahap produksi |
-| `npm run preview` | Meninjau hasil build produksi secara lokal |
-| `npx astro check` | Melakukan audit statis pada sintaks dan TypeScript |
-
-## 🔐 Tingkat Akses (User Roles)
-1.  **Guest:** Mengakses info layanan, rute, dan jadwal.
-2.  **Customer:** Melakukan reservasi tiket, sewa armada, dan kirim paket.
-3.  **Supir:** Mengelola manifes penumpang dan laporan biaya operasional.
-4.  **Admin:** Panel kendali penuh terhadap konten, armada, dan laporan keuangan.
-
-## 💳 Alur Pembayaran (Payment Flow) Baru
-Sistem menggunakan penetapan harga dinamis untuk beberapa layanan dan status verifikasi berjenjang:
-1. **Pending Confirmation:** Pemesanan paket atau charter yang belum ada harganya. Admin mengkalkulasi harga final dan merilis tagihan.
-2. **Pending Payment:** Pelanggan memilih metode pembayaran (Cash/Transfer).
-3. **Payment Upload:** Jika transfer, pelanggan mengunggah bukti pembayaran via sistem popup.
-4. **Verification:** Admin memeriksa bukti transfer pada **Payment Preview Modal** di panel Admin, lalu mengonfirmasi keabsahan uang masuk.
-5. **Verified & Settled:** Status menjadi Lunas. Kas secara otomatis tercatat di sistem Cashflow (buku besar).
-
-## 🎁 Alur Promosi (Promotion Flow) Baru
-1. Admin membuat *Campaign/Promotion* aktif melalui panel CMS (*Content Management System*).
-2. Data promo tayang di halaman publik (Banner atau penawaran khusus).
-3. Pengguna yang melakukan pesanan akan mendapatkan penyesuaian harga atau keuntungan sesuai dengan promosi yang berlaku saat checkout (harga akan terpotong).
-
-## 🛒 Alur Pemesanan Pengguna (User Order Flow) Baru
-- **Travel Reguler:** User mencari jadwal -> Pilih kursi (Kursi terkunci otomatis 10 menit) -> Mengisi form detail Pick-up & Drop-off -> Bayar -> Tiket terbit.
-- **Sewa Charter:** User mengajukan rute destinasi pariwisata -> Admin menyetujui, menginput harga manual, serta **menugaskan armada, supir 1, dan supir 2 (cadangan)** -> User setuju dan bayar.
-- **Ekspedisi Paket:** User memasukkan detail muatan & dimensi -> Sistem menerbitkan nomor Resi unik (Waybill) -> Admin tentukan ongkir -> User bayar -> Paket dapat dilacak status pengirimannya (dikirim, dalam perjalanan, tiba).
-
-## 👨‍💼 Hal-hal Baru yang Dikelola Admin
-- **Halaman Penugasan (Assignments):** Memungkinkan admin menugaskan armada (`fleet_id`) dan tim supir secara spesifik pada jadwal tertentu sebelum dikerjakan.
-- **Payment Preview:** Modal khusus di sisi admin untuk memvalidasi gambar *screenshot*/resi transfer.
-- **Manajemen Roles & Restriksi:** Admin memiliki kuasa menolak/menyetujui klaim operasional (bensin/tol supir), namun sistem mengunci Super Admin agar tidak dapat menghapus akun admin lainnya.
-
-## ⚙️ Hal-hal yang Otomatis Dilakukan Sistem
-1. **Auto Seat-Locking & Cancel:** Sistem menjalankan cron-job yang mengamankan kursi selama 10 menit untuk mencegah double-booking, dan otomatis membatalkan jika tak ada pembayaran.
-2. **Auto Waybill Generator:** Penciptaan otomatis nomor resi logistik yang unik bagi pelanggan paket.
-3. **Cashflow Automation (Triggers):** Perekaman transaksi finansial otomatis (Kas Masuk/Keluar) yang akan menghitung metrik Gross Profit & Net Profit di halaman Dashboard setiap kali ada transaksi disetujui.
+| `npm run dev` | Mengeksekusi server pengembangan dengan kapabilitas *Hot-Reload* untuk efisiensi *debugging* antarmuka. |
+| `npm run build` | Mengompilasi keseluruhan basis kode (*source code*) untuk men-generate bundel aset statis skala produksi. |
+| `npm run preview` | Menjalankan *instance* server secara lokal guna menyimulasikan prilaku bundel aplikasi pasca-*build* produksi. |
+| `npx astro check` | Memicu linting diagnostik untuk memastikan seluruh anotasi keamanan tipe TypeScript (TypeScript *Type-Checking*) terpenuhi tanpa peringatan teknis. |
