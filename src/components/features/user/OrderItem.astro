@@ -31,14 +31,15 @@ let showPayButton = false;
 let showPaymentMethodSelection = false;
 let showQrisButton = false;
 
-const isNew = order.status === "menunggu_konfirmasi" && !meta.payment_proof_url && meta.payment_method !== "cash";
+const isNew =
+    order.status === "menunggu_konfirmasi" &&
+    !meta.payment_proof_url &&
+    meta.payment_method !== "cash";
 const isProofUploaded =
     order.status === "menunggu_konfirmasi" && !!meta.payment_proof_url;
 
-const isCashWaitingAdmin = 
-
-    order.status === "menunggu_konfirmasi" && 
-    meta.payment_method === "cash";
+const isCashWaitingAdmin =
+    order.status === "menunggu_konfirmasi" && meta.payment_method === "cash";
 
 const isAssigned =
     (order.type === "travel" || order.type === "package") &&
@@ -73,7 +74,7 @@ if (isNew) {
     statusText = "Menunggu Admin Menetapkan Harga";
 } else if (isCashWaitingAdmin) {
     statusClass = "bg-sky-50 text-sky-600 border-sky-100";
-    statusText = "Menunggu Persetujuan Admin"; 
+    statusText = "Menunggu Persetujuan Admin";
     showPayButton = false;
 } else if (order.status === "menunggu_pembayaran") {
     statusClass = "bg-amber-50 text-amber-600 border-amber-100";
@@ -134,6 +135,8 @@ const originalBasePrice = order.original_price
     : 0;
 const discountedBasePrice = order.price - extraCharge;
 const hasPromo = originalBasePrice > discountedBasePrice;
+const rawDiscount = hasPromo ? ((originalBasePrice - discountedBasePrice) / originalBasePrice) * 100 : 0;
+const discountPercentage = hasPromo ? Math.round(rawDiscount / 5) * 5 : 0;
 
 const formatCurrency = (val: number) => {
     return new Intl.NumberFormat("id-ID", {
@@ -197,6 +200,55 @@ const displayId =
             >
                 {detailsText}
             </p>
+
+            {
+                showPaymentMethodSelection && (
+                    <div class="w-full mt-4 max-w-sm">
+                        <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2 text-left">
+                            Pilih Metode Pembayaran
+                        </span>
+                        <div class="flex gap-3">
+                            <button
+                                type="button"
+                                onclick={`window.selectPaymentMethod('${order.id}', '${order.type}', 'cash')`}
+                                class="w-[72px] aspect-square border-2 border-emerald-200 bg-emerald-50 hover:bg-emerald-100 rounded-xl p-1.5 flex flex-col items-center justify-center gap-1.5 transition-all group shadow-sm"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-emerald-600">
+                                    <rect width="20" height="12" x="2" y="6" rx="2" />
+                                    <circle cx="12" cy="12" r="2" />
+                                    <path d="M6 12h.01M18 12h.01" />
+                                </svg>
+                                <span class="block text-[8px] font-bold text-emerald-700 uppercase tracking-wide text-center leading-tight">
+                                    Bayar Tunai
+                                </span>
+                            </button>
+                            <button
+                                type="button"
+                                onclick={`window.selectPaymentMethod('${order.id}', '${order.type}', 'cashless')`}
+                                class="w-[72px] aspect-square border-2 border-sky-200 bg-sky-50 hover:bg-sky-100 rounded-xl p-1.5 flex flex-col items-center justify-center gap-1.5 transition-all group shadow-sm"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-sky-600">
+                                    <rect width="5" height="5" x="3" y="3" rx="1" />
+                                    <rect width="5" height="5" x="16" y="3" rx="1" />
+                                    <rect width="5" height="5" x="3" y="16" rx="1" />
+                                    <path d="M21 16h-3a2 2 0 0 0-2 2v3" />
+                                    <path d="M21 21v.01" />
+                                    <path d="M12 7v3a2 2 0 0 1-2 2H7" />
+                                    <path d="M3 12h.01" />
+                                    <path d="M12 3h.01" />
+                                    <path d="M12 16v.01" />
+                                    <path d="M16 12h1" />
+                                    <path d="M21 12v.01" />
+                                    <path d="M12 21v-1" />
+                                </svg>
+                                <span class="block text-[8px] font-bold text-sky-700 uppercase tracking-wide text-center leading-tight">
+                                    Transfer (QRIS)
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+                )
+            }
         </div>
     </div>
 
@@ -210,12 +262,19 @@ const displayId =
                 class="block text-[10px] text-slate-400 font-bold uppercase tracking-wider mb-0.5"
                 >Ringkasan Biaya</span
             >
-            <div class="flex flex-col items-end">
+            <div class="flex flex-col items-end w-full">
                 {
                     hasPromo && (
-                        <span class="text-xs text-rose-500 line-through font-secondary mb-0.5">
-                            {formatCurrency(originalBasePrice)}
-                        </span>
+                        <div class="flex items-center justify-end gap-1.5 mb-0.5 w-full">
+                            <div class="relative flex items-center h-4 bg-rose-500 text-white font-black text-[9px] pl-1.5 pr-1 rounded-l mr-2 -rotate-6 origin-right shadow-sm mt-0.5 transition-transform hover:-rotate-12">
+                                <div class="absolute -right-2 top-0 w-0 h-0 border-y-8 border-y-transparent border-l-8 border-l-rose-500"></div>
+                                <div class="absolute -right-0.5 top-1/2 -translate-y-1/2 w-1 h-1 bg-slate-50 rounded-full shadow-inner"></div>
+                                <span class="tracking-wide relative z-10">-{discountPercentage}%</span>
+                            </div>
+                            <span class="text-xs text-rose-400 line-through font-secondary">
+                                {formatCurrency(originalBasePrice)}
+                            </span>
+                        </div>
                     )
                 }
                 <span class="text-xs font-secondary font-medium text-primary">
@@ -223,7 +282,7 @@ const displayId =
                 </span>
                 {
                     meta.is_baggage_charge && (
-                        <div class="flex flex-col items-end mt-1 text-amber-600">
+                        <div class="flex flex-col items-end mt-1 text-amber-500">
                             <span class="text-xs font-secondary font-medium">
                                 + Charge Bagasi
                             </span>
@@ -233,20 +292,31 @@ const displayId =
                         </div>
                     )
                 }
-                {
-                    meta.is_baggage_charge && (
-                        <div class="w-full mt-2 pt-2 border-t border-slate-100 flex justify-between gap-4">
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-1">
-                                Total
-                            </span>
-                            <span class="text-lg font-black text-slate-800">
-                                {formatCurrency(order.price)}
-                            </span>
-                        </div>
-                    )
-                }
+                
+                <div class="w-full mt-2 py-2 mb-2 border-y border-slate-100 flex justify-between items-center gap-4">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                        Total
+                    </span>
+                    <span class="text-lg font-black text-slate-800">
+                        {formatCurrency(order.price)}
+                    </span>
+                </div>
             </div>
         </div>
+
+        {
+            showPaymentMethodSelection && (
+                <div class="payment-countdown w-full flex flex-col md:flex-row justify-end items-end md:items-center my-1 gap-1 md:gap-2" data-timestamp={meta.updated_at || meta.created_at || order.date}>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mt-0.5">
+                        Pembatalan Otomatis dalam:
+                    </span>
+                    <span class="text-sm font-black text-rose-500 flex items-center gap-1.5 font-mono animate-pulse-slow shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        <span class="countdown-text tracking-wider">10:00</span>
+                    </span>
+                </div>
+            )
+        }
 
         <div class="w-full flex flex-col gap-2">
             {
@@ -261,7 +331,7 @@ const displayId =
                             Batalkan Pesanan
                         </button>
                         {order.date && (
-                            <p class="text-[10px] text-rose-500 font-secondary mt-1 text-center md:text-right">
+                            <p class="text-[10px] text-rose-500 font-secondary mt-1 text-left w-full">
                                 *note: pembatalan dapat dilakukan sebelum pukul
                                 12 Siang pada tanggal{" "}
                                 {new Date(order.date).toLocaleDateString(
@@ -287,94 +357,6 @@ const displayId =
                 )
             }
         </div>
-
-        {
-            showPaymentMethodSelection && (
-                <div class="w-full mt-2 grid grid-cols-2 gap-2">
-                    <button
-                        type="button"
-                        onclick={`window.selectPaymentMethod('${order.id}', '${order.type}', 'cash')`}
-                        class="w-full border-2 border-emerald-200 bg-emerald-50 hover:bg-emerald-100 rounded-xl py-3 flex flex-col items-center justify-center gap-1 transition-all group"
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="18"
-                            height="18"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            class="text-emerald-600"
-                        >
-                            <>
-                                <rect
-                                    width="20"
-                                    height="12"
-                                    x="2"
-                                    y="6"
-                                    rx="2"
-                                />
-                                <circle cx="12" cy="12" r="2" />
-                                <path d="M6 12h.01M18 12h.01" />
-                            </>
-                        </svg>
-                        <span class="block text-[9px] font-bold text-emerald-700 uppercase tracking-wide">
-                            Bayar Tunai
-                        </span>
-                    </button>
-                    <button
-                        type="button"
-                        onclick={`window.selectPaymentMethod('${order.id}', '${order.type}', 'cashless')`}
-                        class="w-full border-2 border-sky-200 bg-sky-50 hover:bg-sky-100 rounded-xl py-3 flex flex-col items-center justify-center gap-1 transition-all group"
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="18"
-                            height="18"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            stroke-width="2"
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            class="text-sky-600"
-                        >
-                            <>
-                                <rect width="5" height="5" x="3" y="3" rx="1" />
-                                <rect
-                                    width="5"
-                                    height="5"
-                                    x="16"
-                                    y="3"
-                                    rx="1"
-                                />
-                                <rect
-                                    width="5"
-                                    height="5"
-                                    x="3"
-                                    y="16"
-                                    rx="1"
-                                />
-                                <path d="M21 16h-3a2 2 0 0 0-2 2v3" />
-                                <path d="M21 21v.01" />
-                                <path d="M12 7v3a2 2 0 0 1-2 2H7" />
-                                <path d="M3 12h.01" />
-                                <path d="M12 3h.01" />
-                                <path d="M12 16v.01" />
-                                <path d="M16 12h1" />
-                                <path d="M21 12v.01" />
-                                <path d="M12 21v-1" />
-                            </>
-                        </svg>
-                        <span class="block text-[9px] font-bold text-sky-700 uppercase tracking-wide">
-                            Transfer (QRIS)
-                        </span>
-                    </button>
-                </div>
-            )
-        }
 
         {
             showQrisButton && (
@@ -451,3 +433,57 @@ const displayId =
         }
     }
 </style>
+
+<script>
+    function initCountdowns() {
+        const countdownEls = document.querySelectorAll(".payment-countdown");
+
+        countdownEls.forEach((el) => {
+            const timestamp = el.getAttribute("data-timestamp");
+            if (!timestamp) return;
+
+            // +10 minutes from updated_at/created_at
+            const targetTime = new Date(timestamp).getTime() + 10 * 60 * 1000;
+            const textEl = el.querySelector(".countdown-text");
+            const buttons = el.closest(".relative")?.querySelectorAll("button");
+
+            const updateTimer = () => {
+                const now = new Date().getTime();
+                const distance = targetTime - now;
+
+                if (distance < 0) {
+                    if (textEl) textEl.innerHTML = "Waktu Habis";
+                    // Disable buttons if time is up
+                    buttons?.forEach((btn) => (btn.disabled = true));
+                    return;
+                }
+
+                const minutes = Math.floor(
+                    (distance % (1000 * 60 * 60)) / (1000 * 60),
+                );
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                if (textEl) {
+                    textEl.innerHTML = `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+                }
+            };
+
+            updateTimer();
+            const intervalId = setInterval(updateTimer, 1000);
+            // Store interval ID to prevent memory leaks if component is re-rendered
+            (el as any).dataset.intervalId = intervalId.toString();
+        });
+    }
+
+    // Run on initial load
+    document.addEventListener("DOMContentLoaded", initCountdowns);
+    // Run on Astro page transitions
+    document.addEventListener("astro:page-load", () => {
+        // Clear old intervals first
+        document.querySelectorAll(".payment-countdown").forEach((el) => {
+            const id = (el as any).dataset.intervalId;
+            if (id) clearInterval(parseInt(id));
+        });
+        initCountdowns();
+    });
+</script>

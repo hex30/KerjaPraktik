@@ -35,7 +35,8 @@ const emptyPromo: PromoContent = {
     noteTitle: "INFO PROMO",
     noteDesc: "Tidak ada promosi yang aktif saat ini",
     textRow1: "KEMUDAHAN",
-    textDesc1: "Dengan hadirnya PT. RINI TRANS PUTRI akan membuat perjalanan anda menjadi jauh lebih mudah dan aman.",
+    textDesc1:
+        "Dengan hadirnya PT. RINI TRANS PUTRI akan membuat perjalanan anda menjadi jauh lebih mudah dan aman.",
     textRow2: "DALAM",
     textRow3: "PERJALANAN",
     textDesc2: "Kenyamanan dan keamanan anda adalah prioritas utama kami.",
@@ -48,10 +49,11 @@ const { promoData = emptyPromo } = Astro.props;
 
 <section class="max-w-5xl mx-auto px-6 py-16 font-main">
     <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-        
         <!-- Promotional Visual (Left) -->
         <div class="lg:col-span-4 flex flex-col gap-6">
-            <div class="w-full h-[350px] md:h-[400px] rounded-[2rem] overflow-hidden shadow-lg border border-slate-100">
+            <div
+                class="w-full h-[350px] md:h-[400px] rounded-[2rem] overflow-hidden shadow-lg border border-slate-100"
+            >
                 <img
                     src={promoData.image}
                     alt="Promo Rini Trans Putri"
@@ -59,7 +61,7 @@ const { promoData = emptyPromo } = Astro.props;
                 />
             </div>
 
-            <PromoBadge 
+            <PromoBadge
                 discount={promoData.discount}
                 noteTitle={promoData.noteTitle}
                 noteDesc={promoData.noteDesc}
@@ -68,30 +70,48 @@ const { promoData = emptyPromo } = Astro.props;
 
         <!-- Promotional Copy (Right) -->
         <div class="lg:col-span-8 flex flex-col justify-between gap-8 py-2">
-            
             <div class="flex flex-col gap-6">
-                <PromoTextRow text={promoData.textRow1} description={promoData.textDesc1} />
+                <PromoTextRow
+                    text={promoData.textRow1}
+                    description={promoData.textDesc1}
+                />
                 <PromoTextRow text={promoData.textRow2} />
-                <PromoTextRow text={promoData.textRow3} description={promoData.textDesc2} align="right" />
+                <PromoTextRow
+                    text={promoData.textRow3}
+                    description={promoData.textDesc2}
+                    align="right"
+                />
             </div>
 
             <!-- Main CTA Button -->
-            <a href="/services/route"
+            <a
+                href="/services/route"
                 class="relative w-full py-6 rounded-[2rem] overflow-hidden flex items-center justify-center gap-3 font-main font-bold text-lg text-white shadow-md group border border-sky-100/50 transition-all hover:shadow-xl hover:-translate-y-1"
             >
                 <div class="absolute inset-0 z-0 bg-btn-linear">
-                    <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1534088568595-a066f410bcda?auto=format&fit=crop&q=80&w=600')] bg-cover bg-center opacity-10 mix-blend-overlay"></div>
+                    <div
+                        class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1534088568595-a066f410bcda?auto=format&fit=crop&q=80&w=600')] bg-cover bg-center opacity-10 mix-blend-overlay"
+                    >
+                    </div>
                 </div>
-                <span class="relative z-10 transition-transform duration-300 group-hover:translate-x-[-4px]">Pesan Tiket Sekarang</span>
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-5 h-5 relative z-10 text-white transition-transform duration-300 group-hover:translate-x-2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                <span
+                    class="relative z-10 transition-transform duration-300 group-hover:translate-x-[-4px]"
+                    >Pesan Tiket Sekarang</span
+                >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="2.5"
+                    stroke="currentColor"
+                    class="w-5 h-5 relative z-10 text-white transition-transform duration-300 group-hover:translate-x-2"
+                >
+                    <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"></path>
                 </svg>
             </a>
         </div>
     </div>
 </section>
-
-
-
-
-

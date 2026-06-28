@@ -62,6 +62,29 @@ try {
       parseFloat(p.discount || p.discount_percentage || 0),
     );
 
+    const fullDesc =
+      p.description ||
+      "Jangan lewatkan penawaran spesial ini khusus untuk Anda.";
+
+    // Split description into two parts for layout (top-right and bottom-left)
+    let descPart1 = fullDesc;
+    let descPart2 = fullDesc;
+
+    if (fullDesc.length > 60) {
+      const midpoint = Math.floor(fullDesc.length / 2);
+      const spaceAfter = fullDesc.indexOf(" ", midpoint);
+      const spaceBefore = fullDesc.lastIndexOf(" ", midpoint);
+      const splitAt =
+        spaceAfter !== -1 && spaceAfter - midpoint < midpoint - spaceBefore
+          ? spaceAfter
+          : spaceBefore;
+
+      if (splitAt > 0 && splitAt < fullDesc.length) {
+        descPart1 = fullDesc.substring(0, splitAt).trim();
+        descPart2 = fullDesc.substring(splitAt).trim();
+      }
+    }
+
     promoData = {
       image: p.image_url || p.image || "/images/dummy-promo.jpg",
       discount:
@@ -71,15 +94,10 @@ try {
       noteTitle: p.badge_label || "INFO PROMO",
       noteDesc: p.subtitle || "Berlaku Syarat & Ketentuan",
       textRow1: textRow1,
-      textDesc1:
-        p.description ||
-        "Jangan lewatkan penawaran spesial ini khusus untuk Anda.",
+      textDesc1: descPart1,
       textRow2: textRow2,
       textRow3: textRow3,
-      textDesc2:
-        p.target_service !== "all"
-          ? `*Khusus layanan ${p.target_service}`
-          : "Syarat dan ketentuan berlaku.",
+      textDesc2: descPart2,
       btnLink: "/services",
       btnText: "Pesan Sekarang",
     };

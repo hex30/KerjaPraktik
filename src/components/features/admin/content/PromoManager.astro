@@ -3,117 +3,282 @@ import InputGroup from "@ui/InputGroup.astro";
 import Button from "@ui/Button.astro";
 ---
 
-<div class="flex flex-col gap-12 bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+<div
+    class="flex flex-col gap-12 bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm"
+>
     <header class="flex flex-col gap-4">
         <div>
-            <h3 class="text-xl font-black text-slate-900 tracking-tight">Manajemen Promosi</h3>
-            <p class="text-xs text-slate-400 font-secondary mt-1">Buat promo yang akan ditampilkan di halaman utama dan diaplikasikan ke layanan.</p>
+            <h3 class="text-xl font-black text-slate-900 tracking-tight">
+                Manajemen Promosi
+            </h3>
+            <p class="text-xs text-slate-400 font-secondary mt-1">
+                Buat promo yang akan ditampilkan di halaman utama dan
+                diaplikasikan ke layanan.
+            </p>
         </div>
     </header>
 
     <!-- FORM PROMO -->
     <div id="section-promo-home" class="flex flex-col gap-8 pt-4">
-        <form id="promo-home-form" class="flex flex-col gap-8 promo-form" data-type="home">
+        <form
+            id="promo-home-form"
+            class="flex flex-col gap-8 promo-form"
+            data-type="home"
+        >
             <input type="hidden" class="promo-id" name="id" value="" />
             <input type="hidden" name="promo_type" value="home" />
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="flex flex-col gap-5">
-                    <h4 class="text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-2">
+                    <h4
+                        class="text-[10px] font-black text-primary uppercase tracking-widest flex items-center gap-2"
+                    >
                         <div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
                         Payload Utama Promo
                     </h4>
-                    
+
                     <div class="grid grid-cols-1 gap-4">
-                        <InputGroup label="Tagline Promo" class="tagline-input" name="tagline" placeholder="Contoh: Mudik Ceria" required={true} />
+                        <InputGroup
+                            label="Tagline Promo"
+                            class="tagline-input"
+                            name="tagline"
+                            placeholder="Contoh: Mudik Ceria"
+                            required={true}
+                        />
                     </div>
-                    
+
                     <div class="flex flex-col gap-2">
-                        <label class="font-secondary text-sm font-bold text-primary">Deskripsi Promo</label>
-                        <textarea name="description" rows="4" class="description-input w-full bg-slate-100 border border-slate-200 rounded-lg px-4 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-none" placeholder="Jelaskan detail promo Anda..." required></textarea>
+                        <label
+                            class="font-secondary text-sm font-bold text-primary"
+                            >Deskripsi Promo</label
+                        >
+                        <textarea
+                            name="description"
+                            rows="4"
+                            class="description-input w-full bg-slate-100 border border-slate-200 rounded-lg px-4 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-none"
+                            placeholder="Jelaskan detail promo Anda..."
+                            required></textarea>
                     </div>
                 </div>
 
                 <div class="flex flex-col gap-5">
-                    <h4 class="text-[10px] font-black text-amber-500 uppercase tracking-widest flex items-center gap-2">
-                        <div class="w-1.5 h-1.5 rounded-full bg-amber-500"></div>
+                    <h4
+                        class="text-[10px] font-black text-amber-500 uppercase tracking-widest flex items-center gap-2"
+                    >
+                        <div class="w-1.5 h-1.5 rounded-full bg-amber-500">
+                        </div>
                         Visual & Besaran
                     </h4>
 
                     <div class="grid grid-cols-2 gap-4">
-                        <InputGroup label="Diskon (%)" class="discount-input" name="discount" type="number" placeholder="0" suffix="%" required={true} />
-                        
-                        <div class="flex flex-col gap-2 w-full max-discount-input-container">
-                            <label for="promo_max_discount" class="font-secondary text-sm font-bold text-primary">Max Potongan (Rp)</label>
+                        <InputGroup
+                            label="Diskon (%)"
+                            class="discount-input"
+                            name="discount"
+                            type="number"
+                            placeholder="0"
+                            suffix="%"
+                            required={true}
+                        />
+
+                        <div
+                            class="flex flex-col gap-2 w-full max-discount-input-container"
+                        >
+                            <label
+                                for="promo_max_discount"
+                                class="font-secondary text-sm font-bold text-primary"
+                                >Max Potongan (Rp)</label
+                            >
                             <div class="relative w-full">
-                                <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">Rp</span>
-                                <input type="hidden" name="max_discount" class="real-price-input max-discount-real" value="" />
-                                <input 
-                                    type="text" 
+                                <span
+                                    class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm"
+                                    >Rp</span
+                                >
+                                <input
+                                    type="hidden"
+                                    name="max_discount"
+                                    class="real-price-input max-discount-real"
+                                    value=""
+                                />
+                                <input
+                                    type="text"
                                     id="promo_max_discount"
-                                    placeholder="Contoh: 50.000" 
-                                    class="price-display-input max-discount-display w-full bg-slate-100 border border-slate-200 rounded-lg pl-12 pr-4 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" 
-                                    required 
+                                    placeholder="Contoh: 50.000"
+                                    class="price-display-input max-discount-display w-full bg-slate-100 border border-slate-200 rounded-lg pl-12 pr-4 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
+                                    required
                                 />
                             </div>
                         </div>
                     </div>
 
                     <div class="flex flex-col gap-2 relative">
-                        <label class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Banner Promo</label>
-                        <div class="relative w-full h-40 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 flex flex-col items-center justify-center gap-3 hover:border-primary hover:bg-primary/5 transition-all cursor-pointer group overflow-hidden">
-                            <input type="file" name="image" accept="image/png, image/jpeg, image/jpg" class="image-upload-input absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-300 group-hover:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                            <span class="image-upload-text text-xs font-bold text-slate-400 group-hover:text-primary transition-colors px-4 text-center line-clamp-1">Pilih Gambar / Drag & Drop</span>
+                        <label
+                            class="text-[10px] font-bold text-slate-500 uppercase tracking-widest"
+                            >Banner Promo</label
+                        >
+                        <div
+                            class="relative w-full h-40 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 flex flex-col items-center justify-center gap-3 hover:border-primary hover:bg-primary/5 transition-all cursor-pointer group overflow-hidden"
+                        >
+                            <input
+                                type="file"
+                                name="image"
+                                accept="image/png, image/jpeg, image/jpg"
+                                class="image-upload-input absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                            />
+                            <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                class="h-8 w-8 text-slate-300 group-hover:text-primary transition-colors"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                ><path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                ></path></svg
+                            >
+                            <span
+                                class="image-upload-text text-xs font-bold text-slate-400 group-hover:text-primary transition-colors px-4 text-center line-clamp-1"
+                                >Pilih Gambar / Drag & Drop</span
+                            >
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col gap-4">
-                <h5 class="text-[10px] font-black text-slate-800 uppercase tracking-widest">Target Layanan (Pilih Salah Satu)</h5>
-                <div class="flex flex-wrap gap-4 mt-2" id="target-service-container">
-                    <label class="flex items-center gap-2 cursor-pointer bg-white border border-slate-200 px-4 py-2 rounded-xl hover:border-primary">
-                        <input type="checkbox" name="target_service" value="all" class="text-primary focus:ring-primary w-4 h-4 target-service-cb" checked>
-                        <span class="text-xs font-bold text-slate-600">Semua Layanan</span>
+            <div
+                class="p-6 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col gap-4"
+            >
+                <h5
+                    class="text-[10px] font-black text-slate-800 uppercase tracking-widest"
+                >
+                    Target Layanan (Pilih Salah Satu)
+                </h5>
+                <div
+                    class="flex flex-wrap gap-4 mt-2"
+                    id="target-service-container"
+                >
+                    <label
+                        class="flex items-center gap-2 cursor-pointer bg-white border border-slate-200 px-4 py-2 rounded-xl hover:border-primary"
+                    >
+                        <input
+                            type="checkbox"
+                            name="target_service"
+                            value="all"
+                            class="text-primary focus:ring-primary w-4 h-4 target-service-cb"
+                            checked
+                        />
+                        <span class="text-xs font-bold text-slate-600"
+                            >Semua Layanan</span
+                        >
                     </label>
-                    <label class="flex items-center gap-2 cursor-pointer bg-white border border-slate-200 px-4 py-2 rounded-xl hover:border-primary">
-                        <input type="checkbox" name="target_service" value="travel" class="text-primary focus:ring-primary w-4 h-4 target-service-cb">
-                        <span class="text-xs font-bold text-slate-600">Travel Regular</span>
+                    <label
+                        class="flex items-center gap-2 cursor-pointer bg-white border border-slate-200 px-4 py-2 rounded-xl hover:border-primary"
+                    >
+                        <input
+                            type="checkbox"
+                            name="target_service"
+                            value="travel"
+                            class="text-primary focus:ring-primary w-4 h-4 target-service-cb"
+                        />
+                        <span class="text-xs font-bold text-slate-600"
+                            >Travel Regular</span
+                        >
                     </label>
-                    <label class="flex items-center gap-2 cursor-pointer bg-white border border-slate-200 px-4 py-2 rounded-xl hover:border-primary">
-                        <input type="checkbox" name="target_service" value="charter" class="text-primary focus:ring-primary w-4 h-4 target-service-cb">
-                        <span class="text-xs font-bold text-slate-600">Carter Drop</span>
+                    <label
+                        class="flex items-center gap-2 cursor-pointer bg-white border border-slate-200 px-4 py-2 rounded-xl hover:border-primary"
+                    >
+                        <input
+                            type="checkbox"
+                            name="target_service"
+                            value="charter"
+                            class="text-primary focus:ring-primary w-4 h-4 target-service-cb"
+                        />
+                        <span class="text-xs font-bold text-slate-600"
+                            >Carter Drop</span
+                        >
                     </label>
-                    <label class="flex items-center gap-2 cursor-pointer bg-white border border-slate-200 px-4 py-2 rounded-xl hover:border-primary">
-                        <input type="checkbox" name="target_service" value="package" class="text-primary focus:ring-primary w-4 h-4 target-service-cb">
-                        <span class="text-xs font-bold text-slate-600">Paket Ekspedisi</span>
+                    <label
+                        class="flex items-center gap-2 cursor-pointer bg-white border border-slate-200 px-4 py-2 rounded-xl hover:border-primary"
+                    >
+                        <input
+                            type="checkbox"
+                            name="target_service"
+                            value="package"
+                            class="text-primary focus:ring-primary w-4 h-4 target-service-cb"
+                        />
+                        <span class="text-xs font-bold text-slate-600"
+                            >Paket Ekspedisi</span
+                        >
                     </label>
                 </div>
-                
-                <label class="flex items-center gap-3 cursor-pointer group mt-4 bg-white border border-slate-200 p-3 rounded-xl hover:border-primary transition-colors w-max">
-                    <input type="checkbox" name="is_active" class="is-active-input w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary">
-                    <span class="text-sm font-bold text-slate-600 group-hover:text-primary transition-colors">Tampilkan sebagai Promo Aktif</span>
+
+                <label
+                    class="flex items-center gap-3 cursor-pointer group mt-4 bg-white border border-slate-200 p-3 rounded-xl hover:border-primary transition-colors w-max"
+                >
+                    <input
+                        type="checkbox"
+                        name="is_active"
+                        class="is-active-input w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary"
+                    />
+                    <span
+                        class="text-sm font-bold text-slate-600 group-hover:text-primary transition-colors"
+                        >Tampilkan sebagai Promo Aktif</span
+                    >
                 </label>
             </div>
 
             <div class="flex justify-end gap-3 pt-4 border-t border-slate-50">
-                <button type="button" class="delete-promo-btn px-8 py-3 rounded-xl font-bold text-sm text-red-500 hover:bg-red-50 transition-all hidden">Hapus Promo</button>
-                <button type="reset" id="reset-promo-btn" class="px-8 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-slate-600 transition-all">Reset / Batal Edit</button>
-                <Button type="submit" size="lg" class="submit-promo-btn px-12">Simpan Promo</Button>
+                <button
+                    type="button"
+                    class="delete-promo-btn px-8 py-3 rounded-xl font-bold text-sm text-red-500 hover:bg-red-50 transition-all hidden"
+                    >Hapus Promo</button
+                >
+                <button
+                    type="reset"
+                    id="reset-promo-btn"
+                    class="px-8 py-3 rounded-xl font-bold text-sm text-slate-400 hover:text-slate-600 transition-all"
+                    >Reset / Batal Edit</button
+                >
+                <Button type="submit" size="lg" class="submit-promo-btn px-12"
+                    >Simpan Promo</Button
+                >
             </div>
         </form>
     </div>
 </div>
 
 <!-- Custom Alert Modal -->
-<div id="promo-alert-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm opacity-0 transition-opacity duration-300">
-    <div class="bg-white p-8 rounded-[2rem] max-w-sm w-full shadow-2xl scale-95 transition-transform duration-300" id="promo-alert-card">
+<div
+    id="promo-alert-modal"
+    class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-sm opacity-0 transition-opacity duration-300"
+>
+    <div
+        class="bg-white p-8 rounded-[2rem] max-w-sm w-full shadow-2xl scale-95 transition-transform duration-300"
+        id="promo-alert-card"
+    >
         <div class="flex flex-col items-center text-center gap-4">
-            <div id="promo-alert-icon" class="w-16 h-16 rounded-full flex items-center justify-center text-3xl"></div>
-            <h3 id="promo-alert-title" class="text-xl font-black text-slate-900"></h3>
-            <p id="promo-alert-message" class="text-sm text-slate-500 font-secondary"></p>
-            <button type="button" id="promo-alert-close" class="mt-4 w-full py-3 rounded-xl font-bold transition-all text-white"></button>
+            <div
+                id="promo-alert-icon"
+                class="w-16 h-16 rounded-full flex items-center justify-center text-3xl"
+            >
+            </div>
+            <h3
+                id="promo-alert-title"
+                class="text-xl font-black text-slate-900"
+            >
+            </h3>
+            <p
+                id="promo-alert-message"
+                class="text-sm text-slate-500 font-secondary"
+            >
+            </p>
+            <button
+                type="button"
+                id="promo-alert-close"
+                class="mt-4 w-full py-3 rounded-xl font-bold transition-all text-white"
+            ></button>
         </div>
     </div>
 </div>
@@ -123,178 +288,252 @@ import Button from "@ui/Button.astro";
 
     const setupPromoForm = () => {
         function formatRupiah(angka: string) {
-            let number_string = angka.replace(/[^,\d]/g, '').toString();
-            let split = number_string.split(',');
+            let number_string = angka.replace(/[^,\d]/g, "").toString();
+            let split = number_string.split(",");
             let sisa = split[0].length % 3;
             let rupiah = split[0].substr(0, sisa);
             let ribuan = split[0].substr(sisa).match(/\d{3}/gi);
-            if(ribuan){
-                let separator = sisa ? '.' : '';
-                rupiah += separator + ribuan.join('.');
+            if (ribuan) {
+                let separator = sisa ? "." : "";
+                rupiah += separator + ribuan.join(".");
             }
-            return rupiah ? (split[1] != undefined ? rupiah + ',' + split[1] : rupiah) : '';
+            return rupiah
+                ? split[1] != undefined
+                    ? rupiah + "," + split[1]
+                    : rupiah
+                : "";
         }
 
-        const resetBtn = document.getElementById('reset-promo-btn');
-        const form = document.getElementById('promo-home-form') as HTMLFormElement;
+        const resetBtn = document.getElementById("reset-promo-btn");
+        const form = document.getElementById(
+            "promo-home-form",
+        ) as HTMLFormElement;
 
         // Event listener handled globally by AdminLayout
 
-
         // Custom Alert Logic
-        const alertModal = document.getElementById('promo-alert-modal');
-        const alertCard = document.getElementById('promo-alert-card');
-        const alertIcon = document.getElementById('promo-alert-icon');
-        const alertTitle = document.getElementById('promo-alert-title');
-        const alertMessage = document.getElementById('promo-alert-message');
-        const alertClose = document.getElementById('promo-alert-close');
-        
+        const alertModal = document.getElementById("promo-alert-modal");
+        const alertCard = document.getElementById("promo-alert-card");
+        const alertIcon = document.getElementById("promo-alert-icon");
+        const alertTitle = document.getElementById("promo-alert-title");
+        const alertMessage = document.getElementById("promo-alert-message");
+        const alertClose = document.getElementById("promo-alert-close");
+
         let onAlertCloseCallback: (() => void) | null = null;
 
-        const showAlert = (type: 'success' | 'error', title: string, message: string, cb?: () => void) => {
-            if(!alertModal || !alertIcon || !alertTitle || !alertMessage || !alertClose) return;
-            
-            if(type === 'success') {
-                alertIcon.className = "w-16 h-16 rounded-full flex items-center justify-center text-3xl bg-green-100 text-green-500";
+        const showAlert = (
+            type: "success" | "error",
+            title: string,
+            message: string,
+            cb?: () => void,
+        ) => {
+            if (
+                !alertModal ||
+                !alertIcon ||
+                !alertTitle ||
+                !alertMessage ||
+                !alertClose
+            )
+                return;
+
+            if (type === "success") {
+                alertIcon.className =
+                    "w-16 h-16 rounded-full flex items-center justify-center text-3xl bg-green-100 text-green-500";
                 alertIcon.innerHTML = "✓";
-                alertClose.className = "mt-4 w-full py-3 rounded-xl font-bold transition-all text-white bg-green-500 hover:bg-green-600";
+                alertClose.className =
+                    "mt-4 w-full py-3 rounded-xl font-bold transition-all text-white bg-green-500 hover:bg-green-600";
                 alertClose.textContent = "Selesai";
             } else {
-                alertIcon.className = "w-16 h-16 rounded-full flex items-center justify-center text-3xl bg-red-100 text-red-500";
+                alertIcon.className =
+                    "w-16 h-16 rounded-full flex items-center justify-center text-3xl bg-red-100 text-red-500";
                 alertIcon.innerHTML = "✕";
-                alertClose.className = "mt-4 w-full py-3 rounded-xl font-bold transition-all text-white bg-red-500 hover:bg-red-600";
+                alertClose.className =
+                    "mt-4 w-full py-3 rounded-xl font-bold transition-all text-white bg-red-500 hover:bg-red-600";
                 alertClose.textContent = "Tutup";
             }
-            
+
             alertTitle.textContent = title;
             alertMessage.textContent = message;
             onAlertCloseCallback = cb || null;
-            
-            alertModal.classList.remove('hidden');
+
+            alertModal.classList.remove("hidden");
             void alertModal.offsetWidth;
-            alertModal.classList.remove('opacity-0');
-            alertCard?.classList.remove('scale-95');
+            alertModal.classList.remove("opacity-0");
+            alertCard?.classList.remove("scale-95");
         };
 
-        if(alertClose) {
-            alertClose.addEventListener('click', () => {
-                alertModal?.classList.add('opacity-0');
-                alertCard?.classList.add('scale-95');
+        if (alertClose) {
+            alertClose.addEventListener("click", () => {
+                alertModal?.classList.add("opacity-0");
+                alertCard?.classList.add("scale-95");
                 setTimeout(() => {
-                    alertModal?.classList.add('hidden');
-                    if(onAlertCloseCallback) onAlertCloseCallback();
+                    alertModal?.classList.add("hidden");
+                    if (onAlertCloseCallback) onAlertCloseCallback();
                 }, 300);
             });
         }
 
         // Target Service Checkbox Logic
-        const targetServiceCBs = document.querySelectorAll('.target-service-cb') as NodeListOf<HTMLInputElement>;
-        targetServiceCBs.forEach(cb => {
-            cb.addEventListener('change', (e) => {
+        const targetServiceCBs = document.querySelectorAll(
+            ".target-service-cb",
+        ) as NodeListOf<HTMLInputElement>;
+        targetServiceCBs.forEach((cb) => {
+            cb.addEventListener("change", (e) => {
                 const target = e.target as HTMLInputElement;
-                if (target.value === 'all' && target.checked) {
-                    targetServiceCBs.forEach(other => {
-                        if (other.value !== 'all') other.checked = false;
+                if (target.value === "all" && target.checked) {
+                    targetServiceCBs.forEach((other) => {
+                        if (other.value !== "all") other.checked = false;
                     });
-                } else if (target.value !== 'all' && target.checked) {
-                    const allCb = Array.from(targetServiceCBs).find(c => c.value === 'all');
+                } else if (target.value !== "all" && target.checked) {
+                    const allCb = Array.from(targetServiceCBs).find(
+                        (c) => c.value === "all",
+                    );
                     if (allCb) allCb.checked = false;
                 }
             });
         });
 
         // Handle Form Reset
-        if(resetBtn && form) {
-            resetBtn.addEventListener('click', () => {
+        if (resetBtn && form) {
+            resetBtn.addEventListener("click", () => {
                 form.reset();
-                (form.querySelector('.promo-id') as HTMLInputElement).value = '';
-                document.querySelector('#promo-home-form .delete-promo-btn')?.classList.add('hidden');
-                
+                (form.querySelector(".promo-id") as HTMLInputElement).value =
+                    "";
+                document
+                    .querySelector("#promo-home-form .delete-promo-btn")
+                    ?.classList.add("hidden");
+
                 // reset checkboxes to default (all checked)
-                targetServiceCBs.forEach(cb => {
-                    cb.checked = cb.value === 'all';
+                targetServiceCBs.forEach((cb) => {
+                    cb.checked = cb.value === "all";
                 });
             });
         }
 
         // Handle Submit
         if (form) {
-            form.addEventListener('submit', async (e) => {
+            form.addEventListener("submit", async (e) => {
                 e.preventDefault();
                 const f = e.target as HTMLFormElement;
-                const submitBtn = f.querySelector('.submit-promo-btn');
-                
+                const submitBtn = f.querySelector(".submit-promo-btn");
+
                 const formData = new FormData(f);
-                const maxDiscountRaw = formData.get('max_discount') as string;
+                const maxDiscountRaw = formData.get("max_discount") as string;
                 if (maxDiscountRaw) {
-                    formData.set('max_discount', maxDiscountRaw.replace(/\./g, ''));
+                    formData.set(
+                        "max_discount",
+                        maxDiscountRaw.replace(/\./g, ""),
+                    );
                 }
-                const fileInput = f.querySelector('input[type="file"]') as HTMLInputElement;
-                const hasFile = fileInput && fileInput.files && fileInput.files.length > 0;
+                const fileInput = f.querySelector(
+                    'input[type="file"]',
+                ) as HTMLInputElement;
+                const hasFile =
+                    fileInput && fileInput.files && fileInput.files.length > 0;
 
                 try {
                     if (submitBtn) {
                         submitBtn.textContent = "Menyimpan...";
-                        submitBtn.setAttribute('disabled', 'true');
+                        submitBtn.setAttribute("disabled", "true");
                     }
-                    
-                    const targetServices = Array.from(formData.getAll('target_service'));
-                    const finalTargetService = targetServices.includes('all') ? 'all' : (targetServices.join(',') || 'all');
-                    formData.delete('target_service');
-                    formData.set('target_service', finalTargetService);
+
+                    const targetServices = Array.from(
+                        formData.getAll("target_service"),
+                    );
+                    const finalTargetService = targetServices.includes("all")
+                        ? "all"
+                        : targetServices.join(",") || "all";
+                    formData.delete("target_service");
+                    formData.set("target_service", finalTargetService);
 
                     if (hasFile) {
-                        formData.set('is_active', f.querySelector('input[name="is_active"]:checked') ? 'true' : 'false');
-                        if (formData.has('discount')) {
-                            formData.set('discount_percentage', formData.get('discount') as string);
-                            formData.delete('discount');
+                        formData.set(
+                            "is_active",
+                            f.querySelector('input[name="is_active"]:checked')
+                                ? "true"
+                                : "false",
+                        );
+                        if (formData.has("discount")) {
+                            formData.set(
+                                "discount_percentage",
+                                formData.get("discount") as string,
+                            );
+                            formData.delete("discount");
                         }
                         await adminContentService.savePromotion(formData);
                     } else {
                         const jsonPayload = {
-                            id: formData.get('id'),
-                            tagline: formData.get('tagline'),
-                            description: formData.get('description'),
-                            discount_percentage: formData.get('discount'),
-                            max_discount: formData.get('max_discount'),
-                            promo_type: 'home',
+                            id: formData.get("id"),
+                            tagline: formData.get("tagline"),
+                            description: formData.get("description"),
+                            discount_percentage: formData.get("discount"),
+                            max_discount: formData.get("max_discount"),
+                            promo_type: "home",
                             target_service: finalTargetService,
-                            is_active: f.querySelector('input[name="is_active"]:checked') ? true : false
+                            is_active: f.querySelector(
+                                'input[name="is_active"]:checked',
+                            )
+                                ? true
+                                : false,
                         };
                         await adminContentService.savePromotion(jsonPayload);
                     }
 
-                    showAlert('success', 'Berhasil', `Promo berhasil disimpan!`, () => {
-                        window.location.reload();
-                    });
+                    showAlert(
+                        "success",
+                        "Berhasil",
+                        `Promo berhasil disimpan!`,
+                        () => {
+                            window.location.reload();
+                        },
+                    );
                 } catch (error: any) {
-                    showAlert('error', 'Gagal', error.message || "Gagal menyimpan promo");
+                    showAlert(
+                        "error",
+                        "Gagal",
+                        error.message || "Gagal menyimpan promo",
+                    );
                 } finally {
                     if (submitBtn) {
                         submitBtn.textContent = "Simpan Promo";
-                        submitBtn.removeAttribute('disabled');
+                        submitBtn.removeAttribute("disabled");
                     }
                 }
             });
         }
 
         // Handle Deletes
-        const deleteBtns = document.querySelectorAll('.delete-promo-btn');
-        deleteBtns.forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-                const f = (e.target as HTMLElement).closest('form') as HTMLFormElement;
-                const id = f.querySelector('.promo-id') as HTMLInputElement;
+        const deleteBtns = document.querySelectorAll(".delete-promo-btn");
+        deleteBtns.forEach((btn) => {
+            btn.addEventListener("click", async (e) => {
+                const f = (e.target as HTMLElement).closest(
+                    "form",
+                ) as HTMLFormElement;
+                const id = f.querySelector(".promo-id") as HTMLInputElement;
                 if (id && id.value) {
-                    if (confirm("Yakin ingin menghapus promo ini secara permanen?")) {
+                    if (
+                        confirm(
+                            "Yakin ingin menghapus promo ini secara permanen?",
+                        )
+                    ) {
                         try {
                             const originalText = btn.textContent;
                             btn.textContent = "Menghapus...";
                             await adminContentService.deletePromotion(id.value);
-                            showAlert('success', 'Berhasil', 'Promo berhasil dihapus!', () => {
-                                window.location.reload();
-                            });
+                            showAlert(
+                                "success",
+                                "Berhasil",
+                                "Promo berhasil dihapus!",
+                                () => {
+                                    window.location.reload();
+                                },
+                            );
                         } catch (error: any) {
-                            showAlert('error', 'Gagal', error.message || "Gagal menghapus promo");
+                            showAlert(
+                                "error",
+                                "Gagal",
+                                error.message || "Gagal menghapus promo",
+                            );
                             btn.textContent = "Hapus Promo";
                         }
                     }
@@ -303,27 +542,41 @@ import Button from "@ui/Button.astro";
         });
 
         // Handle Edit Populate
-        const editButtons = document.querySelectorAll('.edit-promo-btn');
-        editButtons.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const data = JSON.parse(btn.getAttribute('data-promo') || '{}');
-                const f = document.getElementById('promo-home-form') as HTMLFormElement;
+        const editButtons = document.querySelectorAll(".edit-promo-btn");
+        editButtons.forEach((btn) => {
+            btn.addEventListener("click", () => {
+                const data = JSON.parse(btn.getAttribute("data-promo") || "{}");
+                const f = document.getElementById(
+                    "promo-home-form",
+                ) as HTMLFormElement;
 
                 // Populate
-                (f.querySelector('.promo-id') as HTMLInputElement).value = data.id || '';
-                (f.querySelector('.tagline-input') as HTMLInputElement).value = data.tagline || '';
-                (f.querySelector('.description-input') as HTMLInputElement).value = data.description || '';
-                
-                const radio = f.querySelector(`input[type="radio"][value="${data.target_service || 'all'}"]`) as HTMLInputElement;
-                if(radio) radio.checked = true;
+                (f.querySelector(".promo-id") as HTMLInputElement).value =
+                    data.id || "";
+                (f.querySelector(".tagline-input") as HTMLInputElement).value =
+                    data.tagline || "";
+                (
+                    f.querySelector(".description-input") as HTMLInputElement
+                ).value = data.description || "";
 
-                (f.querySelector('.discount-input input') as HTMLInputElement).value = data.discount || data.discount_percentage || '';
-                
-                const maxDiscountReal = f.querySelector('.max-discount-real') as HTMLInputElement;
-                const maxDiscountDisplay = f.querySelector('.max-discount-display') as HTMLInputElement;
-                
+                const radio = f.querySelector(
+                    `input[type="radio"][value="${data.target_service || "all"}"]`,
+                ) as HTMLInputElement;
+                if (radio) radio.checked = true;
+
+                (
+                    f.querySelector(".discount-input input") as HTMLInputElement
+                ).value = data.discount || data.discount_percentage || "";
+
+                const maxDiscountReal = f.querySelector(
+                    ".max-discount-real",
+                ) as HTMLInputElement;
+                const maxDiscountDisplay = f.querySelector(
+                    ".max-discount-display",
+                ) as HTMLInputElement;
+
                 if (maxDiscountReal && maxDiscountDisplay) {
-                    const rawVal = data.max_discount || '';
+                    const rawVal = data.max_discount || "";
                     if (rawVal) {
                         const numVal = Math.round(Number(rawVal));
                         maxDiscountReal.value = numVal.toString();
@@ -331,41 +584,48 @@ import Button from "@ui/Button.astro";
                         let number_string = numVal.toString();
                         let sisa = number_string.length % 3;
                         let rupiah = number_string.substr(0, sisa);
-                        let ribuan = number_string.substr(sisa).match(/\d{3}/gi);
-                        if(ribuan){
-                            let separator = sisa ? '.' : '';
-                            rupiah += separator + ribuan.join('.');
+                        let ribuan = number_string
+                            .substr(sisa)
+                            .match(/\d{3}/gi);
+                        if (ribuan) {
+                            let separator = sisa ? "." : "";
+                            rupiah += separator + ribuan.join(".");
                         }
                         maxDiscountDisplay.value = rupiah;
                     } else {
-                        maxDiscountReal.value = '';
-                        maxDiscountDisplay.value = '';
+                        maxDiscountReal.value = "";
+                        maxDiscountDisplay.value = "";
                     }
                 }
-                
-                (f.querySelector('.is-active-input') as HTMLInputElement).checked = data.isActive === true || data.is_active === true;
-                
-                f.querySelector('.delete-promo-btn')?.classList.remove('hidden');
-                f.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+                (
+                    f.querySelector(".is-active-input") as HTMLInputElement
+                ).checked = data.isActive === true || data.is_active === true;
+
+                f.querySelector(".delete-promo-btn")?.classList.remove(
+                    "hidden",
+                );
+                f.scrollIntoView({ behavior: "smooth", block: "start" });
             });
         });
 
         // Image upload UI
-        document.querySelectorAll('.image-upload-input').forEach(input => {
-            input.addEventListener('change', (e) => {
+        document.querySelectorAll(".image-upload-input").forEach((input) => {
+            input.addEventListener("change", (e) => {
                 const target = e.target as HTMLInputElement;
-                const uploadText = target.parentElement?.querySelector('.image-upload-text');
+                const uploadText =
+                    target.parentElement?.querySelector(".image-upload-text");
                 if (target.files && target.files.length > 0 && uploadText) {
                     uploadText.textContent = target.files[0].name;
-                    uploadText.classList.add('text-primary');
-                } else if(uploadText) {
+                    uploadText.classList.add("text-primary");
+                } else if (uploadText) {
                     uploadText.textContent = "Pilih Gambar / Drag & Drop";
-                    uploadText.classList.remove('text-primary');
+                    uploadText.classList.remove("text-primary");
                 }
             });
         });
     };
 
     setupPromoForm();
-    document.addEventListener('astro:page-load', setupPromoForm);
+    document.addEventListener("astro:page-load", setupPromoForm);
 </script>
