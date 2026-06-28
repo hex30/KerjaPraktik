@@ -28,7 +28,10 @@ try {
     ]);
 
     if (sumRes.ok) summary = (await sumRes.json()).data;
-    if (txRes.ok) transactions = (await txRes.json()).data || [];
+    if (txRes.ok) {
+        const allTx = (await txRes.json()).data || [];
+        transactions = allTx.filter((t: any) => t.type === "income");
+    }
 } catch (e) {
     console.error("Failed to load finance data:", e);
 }
