@@ -2,6 +2,10 @@
 // File: src/pages/driver/report.astro
 import DriverLayout from "@layouts/DriverLayout.astro";
 import Button from "@ui/Button.astro";
+import { driverService } from "@services/driverService";
+
+const token = Astro.cookies.get('token')?.value;
+const schedules = await driverService.getSchedules(token);
 ---
 
 <DriverLayout title="Laporan Operasional">
@@ -13,29 +17,51 @@ import Button from "@ui/Button.astro";
                 Input Biaya Perjalanan
             </h3>
             
-            <form class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col gap-5">
+            <form id="expense-form" class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col gap-5">
                 <div class="flex flex-col gap-2">
-                    <label class="text-[10px] font-bold text-slate-500 uppercase">Item Pengeluaran</label>
-                    <input type="text" placeholder="Contoh: Bensin, Tol, Parkir..." class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium focus:ring-1 focus:ring-primary outline-none" required>
+                    <label class="text-[10px] font-bold text-slate-500 uppercase">Jadwal Tugas</label>
+                    <select name="schedule_id" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium focus:ring-1 focus:ring-primary outline-none" required>
+                        <option value="" disabled selected>Pilih Jadwal</option>
+                        {schedules.map((schedule: any) => (
+                            <option value={schedule.id}>
+                                {schedule.origin ? `${schedule.origin} - ${schedule.destination}` : schedule.destination} ({new Date(schedule.departure_time).toLocaleDateString("id-ID", { day: "numeric", month: "short" })})
+                            </option>
+                        ))}
+                    </select>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase">Kategori</label>
+                    <select name="category" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium focus:ring-1 focus:ring-primary outline-none" required>
+                        <option value="fuel">Bahan Bakar (Fuel)</option>
+                        <option value="toll">Tol</option>
+                        <option value="parking">Parkir</option>
+                        <option value="other">Lainnya</option>
+                    </select>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <label class="text-[10px] font-bold text-slate-500 uppercase">Keterangan / Item</label>
+                    <input type="text" name="description" placeholder="Contoh: Isi bensin di rest area KM 102..." class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium focus:ring-1 focus:ring-primary outline-none">
                 </div>
                 
                 <div class="flex flex-col gap-2">
                     <label class="text-[10px] font-bold text-slate-500 uppercase">Jumlah (IDR)</label>
-                    <input type="number" placeholder="0" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-black text-primary outline-none" required>
+                    <input type="number" name="amount" placeholder="0" class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-black text-primary outline-none" required>
                 </div>
 
                 <div class="flex flex-col gap-2">
                     <label class="text-[10px] font-bold text-slate-500 uppercase">Foto Nota / Bukti</label>
                     <div class="relative group cursor-pointer">
-                        <input type="file" accept="image/*" class="absolute inset-0 w-full h-full opacity-0 z-10 cursor-pointer">
-                        <div class="w-full py-8 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 flex flex-col items-center justify-center gap-2 group-hover:border-primary transition-colors">
+                        <input type="file" name="proof_image" accept="image/*" id="proof_image_input" class="absolute inset-0 w-full h-full opacity-0 z-10 cursor-pointer" required>
+                        <div class="w-full py-8 border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50 flex flex-col items-center justify-center gap-2 group-hover:border-primary transition-colors" id="proof_image_preview_container">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-300 group-hover:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                            <span class="text-[10px] font-bold text-slate-400">Ambil Foto / Upload</span>
+                            <span class="text-[10px] font-bold text-slate-400" id="proof_image_text">Ambil Foto / Upload</span>
                         </div>
                     </div>
                 </div>
 
-                <Button type="submit" class="w-full mt-2" size="lg">Kirim Laporan</Button>
+                <Button type="submit" id="btn-submit-expense" class="w-full mt-2" size="lg">Kirim Laporan</Button>
             </form>
         </section>
 
@@ -46,24 +72,80 @@ import Button from "@ui/Button.astro";
                 Laporan Kerusakan Armada
             </h3>
             
-            <form class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col gap-5">
+            <form id="maintenance-form" class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm flex flex-col gap-5 opacity-50 pointer-events-none" title="Akan segera hadir">
                 <div class="flex flex-col gap-2">
                     <label class="text-[10px] font-bold text-slate-500 uppercase">Bagian / Komponen</label>
-                    <input type="text" placeholder="Contoh: AC, Rem, Lampu..." class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium outline-none" required>
+                    <input type="text" placeholder="Contoh: AC, Rem, Lampu..." class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium outline-none" disabled>
                 </div>
                 
                 <div class="flex flex-col gap-2">
                     <label class="text-[10px] font-bold text-slate-500 uppercase">Deskripsi Masalah</label>
-                    <textarea rows="3" placeholder="Jelaskan detail kendala..." class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium outline-none resize-none" required></textarea>
+                    <textarea rows="3" placeholder="Jelaskan detail kendala..." class="w-full bg-slate-50 border border-slate-100 rounded-xl px-4 py-3 text-sm font-medium outline-none resize-none" disabled></textarea>
                 </div>
 
                 <div class="flex items-center gap-3 p-4 bg-rose-50 rounded-xl border border-rose-100">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-rose-500 shrink-0" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
-                    <p class="text-[10px] text-rose-700 font-medium">Laporan ini akan langsung dikirim ke antrean prioritas Admin.</p>
+                    <p class="text-[10px] text-rose-700 font-medium">Fitur laporan kerusakan sedang dalam pengembangan.</p>
                 </div>
 
-                <Button type="submit" variant="secondary" class="w-full text-rose-600 hover:bg-rose-50" size="lg">Laporkan Kendala</Button>
+                <Button type="button" variant="secondary" class="w-full text-rose-600 hover:bg-rose-50" size="lg" disabled>Laporkan Kendala</Button>
             </form>
         </section>
     </div>
+</DriverLayout>
+
+<script>
+    import { apiFetch } from "../../services/api";
+
+    const setupExpenseForm = () => {
+        const form = document.getElementById("expense-form") as HTMLFormElement;
+        const fileInput = document.getElementById("proof_image_input") as HTMLInputElement;
+        const fileText = document.getElementById("proof_image_text");
+        const btnSubmit = document.getElementById("btn-submit-expense") as HTMLButtonElement;
+
+        if (fileInput && fileText) {
+            fileInput.addEventListener("change", (e) => {
+                const target = e.target as HTMLInputElement;
+                if (target.files && target.files.length > 0) {
+                    fileText.textContent = target.files[0].name;
+                } else {
+                    fileText.textContent = "Ambil Foto / Upload";
+                }
+            });
+        }
+
+        if (form) {
+            form.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const formData = new FormData(form);
+
+                if (btnSubmit) {
+                    btnSubmit.disabled = true;
+                    btnSubmit.innerHTML = "Mengirim...";
+                }
+
+                try {
+                    await apiFetch("/api/driver/expenses", {
+                        method: "POST",
+                        body: formData
+                    });
+                    
+                    alert("Laporan pengeluaran berhasil dikirim!");
+                    form.reset();
+                    if (fileText) fileText.textContent = "Ambil Foto / Upload";
+                } catch (error: any) {
+                    alert("Gagal mengirim laporan: " + error.message);
+                } finally {
+                    if (btnSubmit) {
+                        btnSubmit.disabled = false;
+                        btnSubmit.innerHTML = "Kirim Laporan";
+                    }
+                }
+            });
+        }
+    };
+
+    document.addEventListener("astro:page-load", setupExpenseForm);
+    setupExpenseForm();
+</script>
 </DriverLayout>
