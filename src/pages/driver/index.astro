@@ -11,6 +11,7 @@ const schedules = await driverService.getSchedules(token);
 // Format ke dalam daftar tugas (Tasks)
 const passengerTasks: any[] = [];
 const packageTasks: any[] = [];
+const charterTasks: any[] = [];
 
 const formatRupiah = (angka: number | string) => {
     return new Intl.NumberFormat("id-ID", {
@@ -20,10 +21,20 @@ const formatRupiah = (angka: number | string) => {
     }).format(Number(angka) || 0);
 };
 
-const formatAddress = (addressStr: string) => {
-    if (!addressStr) return [{ label: 'Detail', value: 'Sesuai Titik Tujuan/Penjemputan' }];
-    try {
-        const addr = JSON.parse(addressStr);
+const formatAddress = (addressData: any) => {
+    if (!addressData) return [{ label: 'Detail', value: 'Sesuai Titik Tujuan/Penjemputan' }];
+    
+    let addr = addressData;
+    if (typeof addressData === 'string') {
+        try {
+            addr = JSON.parse(addressData);
+            if (typeof addr === 'string') addr = JSON.parse(addr);
+        } catch (e) {
+            return [{ label: 'Alamat Lengkap', value: addressData }];
+        }
+    }
+    
+    if (typeof addr === 'object' && addr !== null) {
         let parts = [];
         if (addr.dusun) parts.push({ label: 'Dusun', value: addr.dusun });
         if (addr.desa) parts.push({ label: 'Desa', value: addr.desa });
@@ -31,10 +42,10 @@ const formatAddress = (addressStr: string) => {
         if (addr.rt_rw) parts.push({ label: 'RT/RW', value: addr.rt_rw });
         if (addr.patokan) parts.push({ label: 'Patokan', value: addr.patokan });
         
-        return parts.length > 0 ? parts : [{ label: 'Alamat Lengkap', value: addressStr }];
-    } catch (e) {
-        return [{ label: 'Alamat Lengkap', value: addressStr }]; // Fallback jika bukan JSON
+        return parts.length > 0 ? parts : [{ label: 'Alamat Lengkap', value: typeof addressData === 'string' ? addressData : JSON.stringify(addressData) }];
     }
+
+    return [{ label: 'Alamat Lengkap', value: String(addressData) }];
 };
 
 schedules.forEach(schedule => {
@@ -45,6 +56,32 @@ schedules.forEach(schedule => {
     const dateFormatted = new Date(schedule.departure_time).toLocaleDateString('id-ID', {
         weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
     });
+
+    if (schedule.isCharter) {
+        let paymentStatus = 'BELUM LUNAS';
+        let statusColor = 'bg-amber-50 text-amber-600';
+        
+        if (['dibayar', 'dalam_penjemputan', 'on_going', 'selesai', 'selesai_final'].includes(schedule.status)) {
+             paymentStatus = 'SUDAH LUNAS / DP';
+             statusColor = 'bg-emerald-50 text-emerald-600';
+        }
+
+        charterTasks.push({
+            charter_id: schedule.id,
+            route: `Charter: ${schedule.destination}`,
+            date: dateFormatted,
+            passenger_name: schedule.customer_name || 'Tidak Diketahui',
+            initial: (schedule.customer_name ? schedule.customer_name.charAt(0).toUpperCase() : 'C'),
+            phone: schedule.customer_phone,
+            price: schedule.price || 0,
+            status: schedule.status,
+            payment_status: paymentStatus,
+            statusColor: statusColor,
+            plate_number: schedule.plate_number,
+            car_type: schedule.car_type
+        });
+        return;
+    }
 
     schedule.passengers?.forEach(p => {
         let paymentStatus = 'MENUNGGU';
@@ -72,7 +109,8 @@ schedules.forEach(schedule => {
             dropoff_address: formatAddress(p.dropoff_address),
             passenger_name: p.passenger_name || 'Tidak Diketahui',
             initial: (p.passenger_name ? p.passenger_name.charAt(0).toUpperCase() : 'U'),
-            booking_status: p.booking_status
+            booking_status: p.booking_status,
+            seat_number: p.seat_number
         });
     });
 
@@ -80,7 +118,7 @@ schedules.forEach(schedule => {
         let paymentStatus = 'BELUM LUNAS';
         let statusColor = 'bg-amber-50 text-amber-600';
         
-        if (pkg.transaction_status === 'settlement' || pkg.transaction_status === 'capture') {
+        if (pkg.payment_method?.toLowerCase() === 'cashless' || pkg.transaction_status === 'settlement' || pkg.transaction_status === 'capture') {
             paymentStatus = 'SUDAH LUNAS';
             statusColor = 'bg-emerald-50 text-emerald-600';
         }
@@ -121,6 +159,106 @@ packageTasks.sort((a, b) => {
 
 <DriverLayout title="Manajemen Tugas">
     <div class="flex flex-col gap-10">
+        <!-- Section: Tugas Charter Hari Ini -->
+        {charterTasks.length > 0 && (
+        <section class="flex flex-col gap-4">
+            <h2 class="text-xl font-black text-slate-900 tracking-tight">Tugas Charter Hari Ini</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                {charterTasks.map((task) => (
+                    <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+                        <!-- Header -->
+                        <div class="p-6 border-b border-slate-100">
+                            <div class="flex items-center gap-2 mb-3">
+                                <div class="inline-flex items-center px-3 py-1 rounded-full bg-[#044751] text-white text-[10px] font-black uppercase tracking-widest">
+                                    CHARTER
+                                </div>
+                                {task.status === 'selesai' && (
+                                    <div class="inline-flex items-center px-3 py-1 rounded-full bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest">
+                                        SELESAI
+                                    </div>
+                                )}
+                            </div>
+                            <h3 class="text-xl font-black text-slate-900 tracking-tight leading-tight">
+                                {task.route}
+                            </h3>
+                        </div>
+                        
+                        <!-- Stats Grid -->
+                        <div class="grid grid-cols-2 gap-4 p-6 border-b border-slate-100">
+                            <div class="flex flex-col gap-1.5">
+                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tgl Berangkat</span>
+                                <span class="text-sm font-bold text-slate-800">{task.date}</span>
+                            </div>
+                            <div class="flex flex-col gap-1.5">
+                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Armada</span>
+                                <div class="inline-flex w-fit bg-slate-100 text-slate-700 px-2 py-1 rounded-md text-xs font-bold">
+                                    {task.plate_number} ({task.car_type})
+                                </div>
+                            </div>
+                            <div class="flex flex-col gap-1.5 mt-2">
+                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Status Pemb.</span>
+                                <div class={`inline-flex w-fit px-2 py-1 rounded-md text-xs font-black ${task.statusColor}`}>
+                                    {task.payment_status}
+                                </div>
+                            </div>
+                            <div class="flex flex-col gap-1.5 mt-2">
+                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Harga Charter</span>
+                                <span class="text-base font-black text-emerald-600">{formatRupiah(task.price)}</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Data Details -->
+                        <div class="p-6 hidden flex-col gap-5 mt-auto details-section">
+                            <!-- Nama Pemesan -->
+                            <div class="flex flex-col gap-1.5">
+                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nama Pemesan</span>
+                                <div class="flex items-center gap-3 mt-1">
+                                    <div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-black text-xs shrink-0">
+                                        {task.initial}
+                                    </div>
+                                    <span class="text-sm font-bold text-slate-800">{task.passenger_name} ({task.phone || '-'})</span>
+                                </div>
+                            </div>
+                            
+                            <!-- Form Aksi -->
+                            <div class="mt-2 p-5 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col gap-4">
+                                <div class="flex flex-col gap-1.5">
+                                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Aksi Charter</label>
+                                    <div class="relative">
+                                        <select id={`select-charter-${task.charter_id}`} disabled={task.status === 'selesai'} class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-bold text-slate-800 outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                                            <option value="menunggu_penjemputan" selected={task.status === 'menunggu_penjemputan' || task.status === 'disetujui' || task.status === 'dibayar'}>Menunggu Penjemputan</option>
+                                            <option value="dalam_penjemputan" selected={task.status === 'dalam_penjemputan'}>Sedang Menjemput</option>
+                                            <option value="on_going" selected={task.status === 'on_going'}>Dalam Perjalanan</option>
+                                            <option value="selesai" selected={task.status === 'selesai'}>Selesai / Sudah Sampai</option>
+                                        </select>
+                                        <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                                        </div>
+                                    </div>
+                                </div>
+                                {task.status !== 'selesai' && (
+                                    <button data-charter-id={task.charter_id} class="btn-save-charter w-full bg-[#044751] hover:bg-[#03363e] text-white py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-md shadow-primary/20 active:scale-95">
+                                        SIMPAN
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                        
+                        <!-- Toggle Button -->
+                        {task.status !== 'selesai' && (
+                            <button type="button" class="toggle-details-btn w-full py-3 flex justify-center items-center text-slate-300 hover:text-primary hover:bg-slate-50 transition-colors border-t border-slate-100 mt-auto">
+                                <svg class="chevron-icon w-5 h-5 transition-transform duration-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                        )}
+                    </div>
+                ))}
+            </div>
+        </section>
+        )}
+
         <!-- Section: Tugas Hari Ini (Penumpang) -->
         <section class="flex flex-col gap-4">
             <h2 class="text-xl font-black text-slate-900 tracking-tight">Tugas Hari Ini (Penumpang)</h2>
@@ -135,8 +273,15 @@ packageTasks.sort((a, b) => {
                         <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col">
                             <!-- Header -->
                             <div class="p-6 border-b border-slate-100">
-                                <div class="inline-flex items-center px-3 py-1 rounded-full bg-[#044751] text-white text-[10px] font-black uppercase tracking-widest mb-3">
-                                    RUTE
+                                <div class="flex items-center gap-2 mb-3">
+                                    <div class="inline-flex items-center px-3 py-1 rounded-full bg-[#044751] text-white text-[10px] font-black uppercase tracking-widest">
+                                        RUTE
+                                    </div>
+                                    {task.booking_status === 'selesai' && (
+                                        <div class="inline-flex items-center px-3 py-1 rounded-full bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest">
+                                            SELESAI
+                                        </div>
+                                    )}
                                 </div>
                                 <h3 class="text-xl font-black text-slate-900 tracking-tight leading-tight">
                                     Travel Reguler: {task.route}
@@ -171,16 +316,27 @@ packageTasks.sort((a, b) => {
                             <!-- Data Details -->
                             <div class="p-6 hidden flex-col gap-5 mt-auto details-section">
                                 <!-- Address Wrapper -->
-                                <!-- Nama Penumpang -->
-                                    <div class="flex flex-col gap-1.5">
+                                <!-- Nama Penumpang & Kursi -->
+                                <div class="flex justify-between gap-6">
+                                    <!-- Nama Penumpang -->
+                                    <div class="flex flex-col gap-1.5 w-1/2">
                                         <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nama Penumpang</span>
-                                        <div class="flex items-center gap-3">
+                                        <div class="flex items-center gap-3 mt-1">
                                             <div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-black text-xs shrink-0">
                                                 {task.initial}
                                             </div>
                                             <span class="text-sm font-bold text-slate-800">{task.passenger_name}</span>
                                         </div>
                                     </div>
+                                    
+                                    <!-- No. Kursi -->
+                                    <div class="flex flex-col gap-1.5 w-1/2">
+                                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">No. Kursi</span>
+                                        <div class="inline-flex w-fit px-3 py-2 bg-slate-100 text-slate-700 rounded-md text-xs font-black mt-1">
+                                            Kursi {task.seat_number || '-'}
+                                        </div>
+                                    </div>
+                                </div>
                                 <div class="flex justify-between gap-6">
                                     <!-- Penjemputan -->
                                     <div class="flex flex-col gap-1.5 w-1/2">
@@ -233,11 +389,13 @@ packageTasks.sort((a, b) => {
                             </div>
                             
                             <!-- Toggle Button -->
-                            <button type="button" class="toggle-details-btn w-full py-3 flex justify-center items-center text-slate-300 hover:text-primary hover:bg-slate-50 transition-colors border-t border-slate-100 mt-auto">
-                                <svg class="chevron-icon w-5 h-5 transition-transform duration-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </button>
+                            {task.booking_status !== 'selesai' && (
+                                <button type="button" class="toggle-details-btn w-full py-3 flex justify-center items-center text-slate-300 hover:text-primary hover:bg-slate-50 transition-colors border-t border-slate-100 mt-auto">
+                                    <svg class="chevron-icon w-5 h-5 transition-transform duration-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+                            )}
                         </div>
                     ))}
                 </div>
@@ -258,8 +416,15 @@ packageTasks.sort((a, b) => {
                         <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col">
                             <!-- Header -->
                             <div class="p-6 border-b border-slate-100">
-                                <div class="inline-flex items-center px-3 py-1 rounded-full bg-[#044751] text-white text-[10px] font-black uppercase tracking-widest mb-3">
-                                    RUTE
+                                <div class="flex items-center gap-2 mb-3">
+                                    <div class="inline-flex items-center px-3 py-1 rounded-full bg-[#044751] text-white text-[10px] font-black uppercase tracking-widest">
+                                        RUTE
+                                    </div>
+                                    {task.status === 'delivered' && (
+                                        <div class="inline-flex items-center px-3 py-1 rounded-full bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest">
+                                            SELESAI
+                                        </div>
+                                    )}
                                 </div>
                                 <h3 class="text-xl font-black text-slate-900 tracking-tight leading-tight">
                                     Pengiriman Paket: {task.route}
@@ -357,11 +522,13 @@ packageTasks.sort((a, b) => {
                             </div>
                             
                             <!-- Toggle Button -->
-                            <button type="button" class="toggle-details-btn w-full py-3 flex justify-center items-center text-slate-300 hover:text-primary hover:bg-slate-50 transition-colors border-t border-slate-100 mt-auto">
-                                <svg class="chevron-icon w-5 h-5 transition-transform duration-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </button>
+                            {task.status !== 'delivered' && (
+                                <button type="button" class="toggle-details-btn w-full py-3 flex justify-center items-center text-slate-300 hover:text-primary hover:bg-slate-50 transition-colors border-t border-slate-100 mt-auto">
+                                    <svg class="chevron-icon w-5 h-5 transition-transform duration-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+                            )}
                         </div>
                     ))}
                 </div>
@@ -476,6 +643,41 @@ packageTasks.sort((a, b) => {
                     window.location.reload();
                 } catch (error: any) {
                     alert('Gagal memperbarui status paket: ' + error.message);
+                } finally {
+                    button.disabled = false;
+                    button.innerHTML = originalText;
+                }
+            });
+        });
+
+        // Handle Simpan Charter
+        const saveCharterBtns = document.querySelectorAll('.btn-save-charter');
+        saveCharterBtns.forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const button = e.currentTarget as HTMLButtonElement;
+                const charterId = button.getAttribute('data-charter-id');
+                if (!charterId) return;
+                
+                const selectEl = document.getElementById(`select-charter-${charterId}`) as HTMLSelectElement;
+                if (!selectEl) return;
+                
+                const newStatus = selectEl.value;
+                const originalText = button.innerHTML;
+                
+                button.disabled = true;
+                button.innerHTML = '<span class="flex justify-center items-center gap-2"><svg class="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> MENYIMPAN...</span>';
+                
+                try {
+                    const { apiFetch } = await import('@services/api');
+                    const res = await apiFetch(`/api/driver/schedules/charters/${charterId}/status`, {
+                        method: 'PUT',
+                        body: JSON.stringify({ status: newStatus })
+                    });
+                    
+                    alert('Status charter berhasil diperbarui!');
+                    window.location.reload();
+                } catch (error: any) {
+                    alert('Gagal memperbarui status charter: ' + error.message);
                 } finally {
                     button.disabled = false;
                     button.innerHTML = originalText;

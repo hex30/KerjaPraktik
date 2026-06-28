@@ -180,10 +180,10 @@ const { bookingType, bookingData, fleets = [], drivers = [] } = Astro.props;
                         }
                     } else if (isCharter) {
                         if (currentState === 'isPickupList') {
-                            await apiFetch(`/api/charter/${bookingId}/status`, {
+                            await apiFetch(`/api/charter/${bookingId}/verify`, {
                                 method: 'PUT',
                                 headers,
-                                body: JSON.stringify({ status: 'selesai' })
+                                body: JSON.stringify({ offered_price: undefined })
                             });
                         } else {
                             const bodyData = {

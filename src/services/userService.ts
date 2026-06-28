@@ -100,10 +100,15 @@ export const userService = {
     }
   },
 
-  async updatePaymentMethod(orderId: string, type: 'travel' | 'charter', method: 'cash' | 'cashless'): Promise<any> {
-    const endpoint = type === 'travel' 
-      ? `/api/travel/bookings/${orderId}/payment-method`
-      : `/api/charter/request/${orderId}/payment-method`;
+  async updatePaymentMethod(orderId: string, type: 'travel' | 'charter' | 'package', method: 'cash' | 'cashless'): Promise<any> {
+    let endpoint = '';
+    if (type === 'travel') {
+      endpoint = `/api/travel/bookings/${orderId}/payment-method`;
+    } else if (type === 'package') {
+      endpoint = `/api/packages/bookings/${orderId}/payment-method`;
+    } else {
+      endpoint = `/api/charter/request/${orderId}/payment-method`;
+    }
     
     return apiFetch(endpoint, {
       method: 'PUT',

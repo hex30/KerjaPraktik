@@ -69,13 +69,28 @@ const isDropdown = subItems.length > 0;
     const setupDropdowns = () => {
         const triggers = document.querySelectorAll('.sidebar-dropdown-trigger');
         triggers.forEach(trigger => {
-            trigger.addEventListener('click', () => {
+            const handleTriggerClick = () => {
                 const targetId = (trigger as HTMLElement).dataset.target;
                 const content = document.getElementById(targetId!);
                 const chevron = trigger.querySelector('.chevron');
                 
                 if (content) {
                     const isHidden = content.classList.contains('hidden');
+                    
+                    // Close all other dropdowns
+                    triggers.forEach(otherTrigger => {
+                        const otherTargetId = (otherTrigger as HTMLElement).dataset.target;
+                        if (otherTargetId !== targetId) {
+                            const otherContent = document.getElementById(otherTargetId!);
+                            const otherChevron = otherTrigger.querySelector('.chevron');
+                            if (otherContent) {
+                                otherContent.classList.remove('flex');
+                                otherContent.classList.add('hidden');
+                            }
+                            otherChevron?.classList.remove('rotate-180');
+                        }
+                    });
+
                     if (isHidden) {
                         content.classList.remove('hidden');
                         content.classList.add('flex');
@@ -86,15 +101,23 @@ const isDropdown = subItems.length > 0;
                         chevron?.classList.remove('rotate-180');
                     }
                 }
-            });
+            };
+
+            // Avoid duplicate event listener
+            const triggerEl = trigger as any;
+            if (triggerEl.__dropdownHandler) {
+                triggerEl.removeEventListener('click', triggerEl.__dropdownHandler);
+            }
+            triggerEl.__dropdownHandler = handleTriggerClick;
+            triggerEl.addEventListener('click', handleTriggerClick);
 
             // Auto open if active
-            const targetId = (trigger as HTMLElement).dataset.target;
+            const targetId = triggerEl.dataset.target;
             const content = document.getElementById(targetId!);
-            if (content && trigger.classList.contains('text-primary')) {
+            if (content && triggerEl.classList.contains('text-primary')) {
                 content.classList.remove('hidden');
                 content.classList.add('flex');
-                trigger.querySelector('.chevron')?.classList.add('rotate-180');
+                triggerEl.querySelector('.chevron')?.classList.add('rotate-180');
             }
         });
     }

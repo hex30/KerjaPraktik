@@ -572,7 +572,8 @@ try {
         };
 
         if (inputTanggalSewa && inputTanggalKepulangan) {
-            const today = new Date().toISOString().split("T")[0];
+            const now = new Date();
+            const today = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString().split("T")[0];
             inputTanggalSewa.min = today;
             inputTanggalSewa.addEventListener("change", (e) => {
                 const target = e.target as HTMLInputElement;
@@ -678,6 +679,11 @@ try {
                         car_type: data1.jenis_armada as string,
                         departure_date: data1.tanggal_sewa as string,
                         return_date: data1.tanggal_kepulangan as string,
+                        full_name: data2.full_name as string,
+                        sub_district: data2.sub_district as string,
+                        village: data2.village as string,
+                        landmark: data2.landmark as string,
+                        notes: data2.notes as string || "",
                         pickup_address: JSON.stringify({
                             kecamatan: data2.sub_district || "-",
                             desa: data2.village || "-",

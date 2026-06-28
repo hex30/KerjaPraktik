@@ -5,14 +5,19 @@ export interface DriverSchedule {
   fleet_id: string;
   departure_time: string;
   status: string;
-  origin: string;
+  origin?: string;
   destination: string;
-  base_price: string | number;
+  base_price?: string | number;
   plate_number: string;
   car_type: string;
-  seat_capacity: number;
+  seat_capacity?: number;
   passengers: DriverPassenger[];
   packages: DriverPackage[];
+  isCharter?: boolean;
+  customer_name?: string;
+  customer_phone?: string;
+  return_date?: string;
+  price?: string | number;
 }
 
 export interface DriverPassenger {

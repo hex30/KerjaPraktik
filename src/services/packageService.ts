@@ -68,5 +68,23 @@ export const packageService = {
             console.error('Error creating package shipment:', error);
             throw error;
         }
+    },
+
+    // dokumentasi: Mengunggah bukti pembayaran untuk paket (membutuhkan JWT Token).
+    async uploadPaymentProof(bookingId: string, formData: FormData, token: string) {
+        try {
+            const response = await apiFetch(`/api/packages/shipments/${bookingId}/payment-proof`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
+                body: formData
+            });
+
+            return response;
+        } catch (error) {
+            console.error("Gagal unggah bukti bayar paket:", error);
+            throw error;
+        }
     }
 };

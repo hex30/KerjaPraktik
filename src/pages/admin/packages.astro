@@ -36,7 +36,7 @@ const validationPackages = packageData.filter((item: any) => {
     const hasPrice = !!item.price;
     return (isConfirm && !!item.payment_proof_url) || (isCash && hasPrice && (isConfirm || isPay));
 });
-const cancelledPackages = packageData.filter((item: any) => ['dibatalkan', 'ditolak', 'cancelled'].includes(item.transaction_status?.toLowerCase()));
+const cancelledPackages = packageData.filter((item: any) => ['dibatalkan', 'ditolak', 'cancelled'].includes(item.status?.toLowerCase()));
 
 ---
 
