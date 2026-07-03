@@ -1,6 +1,8 @@
 ---
 // File: src/components/features/admin/shared/AdminSidebar.astro
 import AdminSidebarItem from "@features/admin/shared/AdminSidebarItem.astro";
+import { Image } from "astro:assets";
+import riniLogo from "@assets/img/rini_trans_logo.png";
 
 const { pathname } = Astro.url;
 const isActive = (path: string) =>
@@ -76,9 +78,7 @@ const isSubActive = (items: any[]) =>
     >
         <div class="mb-10 px-2 flex justify-between items-center">
             <div>
-                <h2 class="text-xl font-black text-primary tracking-tight">
-                    Rini Trans <span class="text-slate-400">Putri</span>
-                </h2>
+                <Image src={riniLogo} alt="Rini Trans Putri Logo" class="h-16 w-auto object-contain mb-2" />
                 <p
                     class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1"
                 >

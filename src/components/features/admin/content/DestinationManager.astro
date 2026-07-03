@@ -147,6 +147,14 @@ const destinations = await adminContentService.getDestinations();
                 e.preventDefault();
                 const formData = new FormData(form);
                 
+                // Validasi: Gambar wajib diisi untuk tambah data baru (bukan update)
+                const isUpdate = !!formData.get('id');
+                const imageFile = formData.get('image');
+                if (!isUpdate && (imageFile instanceof File && imageFile.size === 0)) {
+                    alert("Gambar destinasi wajib diunggah untuk data baru!");
+                    return; // Hentikan proses simpan
+                }
+
                 try {
                     if (submitBtn) {
                         submitBtn.textContent = "Menyimpan...";

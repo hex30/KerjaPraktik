@@ -1,6 +1,8 @@
 ---
 // File: src/layouts/DriverLayout.astro
 import "../styles/global.css";
+import { Image } from "astro:assets";
+import riniLogo from "@assets/img/rini_trans_logo.png";
 
 interface Props {
     title: string;
@@ -28,23 +30,14 @@ const pathname = Astro.url.pathname;
         >
             <div class="flex flex-col">
                 <div
-                    class="p-8 border-b border-slate-100 flex items-center gap-4"
+                    class="p-8 border-b border-slate-100"
                 >
-                    <div
-                        class="w-12 h-12 rounded-full bg-[#044751] text-white flex items-center justify-center font-black text-lg shadow-md shadow-primary/20"
-                    >
-                        S
-                    </div>
                     <div>
-                        <h1
-                            class="text-base font-black tracking-tight leading-none text-slate-900"
-                        >
-                            Panel Supir
-                        </h1>
+                        <Image src={riniLogo} alt="Rini Trans Putri Logo" class="h-10 w-auto object-contain mb-2" />
                         <p
                             class="text-[10px] text-slate-400 mt-1.5 font-black uppercase tracking-widest"
                         >
-                            PT Rini Trans Putri
+                            Panel Supir
                         </p>
                     </div>
                 </div>
