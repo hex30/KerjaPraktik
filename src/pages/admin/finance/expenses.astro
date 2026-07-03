@@ -2,6 +2,7 @@
 // File: src/pages/admin/finance/expenses.astro
 import AdminLayout from "@layouts/AdminLayout.astro";
 import InputGroup from "@ui/InputGroup.astro";
+import PaymentPreviewModal from "@features/admin/bookings/PaymentPreviewModal.astro";
 
 // Data Keuangan Dinamis (Server-Side)
 const token = Astro.cookies.get("token")?.value;
@@ -9,15 +10,21 @@ const API_BASE = import.meta.env.PUBLIC_API_URL || "http://localhost:5000";
 const headers = { 'Authorization': `Bearer ${token}` };
 
 let driverExpenses = [];
+let maintenanceLogs = [];
 let transactions = [];
 
 try {
-    const [expRes, txRes] = await Promise.all([
+    const [expRes, maintRes, txRes] = await Promise.all([
         fetch(`${API_BASE}/api/admin/cashflow/expenses?status=pending`, { headers }),
+        fetch(`${API_BASE}/api/driver/maintenance-logs`, { headers }),
         fetch(`${API_BASE}/api/admin/cashflow/transactions?limit=200`, { headers })
     ]);
     
     if (expRes.ok) driverExpenses = (await expRes.json()).data || [];
+    if (maintRes.ok) {
+        const allMaint = (await maintRes.json()).data || [];
+        maintenanceLogs = allMaint.filter((log: any) => log.status === 'pending');
+    }
     if (txRes.ok) transactions = (await txRes.json()).data || [];
 } catch(e) {
     console.error("Failed to load expenses data:", e);
@@ -25,6 +32,17 @@ try {
 
 // Filter only expenses from transactions history
 const expenseHistory = transactions.filter((tx: any) => tx.type === 'expense');
+
+const getProofUrl = (url: string) => {
+    if (!url) return "";
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+        if (url.includes("localhost:5000") && API_BASE !== "http://localhost:5000") {
+            return url.replace("http://localhost:5000", API_BASE);
+        }
+        return url;
+    }
+    return `${API_BASE}${url.startsWith("/") ? "" : "/"}${url}`;
+};
 ---
 
 <AdminLayout title="Data Pengeluaran">
@@ -68,8 +86,11 @@ const expenseHistory = transactions.filter((tx: any) => tx.type === 'expense');
                                 </td>
                                 <td class="py-5 px-4 font-main font-black text-slate-900">Rp {Number(exp.amount).toLocaleString('id-ID')}</td>
                                 <td class="py-5 px-4">
-                                    {exp.proof_url ? (
-                                        <a href={`${API_BASE}${exp.proof_url}`} target="_blank" class="text-[10px] font-bold text-primary underline">Lihat Foto</a>
+                                    {exp.proof_image_url ? (
+                                        <div class="flex flex-col items-center gap-1 group cursor-pointer" onclick={`window.openPaymentPreview('${exp.id.substring(0, 8).toUpperCase()}', '${getProofUrl(exp.proof_image_url)}')`}>
+                                            <img src={getProofUrl(exp.proof_image_url)} alt="Nota" class="w-12 h-16 object-cover rounded-lg border border-slate-200 shadow-sm group-hover:scale-105 transition-transform duration-200" />
+                                            <span class="text-[10px] font-bold text-primary underline whitespace-nowrap">Lihat Nota</span>
+                                        </div>
                                     ) : (
                                         <span class="text-[10px] text-slate-400">-</span>
                                     )}
@@ -82,6 +103,64 @@ const expenseHistory = transactions.filter((tx: any) => tx.type === 'expense');
                                 </td>
                             </tr>
                         ))}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- SECTION 1B: Verifikasi Kerusakan & Servis Armada -->
+        <section class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-6">
+            <div>
+                <h2 class="text-xl font-black text-slate-900">Verifikasi Kerusakan & Servis Armada</h2>
+                <p class="text-xs text-slate-400 mt-1">ACC atau Tolak pengajuan biaya perbaikan unit oleh supir.</p>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="text-slate-400 text-[10px] font-bold uppercase tracking-widest border-b border-slate-50 whitespace-nowrap">
+                            <th class="pb-4 px-4">Supir</th>
+                            <th class="pb-4 px-4">Armada</th>
+                            <th class="pb-4 px-4">Deskripsi Kerusakan</th>
+                            <th class="pb-4 px-4">Estimasi Biaya</th>
+                            <th class="pb-4 px-4">Nota / Bukti</th>
+                            <th class="pb-4 px-4 text-right">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50">
+                        {maintenanceLogs.length === 0 ? (
+                            <tr class="text-center py-10">
+                                <td colspan="6" class="py-10 text-slate-400 text-sm font-secondary">Tidak ada pengajuan perbaikan dari supir.</td>
+                            </tr>
+                        ) : (
+                            maintenanceLogs.map((log: any) => (
+                                <tr class="group hover:bg-slate-50/50 transition-colors whitespace-nowrap md:whitespace-normal">
+                                    <td class="py-5 px-4 font-bold text-slate-900 text-sm">{log.driver_name || 'Supir'}</td>
+                                    <td class="py-5 px-4 text-xs text-slate-600">
+                                        {log.car_type}
+                                        <span class="block text-[10px] font-mono text-slate-400 mt-1">{log.plate_number}</span>
+                                    </td>
+                                    <td class="py-5 px-4 text-xs text-slate-600 max-w-xs truncate" title={log.description}>{log.description}</td>
+                                    <td class="py-5 px-4 font-main font-black text-slate-900">Rp {Number(log.cost).toLocaleString('id-ID')}</td>
+                                    <td class="py-5 px-4">
+                                        {log.proof_image_url ? (
+                                            <div class="flex flex-col items-center gap-1 group cursor-pointer" onclick={`window.openPaymentPreview('${log.id.substring(0, 8).toUpperCase()}', '${getProofUrl(log.proof_image_url)}')`}>
+                                                <img src={getProofUrl(log.proof_image_url)} alt="Nota" class="w-12 h-16 object-cover rounded-lg border border-slate-200 shadow-sm group-hover:scale-105 transition-transform duration-200" />
+                                                <span class="text-[10px] font-bold text-primary underline whitespace-nowrap">Lihat Nota</span>
+                                            </div>
+                                        ) : (
+                                            <span class="text-[10px] text-slate-400">-</span>
+                                        )}
+                                    </td>
+                                    <td class="py-5 px-4 text-right">
+                                        <div class="flex items-center justify-end gap-2">
+                                            <button data-id={log.id} class="acc-maint-btn px-4 py-2 bg-emerald-500 text-white rounded-lg text-[10px] font-bold hover:bg-emerald-600 transition-all">ACC</button>
+                                            <button data-id={log.id} class="tolak-maint-btn px-4 py-2 bg-rose-100 text-rose-600 rounded-lg text-[10px] font-bold hover:bg-rose-200 transition-all">Tolak</button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
                     </tbody>
                 </table>
             </div>
@@ -185,6 +264,7 @@ const expenseHistory = transactions.filter((tx: any) => tx.type === 'expense');
             )}
         </section>
 
+        <PaymentPreviewModal />
     </div>
 </AdminLayout>
 
@@ -272,6 +352,49 @@ const expenseHistory = transactions.filter((tx: any) => tx.type === 'expense');
             btn.addEventListener('click', (e) => {
                 const id = (e.currentTarget as HTMLButtonElement).dataset.id as string;
                 handleApproval(id, 'rejected');
+            });
+        });
+
+        // Maintenance logs approval handler
+        const handleMaintApproval = async (id: string, status: 'approved' | 'rejected') => {
+            if(!confirm(`Apakah Anda yakin ingin ${status === 'approved' ? 'MENYETUJUI' : 'MENOLAK'} pengajuan perbaikan ini?`)) return;
+
+            try {
+                const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+                const API_BASE = import.meta.env.PUBLIC_API_URL || "http://localhost:5000";
+
+                const response = await fetch(`${API_BASE}/api/driver/maintenance-logs/${id}/verify`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ status })
+                });
+
+                if (response.ok) {
+                    alert('Status pengajuan perbaikan berhasil diperbarui.');
+                    window.location.reload();
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Gagal memperbarui status');
+                }
+            } catch (error: any) {
+                alert('Error: ' + error.message);
+            }
+        };
+
+        document.querySelectorAll('.acc-maint-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = (e.currentTarget as HTMLButtonElement).dataset.id as string;
+                handleMaintApproval(id, 'approved');
+            });
+        });
+
+        document.querySelectorAll('.tolak-maint-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = (e.currentTarget as HTMLButtonElement).dataset.id as string;
+                handleMaintApproval(id, 'rejected');
             });
         });
 
