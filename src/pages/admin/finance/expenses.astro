@@ -31,6 +31,17 @@ try {
 
 // Filter only expenses from transactions history
 const expenseHistory = transactions.filter((tx: any) => tx.type === 'expense');
+
+const getProofUrl = (url: string) => {
+    if (!url) return "";
+    if (url.startsWith("http://") || url.startsWith("https://")) {
+        if (url.includes("localhost:5000") && API_BASE !== "http://localhost:5000") {
+            return url.replace("http://localhost:5000", API_BASE);
+        }
+        return url;
+    }
+    return `${API_BASE}${url.startsWith("/") ? "" : "/"}${url}`;
+};
 ---
 
 <AdminLayout title="Data Pengeluaran">
@@ -74,8 +85,8 @@ const expenseHistory = transactions.filter((tx: any) => tx.type === 'expense');
                                 </td>
                                 <td class="py-5 px-4 font-main font-black text-slate-900">Rp {Number(exp.amount).toLocaleString('id-ID')}</td>
                                 <td class="py-5 px-4">
-                                    {exp.proof_url ? (
-                                        <a href={`${API_BASE}${exp.proof_url}`} target="_blank" class="text-[10px] font-bold text-primary underline">Lihat Foto</a>
+                                    {exp.proof_image_url ? (
+                                        <a href={getProofUrl(exp.proof_image_url)} target="_blank" class="text-[10px] font-bold text-primary underline">Lihat Foto</a>
                                     ) : (
                                         <span class="text-[10px] text-slate-400">-</span>
                                     )}
@@ -129,7 +140,7 @@ const expenseHistory = transactions.filter((tx: any) => tx.type === 'expense');
                                     <td class="py-5 px-4 font-main font-black text-slate-900">Rp {Number(log.cost).toLocaleString('id-ID')}</td>
                                     <td class="py-5 px-4">
                                         {log.proof_image_url ? (
-                                            <a href={`${API_BASE}${log.proof_image_url}`} target="_blank" class="text-[10px] font-bold text-primary underline">Lihat Foto</a>
+                                            <a href={getProofUrl(log.proof_image_url)} target="_blank" class="text-[10px] font-bold text-primary underline">Lihat Foto</a>
                                         ) : (
                                             <span class="text-[10px] text-slate-400">-</span>
                                         )}
