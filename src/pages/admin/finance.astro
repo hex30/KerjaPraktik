@@ -12,6 +12,7 @@ let summary = {
     total_income: 0,
     today_income: 0,
     last_month_income: 0,
+    last_month_expense: 0,
     driver_salary: 0,
     total_expense: 0,
 };
@@ -36,8 +37,8 @@ try {
     console.error("Failed to load finance data:", e);
 }
 
-// Formatting Helper (Mock Data)
-const mockExpenseLastMonth = summary.total_expense * 0.85 || 8500000;
+// Formatting Helper
+const mockExpenseLastMonth = summary.last_month_expense || 0;
 const mockExpenseToday = summary.total_expense * 0.04 || 350000;
 const mockIncomeYear = summary.total_income * 9.2 || 124500000;
 const mockExpenseYearThis = summary.total_expense * 9.5 || 81200000;
@@ -50,6 +51,7 @@ if (summary.last_month_income > 0) {
 ---
 
 <AdminLayout title="Ringkasan Laporan">
+    <div id="finance-summary-data" data-summary={JSON.stringify(summary)} class="hidden"></div>
     <div class="flex flex-col gap-10">
         <!-- HEADER PAGE -->
         <header
@@ -406,7 +408,6 @@ if (summary.last_month_income > 0) {
             });
         }
     };
-
     const setupDownloadDropdown = () => {
         const btn = document.getElementById("download-report-btn");
         const menu = document.getElementById("download-options-menu");
@@ -444,15 +445,177 @@ if (summary.last_month_income > 0) {
                 e.stopPropagation();
             });
 
+            const downloadReport = async (format: string) => {
+                const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+                const API_BASE = import.meta.env.PUBLIC_API_URL || "http://localhost:5000";
+                const downloadBtn = document.getElementById("download-report-btn");
+                const originalContent = downloadBtn?.innerHTML;
+                
+                try {
+                    if (downloadBtn) {
+                        downloadBtn.setAttribute("disabled", "true");
+                        downloadBtn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Memproses...`;
+                    }
+
+                    // Ambil seluruh data transaksi
+                    const txRes = await fetch(`${API_BASE}/api/admin/cashflow/transactions?limit=1000`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    
+                    if (!txRes.ok) throw new Error("Gagal mengambil data transaksi");
+                    const allTx = (await txRes.json()).data || [];
+
+                    // Ambil summary dari DOM
+                    const summaryDataEl = document.getElementById("finance-summary-data");
+                    const summary = summaryDataEl ? JSON.parse(summaryDataEl.getAttribute("data-summary") || "{}") : {};
+
+                    if (format === "excel") {
+                        // EXPORT EXCEL (CSV)
+                        let csvContent = "\uFEFF"; // UTF-8 BOM
+                        csvContent += "ID Transaksi,Tanggal,Metode Pembayaran,Jenis Layanan,Keterangan,Tipe,Jumlah (IDR)\n";
+
+                        allTx.forEach((tx: any) => {
+                            let serviceType = "Operasional";
+                            const categoryLower = (tx.category || "").toLowerCase();
+                            if (categoryLower.includes("charter") || categoryLower.includes("sewa")) {
+                                serviceType = "Sewa Charter";
+                            } else if (categoryLower.includes("travel") || categoryLower.includes("rute") || categoryLower.includes("ticket")) {
+                                serviceType = "Travel Reguler";
+                            } else if (categoryLower.includes("package") || categoryLower.includes("shipment") || categoryLower.includes("paket")) {
+                                serviceType = "Pengiriman Paket";
+                            }
+
+                            const txId = "#" + tx.id.substring(0, 8).toUpperCase();
+                            const txDate = new Date(tx.created_at).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
+                            const method = (tx.payment_method || "TRANSFER").toUpperCase();
+                            const desc = (tx.description || "-").replace(/"/g, '""');
+                            const type = tx.type === "income" ? "Pemasukan (+)" : "Pengeluaran (-)";
+                            const amount = tx.amount;
+
+                            csvContent += `"${txId}","${txDate}","${method}","${serviceType}","${desc}","${type}",${amount}\n`;
+                        });
+
+                        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement("a");
+                        link.setAttribute("href", url);
+                        link.setAttribute("download", `laporan_keuangan_${new Date().toISOString().slice(0, 10)}.csv`);
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+
+                    } else if (format === "pdf") {
+                        // EXPORT PDF
+                        const loadScript = (url: string) => {
+                            return new Promise((resolve, reject) => {
+                                const script = document.createElement("script");
+                                script.src = url;
+                                script.onload = resolve;
+                                script.onerror = reject;
+                                document.body.appendChild(script);
+                            });
+                        };
+
+                        if (!(window as any).jspdf) {
+                            await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js");
+                        }
+                        if (!(window as any).jspdf.plugin?.autotable) {
+                            await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js");
+                        }
+
+                        const { jsPDF } = (window as any).jspdf;
+                        const doc = new jsPDF();
+
+                        doc.setFont("Helvetica", "bold");
+                        doc.setFontSize(20);
+                        doc.setTextColor(4, 71, 81); // Brand Primary
+                        doc.text("LAPORAN KEUANGAN OPERASIONAL", 14, 22);
+                        
+                        doc.setFontSize(12);
+                        doc.setTextColor(100, 116, 139);
+                        doc.text("PT. Rini Trans Putri", 14, 28);
+                        
+                        doc.setFont("Helvetica", "normal");
+                        doc.setFontSize(8);
+                        doc.text(`Dicetak pada: ${new Date().toLocaleString("id-ID")}`, 14, 34);
+
+                        doc.setDrawColor(226, 232, 240);
+                        doc.line(14, 38, 196, 38);
+
+                        doc.setFont("Helvetica", "bold");
+                        doc.setFontSize(10);
+                        doc.setTextColor(15, 23, 42);
+                        doc.text("RINGKASAN PERIODE INI:", 14, 46);
+
+                        doc.setFont("Helvetica", "normal");
+                        doc.setFontSize(9);
+                        doc.text(`Total Pendapatan: Rp ${(summary.total_income || 0).toLocaleString("id-ID")}`, 14, 52);
+                        doc.text(`Total Pengeluaran: Rp ${(summary.total_expense || 0).toLocaleString("id-ID")}`, 14, 57);
+                        
+                        const netProfit = (summary.total_income || 0) - (summary.total_expense || 0);
+                        doc.setFont("Helvetica", "bold");
+                        doc.text(`Laba Bersih (Net Profit): Rp ${netProfit.toLocaleString("id-ID")}`, 14, 63);
+
+                        const tableRows = allTx.map((tx: any) => {
+                            let serviceType = "Operasional";
+                            const categoryLower = (tx.category || "").toLowerCase();
+                            if (categoryLower.includes("charter") || categoryLower.includes("sewa")) {
+                                serviceType = "Sewa Charter";
+                            } else if (categoryLower.includes("travel") || categoryLower.includes("rute") || categoryLower.includes("ticket")) {
+                                serviceType = "Travel Reguler";
+                            } else if (categoryLower.includes("package") || categoryLower.includes("shipment") || categoryLower.includes("paket")) {
+                                serviceType = "Pengiriman Paket";
+                            }
+
+                            const txId = "#" + tx.id.substring(0, 8).toUpperCase();
+                            const txDate = new Date(tx.created_at).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
+                            const method = (tx.payment_method || "TRANSFER").toUpperCase();
+                            const amountFormatted = `Rp ${Number(tx.amount).toLocaleString("id-ID")}`;
+                            const displayAmount = tx.type === "income" ? `+ ${amountFormatted}` : `- ${amountFormatted}`;
+
+                            return [
+                                txId,
+                                txDate,
+                                method,
+                                serviceType,
+                                tx.description || "-",
+                                displayAmount
+                            ];
+                        });
+
+                        (doc as any).autoTable({
+                            startY: 70,
+                            head: [["ID Transaksi", "Tanggal", "Metode", "Layanan", "Keterangan", "Jumlah"]],
+                            body: tableRows,
+                            theme: "striped",
+                            headStyles: { fillColor: [4, 71, 81] },
+                            styles: { fontSize: 8, font: "Helvetica" },
+                            columnStyles: { 5: { halign: "right" } }
+                        });
+
+                        doc.save(`laporan_keuangan_${new Date().toISOString().slice(0, 10)}.pdf`);
+                    }
+
+                    if (downloadBtn && originalContent) {
+                        downloadBtn.removeAttribute("disabled");
+                        downloadBtn.innerHTML = originalContent;
+                    }
+                } catch (error: any) {
+                    alert("Gagal mengunduh laporan: " + error.message);
+                    if (downloadBtn && originalContent) {
+                        downloadBtn.removeAttribute("disabled");
+                        downloadBtn.innerHTML = originalContent;
+                    }
+                }
+            };
+
             document
                 .querySelectorAll(".download-option-btn")
                 .forEach((option) => {
                     option.addEventListener("click", (e) => {
                         const format = (e.currentTarget as HTMLButtonElement)
                             .dataset.format;
-                        alert(
-                            `Memulai pengunduhan laporan dalam format ${format?.toUpperCase()}...`,
-                        );
+                        if (format) downloadReport(format);
                         toggleMenu(false);
                     });
                 });
