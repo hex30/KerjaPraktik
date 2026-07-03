@@ -204,7 +204,7 @@ const expenseHistory = transactions.filter((tx: any) => tx.type === 'expense');
                 try {
                     const formData = new FormData(form);
                     const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
-                    const API_BASE = "http://localhost:5000";
+                    const API_BASE = import.meta.env.PUBLIC_API_URL || "http://localhost:5000";
 
                     const response = await fetch(`${API_BASE}/api/admin/cashflow/expense`, {
                         method: 'POST',
@@ -238,7 +238,7 @@ const expenseHistory = transactions.filter((tx: any) => tx.type === 'expense');
 
             try {
                 const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
-                const API_BASE = "http://localhost:5000";
+                const API_BASE = import.meta.env.PUBLIC_API_URL || "http://localhost:5000";
 
                 const response = await fetch(`${API_BASE}/api/admin/cashflow/expenses/${id}/approve`, {
                     method: 'PUT',

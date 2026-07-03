@@ -165,7 +165,7 @@ const orderHistory = await userService.getUserHistory(token);
                         } else {
                             endpoint = `/api/${orderType}/bookings/${orderId}/cancel`;
                         }
-                        const beHost = 'http://localhost:5000';
+                        const beHost = import.meta.env.PUBLIC_API_URL || 'http://localhost:5000';
                         
                         const res = await fetch(`${beHost}${endpoint}`, {
                             method: 'PUT',
