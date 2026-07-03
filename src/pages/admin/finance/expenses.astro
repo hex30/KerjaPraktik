@@ -2,6 +2,7 @@
 // File: src/pages/admin/finance/expenses.astro
 import AdminLayout from "@layouts/AdminLayout.astro";
 import InputGroup from "@ui/InputGroup.astro";
+import PaymentPreviewModal from "@features/admin/bookings/PaymentPreviewModal.astro";
 
 // Data Keuangan Dinamis (Server-Side)
 const token = Astro.cookies.get("token")?.value;
@@ -86,7 +87,10 @@ const getProofUrl = (url: string) => {
                                 <td class="py-5 px-4 font-main font-black text-slate-900">Rp {Number(exp.amount).toLocaleString('id-ID')}</td>
                                 <td class="py-5 px-4">
                                     {exp.proof_image_url ? (
-                                        <a href={getProofUrl(exp.proof_image_url)} target="_blank" class="text-[10px] font-bold text-primary underline">Lihat Foto</a>
+                                        <div class="flex flex-col items-center gap-1 group cursor-pointer" onclick={`window.openPaymentPreview('${exp.id.substring(0, 8).toUpperCase()}', '${getProofUrl(exp.proof_image_url)}')`}>
+                                            <img src={getProofUrl(exp.proof_image_url)} alt="Nota" class="w-12 h-16 object-cover rounded-lg border border-slate-200 shadow-sm group-hover:scale-105 transition-transform duration-200" />
+                                            <span class="text-[10px] font-bold text-primary underline whitespace-nowrap">Lihat Nota</span>
+                                        </div>
                                     ) : (
                                         <span class="text-[10px] text-slate-400">-</span>
                                     )}
@@ -140,7 +144,10 @@ const getProofUrl = (url: string) => {
                                     <td class="py-5 px-4 font-main font-black text-slate-900">Rp {Number(log.cost).toLocaleString('id-ID')}</td>
                                     <td class="py-5 px-4">
                                         {log.proof_image_url ? (
-                                            <a href={getProofUrl(log.proof_image_url)} target="_blank" class="text-[10px] font-bold text-primary underline">Lihat Foto</a>
+                                            <div class="flex flex-col items-center gap-1 group cursor-pointer" onclick={`window.openPaymentPreview('${log.id.substring(0, 8).toUpperCase()}', '${getProofUrl(log.proof_image_url)}')`}>
+                                                <img src={getProofUrl(log.proof_image_url)} alt="Nota" class="w-12 h-16 object-cover rounded-lg border border-slate-200 shadow-sm group-hover:scale-105 transition-transform duration-200" />
+                                                <span class="text-[10px] font-bold text-primary underline whitespace-nowrap">Lihat Nota</span>
+                                            </div>
                                         ) : (
                                             <span class="text-[10px] text-slate-400">-</span>
                                         )}
@@ -257,6 +264,7 @@ const getProofUrl = (url: string) => {
             )}
         </section>
 
+        <PaymentPreviewModal />
     </div>
 </AdminLayout>
 
