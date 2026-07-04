@@ -222,7 +222,7 @@ if (summary.last_month_income > 0) {
         <section
             class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-6"
         >
-            <div class="flex items-center justify-between">
+            <div class="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-6">
                 <div>
                     <h2 class="text-xl font-black text-slate-900">
                         Riwayat Transaksi
@@ -231,6 +231,24 @@ if (summary.last_month_income > 0) {
                         Menampilkan catatan kas masuk dan kas keluar
                         operasional.
                     </p>
+                </div>
+                
+                <!-- Filter Section -->
+                <div class="flex flex-wrap items-center gap-3">
+                    <select id="tx-filter-service" class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer">
+                        <option value="ALL">Semua Layanan</option>
+                        <option value="Travel Reguler">Travel Reguler</option>
+                        <option value="Sewa Charter">Sewa Charter</option>
+                        <option value="Pengiriman Paket">Pengiriman Paket</option>
+                        <option value="Operasional">Operasional</option>
+                    </select>
+                    <input type="date" id="tx-filter-date" class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer">
+                    <button type="button" id="tx-btn-apply" class="bg-[#044751] hover:bg-[#03363e] text-white px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest shadow-md shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
+                        Terapkan
+                    </button>
+                    <button type="button" id="tx-btn-reset" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all">
+                        Reset
+                    </button>
                 </div>
             </div>
 
@@ -292,6 +310,8 @@ if (summary.last_month_income > 0) {
                                     return (
                                         <tr
                                             class={`group hover:bg-slate-50/50 transition-all duration-300 whitespace-nowrap md:whitespace-normal tx-row ${index >= 5 ? "hidden opacity-0 max-h-0" : "opacity-100"}`}
+                                            data-service-type={serviceType}
+                                            data-date={tx.created_at || ''}
                                         >
                                             <td class="py-4 px-4 font-bold text-slate-900 text-sm">
                                                 #
@@ -622,10 +642,86 @@ if (summary.last_month_income > 0) {
         }
     };
 
+    const setupTransactionFilter = () => {
+        const btnApply = document.getElementById('tx-btn-apply');
+        const btnReset = document.getElementById('tx-btn-reset');
+        const selectService = document.getElementById('tx-filter-service') as HTMLSelectElement;
+        const inputDate = document.getElementById('tx-filter-date') as HTMLInputElement;
+        const txRows = document.querySelectorAll('.tx-row');
+        const toggleBtn = document.getElementById('toggle-tx-btn');
+        const toggleText = document.getElementById('toggle-tx-text');
+        const toggleIcon = document.getElementById('toggle-tx-icon');
+
+        if (!btnApply || !btnReset) return;
+
+        btnApply.addEventListener('click', () => {
+            const svc = selectService.value;
+            const dt = inputDate.value;
+            
+            // Sembunyikan tombol toggle karena sedang mode pencarian (tampilkan semua match)
+            if (toggleBtn) toggleBtn.style.display = 'none';
+
+            txRows.forEach(row => {
+                    const rowSvc = row.getAttribute('data-service-type');
+                    const rawDt = row.getAttribute('data-date');
+                    
+                    let match = true;
+                    const normalizedSvc = svc.trim().toLowerCase();
+                    const normalizedRowSvc = (rowSvc || '').trim().toLowerCase();
+                    
+                    if (svc !== 'ALL' && normalizedRowSvc !== normalizedSvc) match = false;
+                    
+                    if (dt && rawDt) {
+                        try {
+                            const d = new Date(rawDt);
+                            const localRowDt = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+                            if (localRowDt !== dt) match = false;
+                        } catch(e) {
+                            if (!rawDt.includes(dt)) match = false;
+                        }
+                    } else if (dt && !rawDt) {
+                        match = false;
+                    }
+                    
+                    if (match) {
+                    row.classList.remove('hidden', 'opacity-0', 'max-h-0');
+                    row.classList.add('opacity-100');
+                } else {
+                    row.classList.add('hidden', 'opacity-0', 'max-h-0');
+                    row.classList.remove('opacity-100');
+                }
+            });
+        });
+
+        btnReset.addEventListener('click', () => {
+            selectService.value = 'ALL';
+            inputDate.value = '';
+            
+            if (toggleBtn) {
+                toggleBtn.style.display = 'flex';
+                if (toggleText) toggleText.textContent = "Lihat Semua Transaksi";
+                if (toggleIcon) toggleIcon.classList.remove("rotate-180");
+            }
+            
+            txRows.forEach((row, idx) => {
+                if (idx < 5) {
+                    row.classList.remove('hidden', 'opacity-0', 'max-h-0');
+                    row.classList.add('opacity-100');
+                } else {
+                    row.classList.add('hidden', 'opacity-0', 'max-h-0');
+                    row.classList.remove('opacity-100');
+                }
+            });
+        });
+    };
+
     setupTransactionToggle();
     setupDownloadDropdown();
+    setupTransactionFilter();
+    
     document.addEventListener("astro:page-load", () => {
         setupTransactionToggle();
         setupDownloadDropdown();
+        setupTransactionFilter();
     });
 </script>
