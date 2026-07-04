@@ -63,6 +63,8 @@ const orderHistory = await userService.getUserHistory(token);
 </Layout>
 
 <script>
+    import { apiFetch } from '../../services/api';
+    
     // Assign ke window object agar bisa dipanggil dari HTML onclick
     (window as any).selectPaymentMethod = async (orderId: string, type: string, method: string) => {
         try {
@@ -71,31 +73,18 @@ const orderHistory = await userService.getUserHistory(token);
             if (type === 'travel') endpoint = `/api/travel/bookings/${orderId}/payment-method`;
             else if (type === 'package') endpoint = `/api/packages/bookings/${orderId}/payment-method`;
             else endpoint = `/api/charter/request/${orderId}/payment-method`;
-            
-            // Perbaiki host backend
-            const beHost = import.meta.env.PUBLIC_API_URL || 'http://localhost:5000';
-
-            const res = await fetch(`${beHost}${endpoint}`, {
+            await apiFetch(endpoint, {
                 method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...(token && { 'Authorization': `Bearer ${token}` })
-                },
                 body: JSON.stringify({ payment_method: method })
             });
 
-            if (res.ok) {
-                if (method === 'cash') {
+            if (method === 'cash') {
                     alert('Terima kasih banyak! Silakan bayarkan uang Anda saat sudah dijemput oleh driver.');
                 }
-                window.location.reload();
-            } else {
-                const data = await res.json();
-                alert(`Gagal: ${data.message || 'Terjadi kesalahan'}`);
-            }
-        } catch (error) {
+            window.location.reload();
+        } catch (error: any) {
             console.error('Error selecting payment method:', error);
-            alert('Gagal terhubung ke server');
+            alert(`Gagal: ${error.message || 'Terjadi kesalahan'}`);
         }
     };
 
@@ -165,19 +154,9 @@ const orderHistory = await userService.getUserHistory(token);
                         } else {
                             endpoint = `/api/${orderType}/bookings/${orderId}/cancel`;
                         }
-                        const beHost = import.meta.env.PUBLIC_API_URL || 'http://localhost:5000';
-                        
-                        const res = await fetch(`${beHost}${endpoint}`, {
-                            method: 'PUT',
-                            headers: {
-                                'Authorization': `Bearer ${token}`
-                            }
+                        await apiFetch(endpoint, {
+                            method: 'PUT'
                         });
-                        
-                        if (!res.ok) {
-                            const errData = await res.json().catch(() => ({}));
-                            throw new Error(errData.message || "Gagal membatalkan pesanan. Terjadi kesalahan pada server.");
-                        }
                         
                         alert('Dibatalkan! Pesanan Anda berhasil dibatalkan.');
                         window.location.reload();

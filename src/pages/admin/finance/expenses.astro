@@ -298,6 +298,7 @@ const getProofUrl = (url: string) => {
 </AdminLayout>
 
 <script>
+    import { apiFetch } from '../../../services/api';
     const setupExpenseActions = () => {
         // Form submit handler
         const form = document.getElementById('expense-form') as HTMLFormElement;
@@ -312,26 +313,15 @@ const getProofUrl = (url: string) => {
 
                 try {
                     const formData = new FormData(form);
-                    const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
-                    const API_BASE = import.meta.env.PUBLIC_API_URL || "http://localhost:5000";
 
-                    const response = await fetch(`${API_BASE}/api/admin/cashflow/expense`, {
+                    const data = await apiFetch('/api/admin/cashflow/expense', {
                         method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        },
                         body: formData
                     });
 
-                    const data = await response.json();
-
-                    if (response.ok) {
-                        alert('Berhasil: ' + data.message);
-                        form.reset();
-                        window.location.reload();
-                    } else {
-                        throw new Error(data.message || 'Gagal menyimpan pengeluaran');
-                    }
+                    alert('Berhasil: ' + data.message);
+                    form.reset();
+                    window.location.reload();
                 } catch (error: any) {
                     alert('Error: ' + error.message);
                 } finally {
@@ -346,25 +336,13 @@ const getProofUrl = (url: string) => {
             if(!confirm(`Apakah Anda yakin ingin ${status === 'approved' ? 'MENYETUJUI' : 'MENOLAK'} pengeluaran ini?`)) return;
 
             try {
-                const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
-                const API_BASE = import.meta.env.PUBLIC_API_URL || "http://localhost:5000";
-
-                const response = await fetch(`${API_BASE}/api/admin/cashflow/expenses/${id}/approve`, {
+                await apiFetch(`/api/admin/cashflow/expenses/${id}/approve`, {
                     method: 'PUT',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
                     body: JSON.stringify({ status })
                 });
 
-                if (response.ok) {
-                    alert('Status pengeluaran berhasil diperbarui.');
-                    window.location.reload();
-                } else {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Gagal memperbarui status');
-                }
+                alert('Status pengeluaran berhasil diperbarui.');
+                window.location.reload();
             } catch (error: any) {
                 alert('Error: ' + error.message);
             }
@@ -389,25 +367,13 @@ const getProofUrl = (url: string) => {
             if(!confirm(`Apakah Anda yakin ingin ${status === 'approved' ? 'MENYETUJUI' : 'MENOLAK'} pengajuan perbaikan ini?`)) return;
 
             try {
-                const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
-                const API_BASE = import.meta.env.PUBLIC_API_URL || "http://localhost:5000";
-
-                const response = await fetch(`${API_BASE}/api/driver/maintenance-logs/${id}/verify`, {
+                await apiFetch(`/api/driver/maintenance-logs/${id}/verify`, {
                     method: 'PUT',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    },
                     body: JSON.stringify({ status })
                 });
 
-                if (response.ok) {
-                    alert('Status pengajuan perbaikan berhasil diperbarui.');
-                    window.location.reload();
-                } else {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Gagal memperbarui status');
-                }
+                alert('Status pengajuan perbaikan berhasil diperbarui.');
+                window.location.reload();
             } catch (error: any) {
                 alert('Error: ' + error.message);
             }
