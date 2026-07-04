@@ -19,8 +19,12 @@ export const authGuard = {
 
     requireAuth(redirectUrl: string = '/auth/login') {
         if (!this.isLoggedIn()) {
-            alert('Silakan login terlebih dahulu untuk mengakses fitur ini.');
-            window.location.href = redirectUrl;
+            if (typeof window !== 'undefined' && (window as any).showFeedbackModal) {
+                (window as any).showFeedbackModal('warning', 'Akses Ditolak', 'Silakan login terlebih dahulu untuk mengakses fitur ini.', redirectUrl);
+            } else {
+                alert('Silakan login terlebih dahulu untuk mengakses fitur ini.');
+                window.location.href = redirectUrl;
+            }
             return false;
         }
         return true;
@@ -28,11 +32,15 @@ export const authGuard = {
 
     checkPermission(allowedRoles: string[]) {
         if (!this.requireAuth()) return false;
-        
+
         const role = this.getRole();
         if (!allowedRoles.includes(role)) {
-            alert('Anda tidak memiliki akses ke halaman ini.');
-            window.location.href = '/';
+            if (typeof window !== 'undefined' && (window as any).showFeedbackModal) {
+                (window as any).showFeedbackModal('error', 'Akses Terlarang', 'Anda tidak memiliki akses ke halaman ini.', '/');
+            } else {
+                alert('Anda tidak memiliki akses ke halaman ini.');
+                window.location.href = '/';
+            }
             return false;
         }
         return true;

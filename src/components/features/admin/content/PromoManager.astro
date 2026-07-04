@@ -511,11 +511,12 @@ import Button from "@ui/Button.astro";
                 ) as HTMLFormElement;
                 const id = f.querySelector(".promo-id") as HTMLInputElement;
                 if (id && id.value) {
-                    if (
-                        confirm(
-                            "Yakin ingin menghapus promo ini secara permanen?",
-                        )
-                    ) {
+                    const confirmed = await (window as any).showConfirmModal(
+                        "Konfirmasi Hapus",
+                        "Yakin ingin menghapus promo ini secara permanen?",
+                        "danger"
+                    );
+                    if (confirmed) {
                         try {
                             const originalText = btn.textContent;
                             btn.textContent = "Menghapus...";

@@ -940,7 +940,12 @@ try {
                 );
             } catch (error: any) {
                 if (error.code === 'NEAREST_DATE_OFFER') {
-                    if (window.confirm(`${error.message}\n\nApakah Anda setuju untuk memindahkan jadwal ke tanggal terdekat: ${error.nearest_date}?`)) {
+                    const confirmed = await (window as any).showConfirmModal(
+                        "Pindah Jadwal",
+                        `${error.message}\n\nApakah Anda setuju untuk memindahkan jadwal ke tanggal terdekat: ${error.nearest_date}?`,
+                        "warning"
+                    );
+                    if (confirmed) {
                         const dateSpan = document.getElementById("selected-raw-date");
                         if (dateSpan) dateSpan.textContent = error.nearest_date;
                         

@@ -143,11 +143,18 @@ import riniLogo from "@assets/img/rini_trans_logo.png";
         }
 
         // Logout Logic
-        const handleLogout = () => {
+        const handleLogout = async () => {
+            const confirmed = await (window as any).showConfirmModal("Konfirmasi Logout", "Apakah Anda yakin ingin keluar?");
+            if (!confirmed) return;
+
             localStorage.removeItem("jwt_token");
             localStorage.removeItem("user_data");
-            alert("Anda telah berhasil keluar.");
-            window.location.href = "/";
+            if (typeof window !== 'undefined' && (window as any).showFeedbackModal) {
+                (window as any).showFeedbackModal("success", "Berhasil", "Anda telah berhasil keluar.", "/");
+            } else {
+                alert("Anda telah berhasil keluar.");
+                window.location.href = "/";
+            }
         };
 
         document

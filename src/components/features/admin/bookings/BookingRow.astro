@@ -202,7 +202,7 @@ if (isNew) {
                                 {!(isDone || isCancelled) && (
                                     <button 
                                         type={isWaitingPayment ? "button" : "submit"} 
-                                        onclick={isWaitingPayment ? "alert('Sedang menunggu user melakukan pembayaran.'); return false;" : undefined}
+                                        onclick={isWaitingPayment ? "if(window.showFeedbackModal) window.showFeedbackModal('warning', 'Menunggu Pembayaran', 'Sedang menunggu user melakukan pembayaran.'); else alert('Sedang menunggu user melakukan pembayaran.'); return false;" : undefined}
                                         class={`w-full text-white py-3.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${isWaitingPayment ? 'bg-amber-500 hover:bg-amber-600' : isProofUploaded ? 'bg-sky-500 hover:bg-sky-600' : isPickupList ? 'bg-emerald-500 hover:bg-emerald-600' : 'bg-primary hover:bg-[#003540]'}`}
                                     >
                                         {isNew ? "Simpan Harga & Tagih" : isWaitingPayment ? "Menunggu Pembayaran User" : isProofUploaded ? "Konfirmasi Pembayaran Lunas" : isPickupList ? "Selesai (Tuntaskan Pesanan)" : "Simpan"}

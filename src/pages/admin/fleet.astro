@@ -245,10 +245,9 @@ const fleets = await adminContentService.getFleetsAdmin(token);
                     }
                     
                     await adminContentService.saveFleet(formData);
-                    alert("Data armada berhasil disimpan!");
-                    window.location.reload();
+                    (window as any).showFeedbackModal('success', 'Berhasil', 'Data armada berhasil disimpan!', window.location.href);
                 } catch (error: any) {
-                    alert(error.message || "Gagal menyimpan armada");
+                    (window as any).showFeedbackModal('error', 'Gagal', error.message || "Gagal menyimpan armada");
                 } finally {
                     if (submitBtn) {
                         submitBtn.textContent = "Simpan Data Armada";
@@ -266,13 +265,13 @@ const fleets = await adminContentService.getFleetsAdmin(token);
                 if(!card) return;
                 
                 const { id, plate_number } = card.dataset;
-                if (id && confirm(`Apakah Anda yakin ingin menghapus armada Plat ${plate_number} secara permanen?`)) {
+                const confirmed = await (window as any).showConfirmModal('Konfirmasi Hapus', `Apakah Anda yakin ingin menghapus armada Plat ${plate_number} secara permanen?`, 'danger');
+                if (id && confirmed) {
                     try {
                         await adminContentService.deleteFleet(id);
-                        alert("Armada berhasil dihapus!");
-                        window.location.reload();
+                        (window as any).showFeedbackModal('success', 'Berhasil', 'Armada berhasil dihapus!', window.location.href);
                     } catch (err: any) {
-                        alert(err.message || "Gagal menghapus armada");
+                        (window as any).showFeedbackModal('error', 'Gagal', err.message || "Gagal menghapus armada");
                     }
                 }
             });

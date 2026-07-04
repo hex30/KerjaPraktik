@@ -1,0 +1,95 @@
+---
+// src/components/ui/ConfirmModal.astro
+// Komponen Modal interaktif untuk menggantikan fungsi confirm() bawaan browser
+---
+
+<div id="global-confirm-modal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/40 backdrop-blur-sm opacity-0 transition-opacity duration-300">
+    <div id="confirm-modal-content" class="bg-white p-6 rounded-2xl shadow-2xl border border-slate-100 max-w-sm w-full text-center flex flex-col items-center gap-4 mx-4 transform scale-95 transition-transform duration-300">
+        
+        <div class="w-14 h-14 rounded-full flex items-center justify-center shadow-sm border bg-amber-50 text-amber-500 border-amber-100">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+        </div>
+        
+        <div>
+            <h4 id="confirm-title" class="font-bold text-lg text-primary mb-1">Konfirmasi</h4>
+            <p id="confirm-message" class="text-sm text-slate-500 font-secondary leading-relaxed">Apakah Anda yakin?</p>
+        </div>
+        
+        <div class="flex gap-3 w-full mt-2">
+            <button type="button" id="confirm-btn-cancel" class="flex-1 py-2.5 px-4 bg-white text-slate-600 border border-slate-200 font-bold rounded-xl text-sm hover:bg-slate-50 transition-colors shadow-sm">
+                Batal
+            </button>
+            <button type="button" id="confirm-btn-ok" class="flex-1 py-2.5 px-4 bg-primary text-white font-bold rounded-xl text-sm hover:bg-opacity-90 transition-colors shadow-md shadow-primary/20">
+                Ya, Yakin
+            </button>
+        </div>
+    </div>
+</div>
+
+<script is:inline>
+    // Global Confirm Modal using Promises
+    window.showConfirmModal = function(title, message, type = 'warning') {
+        return new Promise((resolve) => {
+            const modal = document.getElementById('global-confirm-modal');
+            const content = document.getElementById('confirm-modal-content');
+            const titleEl = document.getElementById('confirm-title');
+            const messageEl = document.getElementById('confirm-message');
+            const btnCancel = document.getElementById('confirm-btn-cancel');
+            const btnOk = document.getElementById('confirm-btn-ok');
+
+            if (!modal) {
+                console.error("ConfirmModal component is missing from layout!");
+                resolve(confirm(`${title}\n${message}`));
+                return;
+            }
+
+            titleEl.textContent = title;
+            messageEl.innerHTML = message;
+
+            // Customize OK button based on danger/warning
+            if (type === 'danger') {
+                btnOk.className = "flex-1 py-2.5 px-4 bg-red-500 text-white font-bold rounded-xl text-sm hover:bg-red-600 transition-colors shadow-md shadow-red-500/20";
+            } else {
+                btnOk.className = "flex-1 py-2.5 px-4 bg-primary text-white font-bold rounded-xl text-sm hover:bg-opacity-90 transition-colors shadow-md shadow-primary/20";
+            }
+
+            // Show modal
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            void modal.offsetWidth; // Trigger reflow for animation
+            
+            modal.classList.remove('opacity-0');
+            content.classList.remove('scale-95');
+
+            const closeModal = (result) => {
+                modal.classList.add('opacity-0');
+                content.classList.add('scale-95');
+                setTimeout(() => {
+                    modal.classList.remove('flex');
+                    modal.classList.add('hidden');
+                    resolve(result);
+                }, 300);
+            };
+
+            // Remove old event listeners by cloning
+            const newBtnCancel = btnCancel.cloneNode(true);
+            const newBtnOk = btnOk.cloneNode(true);
+            btnCancel.parentNode.replaceChild(newBtnCancel, btnCancel);
+            btnOk.parentNode.replaceChild(newBtnOk, btnOk);
+
+            newBtnCancel.onclick = () => closeModal(false);
+            newBtnOk.onclick = () => closeModal(true);
+            
+            modal.onclick = (e) => {
+                if (e.target === modal) {
+                    closeModal(false);
+                }
+            };
+        });
+    };
+</script>

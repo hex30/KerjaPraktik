@@ -183,8 +183,9 @@ const isSubActive = (items: any[]) =>
             
             const logoutBtn = document.getElementById("btn-admin-logout");
             if (logoutBtn) {
-                logoutBtn.addEventListener("click", () => {
-                    if (confirm("Apakah Anda yakin ingin keluar dari halaman Admin?")) {
+                logoutBtn.addEventListener("click", async () => {
+                    const confirmed = await (window as any).showConfirmModal("Konfirmasi Logout", "Apakah Anda yakin ingin keluar dari halaman Admin?");
+                    if (confirmed) {
                         localStorage.removeItem("jwt_token");
                         localStorage.removeItem("user_data");
                         document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
@@ -197,4 +198,14 @@ const isSubActive = (items: any[]) =>
         document.addEventListener("DOMContentLoaded", setupMobileSidebar);
         document.addEventListener("astro:page-load", setupMobileSidebar);
     </script>
+    <style>
+        /* Sembunyikan scrollbar untuk tampilan yang lebih bersih */
+        #admin-sidebar::-webkit-scrollbar {
+            display: none;
+        }
+        #admin-sidebar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
 </>

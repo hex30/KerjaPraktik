@@ -163,11 +163,11 @@ const uniqueFleets = allFleets.map((f: any) => ({
                         body: formData
                     });
                     
-                    alert("Laporan pengeluaran berhasil dikirim!");
+                    window.showFeedbackModal("success", "Berhasil", "Laporan pengeluaran berhasil dikirim!");
                     form.reset();
                     if (fileText) fileText.textContent = "Ambil Foto / Upload";
                 } catch (error: any) {
-                    alert("Gagal mengirim laporan: " + error.message);
+                    window.showFeedbackModal("error", "Gagal", "Gagal mengirim laporan: " + error.message);
                 } finally {
                     if (btnSubmit) {
                         btnSubmit.disabled = false;
@@ -211,11 +211,11 @@ const uniqueFleets = allFleets.map((f: any) => ({
                         body: formData
                     });
                     
-                    alert("Laporan kerusakan armada berhasil dikirim!");
+                    window.showFeedbackModal("success", "Berhasil", "Laporan kerusakan armada berhasil dikirim!");
                     form.reset();
                     if (fileText) fileText.textContent = "Ambil Foto / Upload Nota";
                 } catch (error: any) {
-                    alert("Gagal mengirim laporan: " + error.message);
+                    window.showFeedbackModal("error", "Gagal", "Gagal mengirim laporan: " + error.message);
                 } finally {
                     if (btnSubmit) {
                         btnSubmit.disabled = false;

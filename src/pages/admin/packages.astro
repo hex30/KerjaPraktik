@@ -259,7 +259,7 @@ const completedPackages = packageData.filter((item: any) => ['delivered'].includ
                             headers,
                             body: JSON.stringify({ transaction_status: 'selesai', status: 'delivered' })
                         });
-                        alert('Paket berhasil diselesaikan dan masuk ke riwayat!');
+                        (window as any).showFeedbackModal('success', 'Berhasil', 'Paket berhasil diselesaikan dan masuk ke riwayat!', window.location.href);
                     } else if (currentState === 'isProofUploaded') {
                         // Verifikasi pembayaran paket
                         await apiFetch(`/api/admin/master/package-shipments/${packageId}`, {
@@ -267,7 +267,7 @@ const completedPackages = packageData.filter((item: any) => ['delivered'].includ
                             headers,
                             body: JSON.stringify({ transaction_status: 'selesai', status: 'received' })
                         });
-                        alert('Pembayaran paket berhasil dikonfirmasi!');
+                        (window as any).showFeedbackModal('success', 'Berhasil', 'Pembayaran paket berhasil dikonfirmasi!', window.location.href);
                     } else if (currentState === 'isNew') {
                         // Tetapkan harga dan kirim tagihan
                         const endpoint = `/api/admin/master/package-shipments/${packageId}`;
@@ -285,14 +285,12 @@ const completedPackages = packageData.filter((item: any) => ['delivered'].includ
                             headers,
                             body: JSON.stringify(bodyData)
                         });
-                        alert('Tagihan berhasil dikirim ke Pelanggan!');
+                        (window as any).showFeedbackModal('success', 'Berhasil', 'Tagihan berhasil dikirim ke Pelanggan!', window.location.href);
                     }
-
-                    window.location.reload();
 
                 } catch (error: any) {
                     console.error('Error submit form paket:', error);
-                    alert(`Gagal: ${error.message} (Cek kembali Endpoint BE)`);
+                    (window as any).showFeedbackModal('error', 'Gagal', `Gagal: ${error.message} (Cek kembali Endpoint BE)`);
                     if(btn) { btn.textContent = originalText || 'Update Resi & Harga'; btn.classList.remove('opacity-50', 'pointer-events-none'); }
                 }
             });

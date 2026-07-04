@@ -728,7 +728,7 @@ packageTasks.sort((a, b) => {
                 const fileInput = document.getElementById(`file-passenger-${bookingId}`) as HTMLInputElement;
                 if (newStatus === 'selesai' && fileInput) {
                     if (!fileInput.files || fileInput.files.length === 0) {
-                        alert('Untuk pembayaran Cash, bukti penagihan berupa foto wajib diunggah ketika perjalanan selesai!');
+                        window.showFeedbackModal('warning', 'Peringatan', 'Untuk pembayaran Cash, bukti penagihan berupa foto wajib diunggah ketika perjalanan selesai!');
                         return;
                     }
                 }
@@ -758,13 +758,12 @@ packageTasks.sort((a, b) => {
                     const res = await apiFetch(`/api/driver/schedules/bookings/${bookingId}/status`, options);
                     
                     if (res && res.is_schedule_completed) {
-                        alert('Tugas anda telah berakhir terimakasih atas kerja kerasnya');
+                        window.showFeedbackModal('success', 'Tugas Selesai', 'Tugas anda telah berakhir, terimakasih atas kerja kerasnya!', window.location.href);
                     } else {
-                        alert('Status penumpang berhasil diperbarui!');
+                        window.showFeedbackModal('success', 'Berhasil', 'Status penumpang berhasil diperbarui!', window.location.href);
                     }
-                    window.location.reload();
                 } catch (error: any) {
-                    alert('Gagal memperbarui status: ' + error.message);
+                    window.showFeedbackModal('error', 'Gagal', 'Gagal memperbarui status: ' + error.message);
                 } finally {
                     button.disabled = false;
                     button.innerHTML = originalText;
@@ -835,7 +834,7 @@ packageTasks.sort((a, b) => {
                 const fileInput = document.getElementById(`file-package-${packageId}`) as HTMLInputElement;
                 if (newStatus === 'delivered' && fileInput) {
                     if (!fileInput.files || fileInput.files.length === 0) {
-                        alert('Untuk pembayaran Cash, bukti penagihan berupa foto wajib diunggah ketika paket sudah diantar!');
+                        window.showFeedbackModal('warning', 'Peringatan', 'Untuk pembayaran Cash, bukti penagihan berupa foto wajib diunggah ketika paket sudah diantar!');
                         return;
                     }
                 }
@@ -865,13 +864,12 @@ packageTasks.sort((a, b) => {
                     const res = await apiFetch(`/api/driver/schedules/packages/${packageId}/status`, options);
                     
                     if (res && res.is_schedule_completed) {
-                        alert('Tugas anda telah berakhir terimakasih atas kerja kerasnya');
+                        window.showFeedbackModal('success', 'Tugas Selesai', 'Tugas anda telah berakhir, terimakasih atas kerja kerasnya!', window.location.href);
                     } else {
-                        alert('Status paket berhasil diperbarui!');
+                        window.showFeedbackModal('success', 'Berhasil', 'Status paket berhasil diperbarui!', window.location.href);
                     }
-                    window.location.reload();
                 } catch (error: any) {
-                    alert('Gagal memperbarui status paket: ' + error.message);
+                    window.showFeedbackModal('error', 'Gagal', 'Gagal memperbarui status paket: ' + error.message);
                 } finally {
                     button.disabled = false;
                     button.innerHTML = originalText;
@@ -942,7 +940,7 @@ packageTasks.sort((a, b) => {
                 const fileInput = document.getElementById(`file-charter-${charterId}`) as HTMLInputElement;
                 if (newStatus === 'selesai' && fileInput) {
                     if (!fileInput.files || fileInput.files.length === 0) {
-                        alert('Untuk pembayaran Cash, bukti penagihan berupa foto wajib diunggah ketika sewa selesai!');
+                        window.showFeedbackModal('warning', 'Peringatan', 'Untuk pembayaran Cash, bukti penagihan berupa foto wajib diunggah ketika sewa selesai!');
                         return;
                     }
                 }
@@ -971,10 +969,9 @@ packageTasks.sort((a, b) => {
 
                     const res = await apiFetch(`/api/driver/schedules/charters/${charterId}/status`, options);
                     
-                    alert('Status charter berhasil diperbarui!');
-                    window.location.reload();
+                    window.showFeedbackModal('success', 'Berhasil', 'Status charter berhasil diperbarui!', window.location.href);
                 } catch (error: any) {
-                    alert('Gagal memperbarui status charter: ' + error.message);
+                    window.showFeedbackModal('error', 'Gagal', 'Gagal memperbarui status charter: ' + error.message);
                 } finally {
                     button.disabled = false;
                     button.innerHTML = originalText;

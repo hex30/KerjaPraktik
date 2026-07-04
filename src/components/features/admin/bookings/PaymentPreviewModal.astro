@@ -145,8 +145,10 @@
     import { apiFetch } from "../../../../services/api";
 
     window.deleteOrderHistory = async (orderId: string, orderType: string) => {
-        const confirmDelete = window.confirm(
+        const confirmDelete = await (window as any).showConfirmModal(
+            "Konfirmasi Hapus",
             "Peringatan!\n\nApakah Anda yakin ingin menghapus data riwayat ini secara PERMANEN? Tindakan ini tidak dapat dibatalkan.",
+            "danger"
         );
 
         if (confirmDelete) {
@@ -173,11 +175,10 @@
                     headers,
                 });
 
-                alert("Data berhasil dihapus secara permanen dari sistem!");
-                window.location.reload();
+                (window as any).showFeedbackModal('success', 'Berhasil', "Data berhasil dihapus secara permanen dari sistem!", window.location.href);
             } catch (error: any) {
                 console.error("Delete Error:", error);
-                alert(`Penghapusan gagal: ${error.message}`);
+                (window as any).showFeedbackModal('error', 'Gagal', `Penghapusan gagal: ${error.message}`);
             }
         }
     };

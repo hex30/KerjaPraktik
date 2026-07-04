@@ -3,6 +3,8 @@
 import "../styles/global.css";
 import { Image } from "astro:assets";
 import riniLogo from "@assets/img/rini_trans_logo.png";
+import FeedbackModal from "@components/ui/FeedbackModal.astro";
+import ConfirmModal from "@components/ui/ConfirmModal.astro";
 
 interface Props {
     title: string;
@@ -157,6 +159,9 @@ const pathname = Astro.url.pathname;
                 <slot />
             </div>
         </main>
+
+        <FeedbackModal />
+        <ConfirmModal />
     </body>
 </html>
 
@@ -191,8 +196,9 @@ const pathname = Astro.url.pathname;
         // Logout Handler
         const logoutBtn = document.getElementById("btn-logout-driver");
         if (logoutBtn) {
-            logoutBtn.addEventListener("click", () => {
-                if (confirm("Apakah Anda yakin ingin keluar dari halaman Supir?")) {
+            logoutBtn.addEventListener("click", async () => {
+                const confirmed = await (window as any).showConfirmModal("Konfirmasi Logout", "Apakah Anda yakin ingin keluar dari halaman Supir?");
+                if (confirmed) {
                     localStorage.removeItem("jwt_token");
                     localStorage.removeItem("user_data");
                     document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";

@@ -244,12 +244,21 @@ const itemsPerPage = 8;
                         }
                     }
 
-                    alert(currentState === 'isProofUploaded' ? 'Pembayaran berhasil dikonfirmasi dan armada telah ditugaskan!' : currentState === 'isPickupList' ? 'Pesanan berhasil diselesaikan dan masuk ke riwayat!' : 'Data pemesanan berhasil disimpan & dikirim ke Pelanggan!');
-                    window.location.reload();
+                    const successMsg = currentState === 'isProofUploaded' ? 'Pembayaran berhasil dikonfirmasi dan armada telah ditugaskan!' : currentState === 'isPickupList' ? 'Pesanan berhasil diselesaikan dan masuk ke riwayat!' : 'Data pemesanan berhasil disimpan & dikirim ke Pelanggan!';
+                    if (typeof window !== 'undefined' && (window as any).showFeedbackModal) {
+                        (window as any).showFeedbackModal("success", "Berhasil", successMsg, window.location.href);
+                    } else {
+                        alert(successMsg);
+                        window.location.reload();
+                    }
 
                 } catch (error: any) {
                     console.error('Error submit form:', error);
-                    alert(`Gagal: ${error.message}`);
+                    if (typeof window !== 'undefined' && (window as any).showFeedbackModal) {
+                        (window as any).showFeedbackModal("error", "Gagal", `Gagal: ${error.message}`);
+                    } else {
+                        alert(`Gagal: ${error.message}`);
+                    }
                     if(btn) { btn.textContent = originalText || 'Simpan & Kirim Tagihan'; btn.classList.remove('opacity-50', 'pointer-events-none'); }
                 }
             });
