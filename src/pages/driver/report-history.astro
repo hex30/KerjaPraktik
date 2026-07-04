@@ -1,0 +1,376 @@
+---
+// File: src/pages/driver/report-history.astro
+import DriverLayout from "@layouts/DriverLayout.astro";
+import { driverService } from "@services/driverService";
+
+const token = Astro.cookies.get('token')?.value;
+
+if (!token) {
+    return Astro.redirect('/driver/login');
+}
+
+// Fetch data laporan biaya operasional & laporan kerusakan
+const [expenses, maintenanceLogs] = await Promise.all([
+    driverService.getExpensesHistory(token),
+    driverService.getMaintenanceLogsHistory(token)
+]);
+
+// Normalisasi laporan ke dalam flat array
+const allReports: any[] = [];
+
+expenses.forEach((e: any) => {
+    allReports.push({
+        id: e.id,
+        type: 'BIAYA',
+        category: e.category,
+        title: e.category === 'fuel' ? 'Bensin / BBM' : e.category === 'toll' ? 'Biaya Tol' : e.category === 'parking' ? 'Parkir' : 'Pengeluaran Lainnya',
+        date: e.created_at,
+        cost: e.amount || 0,
+        description: e.description || 'Tidak ada keterangan',
+        proof_image_url: e.proof_image_url,
+        status: e.status || 'pending',
+        route: e.origin ? `${e.origin} - ${e.destination}` : 'Rute Perjalanan'
+    });
+});
+
+maintenanceLogs.forEach((m: any) => {
+    allReports.push({
+        id: m.id,
+        type: 'SERVIS',
+        category: 'maintenance',
+        title: `Servis Armada: ${m.plate_number}`,
+        date: m.service_date,
+        cost: m.cost || 0,
+        description: m.description || 'Deskripsi perbaikan kosong',
+        proof_image_url: m.proof_image_url,
+        status: m.status || 'pending',
+        car: m.car_type || 'Armada'
+    });
+});
+
+// Urutkan laporan berdasarkan tanggal pembuatan (terbaru ke terlama)
+allReports.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+---
+
+<DriverLayout title="Riwayat Laporan">
+    <div class="flex flex-col gap-8 h-full overflow-hidden">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shrink-0">
+            <div>
+                <h1 class="text-2xl font-black text-slate-800 tracking-tight">Riwayat Pengajuan Laporan</h1>
+                <p class="font-secondary text-sm text-slate-400 mt-1">Daftar biaya perjalanan dan perbaikan kerusakan armada yang pernah Anda laporkan.</p>
+            </div>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="flex border-b border-slate-100 bg-slate-50/50 p-2 gap-2 overflow-x-auto scrollbar-hide shrink-0 rounded-2xl border border-slate-100">
+            <button class="filter-btn active px-6 py-3 rounded-xl text-sm font-bold transition-all whitespace-nowrap bg-white text-primary shadow-sm border border-slate-100/50" data-category="ALL">
+                Semua Laporan
+                <span class="ml-2 px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full text-[10px]" id="count-all">{allReports.length}</span>
+            </button>
+            <button class="filter-btn px-6 py-3 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-all whitespace-nowrap" data-category="BIAYA">
+                Biaya Operasional
+                <span class="ml-2 px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full text-[10px]" id="count-expenses">{allReports.filter(r => r.type === 'BIAYA').length}</span>
+            </button>
+            <button class="filter-btn px-6 py-3 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-all whitespace-nowrap" data-category="SERVIS">
+                Laporan Perbaikan
+                <span class="ml-2 px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full text-[10px]" id="count-maintenance">{allReports.filter(r => r.type === 'SERVIS').length}</span>
+            </button>
+        </div>
+
+        <!-- Reports List Container -->
+        <div class="flex-1 overflow-y-auto pr-2 pb-6 min-h-0" id="reports-container">
+            <!-- Items will be generated here dynamically -->
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="flex items-center justify-between shrink-0 border-t border-slate-100 pt-4 pb-2" id="pagination-container">
+            <span class="text-xs font-bold text-slate-400" id="pagination-info">Menampilkan 0-0 dari 0 laporan</span>
+            <div class="flex items-center gap-2">
+                <button id="btn-prev" class="px-4 py-2 border border-slate-200 hover:border-slate-300 rounded-xl text-xs font-black text-slate-600 hover:text-slate-800 disabled:opacity-50 disabled:pointer-events-none transition-all">
+                    SEBELUMNYA
+                </button>
+                <div class="flex items-center gap-1.5" id="page-numbers">
+                    <!-- Page buttons will be generated here -->
+                </div>
+                <button id="btn-next" class="px-4 py-2 border border-slate-200 hover:border-slate-300 rounded-xl text-xs font-black text-slate-600 hover:text-slate-800 disabled:opacity-50 disabled:pointer-events-none transition-all">
+                    SELANJUTNYA
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Receipt Preview Modal -->
+    <div id="receipt-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm hidden animate-fade-in">
+        <div class="bg-white rounded-3xl p-6 max-w-md w-full mx-4 shadow-xl border border-slate-100 flex flex-col gap-4 relative animate-scale-up">
+            <button id="close-modal-btn" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+            
+            <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest">Foto Nota / Bukti Struk</h3>
+            
+            <div class="w-full aspect-[4/3] rounded-2xl bg-slate-100 overflow-hidden border border-slate-200">
+                <img id="modal-image" src="" alt="Bukti Struk" class="w-full h-full object-cover" />
+            </div>
+            
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col gap-2">
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-400 font-bold">Kategori</span>
+                    <span id="modal-type" class="font-black text-slate-700 bg-white px-2.5 py-0.5 rounded border border-slate-150 uppercase tracking-wider">FUEL</span>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-400 font-bold">Jumlah Uang</span>
+                    <span id="modal-cost" class="font-black text-[#044751]">Rp 0</span>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-400 font-bold">Status Persetujuan</span>
+                    <span id="modal-status" class="font-black px-2 py-0.5 rounded text-[10px]">PENDING</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</DriverLayout>
+
+<script define:vars={{ allReports }}>
+    let currentCategory = 'ALL';
+    let currentPage = 1;
+    const itemsPerPage = 8;
+    
+    let filteredReports = [...allReports];
+
+    const reportsContainer = document.getElementById('reports-container');
+    const paginationInfo = document.getElementById('pagination-info');
+    const pageNumbersContainer = document.getElementById('page-numbers');
+    const btnPrev = document.getElementById('btn-prev');
+    const btnNext = document.getElementById('btn-next');
+    
+    // Modal elements
+    const receiptModal = document.getElementById('receipt-modal');
+    const closeModalBtn = document.getElementById('close-modal-btn');
+    const modalImage = document.getElementById('modal-image');
+    const modalType = document.getElementById('modal-type');
+    const modalCost = document.getElementById('modal-cost');
+    const modalStatus = document.getElementById('modal-status');
+
+    // Helper format uang
+    function formatRupiah(num) {
+        return 'Rp ' + Math.round(num).toLocaleString('id-ID');
+    }
+
+    // Helper format tanggal
+    function formatTanggal(dateStr) {
+        const d = new Date(dateStr);
+        return d.toLocaleDateString('id-ID', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
+    }
+
+    // Setup Filter Tabs Click
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            filterBtns.forEach(b => {
+                b.classList.remove('active', 'bg-white', 'text-primary', 'shadow-sm', 'border', 'border-slate-100/50');
+                b.classList.add('text-slate-500', 'hover:bg-slate-100', 'hover:text-slate-700');
+            });
+            btn.classList.add('active', 'bg-white', 'text-primary', 'shadow-sm', 'border', 'border-slate-100/50');
+            btn.classList.remove('text-slate-500', 'hover:bg-slate-100', 'hover:text-slate-700');
+
+            currentCategory = btn.getAttribute('data-category');
+            currentPage = 1;
+            applyFilter();
+        });
+    });
+
+    function applyFilter() {
+        if (currentCategory === 'ALL') {
+            filteredReports = [...allReports];
+        } else {
+            filteredReports = allReports.filter(r => r.type === currentCategory);
+        }
+        renderReports();
+    }
+
+    function renderReports() {
+        if (!reportsContainer) return;
+        
+        reportsContainer.innerHTML = '';
+        
+        const totalItems = filteredReports.length;
+        const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+
+        if (totalItems === 0) {
+            reportsContainer.innerHTML = `
+                <div class="text-center py-16 bg-white rounded-3xl border border-slate-100 shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-slate-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+                    <p class="text-slate-400 font-bold text-sm">Tidak ada riwayat pengajuan laporan.</p>
+                </div>
+            `;
+            paginationInfo.textContent = 'Menampilkan 0 laporan';
+            btnPrev.disabled = true;
+            btnNext.disabled = true;
+            pageNumbersContainer.innerHTML = '';
+            return;
+        }
+
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+        const paginatedReports = filteredReports.slice(startIndex, endIndex);
+
+        paginatedReports.forEach(report => {
+            const card = document.createElement('div');
+            card.className = 'bg-white border border-slate-100 rounded-3xl p-5 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col gap-4 mb-4';
+            
+            // Kategori badge styling
+            let typeBadge = '';
+            if (report.type === 'BIAYA') {
+                typeBadge = `<span class="px-2.5 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[9px] font-black tracking-widest uppercase">BIAYA OPERASIONAL</span>`;
+            } else if (report.type === 'SERVIS') {
+                typeBadge = `<span class="px-2.5 py-1 bg-rose-50 text-rose-600 rounded-lg text-[9px] font-black tracking-widest uppercase">PERBAIKAN / SERVIS</span>`;
+            }
+
+            // Status badge styling
+            let statusBadge = '';
+            const statusStr = (report.status || 'pending').toLowerCase();
+            if (statusStr === 'pending' || statusStr === 'menunggu') {
+                statusBadge = `<span class="px-2.5 py-1 bg-amber-50 text-amber-600 rounded-lg text-[9px] font-black tracking-widest uppercase border border-amber-200/50">MENUNGGU</span>`;
+            } else if (statusStr === 'approved' || statusStr === 'disetujui' || statusStr === 'verified') {
+                statusBadge = `<span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-lg text-[9px] font-black tracking-widest uppercase border border-emerald-250/50">DISETUJUI</span>`;
+            } else if (statusStr === 'rejected' || statusStr === 'ditolak') {
+                statusBadge = `<span class="px-2.5 py-1 bg-rose-50 text-rose-600 rounded-lg text-[9px] font-black tracking-widest uppercase border border-rose-200/50">DITOLAK</span>`;
+            }
+
+            let categoryDetail = '';
+            if (report.type === 'BIAYA') {
+                categoryDetail = `<span class="text-xs font-bold text-slate-500 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">${report.route}</span>`;
+            } else {
+                categoryDetail = `<span class="text-xs font-bold text-slate-500 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">${report.car}</span>`;
+            }
+
+            card.innerHTML = `
+                <div class="flex justify-between items-start gap-4">
+                    <div class="flex flex-col gap-1">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            ${typeBadge}
+                            <span class="text-xs font-black text-slate-800">${report.title}</span>
+                        </div>
+                        <span class="text-[10px] font-medium text-slate-400 mt-1 flex items-center gap-1.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                            ${formatTanggal(report.date)}
+                        </span>
+                    </div>
+                    <div class="text-right flex flex-col items-end gap-1">
+                        ${statusBadge}
+                    </div>
+                </div>
+                
+                <div class="pt-3 border-t border-slate-100 flex flex-col gap-3">
+                    <div class="flex flex-col gap-2">
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-400 font-bold">Keterangan</span>
+                            <span class="font-black text-slate-700 text-right line-clamp-1 max-w-[200px]">${report.description}</span>
+                        </div>
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="text-slate-400 font-bold">Total Biaya</span>
+                            <span class="font-black text-primary">${formatRupiah(report.cost)}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="pt-2 border-t border-slate-100 flex justify-between items-center gap-2">
+                        ${categoryDetail}
+                        ${report.proof_image_url ? `
+                            <button class="view-proof-btn text-[9px] font-black text-primary bg-white hover:bg-slate-50 px-3 py-2 rounded-xl border border-slate-200 transition-colors uppercase tracking-widest" data-url="${report.proof_image_url}" data-type="${report.type}" data-cost="${report.cost}" data-status="${report.status}">Struk / Nota</button>
+                        ` : '<span class="text-[9px] font-bold text-slate-300 italic">Tanpa Nota</span>'}
+                    </div>
+                </div>
+            `;
+            
+            reportsContainer.appendChild(card);
+        });
+
+        // Set info text
+        paginationInfo.textContent = `Menampilkan ${startIndex + 1}-${endIndex} dari ${totalItems} laporan`;
+
+        // Update button states
+        btnPrev.disabled = currentPage === 1;
+        btnNext.disabled = currentPage === totalPages;
+
+        // Render page numbers
+        pageNumbersContainer.innerHTML = '';
+        for (let i = 1; i <= totalPages; i++) {
+            const pageBtn = document.createElement('button');
+            pageBtn.className = `w-8 h-8 rounded-xl text-xs font-black transition-all ${currentPage === i ? 'bg-[#044751] text-white shadow-md shadow-primary/20' : 'border border-slate-200 text-slate-600 hover:bg-slate-50'}`;
+            pageBtn.textContent = i;
+            pageBtn.addEventListener('click', () => {
+                currentPage = i;
+                renderReports();
+            });
+            pageNumbersContainer.appendChild(pageBtn);
+        }
+
+        // Attach event listeners to newly rendered modal trigger buttons
+        const viewProofBtns = document.querySelectorAll('.view-proof-btn');
+        viewProofBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const button = e.currentTarget;
+                const url = button.getAttribute('data-url');
+                const type = button.getAttribute('data-type');
+                const cost = button.getAttribute('data-cost');
+                const status = button.getAttribute('data-status');
+                
+                modalImage.src = url;
+                modalType.textContent = type === 'BIAYA' ? 'Biaya Operasional' : 'Perbaikan / Servis';
+                modalCost.textContent = formatRupiah(Number(cost));
+                
+                // Modal status styling
+                const statusStr = (status || 'pending').toLowerCase();
+                modalStatus.textContent = statusStr === 'approved' || statusStr === 'disetujui' || statusStr === 'verified' ? 'DISETUJUI' : statusStr === 'rejected' || statusStr === 'ditolak' ? 'DITOLAK' : 'MENUNGGU';
+                modalStatus.className = `font-black px-2.5 py-0.5 rounded text-[10px] uppercase border `;
+                if (statusStr === 'approved' || statusStr === 'disetujui' || statusStr === 'verified') {
+                    modalStatus.classList.add('bg-emerald-50', 'text-emerald-700', 'border-emerald-200/50');
+                } else if (statusStr === 'rejected' || statusStr === 'ditolak') {
+                    modalStatus.classList.add('bg-rose-50', 'text-rose-600', 'border-rose-200/50');
+                } else {
+                    modalStatus.classList.add('bg-amber-50', 'text-amber-600', 'border-amber-200/50');
+                }
+                
+                receiptModal.classList.remove('hidden');
+                receiptModal.classList.add('flex');
+            });
+        });
+    }
+
+    // Modal Close
+    closeModalBtn.addEventListener('click', () => {
+        receiptModal.classList.add('hidden');
+        receiptModal.classList.remove('flex');
+    });
+
+    receiptModal.addEventListener('click', (e) => {
+        if (e.target === receiptModal) {
+            receiptModal.classList.add('hidden');
+            receiptModal.classList.remove('flex');
+        }
+    });
+
+    // Setup Prev/Next Buttons Click
+    btnPrev.addEventListener('click', () => {
+        if (currentPage > 1) {
+            currentPage--;
+            renderReports();
+        }
+    });
+
+    btnNext.addEventListener('click', () => {
+        const totalPages = Math.ceil(filteredReports.length / itemsPerPage);
+        if (currentPage < totalPages) {
+            currentPage++;
+            renderReports();
+        }
+    });
+
+    // Initial render
+    applyFilter();
+</script>
