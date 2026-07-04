@@ -29,14 +29,10 @@ const pathname = Astro.url.pathname;
             class="w-72 bg-white border-r border-slate-100 flex flex-col justify-between h-full shadow-sm z-10 shrink-0"
         >
             <div class="flex flex-col">
-                <div
-                    class="p-8 border-b border-slate-100"
-                >
+                <div class="mb-10 px-6 pt-6">
                     <div>
-                        <Image src={riniLogo} alt="Rini Trans Putri Logo" class="h-10 w-auto object-contain mb-2" />
-                        <p
-                            class="text-[10px] text-slate-400 mt-1.5 font-black uppercase tracking-widest"
-                        >
+                        <Image src={riniLogo} alt="Rini Trans Putri Logo" class="h-16 w-auto object-contain mb-2" />
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">
                             Panel Supir
                         </p>
                     </div>
@@ -134,29 +130,24 @@ const pathname = Astro.url.pathname;
                 </nav>
             </div>
 
-            <div class="p-6 border-t border-slate-100">
-                <button
-                    id="btn-logout-driver"
-                    class="w-full flex items-center justify-center gap-3 px-4 py-4 rounded-xl text-rose-500 hover:bg-rose-50 transition-colors border border-transparent hover:border-rose-100"
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke-width="2"
-                        stroke="currentColor"
-                        class="w-5 h-5"
-                        ><path
-                            stroke-linecap="round"
-                            stroke-linejoin="round"
-                            d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9"
-                        ></path></svg
-                    >
-                    <span
-                        class="text-[11px] font-black uppercase tracking-widest"
-                        >Keluar</span
-                    >
-                </button>
+            <div class="p-6 border-t border-slate-100 mt-auto">
+                <div class="bg-slate-50 p-4 rounded-2xl flex flex-col gap-3">
+                    <div class="flex items-center gap-3">
+                        <div id="driver-avatar-initial" class="w-10 h-10 rounded-full bg-[#044751] text-white font-black flex items-center justify-center shrink-0">
+                            D
+                        </div>
+                        <div class="flex flex-col overflow-hidden">
+                            <span id="driver-profile-name" class="font-bold text-slate-900 text-sm truncate">Supir RTP</span>
+                            <span id="driver-profile-email" class="text-xs text-slate-400 truncate">Supir</span>
+                        </div>
+                    </div>
+                    <button id="btn-logout-driver" class="w-full mt-1 py-2 px-4 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-lg text-xs font-bold uppercase tracking-widest transition-colors flex items-center justify-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+                        </svg>
+                        Keluar Akun
+                    </button>
+                </div>
             </div>
         </aside>
 
@@ -175,5 +166,39 @@ const pathname = Astro.url.pathname;
     // Proteksi Rute (Client-Side) - Hanya Supir yang boleh akses
     document.addEventListener("DOMContentLoaded", () => {
         authGuard.checkPermission(["driver", "supir"]);
+
+        // Load Driver Profile from LocalStorage
+        try {
+            const savedDataString = localStorage.getItem("user_data");
+            if (savedDataString) {
+                const user = JSON.parse(savedDataString);
+                const userName = user.name || user.nama || "Supir RTP";
+                const initial = userName.charAt(0).toUpperCase();
+
+                const avatarEl = document.getElementById("driver-avatar-initial");
+                if (avatarEl) avatarEl.textContent = initial;
+
+                const nameEl = document.getElementById("driver-profile-name");
+                if (nameEl) nameEl.textContent = userName;
+
+                const emailEl = document.getElementById("driver-profile-email");
+                if (emailEl) emailEl.textContent = user.email || user.telp || "Driver";
+            }
+        } catch (error) {
+            console.error("Gagal parse data supir:", error);
+        }
+
+        // Logout Handler
+        const logoutBtn = document.getElementById("btn-logout-driver");
+        if (logoutBtn) {
+            logoutBtn.addEventListener("click", () => {
+                if (confirm("Apakah Anda yakin ingin keluar dari halaman Supir?")) {
+                    localStorage.removeItem("jwt_token");
+                    localStorage.removeItem("user_data");
+                    document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                    window.location.href = "/auth/login";
+                }
+            });
+        }
     });
 </script>
