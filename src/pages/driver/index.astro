@@ -162,8 +162,8 @@ schedules.forEach(schedule => {
                 statusColor = 'bg-amber-50 text-amber-600';
             }
         } else {
-            // Untuk cashless, dianggap lunas jika status transaksi settlement/capture/dibayar
-            if (['settlement', 'capture', 'dibayar'].includes(pkg.transaction_status?.toLowerCase()) || pkg.payment_method?.toLowerCase() === 'cashless') {
+            // Untuk cashless, dianggap lunas jika status transaksi settlement/capture/dibayar/selesai/completed
+            if (['settlement', 'capture', 'dibayar', 'selesai', 'completed'].includes(pkg.transaction_status?.toLowerCase()) || pkg.payment_method?.toLowerCase() === 'cashless') {
                 paymentStatus = 'SUDAH LUNAS';
                 statusColor = 'bg-emerald-50 text-emerald-600';
             } else {
