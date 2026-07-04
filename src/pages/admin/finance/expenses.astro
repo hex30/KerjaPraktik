@@ -215,10 +215,30 @@ const getProofUrl = (url: string) => {
 
         <!-- SECTION 3: Riwayat Pengeluaran -->
         <section class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-6">
-            <div class="flex items-center justify-between">
+            <div class="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-6">
                 <div>
                     <h2 class="text-xl font-black text-slate-900">Riwayat Pengeluaran</h2>
                     <p class="text-xs text-slate-400 mt-1">Daftar rekaman pengeluaran operasional perusahaan.</p>
+                </div>
+                
+                <!-- Filter Section -->
+                <div class="flex flex-wrap items-center gap-3">
+                    <select id="exp-filter-category" class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer">
+                        <option value="ALL">Semua Kategori</option>
+                        <option value="perawatan_kendaraan">Perawatan Kendaraan</option>
+                        <option value="pajak_kendaraan">Pajak Kendaraan</option>
+                        <option value="pajak_izin_berusaha">Pajak Izin Berusaha</option>
+                        <option value="biaya_operasional_kantor">Biaya Operasional Kantor</option>
+                        <option value="biaya_perjalanan">Biaya Perjalanan</option>
+                        <option value="lainnya">Lainnya</option>
+                    </select>
+                    <input type="date" id="exp-filter-date" class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer">
+                    <button type="button" id="exp-btn-apply" class="bg-[#044751] hover:bg-[#03363e] text-white px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest shadow-md shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
+                        Terapkan
+                    </button>
+                    <button type="button" id="exp-btn-reset" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all">
+                        Reset
+                    </button>
                 </div>
             </div>
 
@@ -238,8 +258,9 @@ const getProofUrl = (url: string) => {
                             <tr class="text-center py-10">
                                 <td colspan="5" class="py-10 text-slate-400 text-sm font-secondary">Belum ada riwayat pengeluaran.</td>
                             </tr>
-                        ) : expenseHistory.map((tx: any, index: number) => (
-                            <tr class={`group hover:bg-slate-50/50 transition-all duration-300 whitespace-nowrap md:whitespace-normal exp-row ${index >= 5 ? 'hidden opacity-0 max-h-0' : 'opacity-100'}`}>
+                        ) : expenseHistory.map((tx: any, index: number) => {
+                            return (
+                            <tr class={`group hover:bg-slate-50/50 transition-all duration-300 whitespace-nowrap md:whitespace-normal exp-row ${index >= 5 ? 'hidden opacity-0 max-h-0' : 'opacity-100'}`} data-category={(tx.category || '').toLowerCase()} data-date={tx.created_at || ''}>
                                 <td class="py-4 px-4 font-bold text-slate-900 text-sm">#{tx.id.substring(0, 8).toUpperCase()}</td>
                                 <td class="py-4 px-4 text-xs text-slate-500">{new Date(tx.created_at).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'})}</td>
                                 <td class="py-4 px-4">
@@ -250,7 +271,7 @@ const getProofUrl = (url: string) => {
                                     - Rp {Number(tx.amount).toLocaleString('id-ID')}
                                 </td>
                             </tr>
-                        ))}
+                        )})}
                     </tbody>
                 </table>
             </div>
@@ -425,6 +446,73 @@ const getProofUrl = (url: string) => {
                 });
 
                 toggleBtn.textContent = isExpanded ? "Tutup Data Lengkap" : "Lihat Seluruh Data Bulan Ini";
+            });
+        }
+
+        // Expense Filter Logic
+        const btnApply = document.getElementById('exp-btn-apply');
+        const btnReset = document.getElementById('exp-btn-reset');
+        const selectCategory = document.getElementById('exp-filter-category') as HTMLSelectElement;
+        const inputDate = document.getElementById('exp-filter-date') as HTMLInputElement;
+
+        if (btnApply && btnReset) {
+            btnApply.addEventListener('click', () => {
+                const cat = selectCategory.value;
+                const dt = inputDate.value;
+
+                if (toggleBtn) toggleBtn.style.display = 'none';
+
+                rows.forEach(row => {
+                    const rowCat = row.getAttribute('data-category');
+                    const rawDt = row.getAttribute('data-date');
+                    
+                    let match = true;
+                    const normalizedCat = cat.replace(/_/g, ' ').toLowerCase();
+                    const normalizedRowCat = (rowCat || '').replace(/_/g, ' ').toLowerCase();
+                    
+                    if (cat !== 'ALL' && !normalizedRowCat.includes(normalizedCat) && !normalizedCat.includes(normalizedRowCat)) match = false;
+                    
+                    if (dt && rawDt) {
+                        try {
+                            const d = new Date(rawDt);
+                            const localRowDt = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+                            if (localRowDt !== dt) match = false;
+                        } catch(e) {
+                            if (!rawDt.includes(dt)) match = false;
+                        }
+                    } else if (dt && !rawDt) {
+                        match = false;
+                    }
+                    
+                    if (match) {
+                        row.classList.remove('hidden', 'opacity-0', 'max-h-0');
+                        row.classList.add('opacity-100');
+                    } else {
+                        row.classList.add('hidden', 'opacity-0', 'max-h-0');
+                        row.classList.remove('opacity-100');
+                    }
+                });
+            });
+
+            btnReset.addEventListener('click', () => {
+                selectCategory.value = 'ALL';
+                inputDate.value = '';
+                
+                if (toggleBtn) {
+                    toggleBtn.style.display = 'flex';
+                    toggleBtn.textContent = "Lihat Seluruh Data Bulan Ini";
+                    isExpanded = false;
+                }
+                
+                rows.forEach((row, idx) => {
+                    if (idx < 5) {
+                        row.classList.remove('hidden', 'opacity-0', 'max-h-0');
+                        row.classList.add('opacity-100');
+                    } else {
+                        row.classList.add('hidden', 'opacity-0', 'max-h-0');
+                        row.classList.remove('opacity-100');
+                    }
+                });
             });
         }
     };
