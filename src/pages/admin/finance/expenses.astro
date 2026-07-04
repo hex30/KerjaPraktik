@@ -259,8 +259,16 @@ const getProofUrl = (url: string) => {
                                 <td colspan="5" class="py-10 text-slate-400 text-sm font-secondary">Belum ada riwayat pengeluaran.</td>
                             </tr>
                         ) : expenseHistory.map((tx: any, index: number) => {
+                            let txCat = (tx.category || '').toLowerCase();
+                            if (['fuel', 'toll', 'parking'].includes(txCat)) {
+                                txCat = 'biaya_perjalanan';
+                            } else if (txCat === 'driver_salary') {
+                                txCat = 'biaya_operasional_kantor';
+                            } else if (txCat === 'other') {
+                                txCat = 'lainnya';
+                            }
                             return (
-                            <tr class={`group hover:bg-slate-50/50 transition-all duration-300 whitespace-nowrap md:whitespace-normal exp-row ${index >= 5 ? 'hidden opacity-0 max-h-0' : 'opacity-100'}`} data-category={(tx.category || '').toLowerCase()} data-date={tx.created_at || ''}>
+                            <tr class={`group hover:bg-slate-50/50 transition-all duration-300 whitespace-nowrap md:whitespace-normal exp-row ${index >= 5 ? 'hidden opacity-0 max-h-0' : 'opacity-100'}`} data-category={txCat} data-date={tx.created_at || ''}>
                                 <td class="py-4 px-4 font-bold text-slate-900 text-sm">#{tx.id.substring(0, 8).toUpperCase()}</td>
                                 <td class="py-4 px-4 text-xs text-slate-500">{new Date(tx.created_at).toLocaleDateString('id-ID', {day: 'numeric', month: 'short', year: 'numeric'})}</td>
                                 <td class="py-4 px-4">

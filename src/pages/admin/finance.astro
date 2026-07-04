@@ -39,9 +39,9 @@ try {
 
 // Formatting Helper
 const mockExpenseLastMonth = summary.last_month_expense || 0;
-const mockExpenseToday = summary.total_expense * 0.04 || 350000;
-const mockIncomeYear = summary.total_income * 9.2 || 124500000;
-const mockExpenseYearThis = summary.total_expense * 9.5 || 81200000;
+const mockExpenseToday = summary.today_expense || 0;
+const mockIncomeYear = summary.this_year_income || 0;
+const mockExpenseYearThis = summary.this_year_expense || 0;
 
 // Hitung growth
 let growth = 0;
@@ -240,7 +240,6 @@ if (summary.last_month_income > 0) {
                         <option value="Travel Reguler">Travel Reguler</option>
                         <option value="Sewa Charter">Sewa Charter</option>
                         <option value="Pengiriman Paket">Pengiriman Paket</option>
-                        <option value="Operasional">Operasional</option>
                     </select>
                     <input type="date" id="tx-filter-date" class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer">
                     <button type="button" id="tx-btn-apply" class="bg-[#044751] hover:bg-[#03363e] text-white px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest shadow-md shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
