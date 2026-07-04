@@ -113,7 +113,35 @@ const {
                         };
                         listContainer.appendChild(div);
                     });
-                } else {
+                }
+
+                if (q) {
+                    const exactMatchExists = matches.some(m => m.toLowerCase() === q);
+                    if (!exactMatchExists) {
+                        const customDiv = document.createElement('div');
+                        customDiv.className = 'px-4 py-3 text-sm text-primary hover:bg-primary/5 cursor-pointer font-bold border-t border-slate-100 flex items-center gap-2';
+                        customDiv.innerHTML = `
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            Gunakan "${query.trim()}"
+                        `;
+                        
+                        customDiv.onclick = () => {
+                            const customValue = query.trim();
+                            hiddenInput.value = customValue;
+                            if(btnText) {
+                                btnText.textContent = customValue;
+                                btnText.classList.remove('text-slate-500');
+                                btnText.classList.add('text-slate-800');
+                            }
+                            
+                            hiddenInput.dispatchEvent(new Event('change', { bubbles: true }));
+                            
+                            dropdown.classList.add('hidden');
+                        };
+                        
+                        listContainer.appendChild(customDiv);
+                    }
+                } else if (matches.length === 0) {
                     const div = document.createElement('div');
                     div.className = 'px-4 py-3 text-sm text-slate-400 text-center italic';
                     div.textContent = 'Tidak ditemukan';
