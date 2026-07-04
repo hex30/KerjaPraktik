@@ -61,9 +61,26 @@ schedules.forEach(schedule => {
         let paymentStatus = 'BELUM LUNAS';
         let statusColor = 'bg-amber-50 text-amber-600';
         
-        if (['dibayar', 'dalam_penjemputan', 'on_going', 'selesai', 'selesai_final'].includes(schedule.status)) {
-             paymentStatus = 'SUDAH LUNAS / DP';
-             statusColor = 'bg-emerald-50 text-emerald-600';
+        const isCash = schedule.payment_method?.toLowerCase() === 'cash';
+        
+        if (isCash) {
+            // Untuk cash, hanya lunas jika status perjalanannya sudah selesai
+            if (schedule.status === 'selesai' || schedule.status === 'selesai_final') {
+                paymentStatus = 'SUDAH LUNAS';
+                statusColor = 'bg-emerald-50 text-emerald-600';
+            } else {
+                paymentStatus = 'BELUM LUNAS';
+                statusColor = 'bg-amber-50 text-amber-600';
+            }
+        } else {
+            // Untuk cashless, dianggap lunas/DP jika statusnya dibayar / jalan / selesai
+            if (['dibayar', 'dalam_penjemputan', 'on_going', 'selesai', 'selesai_final'].includes(schedule.status)) {
+                paymentStatus = 'SUDAH LUNAS / DP';
+                statusColor = 'bg-emerald-50 text-emerald-600';
+            } else {
+                paymentStatus = 'BELUM LUNAS';
+                statusColor = 'bg-amber-50 text-amber-600';
+            }
         }
 
         charterTasks.push({
@@ -76,6 +93,7 @@ schedules.forEach(schedule => {
             price: schedule.price || 0,
             status: schedule.status,
             payment_status: paymentStatus,
+            payment_method: schedule.payment_method || 'QRIS/Transfer',
             statusColor: statusColor,
             plate_number: schedule.plate_number,
             car_type: schedule.car_type
@@ -251,6 +269,21 @@ packageTasks.sort((a, b) => {
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- Bukti Bayar Cash (Hanya muncul jika Cash dan status selesai dipilih) -->
+                                {task.payment_method?.toLowerCase() === 'cash' && (
+                                    <div id={`proof-charter-container-${task.charter_id}`} class="hidden flex-col gap-2">
+                                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Foto Bukti Penagihan (Cash)</label>
+                                        <div class="relative group cursor-pointer">
+                                            <input type="file" accept="image/*" id={`file-charter-${task.charter_id}`} class="absolute inset-0 w-full h-full opacity-0 z-10 cursor-pointer">
+                                            <div class="w-full py-4 border border-dashed border-slate-200 rounded-xl bg-white flex flex-col items-center justify-center gap-1 group-hover:border-primary transition-colors" id={`file-charter-preview-container-${task.charter_id}`}>
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-300 group-hover:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                                <span class="text-[10px] font-bold text-slate-400 text-center px-4" id={`file-charter-text-${task.charter_id}`}>Ambil Foto Bukti Penagihan</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+
                                 {task.status !== 'selesai' && (
                                     <button data-charter-id={task.charter_id} class="btn-save-charter w-full bg-[#044751] hover:bg-[#03363e] text-white py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-md shadow-primary/20 active:scale-95">
                                         SIMPAN
@@ -746,6 +779,51 @@ packageTasks.sort((a, b) => {
             });
         });
 
+        // Menampilkan/menyembunyikan input foto penagihan cash secara dinamis untuk charter
+        const charterSelects = document.querySelectorAll('select[id^="select-charter-"]');
+        charterSelects.forEach(select => {
+            select.addEventListener('change', (e) => {
+                const selectEl = e.currentTarget as HTMLSelectElement;
+                const charterId = selectEl.id.replace('select-charter-', '');
+                const proofContainer = document.getElementById(`proof-charter-container-${charterId}`);
+                if (proofContainer) {
+                    if (selectEl.value === 'selesai') {
+                        proofContainer.classList.remove('hidden');
+                        proofContainer.classList.add('flex');
+                        const fileInput = document.getElementById(`file-charter-${charterId}`) as HTMLInputElement;
+                        if (fileInput) fileInput.required = true;
+                    } else {
+                        proofContainer.classList.add('hidden');
+                        proofContainer.classList.remove('flex');
+                        const fileInput = document.getElementById(`file-charter-${charterId}`) as HTMLInputElement;
+                        if (fileInput) {
+                            fileInput.required = false;
+                            fileInput.value = '';
+                        }
+                        const textEl = document.getElementById(`file-charter-text-${charterId}`);
+                        if (textEl) textEl.textContent = "Ambil Foto Bukti Penagihan";
+                    }
+                }
+            });
+        });
+
+        // Menampilkan nama file yang dipilih untuk charter
+        const charterFileInputs = document.querySelectorAll('input[id^="file-charter-"]');
+        charterFileInputs.forEach(input => {
+            input.addEventListener('change', (e) => {
+                const inputEl = e.currentTarget as HTMLInputElement;
+                const charterId = inputEl.id.replace('file-charter-', '');
+                const textEl = document.getElementById(`file-charter-text-${charterId}`);
+                if (textEl) {
+                    if (inputEl.files && inputEl.files.length > 0) {
+                        textEl.textContent = inputEl.files[0].name;
+                    } else {
+                        textEl.textContent = "Ambil Foto Bukti Penagihan";
+                    }
+                }
+            });
+        });
+
         // Handle Simpan Charter
         const saveCharterBtns = document.querySelectorAll('.btn-save-charter');
         saveCharterBtns.forEach(btn => {
@@ -760,15 +838,38 @@ packageTasks.sort((a, b) => {
                 const newStatus = selectEl.value;
                 const originalText = button.innerHTML;
                 
+                // Cek jika cash dan status selesai, wajib upload foto
+                const fileInput = document.getElementById(`file-charter-${charterId}`) as HTMLInputElement;
+                if (newStatus === 'selesai' && fileInput) {
+                    if (!fileInput.files || fileInput.files.length === 0) {
+                        alert('Untuk pembayaran Cash, bukti penagihan berupa foto wajib diunggah ketika sewa selesai!');
+                        return;
+                    }
+                }
+                
                 button.disabled = true;
                 button.innerHTML = '<span class="flex justify-center items-center gap-2"><svg class="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> MENYIMPAN...</span>';
                 
                 try {
                     const { apiFetch } = await import('@services/api');
-                    const res = await apiFetch(`/api/driver/schedules/charters/${charterId}/status`, {
-                        method: 'PUT',
-                        body: JSON.stringify({ status: newStatus })
-                    });
+                    
+                    let options: any = {};
+                    if (newStatus === 'selesai' && fileInput && fileInput.files && fileInput.files.length > 0) {
+                        const formData = new FormData();
+                        formData.append('status', newStatus);
+                        formData.append('payment_proof', fileInput.files[0]);
+                        options = {
+                            method: 'PUT',
+                            body: formData
+                        };
+                    } else {
+                        options = {
+                            method: 'PUT',
+                            body: JSON.stringify({ status: newStatus })
+                        };
+                    }
+
+                    const res = await apiFetch(`/api/driver/schedules/charters/${charterId}/status`, options);
                     
                     alert('Status charter berhasil diperbarui!');
                     window.location.reload();

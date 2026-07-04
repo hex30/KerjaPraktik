@@ -18,6 +18,7 @@ export interface DriverSchedule {
   customer_phone?: string;
   return_date?: string;
   price?: string | number;
+  payment_method?: string;
 }
 
 export interface DriverPassenger {
