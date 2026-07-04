@@ -18,7 +18,7 @@ const isNew = actualStatus === 'menunggu_konfirmasi' && (!item.payment_proof_url
 const isWaitingPayment = actualStatus === 'menunggu_pembayaran' && item.payment_method !== 'cash';
 const isProofUploaded = (actualStatus === 'menunggu_konfirmasi' && !!item.payment_proof_url) || (actualStatus === 'menunggu_pembayaran' && item.payment_method === 'cash') || (actualStatus === 'menunggu_konfirmasi' && item.payment_method === 'cash' && !!item.price);
 // ASUMSI: 'dalam_penjemputan' dipakai jika diverifikasi
-const isPickupList = actualStatus === 'dalam_penjemputan' || (actualStatus === 'selesai' && bookingType !== 'PACKAGE'); // HACK: karna BE belum support 'dalam_penjemputan', kita masih map 'selesai' ke pickup list di form utama.
+const isPickupList = actualStatus === 'dalam_penjemputan' || actualStatus === 'dalam_perjalanan';
 // Jika di sub-kategori, kita mapping 'selesai' sbg benar-benar selesai. 
 // Untuk membedakannya, kita cek apakah komponen ini dirender untuk section apa. Tapi kita bisa pakai property isArchived
 const isDone = actualStatus === 'selesai' || actualStatus === 'completed'; // Nantinya BE harus bedakan
@@ -38,8 +38,11 @@ if (isNew) {
     displayBadge = "BUTUH PENGECEKAN";
     badgeClass = "bg-sky-100 text-sky-600";
 } else if (isPickupList) {
-    displayBadge = "MENUNGGU PENJEMPUTAN";
+    displayBadge = actualStatus === 'dalam_perjalanan' ? "DALAM PERJALANAN" : "MENUNGGU PENJEMPUTAN";
     badgeClass = "bg-emerald-100 text-emerald-600";
+} else if (isDone) {
+    displayBadge = "SELESAI";
+    badgeClass = "bg-emerald-50 text-emerald-700 border border-emerald-200/50";
 } else if (isCancelled) {
     displayBadge = actualStatus.toUpperCase();
     badgeClass = "bg-rose-100 text-rose-600";
