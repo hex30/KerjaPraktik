@@ -8,7 +8,7 @@ export const authGuard = {
     },
 
     getUser() {
-        const userData = localStorage.getItem('user_data') || localStorage.getItem('dummy_user_rini_trans');
+        const userData = localStorage.getItem('user_data');
         return userData ? JSON.parse(userData) : null;
     },
 
