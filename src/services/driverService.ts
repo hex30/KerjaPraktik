@@ -18,6 +18,7 @@ export interface DriverSchedule {
   customer_phone?: string;
   return_date?: string;
   price?: string | number;
+  payment_method?: string;
 }
 
 export interface DriverPassenger {
@@ -77,6 +78,62 @@ export const driverService = {
     } catch (error) {
       console.error("Gagal update status penumpang:", error);
       throw error;
+    }
+  },
+
+  // Mengambil riwayat tugas supir (yang sudah selesai)
+  async getSchedulesHistory(token?: string): Promise<DriverSchedule[]> {
+    try {
+      const headers: Record<string, string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      
+      const response = await apiFetch('/api/driver/schedules?history=true', { method: 'GET', headers });
+      return response?.data || [];
+    } catch (error) {
+      console.error("Gagal mengambil riwayat tugas driver:", error);
+      return [];
+    }
+  },
+
+  // Mengambil daftar seluruh armada mobil
+  async getFleets(token?: string): Promise<any[]> {
+    try {
+      const headers: Record<string, string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      
+      const response = await apiFetch('/api/driver/fleets', { method: 'GET', headers });
+      return response?.data || [];
+    } catch (error) {
+      console.error("Gagal mengambil daftar armada:", error);
+      return [];
+    }
+  },
+
+  // Mengambil riwayat pengeluaran operasional supir
+  async getExpensesHistory(token?: string): Promise<any[]> {
+    try {
+      const headers: Record<string, string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      
+      const response = await apiFetch('/api/driver/expenses', { method: 'GET', headers });
+      return response?.data || [];
+    } catch (error) {
+      console.error("Gagal mengambil riwayat pengeluaran operasional:", error);
+      return [];
+    }
+  },
+
+  // Mengambil riwayat laporan kerusakan armada supir
+  async getMaintenanceLogsHistory(token?: string): Promise<any[]> {
+    try {
+      const headers: Record<string, string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      
+      const response = await apiFetch('/api/driver/maintenance-logs', { method: 'GET', headers });
+      return response?.data || [];
+    } catch (error) {
+      console.error("Gagal mengambil riwayat perawatan kendaraan:", error);
+      return [];
     }
   }
 };

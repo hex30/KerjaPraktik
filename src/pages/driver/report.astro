@@ -5,20 +5,17 @@ import Button from "@ui/Button.astro";
 import { driverService } from "@services/driverService";
 
 const token = Astro.cookies.get('token')?.value;
-const schedules = await driverService.getSchedules(token);
+const [schedules, allFleets] = await Promise.all([
+    driverService.getSchedules(token),
+    driverService.getFleets(token)
+]);
 
-// Ekstrak armada unik dari jadwal aktif driver
-const uniqueFleetsMap = new Map();
-schedules.forEach((s: any) => {
-    if (s.fleet_id) {
-        uniqueFleetsMap.set(s.fleet_id, {
-            id: s.fleet_id,
-            plate: s.plate_number,
-            car: s.car_type
-        });
-    }
-});
-const uniqueFleets = Array.from(uniqueFleetsMap.values());
+// Map daftar armada untuk dropdown Laporan Kerusakan
+const uniqueFleets = allFleets.map((f: any) => ({
+    id: f.id,
+    plate: f.plate_number,
+    car: f.car_type
+}));
 ---
 
 <DriverLayout title="Laporan Operasional">

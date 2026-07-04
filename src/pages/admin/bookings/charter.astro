@@ -37,6 +37,7 @@ const validationBookings = charterData.filter((item: any) => {
     return (isConfirm && !!item.payment_proof_url) || (isCash && hasPrice && (isConfirm || isPay));
 });
 const cancelledBookings = charterData.filter((item: any) => ['dibatalkan', 'ditolak', 'cancelled'].includes(item.status?.toLowerCase()));
+const completedBookings = charterData.filter((item: any) => ['selesai', 'selesai_final'].includes(item.status?.toLowerCase()));
 
 ---
 
@@ -67,6 +68,10 @@ const cancelledBookings = charterData.filter((item: any) => ['dibatalkan', 'dito
             <button class="tab-btn px-6 py-3 rounded-2xl text-sm font-bold text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-all whitespace-nowrap" data-target="tab-cancelled">
                 Pesanan Dibatalkan
                 <span class="ml-2 px-2 py-0.5 bg-slate-200 text-slate-600 rounded-full text-[10px]">{cancelledBookings.length}</span>
+            </button>
+            <button class="tab-btn px-6 py-3 rounded-2xl text-sm font-bold text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-all whitespace-nowrap" data-target="tab-completed">
+                Riwayat Selesai
+                <span class="ml-2 px-2 py-0.5 bg-slate-200 text-slate-600 rounded-full text-[10px]">{completedBookings.length}</span>
             </button>
         </div>
 
@@ -99,6 +104,16 @@ const cancelledBookings = charterData.filter((item: any) => ['dibatalkan', 'dito
                     </div>
                 ) : (
                     <BookingTable bookingType="CHARTER" bookingData={cancelledBookings} fleets={fleetsData} drivers={driversData} />
+                )}
+            </div>
+
+            <div id="tab-completed" class="tab-content hidden">
+                {completedBookings.length === 0 ? (
+                    <div class="text-center py-12">
+                        <p class="text-slate-400 font-bold text-sm">Belum ada riwayat sewa selesai.</p>
+                    </div>
+                ) : (
+                    <BookingTable bookingType="CHARTER" bookingData={completedBookings} fleets={fleetsData} drivers={driversData} />
                 )}
             </div>
         </div>

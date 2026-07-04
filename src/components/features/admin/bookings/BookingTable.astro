@@ -60,14 +60,53 @@ interface Props {
 const { bookingType, bookingData, fleets = [], drivers = [] } = Astro.props;
 
 // (We rely on parent components like route.astro or charter.astro to pass the pre-filtered data)
+const itemsPerPage = 8;
 ---
 
-<div class="flex flex-col gap-12 booking-container">
-    <div class="booking-tbody">
-        {bookingData.map((item) => (
-            <BookingRow item={item} bookingType={bookingType} fleets={fleets} drivers={drivers} />
-        ))}
+<div class="flex flex-col gap-8 booking-container">
+    <div class="booking-tbody flex flex-col">
+        {bookingData.map((item, index) => {
+            const pageNum = Math.floor(index / itemsPerPage) + 1;
+            const isHidden = pageNum > 1;
+            return (
+                <div class={`booking-page-item ${isHidden ? 'hidden' : ''}`} data-page={pageNum}>
+                    <BookingRow item={item} bookingType={bookingType} fleets={fleets} drivers={drivers} />
+                </div>
+            );
+        })}
     </div>
+
+    {bookingData.length > itemsPerPage && (
+        <div class="flex items-center justify-between border-t border-slate-100 pt-6 mt-4 pagination-controls flex-wrap gap-4">
+            <button 
+                type="button" 
+                class="prev-page-btn px-4 py-2.5 border border-slate-200 hover:border-primary hover:text-primary rounded-xl text-xs font-bold text-slate-500 transition-colors disabled:opacity-40 disabled:hover:border-slate-200 disabled:hover:text-slate-500 disabled:cursor-not-allowed cursor-pointer"
+                disabled
+            >
+                Sebelumnya
+            </button>
+            <div class="flex items-center gap-1.5 page-numbers-container">
+                {Array.from({ length: Math.ceil(bookingData.length / itemsPerPage) }).map((_, i) => {
+                    const pageNum = i + 1;
+                    return (
+                        <button 
+                            type="button" 
+                            class={`page-num-btn w-9 h-9 rounded-xl text-xs font-black transition-all cursor-pointer ${pageNum === 1 ? 'bg-primary text-white shadow-md shadow-primary/20' : 'bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200/40'}`}
+                            data-target-page={pageNum}
+                        >
+                            {pageNum}
+                        </button>
+                    );
+                })}
+            </div>
+            <button 
+                type="button" 
+                class="next-page-btn px-4 py-2.5 border border-slate-200 hover:border-primary hover:text-primary rounded-xl text-xs font-bold text-slate-500 transition-colors disabled:opacity-40 disabled:hover:border-slate-200 disabled:hover:text-slate-500 disabled:cursor-not-allowed cursor-pointer"
+            >
+                Selanjutnya
+            </button>
+        </div>
+    )}
 </div>
 
 <!-- Render the Payment Preview Modal -->
@@ -217,11 +256,96 @@ const { bookingType, bookingData, fleets = [], drivers = [] } = Astro.props;
         });
     }
 
+    const setupPagination = () => {
+        const containers = document.querySelectorAll('.booking-container');
+        containers.forEach(container => {
+            const tbody = container.querySelector('.booking-tbody');
+            if (!tbody) return;
+
+            const items = tbody.querySelectorAll('.booking-page-item');
+            if (items.length <= 8) return;
+
+            let currentPage = 1;
+            const totalPages = Math.ceil(items.length / 8);
+
+            const prevBtn = container.querySelector('.prev-page-btn') as HTMLButtonElement;
+            const nextBtn = container.querySelector('.next-page-btn') as HTMLButtonElement;
+            const pageBtns = container.querySelectorAll('.page-num-btn');
+
+            const goToPage = (page: number) => {
+                if (page < 1 || page > totalPages) return;
+                currentPage = page;
+
+                // Toggle items visibility
+                items.forEach((item: any) => {
+                    const itemPage = parseInt(item.getAttribute('data-page') || '1', 10);
+                    if (itemPage === currentPage) {
+                        item.classList.remove('hidden');
+                    } else {
+                        item.classList.add('hidden');
+                    }
+                });
+
+                // Close any open details
+                const mainRows = tbody.querySelectorAll('.booking-main-row');
+                mainRows.forEach(row => {
+                    const detailRow = row.nextElementSibling as HTMLElement;
+                    const chevron = row.querySelector('.chevron-icon');
+                    if (detailRow) {
+                        detailRow.style.maxHeight = '';
+                        chevron?.classList.remove('rotate-180');
+                        row.parentElement?.classList.remove('active-card');
+                    }
+                });
+
+                // Update page buttons active state
+                pageBtns.forEach((btn: any) => {
+                    const btnPage = parseInt(btn.getAttribute('data-target-page') || '1', 10);
+                    if (btnPage === currentPage) {
+                        btn.className = "page-num-btn w-9 h-9 rounded-xl text-xs font-black transition-all cursor-pointer bg-primary text-white shadow-md shadow-primary/20";
+                    } else {
+                        btn.className = "page-num-btn w-9 h-9 rounded-xl text-xs font-black transition-all cursor-pointer bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200/40";
+                    }
+                });
+
+                // Update prev/next button disabled state
+                if (prevBtn) prevBtn.disabled = currentPage === 1;
+                if (nextBtn) nextBtn.disabled = currentPage === totalPages;
+            };
+
+            // Add event listeners
+            if (prevBtn) {
+                prevBtn.addEventListener('click', () => {
+                    goToPage(currentPage - 1);
+                });
+            }
+
+            if (nextBtn) {
+                nextBtn.addEventListener('click', () => {
+                    goToPage(currentPage + 1);
+                });
+            }
+
+            pageBtns.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const targetBtn = e.currentTarget as HTMLButtonElement;
+                    const page = parseInt(targetBtn.getAttribute('data-target-page') || '1', 10);
+                    goToPage(page);
+                });
+            });
+
+            // Initial trigger to make sure nextBtn disabled state is correct on load
+            if (nextBtn) nextBtn.disabled = currentPage === totalPages;
+        });
+    };
+
     setupAccordion();
     setupActionForms();
+    setupPagination();
     document.addEventListener('astro:page-load', () => {
         setupAccordion();
         setupActionForms();
+        setupPagination();
     });
 </script>
 
