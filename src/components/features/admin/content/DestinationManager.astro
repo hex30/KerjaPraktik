@@ -151,7 +151,7 @@ const destinations = await adminContentService.getDestinations();
                 const isUpdate = !!formData.get('id');
                 const imageFile = formData.get('image');
                 if (!isUpdate && (imageFile instanceof File && imageFile.size === 0)) {
-                    alert("Gambar destinasi wajib diunggah untuk data baru!");
+                    (window as any).showFeedbackModal('warning', 'Perhatian', "Gambar destinasi wajib diunggah untuk data baru!");
                     return; // Hentikan proses simpan
                 }
 
@@ -162,10 +162,9 @@ const destinations = await adminContentService.getDestinations();
                     }
                     
                     await adminContentService.saveDestination(formData);
-                    alert("Destinasi berhasil disimpan!");
-                    window.location.reload();
+                    (window as any).showFeedbackModal('success', 'Berhasil', "Destinasi berhasil disimpan!", window.location.href);
                 } catch (error: any) {
-                    alert(error.message || "Gagal menyimpan destinasi");
+                    (window as any).showFeedbackModal('error', 'Gagal', error.message || "Gagal menyimpan destinasi");
                 } finally {
                     if (submitBtn) {
                         submitBtn.textContent = "Simpan Destinasi";
@@ -182,13 +181,13 @@ const destinations = await adminContentService.getDestinations();
                 const card = btn.closest('.destination-card') as HTMLElement;
                 const id = card?.dataset.id;
                 
-                if (id && confirm('Hapus destinasi ini secara permanen dari database?')) {
+                const confirmed = await (window as any).showConfirmModal('Konfirmasi Hapus', 'Hapus destinasi ini secara permanen dari database?', 'danger');
+                if (id && confirmed) {
                     try {
                         await adminContentService.deleteDestination(id);
-                        alert("Destinasi dihapus!");
-                        window.location.reload();
+                        (window as any).showFeedbackModal('success', 'Berhasil', "Destinasi dihapus!", window.location.href);
                     } catch(err: any) {
-                        alert(err.message || "Gagal menghapus destinasi.");
+                        (window as any).showFeedbackModal('error', 'Gagal', err.message || "Gagal menghapus destinasi.");
                     }
                 }
             });

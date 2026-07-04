@@ -136,10 +136,9 @@ const banners = await adminContentService.getBanners(token);
                     }
                     
                     await adminContentService.saveBanner(formData);
-                    alert("Banner berhasil disimpan!");
-                    window.location.reload();
+                    (window as any).showFeedbackModal('success', 'Berhasil', "Banner berhasil disimpan!", window.location.href);
                 } catch (error: any) {
-                    alert(error.message || "Gagal menyimpan banner");
+                    (window as any).showFeedbackModal('error', 'Gagal', error.message || "Gagal menyimpan banner");
                 } finally {
                     if (submitBtn) {
                         submitBtn.textContent = "Simpan Banner";
@@ -155,14 +154,13 @@ const banners = await adminContentService.getBanners(token);
                 e.stopPropagation();
                 const card = btn.closest('.banner-card') as HTMLElement;
                 const id = card?.dataset.id;
-                
-                if (id && confirm('Hapus banner ini secara permanen dari database?')) {
+                const confirmed = await (window as any).showConfirmModal('Konfirmasi Hapus', 'Hapus banner ini secara permanen dari database?', 'danger');
+                if (id && confirmed) {
                     try {
                         await adminContentService.deleteBanner(id);
-                        alert("Banner dihapus!");
-                        window.location.reload();
+                        (window as any).showFeedbackModal('success', 'Berhasil', "Banner dihapus!", window.location.href);
                     } catch(err: any) {
-                        alert(err.message || "Gagal menghapus banner.");
+                        (window as any).showFeedbackModal('error', 'Gagal', err.message || "Gagal menghapus banner.");
                     }
                 }
             });

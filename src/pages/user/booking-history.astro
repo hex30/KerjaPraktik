@@ -64,6 +64,13 @@ const orderHistory = await userService.getUserHistory(token);
 
 <script>
     import { apiFetch } from '../../services/api';
+
+    declare global {
+        interface Window {
+            showFeedbackModal: (type: string, title: string, message: string, redirectUrl?: string | null) => void;
+            showConfirmModal: (title: string, message: string, type?: string) => Promise<boolean>;
+        }
+    }
     
     // Assign ke window object agar bisa dipanggil dari HTML onclick
     (window as any).selectPaymentMethod = async (orderId: string, type: string, method: string) => {
@@ -79,12 +86,13 @@ const orderHistory = await userService.getUserHistory(token);
             });
 
             if (method === 'cash') {
-                    alert('Terima kasih banyak! Silakan bayarkan uang Anda saat sudah dijemput oleh driver.');
-                }
-            window.location.reload();
+                window.showFeedbackModal('success', 'Berhasil', 'Terima kasih banyak! Silakan bayarkan uang Anda saat sudah dijemput oleh driver.', window.location.href);
+            } else {
+                window.location.reload();
+            }
         } catch (error: any) {
             console.error('Error selecting payment method:', error);
-            alert(`Gagal: ${error.message || 'Terjadi kesalahan'}`);
+            window.showFeedbackModal('error', 'Gagal', `Gagal: ${error.message || 'Terjadi kesalahan'}`);
         }
     };
 
@@ -139,7 +147,7 @@ const orderHistory = await userService.getUserHistory(token);
                 
                 if (!orderId || !orderType) return;
 
-                const confirmed = window.confirm('Batalkan Pesanan?\n\nPesanan yang dibatalkan tidak dapat dikembalikan. Apakah Anda yakin?');
+                const confirmed = await window.showConfirmModal('Batalkan Pesanan?', 'Pesanan yang dibatalkan tidak dapat dikembalikan. Apakah Anda yakin?');
 
                 if (confirmed) {
                     try {
@@ -158,10 +166,9 @@ const orderHistory = await userService.getUserHistory(token);
                             method: 'PUT'
                         });
                         
-                        alert('Dibatalkan! Pesanan Anda berhasil dibatalkan.');
-                        window.location.reload();
+                        window.showFeedbackModal('success', 'Berhasil', 'Dibatalkan! Pesanan Anda berhasil dibatalkan.', window.location.href);
                     } catch (error: any) {
-                        alert(`Gagal! ${error.message}`);
+                        window.showFeedbackModal('error', 'Gagal', `Gagal! ${error.message}`);
                     }
                 }
             });
@@ -176,7 +183,7 @@ const orderHistory = await userService.getUserHistory(token);
                 
                 if (!orderId || !orderType) return;
 
-                const confirmed = window.confirm('Hapus Riwayat?\n\nPerhatian! Aksi ini akan menghapus riwayat pesanan ini dari tampilan Anda (Histori pesanan akan tetap tersimpan di sistem admin). Lanjutkan?');
+                const confirmed = await window.showConfirmModal('Hapus Riwayat?', 'Perhatian! Aksi ini akan menghapus riwayat pesanan ini dari tampilan Anda (Histori pesanan akan tetap tersimpan di sistem admin). Lanjutkan?', 'danger');
 
                 if (confirmed) {
                     try {
@@ -202,10 +209,9 @@ const orderHistory = await userService.getUserHistory(token);
                             const errData = await res.json().catch(() => ({}));
                             throw new Error(errData.message || "Gagal menghapus pesanan. Terjadi kesalahan pada server.");
                         }                   
-                        alert('Terhapus! Riwayat pesanan telah dihapus dari tampilan Anda.');
-                        window.location.reload();
+                        window.showFeedbackModal('success', 'Terhapus', 'Riwayat pesanan telah dihapus dari tampilan Anda.', window.location.href);
                     } catch (error: any) {
-                        alert(`Gagal! ${error.message}`);
+                        window.showFeedbackModal('error', 'Gagal', `Gagal! ${error.message}`);
                     }
                 }
             });

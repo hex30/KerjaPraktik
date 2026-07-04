@@ -1,6 +1,8 @@
 ---
 // File: src/layouts/AdminLayout.astro
 import AdminSidebar from "@features/admin/shared/AdminSidebar.astro";
+import FeedbackModal from "@components/ui/FeedbackModal.astro";
+import ConfirmModal from "@components/ui/ConfirmModal.astro";
 import "../styles/global.css";
 
 interface Props {
@@ -38,10 +40,10 @@ const { title } = Astro.props;
                 <slot />
             </main>
         </div>
-    </body>
-</html>
 
-<script>
+        <FeedbackModal />
+        <ConfirmModal />
+        <script>
     import { authGuard } from "@utils/authGuard";
     
     // Proteksi Rute (Client-Side) - Hanya Admin & Super Admin yang boleh akses

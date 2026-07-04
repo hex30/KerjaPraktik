@@ -445,15 +445,14 @@ const formatCurrency = (amount: number) => {
                     );
 
                     if (response?.status === "success") {
-                        alert("Penugasan berhasil disimpan!");
-                        window.location.reload();
+                        (window as any).showFeedbackModal('success', 'Berhasil', "Penugasan berhasil disimpan!", window.location.href);
                     } else {
                         throw new Error(
                             response?.message || "Gagal menugaskan supir",
                         );
                     }
                 } catch (error: any) {
-                    alert(error.message || "Terjadi kesalahan sistem.");
+                    (window as any).showFeedbackModal('error', 'Gagal', error.message || "Terjadi kesalahan sistem.");
                     btn.innerHTML = originalText;
                     btn.disabled = false;
                 }
@@ -468,11 +467,9 @@ const formatCurrency = (amount: number) => {
                 const id = button.dataset.id;
                 const type = button.dataset.type;
 
-                if (
-                    confirm(
-                        "Yakin ingin MENOLAK penugasan ini? Semua pesanan penumpang dan paket di dalamnya akan otomatis DIBATALKAN.",
-                    )
-                ) {
+                const confirmed = await (window as any).showConfirmModal("Konfirmasi Penolakan", "Yakin ingin MENOLAK penugasan ini? Semua pesanan penumpang dan paket di dalamnya akan otomatis DIBATALKAN.", "danger");
+
+                if (confirmed) {
                     const originalText = button.innerHTML;
                     button.innerHTML = "Memproses...";
                     button.disabled = true;
@@ -486,15 +483,14 @@ const formatCurrency = (amount: number) => {
                         );
 
                         if (response?.status === "success") {
-                            alert("Penugasan berhasil ditolak dan dibatalkan.");
-                            window.location.reload();
+                            (window as any).showFeedbackModal('success', 'Berhasil', "Penugasan berhasil ditolak dan dibatalkan.", window.location.href);
                         } else {
                             throw new Error(
                                 response?.message || "Gagal menolak penugasan",
                             );
                         }
                     } catch (error: any) {
-                        alert(error.message || "Terjadi kesalahan sistem.");
+                        (window as any).showFeedbackModal('error', 'Gagal', error.message || "Terjadi kesalahan sistem.");
                         button.innerHTML = originalText;
                         button.disabled = false;
                     }
@@ -510,11 +506,9 @@ const formatCurrency = (amount: number) => {
                 const id = button.dataset.id;
                 const type = button.dataset.type;
 
-                if (
-                    confirm(
-                        "Yakin ingin membatalkan supir dari penugasan ini? Status jadwal akan dikembalikan menjadi 'Butuh Penugasan' tanpa membatalkan tiket penumpang.",
-                    )
-                ) {
+                const confirmed = await (window as any).showConfirmModal("Konfirmasi Pembatalan Supir", "Yakin ingin membatalkan supir dari penugasan ini? Status jadwal akan dikembalikan menjadi 'Butuh Penugasan' tanpa membatalkan tiket penumpang.", "danger");
+
+                if (confirmed) {
                     const originalText = button.innerHTML;
                     button.innerHTML = "Memproses...";
                     button.disabled = true;
@@ -526,15 +520,14 @@ const formatCurrency = (amount: number) => {
                         );
 
                         if (response?.status === "success") {
-                            alert("Supir berhasil dihapus dari penugasan.");
-                            window.location.reload();
+                            (window as any).showFeedbackModal('success', 'Berhasil', "Supir berhasil dihapus dari penugasan.", window.location.href);
                         } else {
                             throw new Error(
                                 response?.message || "Gagal membatalkan supir",
                             );
                         }
                     } catch (error: any) {
-                        alert(error.message || "Terjadi kesalahan sistem.");
+                        (window as any).showFeedbackModal('error', 'Gagal', error.message || "Terjadi kesalahan sistem.");
                         button.innerHTML = originalText;
                         button.disabled = false;
                     }
@@ -551,11 +544,9 @@ const formatCurrency = (amount: number) => {
                 const type = button.dataset.type;
                 const form = button.closest("form") as HTMLFormElement;
 
-                if (
-                    confirm(
-                        "Yakin ingin menandai armada ini sebagai 'Sedang Bertugas' sekarang? Ketersediaan jadwal akan ditutup untuk pesanan baru.",
-                    )
-                ) {
+                const confirmed = await (window as any).showConfirmModal("Konfirmasi Mulai Bertugas", "Yakin ingin menandai armada ini sebagai 'Sedang Bertugas' sekarang? Ketersediaan jadwal akan ditutup untuk pesanan baru.");
+
+                if (confirmed) {
                     const formData = new FormData(form);
                     const data = Object.fromEntries(formData.entries());
                     data.force_active = "true";
@@ -574,17 +565,14 @@ const formatCurrency = (amount: number) => {
                         );
 
                         if (response?.status === "success") {
-                            alert(
-                                "Status berhasil diubah menjadi Sedang Bertugas!",
-                            );
-                            window.location.reload();
+                            (window as any).showFeedbackModal('success', 'Berhasil', "Status berhasil diubah menjadi Sedang Bertugas!", window.location.href);
                         } else {
                             throw new Error(
                                 response?.message || "Gagal mengubah status",
                             );
                         }
                     } catch (error: any) {
-                        alert(error.message || "Terjadi kesalahan sistem.");
+                        (window as any).showFeedbackModal('error', 'Gagal', error.message || "Terjadi kesalahan sistem.");
                         button.innerHTML = originalText;
                         button.disabled = false;
                     }
@@ -600,7 +588,8 @@ const formatCurrency = (amount: number) => {
                 const id = button.dataset.id;
                 const type = button.dataset.type;
 
-                if (confirm("Yakin ingin menghapus tugas ini dari riwayat daftar? (Tenang saja, data pendapatan dan laporan tidak akan terhapus dari sistem database)")) {
+                const confirmed = await (window as any).showConfirmModal("Konfirmasi Hapus", "Yakin ingin menghapus tugas ini dari riwayat daftar? (Tenang saja, data pendapatan dan laporan tidak akan terhapus dari sistem database)", "danger");
+                if (confirmed) {
                     const originalHtml = button.innerHTML;
                     button.innerHTML = `<svg class="animate-spin h-5 w-5 text-rose-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
                     button.disabled = true;
@@ -614,7 +603,7 @@ const formatCurrency = (amount: number) => {
                             throw new Error(response?.message || "Gagal menghapus tugas dari daftar");
                         }
                     } catch (error: any) {
-                        alert(error.message || "Terjadi kesalahan sistem.");
+                        (window as any).showFeedbackModal('error', 'Gagal', error.message || "Terjadi kesalahan sistem.");
                         button.innerHTML = originalHtml;
                         button.disabled = false;
                     }

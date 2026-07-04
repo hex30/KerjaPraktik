@@ -319,11 +319,9 @@ const getProofUrl = (url: string) => {
                         body: formData
                     });
 
-                    alert('Berhasil: ' + data.message);
-                    form.reset();
-                    window.location.reload();
+                    (window as any).showFeedbackModal('success', 'Berhasil', 'Berhasil: ' + data.message, window.location.href);
                 } catch (error: any) {
-                    alert('Error: ' + error.message);
+                    (window as any).showFeedbackModal('error', 'Gagal', 'Error: ' + error.message);
                 } finally {
                     submitBtn.textContent = originalText;
                     submitBtn.disabled = false;
@@ -333,7 +331,8 @@ const getProofUrl = (url: string) => {
 
         // Approval actions handler
         const handleApproval = async (id: string, status: 'approved' | 'rejected') => {
-            if(!confirm(`Apakah Anda yakin ingin ${status === 'approved' ? 'MENYETUJUI' : 'MENOLAK'} pengeluaran ini?`)) return;
+            const confirmed = await (window as any).showConfirmModal('Konfirmasi', `Apakah Anda yakin ingin ${status === 'approved' ? 'MENYETUJUI' : 'MENOLAK'} pengeluaran ini?`);
+            if(!confirmed) return;
 
             try {
                 await apiFetch(`/api/admin/cashflow/expenses/${id}/approve`, {
@@ -341,10 +340,9 @@ const getProofUrl = (url: string) => {
                     body: JSON.stringify({ status })
                 });
 
-                alert('Status pengeluaran berhasil diperbarui.');
-                window.location.reload();
+                (window as any).showFeedbackModal('success', 'Berhasil', 'Status pengeluaran berhasil diperbarui.', window.location.href);
             } catch (error: any) {
-                alert('Error: ' + error.message);
+                (window as any).showFeedbackModal('error', 'Gagal', 'Error: ' + error.message);
             }
         };
 
@@ -364,7 +362,8 @@ const getProofUrl = (url: string) => {
 
         // Maintenance logs approval handler
         const handleMaintApproval = async (id: string, status: 'approved' | 'rejected') => {
-            if(!confirm(`Apakah Anda yakin ingin ${status === 'approved' ? 'MENYETUJUI' : 'MENOLAK'} pengajuan perbaikan ini?`)) return;
+            const confirmed = await (window as any).showConfirmModal('Konfirmasi', `Apakah Anda yakin ingin ${status === 'approved' ? 'MENYETUJUI' : 'MENOLAK'} pengajuan perbaikan ini?`);
+            if(!confirmed) return;
 
             try {
                 await apiFetch(`/api/driver/maintenance-logs/${id}/verify`, {
@@ -372,10 +371,9 @@ const getProofUrl = (url: string) => {
                     body: JSON.stringify({ status })
                 });
 
-                alert('Status pengajuan perbaikan berhasil diperbarui.');
-                window.location.reload();
+                (window as any).showFeedbackModal('success', 'Berhasil', 'Status pengajuan perbaikan berhasil diperbarui.', window.location.href);
             } catch (error: any) {
-                alert('Error: ' + error.message);
+                (window as any).showFeedbackModal('error', 'Gagal', 'Error: ' + error.message);
             }
         };
 

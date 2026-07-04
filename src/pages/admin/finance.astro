@@ -620,7 +620,7 @@ if (summary.last_month_income > 0) {
                         downloadBtn.innerHTML = originalContent;
                     }
                 } catch (error: any) {
-                    alert("Gagal mengunduh laporan: " + error.message);
+                    (window as any).showFeedbackModal("error", "Gagal", "Gagal mengunduh laporan: " + error.message);
                     if (downloadBtn && originalContent) {
                         downloadBtn.removeAttribute("disabled");
                         downloadBtn.innerHTML = originalContent;
