@@ -37,6 +37,7 @@ const validationPackages = packageData.filter((item: any) => {
     return (isConfirm && !!item.payment_proof_url) || (isCash && hasPrice && (isConfirm || isPay));
 });
 const cancelledPackages = packageData.filter((item: any) => ['dibatalkan', 'ditolak', 'cancelled'].includes(item.status?.toLowerCase()));
+const completedPackages = packageData.filter((item: any) => ['delivered'].includes(item.status?.toLowerCase()));
 
 ---
 
@@ -67,6 +68,10 @@ const cancelledPackages = packageData.filter((item: any) => ['dibatalkan', 'dito
             <button class="tab-btn px-6 py-3 rounded-2xl text-sm font-bold text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-all whitespace-nowrap" data-target="tab-cancelled">
                 Pesanan Dibatalkan
                 <span class="ml-2 px-2 py-0.5 bg-slate-200 text-slate-600 rounded-full text-[10px]">{cancelledPackages.length}</span>
+            </button>
+            <button class="tab-btn px-6 py-3 rounded-2xl text-sm font-bold text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-all whitespace-nowrap" data-target="tab-completed">
+                Riwayat Selesai
+                <span class="ml-2 px-2 py-0.5 bg-slate-200 text-slate-600 rounded-full text-[10px]">{completedPackages.length}</span>
             </button>
         </div>
 
@@ -108,6 +113,20 @@ const cancelledPackages = packageData.filter((item: any) => ['dibatalkan', 'dito
                 ) : (
                     <div class="flex flex-col">
                         {cancelledPackages.map((pkg: any) => (
+                            <PackageRow pkg={pkg} fleetsData={fleetsData} />
+                        ))}
+                    </div>
+                )}
+            </div>
+
+            <div id="tab-completed" class="tab-content hidden">
+                {completedPackages.length === 0 ? (
+                    <div class="text-center py-12">
+                        <p class="text-slate-400 font-bold text-sm">Belum ada riwayat pengiriman selesai.</p>
+                    </div>
+                ) : (
+                    <div class="flex flex-col">
+                        {completedPackages.map((pkg: any) => (
                             <PackageRow pkg={pkg} fleetsData={fleetsData} />
                         ))}
                     </div>
