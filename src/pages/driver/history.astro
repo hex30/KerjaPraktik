@@ -1,0 +1,412 @@
+---
+// File: src/pages/driver/history.astro
+import DriverLayout from "@layouts/DriverLayout.astro";
+import { driverService } from "@services/driverService";
+
+const token = Astro.cookies.get('token')?.value;
+
+if (!token) {
+    return Astro.redirect('/driver/login');
+}
+
+// Fetch semua riwayat tugas supir dari backend
+const rawTasks = await driverService.getSchedulesHistory(token);
+
+// Normalisasi tugas riwayat ke dalam flat array untuk kemudahan filter & pagination
+const allHistoryTasks: any[] = [];
+
+rawTasks.forEach((t: any) => {
+    if (t.isCharter) {
+        allHistoryTasks.push({
+            id: t.id,
+            type: 'CHARTER',
+            title: `Sewa Charter Ke ${t.destination}`,
+            date: t.departure_time,
+            plate: t.plate_number || 'Tidak Ada Plat',
+            car: t.car_type || 'Armada Charter',
+            price: t.price || 0,
+            payment_method: t.payment_method || 'Cash',
+            payment_proof_url: t.payment_proof_url || null,
+            customer_name: t.customer_name,
+            customer_phone: t.customer_phone,
+            return_date: t.return_date
+        });
+    } else {
+        // RUTE
+        allHistoryTasks.push({
+            id: t.id,
+            type: 'RUTE',
+            title: `${t.origin} - ${t.destination}`,
+            date: t.departure_time,
+            plate: t.plate_number || 'Tidak Ada Plat',
+            car: t.car_type || 'Armada Rute',
+            passengers_count: t.passengers?.length || 0,
+            passengers: t.passengers || []
+        });
+        
+        // Ekstrak paket dari jadwal rute ini
+        t.packages?.forEach((p: any) => {
+            allHistoryTasks.push({
+                id: p.package_id,
+                type: 'PAKET',
+                title: `Kirim Paket: ${p.waybill_number}`,
+                date: p.departure_date || t.departure_time,
+                plate: t.plate_number || 'Tidak Ada Plat',
+                car: t.car_type || 'Armada Paket',
+                price: p.original_price || 0,
+                payment_method: p.payment_method || 'Cash',
+                payment_proof_url: p.payment_proof_url || null,
+                sender_name: p.sender_name,
+                receiver_name: p.receiver_name,
+                receiver_phone: p.receiver_phone,
+                receiver_address: p.receiver_address,
+                description: p.package_description,
+                weight: p.weight,
+                dimension: p.dimension
+            });
+        });
+    }
+});
+
+// Urutkan riwayat berdasarkan tanggal terbaru ke terlama
+allHistoryTasks.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+---
+
+<DriverLayout title="Riwayat Tugas">
+    <div class="flex flex-col gap-8 h-full overflow-hidden">
+        <!-- Header -->
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shrink-0">
+            <div>
+                <h1 class="text-2xl font-black text-slate-800 tracking-tight">Riwayat Tugas Anda</h1>
+                <p class="font-secondary text-sm text-slate-400 mt-1">Daftar lengkap tugas perjalanan, charter, dan paket yang telah Anda selesaikan.</p>
+            </div>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="flex border-b border-slate-100 bg-slate-50/50 p-2 gap-2 overflow-x-auto scrollbar-hide shrink-0 rounded-2xl border border-slate-100">
+            <button class="filter-btn active px-6 py-3 rounded-xl text-sm font-bold transition-all whitespace-nowrap bg-white text-primary shadow-sm border border-slate-100/50" data-category="ALL">
+                Semua Kategori
+                <span class="ml-2 px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full text-[10px]" id="count-all">{allHistoryTasks.length}</span>
+            </button>
+            <button class="filter-btn px-6 py-3 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-all whitespace-nowrap" data-category="RUTE">
+                Rute Travel
+                <span class="ml-2 px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full text-[10px]" id="count-rute">{allHistoryTasks.filter(t => t.type === 'RUTE').length}</span>
+            </button>
+            <button class="filter-btn px-6 py-3 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-all whitespace-nowrap" data-category="CHARTER">
+                Sewa Charter
+                <span class="ml-2 px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full text-[10px]" id="count-charter">{allHistoryTasks.filter(t => t.type === 'CHARTER').length}</span>
+            </button>
+            <button class="filter-btn px-6 py-3 rounded-xl text-sm font-bold text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-all whitespace-nowrap" data-category="PAKET">
+                Pengiriman Paket
+                <span class="ml-2 px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full text-[10px]" id="count-paket">{allHistoryTasks.filter(t => t.type === 'PAKET').length}</span>
+            </button>
+        </div>
+
+        <!-- Task List Container (Scrollable) -->
+        <div class="flex-1 overflow-y-auto pr-2 pb-6 min-h-0" id="tasks-container">
+            <!-- Items will be generated here by Javascript client-side -->
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="flex items-center justify-between shrink-0 border-t border-slate-100 pt-4 pb-2" id="pagination-container">
+            <span class="text-xs font-bold text-slate-400" id="pagination-info">Menampilkan 0-0 dari 0 tugas</span>
+            <div class="flex items-center gap-2">
+                <button id="btn-prev" class="px-4 py-2 border border-slate-200 hover:border-slate-300 rounded-xl text-xs font-black text-slate-600 hover:text-slate-800 disabled:opacity-50 disabled:pointer-events-none transition-all">
+                    SEBELUMNYA
+                </button>
+                <div class="flex items-center gap-1.5" id="page-numbers">
+                    <!-- Page buttons will be generated here -->
+                </div>
+                <button id="btn-next" class="px-4 py-2 border border-slate-200 hover:border-slate-300 rounded-xl text-xs font-black text-slate-600 hover:text-slate-800 disabled:opacity-50 disabled:pointer-events-none transition-all">
+                    SELANJUTNYA
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Payment Proof Preview Modal -->
+    <div id="payment-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm hidden animate-fade-in">
+        <div class="bg-white rounded-3xl p-6 max-w-md w-full mx-4 shadow-xl border border-slate-100 flex flex-col gap-4 relative animate-scale-up">
+            <button id="close-modal-btn" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
+            </button>
+            
+            <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest">Kuitansi Bukti Penagihan Cash</h3>
+            
+            <div class="w-full aspect-[4/3] rounded-2xl bg-slate-100 overflow-hidden border border-slate-200">
+                <img id="modal-image" src="" alt="Bukti Pembayaran" class="w-full h-full object-cover" />
+            </div>
+            
+            <div class="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col gap-2">
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-400 font-bold">Kategori Tugas</span>
+                    <span id="modal-category" class="font-black text-slate-700 bg-white px-2 py-0.5 rounded border border-slate-150">PAKET</span>
+                </div>
+                <div class="flex justify-between items-center text-xs">
+                    <span class="text-slate-400 font-bold">Uang Tunai Diterima</span>
+                    <span id="modal-price" class="font-black text-[#044751]">Rp 0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</DriverLayout>
+
+<script define:vars={{ allHistoryTasks }}>
+    let currentCategory = 'ALL';
+    let currentPage = 1;
+    const itemsPerPage = 8;
+    
+    let filteredTasks = [...allHistoryTasks];
+
+    const tasksContainer = document.getElementById('tasks-container');
+    const paginationInfo = document.getElementById('pagination-info');
+    const pageNumbersContainer = document.getElementById('page-numbers');
+    const btnPrev = document.getElementById('btn-prev');
+    const btnNext = document.getElementById('btn-next');
+    
+    // Modal elements
+    const paymentModal = document.getElementById('payment-modal');
+    const closeModalBtn = document.getElementById('close-modal-btn');
+    const modalImage = document.getElementById('modal-image');
+    const modalCategory = document.getElementById('modal-category');
+    const modalPrice = document.getElementById('modal-price');
+
+    // Helper format uang
+    function formatRupiah(num) {
+        return 'Rp ' + Math.round(num).toLocaleString('id-ID');
+    }
+
+    // Helper format tanggal
+    function formatTanggal(dateStr) {
+        const d = new Date(dateStr);
+        return d.toLocaleDateString('id-ID', {
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        }) + ' ' + d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    // Setup Filter Tabs Click
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            filterBtns.forEach(b => {
+                b.classList.remove('active', 'bg-white', 'text-primary', 'shadow-sm', 'border', 'border-slate-100/50');
+                b.classList.add('text-slate-500', 'hover:bg-slate-100', 'hover:text-slate-700');
+            });
+            btn.classList.add('active', 'bg-white', 'text-primary', 'shadow-sm', 'border', 'border-slate-100/50');
+            btn.classList.remove('text-slate-500', 'hover:bg-slate-100', 'hover:text-slate-700');
+
+            currentCategory = btn.getAttribute('data-category');
+            currentPage = 1;
+            applyFilter();
+        });
+    });
+
+    function applyFilter() {
+        if (currentCategory === 'ALL') {
+            filteredTasks = [...allHistoryTasks];
+        } else {
+            filteredTasks = allHistoryTasks.filter(t => t.type === currentCategory);
+        }
+        renderTasks();
+    }
+
+    function renderTasks() {
+        if (!tasksContainer) return;
+        
+        tasksContainer.innerHTML = '';
+        
+        const totalItems = filteredTasks.length;
+        const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+
+        if (totalItems === 0) {
+            tasksContainer.innerHTML = `
+                <div class="text-center py-16 bg-white rounded-3xl border border-slate-100 shadow-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-slate-300 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
+                    <p class="text-slate-400 font-bold text-sm">Tidak ada riwayat tugas untuk kategori ini.</p>
+                </div>
+            `;
+            paginationInfo.textContent = 'Menampilkan 0 tugas';
+            btnPrev.disabled = true;
+            btnNext.disabled = true;
+            pageNumbersContainer.innerHTML = '';
+            return;
+        }
+
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+        const paginatedTasks = filteredTasks.slice(startIndex, endIndex);
+
+        paginatedTasks.forEach(task => {
+            const card = document.createElement('div');
+            card.className = 'bg-white border border-slate-100 rounded-3xl p-5 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col gap-4 mb-4';
+            
+            // Kategori badge styling
+            let typeBadge = '';
+            if (task.type === 'RUTE') {
+                typeBadge = `<span class="px-2.5 py-1 bg-emerald-50 text-emerald-600 rounded-lg text-[9px] font-black tracking-widest uppercase">RUTE TRAVEL</span>`;
+            } else if (task.type === 'CHARTER') {
+                typeBadge = `<span class="px-2.5 py-1 bg-sky-50 text-sky-600 rounded-lg text-[9px] font-black tracking-widest uppercase">SEWA CHARTER</span>`;
+            } else if (task.type === 'PAKET') {
+                typeBadge = `<span class="px-2.5 py-1 bg-amber-50 text-amber-600 rounded-lg text-[9px] font-black tracking-widest uppercase">KIRIM PAKET</span>`;
+            }
+
+            let bodyContent = '';
+            if (task.type === 'RUTE') {
+                bodyContent = `
+                    <div class="flex flex-col gap-1">
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Detail Penumpang</span>
+                        <div class="flex flex-col gap-1.5 mt-1">
+                            ${task.passengers.length > 0 ? task.passengers.map(p => `
+                                <div class="flex justify-between items-center text-xs bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                                    <span class="font-bold text-slate-700">${p.passenger_name} (Kursi ${p.seat_number})</span>
+                                    <span class="font-medium text-slate-400 text-[10px] uppercase tracking-wider">${p.payment_method === 'cash' ? 'Cash (Tunai)' : 'Cashless'}</span>
+                                    ${p.payment_proof_url ? `
+                                        <button class="view-proof-btn text-[9px] font-black text-primary bg-white hover:bg-slate-100 px-2 py-1 rounded border border-slate-200 transition-colors uppercase tracking-widest" data-url="${p.payment_proof_url}" data-category="RUTE" data-price="${p.price}">Bukti Cash</button>
+                                    ` : ''}
+                                </div>
+                            `).join('') : '<span class="text-xs text-slate-400 italic">Tidak ada penumpang</span>'}
+                        </div>
+                    </div>
+                `;
+            } else if (task.type === 'CHARTER') {
+                bodyContent = `
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Pelanggan</span>
+                            <span class="text-xs font-black text-slate-700 block">${task.customer_name}</span>
+                            <span class="text-[10px] text-slate-400 block mt-0.5">${task.customer_phone}</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Metode Bayar / Total</span>
+                            <span class="text-xs font-black text-slate-700 block">${task.payment_method === 'cash' ? 'Tunai (Cash)' : 'Transfer (Cashless)'}</span>
+                            <span class="text-xs font-black text-primary block mt-0.5">${formatRupiah(task.price)}</span>
+                        </div>
+                    </div>
+                    ${task.payment_proof_url ? `
+                        <div class="pt-2 border-t border-slate-100 flex justify-end">
+                            <button class="view-proof-btn text-[9px] font-black text-primary bg-slate-50 hover:bg-slate-100 px-3 py-2 rounded-xl border border-slate-200 transition-colors uppercase tracking-widest" data-url="${task.payment_proof_url}" data-category="CHARTER" data-price="${task.price}">Lihat Bukti Pembayaran Cash</button>
+                        </div>
+                    ` : ''}
+                `;
+            } else if (task.type === 'PAKET') {
+                bodyContent = `
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Penerima & Alamat</span>
+                            <span class="text-xs font-black text-slate-700 block">${task.receiver_name}</span>
+                            <span class="text-[10px] text-slate-400 block mt-0.5 line-clamp-1">${task.receiver_address}</span>
+                        </div>
+                        <div>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Metode Bayar / Ongkir</span>
+                            <span class="text-xs font-black text-slate-700 block">${task.payment_method === 'cash' ? 'Tunai (Cash)' : 'Transfer (Cashless)'}</span>
+                            <span class="text-xs font-black text-primary block mt-0.5">${formatRupiah(task.price)}</span>
+                        </div>
+                    </div>
+                    ${task.payment_proof_url ? `
+                        <div class="pt-2 border-t border-slate-100 flex justify-end">
+                            <button class="view-proof-btn text-[9px] font-black text-primary bg-slate-50 hover:bg-slate-100 px-3 py-2 rounded-xl border border-slate-200 transition-colors uppercase tracking-widest" data-url="${task.payment_proof_url}" data-category="PAKET" data-price="${task.price}">Lihat Bukti Penagihan Cash</button>
+                        </div>
+                    ` : ''}
+                `;
+            }
+
+            card.innerHTML = `
+                <div class="flex justify-between items-start gap-4">
+                    <div class="flex flex-col gap-1">
+                        <div class="flex items-center gap-2">
+                            ${typeBadge}
+                            <span class="text-xs font-black text-slate-800">${task.title}</span>
+                        </div>
+                        <span class="text-[10px] font-medium text-slate-400 mt-1 flex items-center gap-1.5">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                            ${formatTanggal(task.date)}
+                        </span>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-[10px] font-black text-slate-400 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded">
+                            ${task.plate}
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="pt-3 border-t border-slate-100 flex flex-col gap-3">
+                    ${bodyContent}
+                </div>
+            `;
+            
+            tasksContainer.appendChild(card);
+        });
+
+        // Set info text
+        paginationInfo.textContent = `Menampilkan ${startIndex + 1}-${endIndex} dari ${totalItems} tugas`;
+
+        // Update button states
+        btnPrev.disabled = currentPage === 1;
+        btnNext.disabled = currentPage === totalPages;
+
+        // Render page numbers
+        pageNumbersContainer.innerHTML = '';
+        for (let i = 1; i <= totalPages; i++) {
+            const pageBtn = document.createElement('button');
+            pageBtn.className = `w-8 h-8 rounded-xl text-xs font-black transition-all ${currentPage === i ? 'bg-[#044751] text-white shadow-md shadow-primary/20' : 'border border-slate-200 text-slate-600 hover:bg-slate-50'}`;
+            pageBtn.textContent = i;
+            pageBtn.addEventListener('click', () => {
+                currentPage = i;
+                renderTasks();
+            });
+            pageNumbersContainer.appendChild(pageBtn);
+        }
+
+        // Attach event listeners to newly rendered modal trigger buttons
+        const viewProofBtns = document.querySelectorAll('.view-proof-btn');
+        viewProofBtns.forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const button = e.currentTarget;
+                const url = button.getAttribute('data-url');
+                const category = button.getAttribute('data-category');
+                const price = button.getAttribute('data-price');
+                
+                modalImage.src = url;
+                modalCategory.textContent = category;
+                modalPrice.textContent = formatRupiah(Number(price));
+                
+                paymentModal.classList.remove('hidden');
+                paymentModal.classList.add('flex');
+            });
+        });
+    }
+
+    // Modal Close
+    closeModalBtn.addEventListener('click', () => {
+        paymentModal.classList.add('hidden');
+        paymentModal.classList.remove('flex');
+    });
+
+    paymentModal.addEventListener('click', (e) => {
+        if (e.target === paymentModal) {
+            paymentModal.classList.add('hidden');
+            paymentModal.classList.remove('flex');
+        }
+    });
+
+    // Setup Prev/Next Buttons Click
+    btnPrev.addEventListener('click', () => {
+        if (currentPage > 1) {
+            currentPage--;
+            renderTasks();
+        }
+    });
+
+    btnNext.addEventListener('click', () => {
+        const totalPages = Math.ceil(filteredTasks.length / itemsPerPage);
+        if (currentPage < totalPages) {
+            currentPage++;
+            renderTasks();
+        }
+    });
+
+    // Initial render
+    applyFilter();
+</script>

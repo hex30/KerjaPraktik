@@ -81,6 +81,20 @@ export const driverService = {
     }
   },
 
+  // Mengambil riwayat tugas supir (yang sudah selesai)
+  async getSchedulesHistory(token?: string): Promise<DriverSchedule[]> {
+    try {
+      const headers: Record<string, string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      
+      const response = await apiFetch('/api/driver/schedules?history=true', { method: 'GET', headers });
+      return response?.data || [];
+    } catch (error) {
+      console.error("Gagal mengambil riwayat tugas driver:", error);
+      return [];
+    }
+  },
+
   // Mengambil daftar seluruh armada mobil
   async getFleets(token?: string): Promise<any[]> {
     try {
