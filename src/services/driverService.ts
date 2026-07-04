@@ -79,5 +79,19 @@ export const driverService = {
       console.error("Gagal update status penumpang:", error);
       throw error;
     }
+  },
+
+  // Mengambil daftar seluruh armada mobil
+  async getFleets(token?: string): Promise<any[]> {
+    try {
+      const headers: Record<string, string> = {};
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      
+      const response = await apiFetch('/api/driver/fleets', { method: 'GET', headers });
+      return response?.data || [];
+    } catch (error) {
+      console.error("Gagal mengambil daftar armada:", error);
+      return [];
+    }
   }
 };
