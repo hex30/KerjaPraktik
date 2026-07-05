@@ -85,7 +85,7 @@ const { promoData = emptyPromo } = Astro.props;
 
             <!-- Main CTA Button -->
             <a
-                href="/services/route"
+                href={promoData.btnLink || "/services"}
                 class="relative w-full py-6 rounded-[2rem] overflow-hidden flex items-center justify-center gap-3 font-main font-bold text-lg text-white shadow-md group border border-sky-100/50 transition-all hover:shadow-xl hover:-translate-y-1"
             >
                 <div class="absolute inset-0 z-0 bg-btn-linear">
@@ -96,7 +96,7 @@ const { promoData = emptyPromo } = Astro.props;
                 </div>
                 <span
                     class="relative z-10 transition-transform duration-300 group-hover:translate-x-[-4px]"
-                    >Pesan Tiket Sekarang</span
+                    >{promoData.btnText || "Pesan Tiket Sekarang"}</span
                 >
                 <svg
                     xmlns="http://www.w3.org/2000/svg"

@@ -1,140 +1,220 @@
 ---
 // File: src/pages/user/booking-history.astro
-import Layout from '@layouts/MainLayout.astro';
-import OrderItem from '@features/user/OrderItem.astro';
-import PaymentPopup from '@features/user/PaymentPopup.astro';
-import { userService } from '@services/userService';
+import Layout from "@layouts/MainLayout.astro";
+import OrderItem from "@features/user/OrderItem.astro";
+import PaymentPopup from "@features/user/PaymentPopup.astro";
+import { userService } from "@services/userService";
 
 // Terapkan AuthGuard & ambil data secara SSR
-const token = Astro.cookies.get('token')?.value || '';
+const token = Astro.cookies.get("token")?.value || "";
 const orderHistory = await userService.getUserHistory(token);
-
 ---
 
 <Layout title="Riwayat Pesanan | Rini Trans Putri">
-    
     <section class="py-12 bg-slate-50 min-h-screen font-main">
         <div class="max-w-5xl mx-auto px-6">
-            
-            <header class="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <header
+                class="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-4"
+            >
                 <div>
-                    <h1 class="text-3xl font-black text-primary tracking-tight mb-2">Riwayat Pesanan</h1>
-                    <p class="font-secondary text-sm text-text-secondary">Pantau status persetujuan tiket dan pengiriman paket Anda secara real-time.</p>
+                    <h1
+                        class="text-3xl font-black text-primary tracking-tight mb-2"
+                    >
+                        Riwayat Pesanan
+                    </h1>
+                    <p class="font-secondary text-sm text-text-secondary">
+                        Pantau status persetujuan tiket dan pengiriman paket
+                        Anda secara real-time.
+                    </p>
                 </div>
-                
-                <div class="flex gap-2 bg-white p-1.5 rounded-xl border border-slate-200 w-max text-xs font-bold font-secondary shadow-xs" id="filter-buttons">
-                    <button class="px-4 py-2 bg-primary text-white rounded-lg filter-btn" data-filter="all">Semua</button>
-                    <button class="px-4 py-2 text-text-secondary hover:bg-slate-100 rounded-lg filter-btn" data-filter="menunggu">Menunggu</button>
-                    <button class="px-4 py-2 text-text-secondary hover:bg-slate-100 rounded-lg filter-btn" data-filter="selesai">Selesai</button>
+
+                <div
+                    class="flex gap-2 bg-white p-1.5 rounded-xl border border-slate-200 w-max text-xs font-bold font-secondary shadow-xs"
+                    id="filter-buttons"
+                >
+                    <button
+                        class="px-4 py-2 bg-primary text-white rounded-lg filter-btn"
+                        data-filter="all">Semua</button
+                    >
+                    <button
+                        class="px-4 py-2 text-text-secondary hover:bg-slate-100 rounded-lg filter-btn"
+                        data-filter="menunggu">Menunggu</button
+                    >
+                    <button
+                        class="px-4 py-2 text-text-secondary hover:bg-slate-100 rounded-lg filter-btn"
+                        data-filter="selesai">Selesai</button
+                    >
                 </div>
             </header>
 
-            {orderHistory.length === 0 ? (
-                <div class="bg-white border border-slate-100 rounded-[1.5rem] p-12 text-center shadow-xs">
-                    <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <svg class="w-10 h-10 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    </div>
-                    <h3 class="text-lg font-bold text-slate-700 mb-2">Belum Ada Pesanan</h3>
-                    <p class="text-slate-400 text-sm font-secondary">Anda belum pernah melakukan pemesanan tiket, charter, maupun paket. Yuk mulai perjalanan pertama Anda!</p>
-                    <a href="/services" class="inline-block mt-6 px-6 py-2.5 bg-primary text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all">Pesan Sekarang</a>
-                </div>
-            ) : (
-                <div class="flex flex-col gap-6" id="history-list">
-                    {orderHistory.map((order) => (
-                        <div class="history-item transition-all duration-300" data-status={order.status.toLowerCase()}>
-                            <OrderItem order={order} />
+            {
+                orderHistory.length === 0 ? (
+                    <div class="bg-white border border-slate-100 rounded-[1.5rem] p-12 text-center shadow-xs">
+                        <div class="w-20 h-20 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg
+                                class="w-10 h-10 text-slate-300"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                            >
+                                <path
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    stroke-width="2"
+                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                                />
+                            </svg>
                         </div>
-                    ))}
-                </div>
-            )}
-
-            <footer class="mt-12 text-center">
-                <p class="font-secondary text-xs text-slate-400 leading-relaxed">
-                    Pesanan Anda belum berubah status dalam 1x24 jam? <br />
-                    Silakan hubungi admin via <a href="#" class="text-sky-500 font-bold hover:underline">WhatsApp CS Kami</a> untuk konfirmasi kilat.
-                </p>
-            </footer>
-
+                        <h3 class="text-lg font-bold text-slate-700 mb-2">
+                            Belum Ada Pesanan
+                        </h3>
+                        <p class="text-slate-400 text-sm font-secondary">
+                            Anda belum pernah melakukan pemesanan tiket,
+                            charter, maupun paket. Yuk mulai perjalanan pertama
+                            Anda!
+                        </p>
+                        <a
+                            href="/services"
+                            class="inline-block mt-6 px-6 py-2.5 bg-primary text-white rounded-xl text-sm font-bold shadow-md hover:shadow-lg transition-all"
+                        >
+                            Pesan Sekarang
+                        </a>
+                    </div>
+                ) : (
+                    <div class="flex flex-col gap-6" id="history-list">
+                        {orderHistory.map((order) => (
+                            <div
+                                class="history-item transition-all duration-300"
+                                data-status={order.status.toLowerCase()}
+                            >
+                                <OrderItem order={order} />
+                            </div>
+                        ))}
+                    </div>
+                )
+            }
         </div>
     </section>
 
     <PaymentPopup />
-
 </Layout>
 
 <script>
-    import { apiFetch } from '../../services/api';
+    import { apiFetch } from "../../services/api";
 
     declare global {
         interface Window {
-            showFeedbackModal: (type: string, title: string, message: string, redirectUrl?: string | null) => void;
-            showConfirmModal: (title: string, message: string, type?: string) => Promise<boolean>;
+            showFeedbackModal: (
+                type: string,
+                title: string,
+                message: string,
+                redirectUrl?: string | null,
+            ) => void;
+            showConfirmModal: (
+                title: string,
+                message: string,
+                type?: string,
+            ) => Promise<boolean>;
         }
     }
-    
-    (window as any).selectPaymentMethod = async (orderId: string, type: string, method: string) => {
-        const methodName = method === 'cash' ? 'Tunai (Bayar di Tempat)' : 'Transfer (QRIS)';
+
+    (window as any).selectPaymentMethod = async (
+        orderId: string,
+        type: string,
+        method: string,
+    ) => {
+        const methodName =
+            method === "cash" ? "Tunai (Bayar di Tempat)" : "Transfer (QRIS)";
         const confirmed = await window.showConfirmModal(
-            'Konfirmasi Metode Pembayaran', 
-            `Apakah Anda yakin memilih metode pembayaran ${methodName}? Pilihan ini tidak dapat diubah.`
+            "Konfirmasi Metode Pembayaran",
+            `Apakah Anda yakin memilih metode pembayaran ${methodName}? Pilihan ini tidak dapat diubah.`,
         );
 
         if (!confirmed) return;
 
         try {
-            const token = localStorage.getItem('jwt_token') || document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
-            let endpoint = '';
-            if (type === 'travel') endpoint = `/api/travel/bookings/${orderId}/payment-method`;
-            else if (type === 'package') endpoint = `/api/packages/bookings/${orderId}/payment-method`;
+            const token =
+                localStorage.getItem("jwt_token") ||
+                document.cookie
+                    .split("; ")
+                    .find((row) => row.startsWith("token="))
+                    ?.split("=")[1];
+            let endpoint = "";
+            if (type === "travel")
+                endpoint = `/api/travel/bookings/${orderId}/payment-method`;
+            else if (type === "package")
+                endpoint = `/api/packages/bookings/${orderId}/payment-method`;
             else endpoint = `/api/charter/request/${orderId}/payment-method`;
             await apiFetch(endpoint, {
-                method: 'PUT',
-                body: JSON.stringify({ payment_method: method })
+                method: "PUT",
+                body: JSON.stringify({ payment_method: method }),
             });
 
-            if (method === 'cash') {
-                window.showFeedbackModal('success', 'Berhasil', 'Terima kasih banyak! Silakan bayarkan uang Anda saat sudah dijemput oleh driver.', window.location.href);
+            if (method === "cash") {
+                window.showFeedbackModal(
+                    "success",
+                    "Berhasil",
+                    "Terima kasih banyak! Silakan bayarkan uang Anda saat sudah dijemput oleh driver.",
+                    window.location.href,
+                );
             } else {
                 window.location.reload();
             }
         } catch (error: any) {
-            console.error('Error selecting payment method:', error);
-            window.showFeedbackModal('error', 'Gagal', `Gagal: ${error.message || 'Terjadi kesalahan'}`);
+            console.error("Error selecting payment method:", error);
+            window.showFeedbackModal(
+                "error",
+                "Gagal",
+                `Gagal: ${error.message || "Terjadi kesalahan"}`,
+            );
         }
     };
 
     // --- FILTER LOGIC ---
-    document.addEventListener('DOMContentLoaded', () => {
-        const buttons = document.querySelectorAll('.filter-btn');
-        const items = document.querySelectorAll('.history-item');
+    document.addEventListener("DOMContentLoaded", () => {
+        const buttons = document.querySelectorAll(".filter-btn");
+        const items = document.querySelectorAll(".history-item");
 
-        buttons.forEach(btn => {
-            btn.addEventListener('click', () => {
+        buttons.forEach((btn) => {
+            btn.addEventListener("click", () => {
                 // Update styling active button
-                buttons.forEach(b => {
-                    b.classList.remove('bg-primary', 'text-white');
-                    b.classList.add('text-text-secondary', 'hover:bg-slate-100');
+                buttons.forEach((b) => {
+                    b.classList.remove("bg-primary", "text-white");
+                    b.classList.add(
+                        "text-text-secondary",
+                        "hover:bg-slate-100",
+                    );
                 });
-                btn.classList.remove('text-text-secondary', 'hover:bg-slate-100');
-                btn.classList.add('bg-primary', 'text-white');
+                btn.classList.remove(
+                    "text-text-secondary",
+                    "hover:bg-slate-100",
+                );
+                btn.classList.add("bg-primary", "text-white");
 
-                const filterValue = btn.getAttribute('data-filter');
+                const filterValue = btn.getAttribute("data-filter");
 
-                items.forEach(item => {
-                    const status = item.getAttribute('data-status') || '';
-                    if (filterValue === 'all') {
-                        item.classList.remove('hidden');
-                    } else if (filterValue === 'menunggu') {
-                        if (status.includes('menunggu') || status === 'pending') {
-                            item.classList.remove('hidden');
+                items.forEach((item) => {
+                    const status = item.getAttribute("data-status") || "";
+                    if (filterValue === "all") {
+                        item.classList.remove("hidden");
+                    } else if (filterValue === "menunggu") {
+                        if (
+                            status.includes("menunggu") ||
+                            status === "pending"
+                        ) {
+                            item.classList.remove("hidden");
                         } else {
-                            item.classList.add('hidden');
+                            item.classList.add("hidden");
                         }
-                    } else if (filterValue === 'selesai') {
-                        if (status === 'selesai' || status === 'completed' || status === 'approved') {
-                            item.classList.remove('hidden');
+                    } else if (filterValue === "selesai") {
+                        if (
+                            status === "selesai" ||
+                            status === "completed" ||
+                            status === "approved"
+                        ) {
+                            item.classList.remove("hidden");
                         } else {
-                            item.classList.add('hidden');
+                            item.classList.add("hidden");
                         }
                     }
                 });
@@ -144,90 +224,127 @@ const orderHistory = await userService.getUserHistory(token);
         // -------------------------------------------------------------
         // LOGIKA PEMBATALAN & PENGHAPUSAN PESANAN
         // -------------------------------------------------------------
-        
+
         // 1. Batalkan Pesanan
-        document.querySelectorAll('.btn-action-cancel').forEach((btn) => {
-            btn.addEventListener('click', async (e) => {
+        document.querySelectorAll(".btn-action-cancel").forEach((btn) => {
+            btn.addEventListener("click", async (e) => {
                 const target = e.currentTarget as HTMLButtonElement;
-                const orderId = target.getAttribute('data-order-id');
-                const orderType = target.getAttribute('data-order-type'); // travel, charter, package
-                
+                const orderId = target.getAttribute("data-order-id");
+                const orderType = target.getAttribute("data-order-type"); // travel, charter, package
+
                 if (!orderId || !orderType) return;
 
-                const confirmed = await window.showConfirmModal('Batalkan Pesanan?', 'Pesanan yang dibatalkan tidak dapat dikembalikan. Apakah Anda yakin?');
+                const confirmed = await window.showConfirmModal(
+                    "Batalkan Pesanan?",
+                    "Pesanan yang dibatalkan tidak dapat dikembalikan. Apakah Anda yakin?",
+                );
 
                 if (confirmed) {
                     try {
-                        const token = localStorage.getItem('jwt_token') || document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
-                        if (!token) throw new Error("Token tidak ditemukan. Silakan login ulang.");
-                        
+                        const token =
+                            localStorage.getItem("jwt_token") ||
+                            document.cookie
+                                .split("; ")
+                                .find((row) => row.startsWith("token="))
+                                ?.split("=")[1];
+                        if (!token)
+                            throw new Error(
+                                "Token tidak ditemukan. Silakan login ulang.",
+                            );
+
                         // Menentukan Endpoint Berdasarkan Tipe
                         // Sesuai instruksi, kita membuat rute ini untuk travel, tapi fleksibel untuk tipe lain
-                        let endpoint = '';
-                        if (orderType === 'package') {
+                        let endpoint = "";
+                        if (orderType === "package") {
                             endpoint = `/api/packages/bookings/${orderId}/cancel`;
                         } else {
                             endpoint = `/api/${orderType}/bookings/${orderId}/cancel`;
                         }
                         await apiFetch(endpoint, {
-                            method: 'PUT'
+                            method: "PUT",
                         });
-                        
-                        window.showFeedbackModal('success', 'Berhasil', 'Dibatalkan! Pesanan Anda berhasil dibatalkan.', window.location.href);
+
+                        window.showFeedbackModal(
+                            "success",
+                            "Berhasil",
+                            "Dibatalkan! Pesanan Anda berhasil dibatalkan.",
+                            window.location.href,
+                        );
                     } catch (error: any) {
-                        window.showFeedbackModal('error', 'Gagal', `Gagal! ${error.message}`);
+                        window.showFeedbackModal(
+                            "error",
+                            "Gagal",
+                            `Gagal! ${error.message}`,
+                        );
                     }
                 }
             });
         });
 
         // 2. Hapus Riwayat
-        document.querySelectorAll('.btn-action-delete').forEach((btn) => {
-            btn.addEventListener('click', async (e) => {
+        document.querySelectorAll(".btn-action-delete").forEach((btn) => {
+            btn.addEventListener("click", async (e) => {
                 const target = e.currentTarget as HTMLButtonElement;
-                const orderId = target.getAttribute('data-order-id');
-                const orderType = target.getAttribute('data-order-type'); 
-                
+                const orderId = target.getAttribute("data-order-id");
+                const orderType = target.getAttribute("data-order-type");
+
                 if (!orderId || !orderType) return;
 
-                const confirmed = await window.showConfirmModal('Hapus Riwayat?', 'Perhatian! Aksi ini akan menghapus riwayat pesanan ini dari tampilan Anda (Histori pesanan akan tetap tersimpan di sistem admin). Lanjutkan?', 'danger');
+                const confirmed = await window.showConfirmModal(
+                    "Hapus Riwayat?",
+                    "Perhatian! Aksi ini akan menghapus riwayat pesanan ini dari tampilan Anda (Histori pesanan akan tetap tersimpan di sistem admin). Lanjutkan?",
+                    "danger",
+                );
 
                 if (confirmed) {
                     try {
-                        const token = localStorage.getItem('jwt_token') || document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+                        const token =
+                            localStorage.getItem("jwt_token") ||
+                            document.cookie
+                                .split("; ")
+                                .find((row) => row.startsWith("token="))
+                                ?.split("=")[1];
                         if (!token) throw new Error("Token tidak ditemukan.");
-                        
-                        let endpoint = '';
-                        if (orderType === 'package') {
+
+                        let endpoint = "";
+                        if (orderType === "package") {
                             endpoint = `/api/packages/bookings/${orderId}`;
                         } else {
                             endpoint = `/api/${orderType}/bookings/${orderId}`;
                         }
-                        const beHost = import.meta.env.PUBLIC_API_URL || 'http://localhost:5000';
-                        
+                        const beHost =
+                            import.meta.env.PUBLIC_API_URL ||
+                            "http://localhost:5000";
+
                         const res = await fetch(`${beHost}${endpoint}`, {
-                            method: 'DELETE',
+                            method: "DELETE",
                             headers: {
-                                'Authorization': `Bearer ${token}`
-                            }
+                                Authorization: `Bearer ${token}`,
+                            },
                         });
-                        
+
                         if (!res.ok) {
                             const errData = await res.json().catch(() => ({}));
-                            throw new Error(errData.message || "Gagal menghapus pesanan. Terjadi kesalahan pada server.");
-                        }                   
-                        window.showFeedbackModal('success', 'Terhapus', 'Riwayat pesanan telah dihapus dari tampilan Anda.', window.location.href);
+                            throw new Error(
+                                errData.message ||
+                                    "Gagal menghapus pesanan. Terjadi kesalahan pada server.",
+                            );
+                        }
+                        window.showFeedbackModal(
+                            "success",
+                            "Terhapus",
+                            "Riwayat pesanan telah dihapus dari tampilan Anda.",
+                            window.location.href,
+                        );
                     } catch (error: any) {
-                        window.showFeedbackModal('error', 'Gagal', `Gagal! ${error.message}`);
+                        window.showFeedbackModal(
+                            "error",
+                            "Gagal",
+                            `Gagal! ${error.message}`,
+                        );
                     }
                 }
             });
         });
     });
 </script>
-
-
-
-
-
-
