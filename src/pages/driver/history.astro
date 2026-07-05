@@ -33,16 +33,18 @@ rawTasks.forEach((t: any) => {
         });
     } else {
         // RUTE
-        allHistoryTasks.push({
-            id: t.id,
-            type: 'RUTE',
-            title: `${t.origin} - ${t.destination}`,
-            date: t.departure_time,
-            plate: t.plate_number || 'Tidak Ada Plat',
-            car: t.car_type || 'Armada Rute',
-            passengers_count: t.passengers?.length || 0,
-            passengers: t.passengers || []
-        });
+        if (t.route_id || (t.passengers && t.passengers.length > 0)) {
+            allHistoryTasks.push({
+                id: t.id,
+                type: 'RUTE',
+                title: `${t.origin} - ${t.destination}`,
+                date: t.departure_time,
+                plate: t.plate_number || 'Tidak Ada Plat',
+                car: t.car_type || 'Armada Rute',
+                passengers_count: t.passengers?.length || 0,
+                passengers: t.passengers || []
+            });
+        }
         
         // Ekstrak paket dari jadwal rute ini
         t.packages?.forEach((p: any) => {
