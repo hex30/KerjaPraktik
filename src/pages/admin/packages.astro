@@ -3,134 +3,190 @@
 import AdminLayout from "@layouts/AdminLayout.astro";
 import PackageRow from "@features/admin/bookings/PackageRow.astro";
 import PaymentPreviewModal from "@features/admin/bookings/PaymentPreviewModal.astro";
+import AdminPageHeader from "@features/admin/shared/AdminPageHeader.astro";
 import { adminBookingService } from "@services/adminBookingService";
 
-const token = Astro.cookies.get('token')?.value;
+const token = Astro.cookies.get("token")?.value;
 
 const [packageData, rawFleets] = await Promise.all([
     adminBookingService.getPackageShipments(token),
-    adminBookingService.getMasterFleets(token)
+    adminBookingService.getMasterFleets(token),
 ]);
 
 const fleetsData = rawFleets
-    .filter(f => f.type?.toLowerCase().includes('elf') || f.type?.toLowerCase().includes('luxio'))
+    .filter(
+        (f) =>
+            f.type?.toLowerCase().includes("elf") ||
+            f.type?.toLowerCase().includes("luxio"),
+    )
     .sort((a, b) => {
-        const aType = a.type?.toLowerCase() || '';
-        const bType = b.type?.toLowerCase() || '';
-        if (aType.includes('elf') && !bType.includes('elf')) return -1;
-        if (!aType.includes('elf') && bType.includes('elf')) return 1;
+        const aType = a.type?.toLowerCase() || "";
+        const bType = b.type?.toLowerCase() || "";
+        if (aType.includes("elf") && !bType.includes("elf")) return -1;
+        if (!aType.includes("elf") && bType.includes("elf")) return 1;
         return 0;
     });
 
 const activePackages = packageData.filter((item: any) => {
-    const isCash = item.payment_method === 'cash';
-    const isConfirm = item.transaction_status?.toLowerCase() === 'menunggu_konfirmasi';
-    const isPay = item.transaction_status?.toLowerCase() === 'menunggu_pembayaran';
+    const isCash = item.payment_method === "cash";
+    const isConfirm =
+        item.transaction_status?.toLowerCase() === "menunggu_konfirmasi";
+    const isPay =
+        item.transaction_status?.toLowerCase() === "menunggu_pembayaran";
     const hasPrice = !!item.price;
-    return (isConfirm && !item.payment_proof_url && !isCash) || (isPay && !isCash) || (isCash && !hasPrice);
+    return (
+        (isConfirm && !item.payment_proof_url && !isCash) ||
+        (isPay && !isCash) ||
+        (isCash && !hasPrice)
+    );
 });
 const validationPackages = packageData.filter((item: any) => {
-    const isCash = item.payment_method === 'cash';
-    const isConfirm = item.transaction_status?.toLowerCase() === 'menunggu_konfirmasi';
-    const isPay = item.transaction_status?.toLowerCase() === 'menunggu_pembayaran';
+    const isCash = item.payment_method === "cash";
+    const isConfirm =
+        item.transaction_status?.toLowerCase() === "menunggu_konfirmasi";
+    const isPay =
+        item.transaction_status?.toLowerCase() === "menunggu_pembayaran";
     const hasPrice = !!item.price;
-    return (isConfirm && !!item.payment_proof_url) || (isCash && hasPrice && (isConfirm || isPay));
+    return (
+        (isConfirm && !!item.payment_proof_url) ||
+        (isCash && hasPrice && (isConfirm || isPay))
+    );
 });
-const cancelledPackages = packageData.filter((item: any) => ['dibatalkan', 'ditolak', 'cancelled'].includes(item.status?.toLowerCase()));
-const completedPackages = packageData.filter((item: any) => ['delivered'].includes(item.status?.toLowerCase()));
-
+const cancelledPackages = packageData.filter((item: any) =>
+    ["dibatalkan", "ditolak", "cancelled"].includes(item.status?.toLowerCase()),
+);
+const completedPackages = packageData.filter((item: any) =>
+    ["delivered"].includes(item.status?.toLowerCase()),
+);
 ---
 
 <AdminLayout title="Manajemen Paket">
-    <section class="mb-8">
-        <div class="flex items-center justify-between">
-            <div>
-                <h2 class="text-2xl font-black text-slate-900 tracking-tight">Data Penitipan Paket</h2>
-                <p class="text-sm text-slate-500 font-secondary mt-1">Kelola daftar kiriman barang kilat dari pelanggan.</p>
-            </div>
-            <div class="bg-white border border-slate-100 rounded-lg px-3 py-1.5 text-[10px] font-bold text-slate-400 shadow-sm">
-                TOTAL: {packageData.length} Antrean
-            </div>
-        </div>
-    </section>
+    <AdminPageHeader 
+        title="Data Penitipan Paket"
+        description="Kelola daftar kiriman barang kilat dari pelanggan."
+    />
 
-    <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
+    <div
+        class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden"
+    >
         <!-- Tabs Header -->
-        <div class="flex border-b border-slate-100 bg-slate-50/50 p-2 gap-2 overflow-x-auto scrollbar-hide">
-            <button class="tab-btn active px-6 py-3 rounded-2xl text-sm font-bold transition-all whitespace-nowrap bg-white text-primary shadow-sm border border-slate-100" data-target="tab-active">
+        <div
+            class="flex border-b border-slate-100 bg-slate-50/50 p-2 gap-2 overflow-x-auto scrollbar-hide"
+        >
+            <button
+                class="tab-btn active px-6 py-3 rounded-2xl text-sm font-bold transition-all whitespace-nowrap bg-white text-primary shadow-sm border border-slate-100"
+                data-target="tab-active"
+            >
                 Antrean Aktif
-                <span class="ml-2 px-2 py-0.5 bg-amber-100 text-amber-600 rounded-full text-[10px]">{activePackages.length}</span>
+                <span
+                    class="ml-2 px-2 py-0.5 bg-amber-100 text-amber-600 rounded-full text-[10px]"
+                    >{activePackages.length}</span
+                >
             </button>
-            <button class="tab-btn px-6 py-3 rounded-2xl text-sm font-bold text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-all whitespace-nowrap" data-target="tab-validation">
+            <button
+                class="tab-btn px-6 py-3 rounded-2xl text-sm font-bold text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-all whitespace-nowrap"
+                data-target="tab-validation"
+            >
                 Membutuhkan Validasi
-                <span class="ml-2 px-2 py-0.5 bg-slate-200 text-slate-600 rounded-full text-[10px]">{validationPackages.length}</span>
+                <span
+                    class="ml-2 px-2 py-0.5 bg-slate-200 text-slate-600 rounded-full text-[10px]"
+                    >{validationPackages.length}</span
+                >
             </button>
-            <button class="tab-btn px-6 py-3 rounded-2xl text-sm font-bold text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-all whitespace-nowrap" data-target="tab-cancelled">
+            <button
+                class="tab-btn px-6 py-3 rounded-2xl text-sm font-bold text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-all whitespace-nowrap"
+                data-target="tab-cancelled"
+            >
                 Pesanan Dibatalkan
-                <span class="ml-2 px-2 py-0.5 bg-slate-200 text-slate-600 rounded-full text-[10px]">{cancelledPackages.length}</span>
+                <span
+                    class="ml-2 px-2 py-0.5 bg-slate-200 text-slate-600 rounded-full text-[10px]"
+                    >{cancelledPackages.length}</span
+                >
             </button>
-            <button class="tab-btn px-6 py-3 rounded-2xl text-sm font-bold text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-all whitespace-nowrap" data-target="tab-completed">
+            <button
+                class="tab-btn px-6 py-3 rounded-2xl text-sm font-bold text-slate-500 hover:bg-slate-100 hover:text-slate-700 transition-all whitespace-nowrap"
+                data-target="tab-completed"
+            >
                 Riwayat Selesai
-                <span class="ml-2 px-2 py-0.5 bg-slate-200 text-slate-600 rounded-full text-[10px]">{completedPackages.length}</span>
+                <span
+                    class="ml-2 px-2 py-0.5 bg-slate-200 text-slate-600 rounded-full text-[10px]"
+                    >{completedPackages.length}</span
+                >
             </button>
         </div>
 
         <!-- Tabs Content -->
         <div class="p-6 md:p-8">
             <div id="tab-active" class="tab-content">
-                {activePackages.length === 0 ? (
-                    <div class="text-center py-12">
-                        <p class="text-slate-400 font-bold text-sm">Tidak ada antrean paket aktif saat ini.</p>
-                    </div>
-                ) : (
-                    <div class="flex flex-col">
-                        {activePackages.map((pkg: any) => (
-                            <PackageRow pkg={pkg} fleetsData={fleetsData} />
-                        ))}
-                    </div>
-                )}
+                {
+                    activePackages.length === 0 ? (
+                        <div class="text-center py-12">
+                            <p class="text-slate-400 font-bold text-sm">
+                                Tidak ada antrean paket aktif saat ini.
+                            </p>
+                        </div>
+                    ) : (
+                        <div class="flex flex-col">
+                            {activePackages.map((pkg: any) => (
+                                <PackageRow pkg={pkg} fleetsData={fleetsData} />
+                            ))}
+                        </div>
+                    )
+                }
             </div>
 
             <div id="tab-validation" class="tab-content hidden">
-                {validationPackages.length === 0 ? (
-                    <div class="text-center py-12">
-                        <p class="text-slate-400 font-bold text-sm">Tidak ada pesanan yang butuh validasi saat ini.</p>
-                    </div>
-                ) : (
-                    <div class="flex flex-col">
-                        {validationPackages.map((pkg: any) => (
-                            <PackageRow pkg={pkg} fleetsData={fleetsData} />
-                        ))}
-                    </div>
-                )}
+                {
+                    validationPackages.length === 0 ? (
+                        <div class="text-center py-12">
+                            <p class="text-slate-400 font-bold text-sm">
+                                Tidak ada pesanan yang butuh validasi saat ini.
+                            </p>
+                        </div>
+                    ) : (
+                        <div class="flex flex-col">
+                            {validationPackages.map((pkg: any) => (
+                                <PackageRow pkg={pkg} fleetsData={fleetsData} />
+                            ))}
+                        </div>
+                    )
+                }
             </div>
 
             <div id="tab-cancelled" class="tab-content hidden">
-                {cancelledPackages.length === 0 ? (
-                    <div class="text-center py-12">
-                        <p class="text-slate-400 font-bold text-sm">Belum ada pesanan dibatalkan.</p>
-                    </div>
-                ) : (
-                    <div class="flex flex-col">
-                        {cancelledPackages.map((pkg: any) => (
-                            <PackageRow pkg={pkg} fleetsData={fleetsData} />
-                        ))}
-                    </div>
-                )}
+                {
+                    cancelledPackages.length === 0 ? (
+                        <div class="text-center py-12">
+                            <p class="text-slate-400 font-bold text-sm">
+                                Belum ada pesanan dibatalkan.
+                            </p>
+                        </div>
+                    ) : (
+                        <div class="flex flex-col">
+                            {cancelledPackages.map((pkg: any) => (
+                                <PackageRow pkg={pkg} fleetsData={fleetsData} />
+                            ))}
+                        </div>
+                    )
+                }
             </div>
 
             <div id="tab-completed" class="tab-content hidden">
-                {completedPackages.length === 0 ? (
-                    <div class="text-center py-12">
-                        <p class="text-slate-400 font-bold text-sm">Belum ada riwayat pengiriman selesai.</p>
-                    </div>
-                ) : (
-                    <div class="flex flex-col">
-                        {completedPackages.map((pkg: any) => (
-                            <PackageRow pkg={pkg} fleetsData={fleetsData} />
-                        ))}
-                    </div>
-                )}
+                {
+                    completedPackages.length === 0 ? (
+                        <div class="text-center py-12">
+                            <p class="text-slate-400 font-bold text-sm">
+                                Belum ada riwayat pengiriman selesai.
+                            </p>
+                        </div>
+                    ) : (
+                        <div class="flex flex-col">
+                            {completedPackages.map((pkg: any) => (
+                                <PackageRow pkg={pkg} fleetsData={fleetsData} />
+                            ))}
+                        </div>
+                    )
+                }
             </div>
         </div>
         <PaymentPreviewModal />
@@ -138,71 +194,98 @@ const completedPackages = packageData.filter((item: any) => ['delivered'].includ
 </AdminLayout>
 
 <script>
-    import { apiFetch } from '../../services/api';
+    import { apiFetch } from "../../services/api";
 
     const setupTabs = () => {
-        const btns = document.querySelectorAll('.tab-btn');
-        const contents = document.querySelectorAll('.tab-content');
+        const btns = document.querySelectorAll(".tab-btn");
+        const contents = document.querySelectorAll(".tab-content");
 
-        btns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const target = btn.getAttribute('data-target');
+        btns.forEach((btn) => {
+            btn.addEventListener("click", () => {
+                const target = btn.getAttribute("data-target");
 
-                btns.forEach(b => {
-                    b.classList.remove('active', 'bg-white', 'text-primary', 'shadow-sm', 'border', 'border-slate-100');
-                    b.classList.add('text-slate-500', 'hover:bg-slate-100', 'hover:text-slate-700');
-                    const badge = b.querySelector('span');
-                    if(badge) {
-                        badge.classList.remove('bg-amber-100', 'text-amber-600');
-                        badge.classList.add('bg-slate-200', 'text-slate-600');
+                btns.forEach((b) => {
+                    b.classList.remove(
+                        "active",
+                        "bg-white",
+                        "text-primary",
+                        "shadow-sm",
+                        "border",
+                        "border-slate-100",
+                    );
+                    b.classList.add(
+                        "text-slate-500",
+                        "hover:bg-slate-100",
+                        "hover:text-slate-700",
+                    );
+                    const badge = b.querySelector("span");
+                    if (badge) {
+                        badge.classList.remove(
+                            "bg-amber-100",
+                            "text-amber-600",
+                        );
+                        badge.classList.add("bg-slate-200", "text-slate-600");
                     }
                 });
 
-                contents.forEach(c => c.classList.add('hidden'));
+                contents.forEach((c) => c.classList.add("hidden"));
 
-                btn.classList.add('active', 'bg-white', 'text-primary', 'shadow-sm', 'border', 'border-slate-100');
-                btn.classList.remove('text-slate-500', 'hover:bg-slate-100', 'hover:text-slate-700');
-                const badge = btn.querySelector('span');
-                if(badge) {
-                    badge.classList.add('bg-amber-100', 'text-amber-600');
-                    badge.classList.remove('bg-slate-200', 'text-slate-600');
+                btn.classList.add(
+                    "active",
+                    "bg-white",
+                    "text-primary",
+                    "shadow-sm",
+                    "border",
+                    "border-slate-100",
+                );
+                btn.classList.remove(
+                    "text-slate-500",
+                    "hover:bg-slate-100",
+                    "hover:text-slate-700",
+                );
+                const badge = btn.querySelector("span");
+                if (badge) {
+                    badge.classList.add("bg-amber-100", "text-amber-600");
+                    badge.classList.remove("bg-slate-200", "text-slate-600");
                 }
 
                 const targetContent = document.getElementById(target as string);
-                if (targetContent) targetContent.classList.remove('hidden');
+                if (targetContent) targetContent.classList.remove("hidden");
             });
         });
     };
 
     const setupPackageAccordion = () => {
-        const mainRows = document.querySelectorAll('.package-main-row');
-        
-        mainRows.forEach(row => {
-            row.addEventListener('click', () => {
+        const mainRows = document.querySelectorAll(".package-main-row");
+
+        mainRows.forEach((row) => {
+            row.addEventListener("click", () => {
                 const detailRow = row.nextElementSibling as HTMLElement;
-                const chevron = row.querySelector('.chevron-icon');
+                const chevron = row.querySelector(".chevron-icon");
                 const isOpening = !detailRow.style.maxHeight;
 
                 // Close all other rows
-                mainRows.forEach(otherRow => {
-                    const otherDetail = otherRow.nextElementSibling as HTMLElement;
-                    const otherChevron = otherRow.querySelector('.chevron-icon');
+                mainRows.forEach((otherRow) => {
+                    const otherDetail =
+                        otherRow.nextElementSibling as HTMLElement;
+                    const otherChevron =
+                        otherRow.querySelector(".chevron-icon");
                     if (otherRow !== row) {
-                        otherDetail.style.maxHeight = '';
-                        otherChevron?.classList.remove('rotate-180');
-                        otherRow.parentElement?.classList.remove('active-card');
+                        otherDetail.style.maxHeight = "";
+                        otherChevron?.classList.remove("rotate-180");
+                        otherRow.parentElement?.classList.remove("active-card");
                     }
                 });
 
                 // Toggle current row
                 if (isOpening) {
-                    detailRow.style.maxHeight = detailRow.scrollHeight + 'px';
-                    chevron?.classList.add('rotate-180');
-                    row.parentElement?.classList.add('active-card');
+                    detailRow.style.maxHeight = detailRow.scrollHeight + "px";
+                    chevron?.classList.add("rotate-180");
+                    row.parentElement?.classList.add("active-card");
                 } else {
-                    detailRow.style.maxHeight = '';
-                    chevron?.classList.remove('rotate-180');
-                    row.parentElement?.classList.remove('active-card');
+                    detailRow.style.maxHeight = "";
+                    chevron?.classList.remove("rotate-180");
+                    row.parentElement?.classList.remove("active-card");
                 }
             });
         });
@@ -210,29 +293,33 @@ const completedPackages = packageData.filter((item: any) => ['delivered'].includ
 
     const setupActionForms = () => {
         function formatRupiah(angka: string) {
-            let number_string = angka.replace(/[^,\d]/g, '').toString();
-            let split = number_string.split(',');
+            let number_string = angka.replace(/[^,\d]/g, "").toString();
+            let split = number_string.split(",");
             let sisa = split[0].length % 3;
             let rupiah = split[0].substr(0, sisa);
             let ribuan = split[0].substr(sisa).match(/\d{3}/gi);
-            if(ribuan){
-                let separator = sisa ? '.' : '';
-                rupiah += separator + ribuan.join('.');
+            if (ribuan) {
+                let separator = sisa ? "." : "";
+                rupiah += separator + ribuan.join(".");
             }
-            return rupiah ? (split[1] != undefined ? rupiah + ',' + split[1] : rupiah) : '';
+            return rupiah
+                ? split[1] != undefined
+                    ? rupiah + "," + split[1]
+                    : rupiah
+                : "";
         }
 
         const priceInputs = document.querySelectorAll('input[name="price"]');
-        priceInputs.forEach(input => {
-            input.addEventListener('input', function(this: HTMLInputElement) {
-                const cleanValue = this.value.replace(/\D/g, '');
-                this.value = cleanValue ? formatRupiah(cleanValue) : '';
+        priceInputs.forEach((input) => {
+            input.addEventListener("input", function (this: HTMLInputElement) {
+                const cleanValue = this.value.replace(/\D/g, "");
+                this.value = cleanValue ? formatRupiah(cleanValue) : "";
             });
         });
 
-        const forms = document.querySelectorAll('.package-action-form');
-        forms.forEach(form => {
-            form.addEventListener('submit', async (e) => {
+        const forms = document.querySelectorAll(".package-action-form");
+        forms.forEach((form) => {
+            form.addEventListener("submit", async (e) => {
                 e.preventDefault();
                 const formEl = form as HTMLFormElement;
                 const packageId = formEl.dataset.packageId;
@@ -242,56 +329,99 @@ const completedPackages = packageData.filter((item: any) => ['delivered'].includ
 
                 const btn = formEl.querySelector('button[type="submit"]');
                 const originalText = btn?.textContent;
-                if(btn) { btn.textContent = 'Memproses...'; btn.classList.add('opacity-50', 'pointer-events-none'); }
+                if (btn) {
+                    btn.textContent = "Memproses...";
+                    btn.classList.add("opacity-50", "pointer-events-none");
+                }
 
                 try {
-                    const token = localStorage.getItem('jwt_token') || localStorage.getItem('token');
-                    
+                    const token =
+                        localStorage.getItem("jwt_token") ||
+                        localStorage.getItem("token");
+
                     const headers = {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${token}`,
                     };
 
-                    if (currentState === 'isPickupList') {
+                    if (currentState === "isPickupList") {
                         // Selesaikan paket
-                        await apiFetch(`/api/admin/master/package-shipments/${packageId}`, {
-                            method: 'PUT',
-                            headers,
-                            body: JSON.stringify({ transaction_status: 'selesai', status: 'delivered' })
-                        });
-                        (window as any).showFeedbackModal('success', 'Berhasil', 'Paket berhasil diselesaikan dan masuk ke riwayat!', window.location.href);
-                    } else if (currentState === 'isProofUploaded') {
+                        await apiFetch(
+                            `/api/admin/master/package-shipments/${packageId}`,
+                            {
+                                method: "PUT",
+                                headers,
+                                body: JSON.stringify({
+                                    transaction_status: "selesai",
+                                    status: "delivered",
+                                }),
+                            },
+                        );
+                        (window as any).showFeedbackModal(
+                            "success",
+                            "Berhasil",
+                            "Paket berhasil diselesaikan dan masuk ke riwayat!",
+                            window.location.href,
+                        );
+                    } else if (currentState === "isProofUploaded") {
                         // Verifikasi pembayaran paket
-                        await apiFetch(`/api/admin/master/package-shipments/${packageId}`, {
-                            method: 'PUT',
-                            headers,
-                            body: JSON.stringify({ transaction_status: 'selesai', status: 'received' })
-                        });
-                        (window as any).showFeedbackModal('success', 'Berhasil', 'Pembayaran paket berhasil dikonfirmasi!', window.location.href);
-                    } else if (currentState === 'isNew') {
+                        await apiFetch(
+                            `/api/admin/master/package-shipments/${packageId}`,
+                            {
+                                method: "PUT",
+                                headers,
+                                body: JSON.stringify({
+                                    transaction_status: "selesai",
+                                    status: "received",
+                                }),
+                            },
+                        );
+                        (window as any).showFeedbackModal(
+                            "success",
+                            "Berhasil",
+                            "Pembayaran paket berhasil dikonfirmasi!",
+                            window.location.href,
+                        );
+                    } else if (currentState === "isNew") {
                         // Tetapkan harga dan kirim tagihan
                         const endpoint = `/api/admin/master/package-shipments/${packageId}`;
                         const priceRaw = payload.price as string;
-                        const parsedPrice = priceRaw ? parseFloat(priceRaw.replace(/\./g, '')) : undefined;
+                        const parsedPrice = priceRaw
+                            ? parseFloat(priceRaw.replace(/\./g, ""))
+                            : undefined;
 
                         const bodyData = {
                             fleet_id: payload.fleet_id || undefined,
                             original_price: parsedPrice,
-                            transaction_status: 'menunggu_pembayaran'
+                            transaction_status: "menunggu_pembayaran",
                         };
 
                         await apiFetch(endpoint, {
-                            method: 'PUT',
+                            method: "PUT",
                             headers,
-                            body: JSON.stringify(bodyData)
+                            body: JSON.stringify(bodyData),
                         });
-                        (window as any).showFeedbackModal('success', 'Berhasil', 'Tagihan berhasil dikirim ke Pelanggan!', window.location.href);
+                        (window as any).showFeedbackModal(
+                            "success",
+                            "Berhasil",
+                            "Tagihan berhasil dikirim ke Pelanggan!",
+                            window.location.href,
+                        );
                     }
-
                 } catch (error: any) {
-                    console.error('Error submit form paket:', error);
-                    (window as any).showFeedbackModal('error', 'Gagal', `Gagal: ${error.message} (Cek kembali Endpoint BE)`);
-                    if(btn) { btn.textContent = originalText || 'Update Resi & Harga'; btn.classList.remove('opacity-50', 'pointer-events-none'); }
+                    console.error("Error submit form paket:", error);
+                    (window as any).showFeedbackModal(
+                        "error",
+                        "Gagal",
+                        `Gagal: ${error.message} (Cek kembali Endpoint BE)`,
+                    );
+                    if (btn) {
+                        btn.textContent = originalText || "Update Resi & Harga";
+                        btn.classList.remove(
+                            "opacity-50",
+                            "pointer-events-none",
+                        );
+                    }
                 }
             });
         });
@@ -300,7 +430,7 @@ const completedPackages = packageData.filter((item: any) => ['delivered'].includ
     setupTabs();
     setupPackageAccordion();
     setupActionForms();
-    document.addEventListener('astro:page-load', () => {
+    document.addEventListener("astro:page-load", () => {
         setupTabs();
         setupPackageAccordion();
         setupActionForms();
@@ -312,16 +442,27 @@ const completedPackages = packageData.filter((item: any) => ['delivered'].includ
         animation: fadeIn 0.3s ease-out;
     }
     @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(-5px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+            opacity: 0;
+            transform: translateY(-5px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
-    
-    :global(.package-card) { box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); }
-    :global(.package-card.active-card) { box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.05), 10px 0 25px -5px rgba(0, 0, 0, 0.05), -10px 0 25px -5px rgba(0, 0, 0, 0.05); z-index: 10; border-color: #e2e8f0; }
+
+    :global(.package-card) {
+        box-shadow:
+            0 1px 3px 0 rgba(0, 0, 0, 0.1),
+            0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    }
+    :global(.package-card.active-card) {
+        box-shadow:
+            0 15px 25px -5px rgba(0, 0, 0, 0.05),
+            10px 0 25px -5px rgba(0, 0, 0, 0.05),
+            -10px 0 25px -5px rgba(0, 0, 0, 0.05);
+        z-index: 10;
+        border-color: #e2e8f0;
+    }
 </style>
-
-
-
-
-
-

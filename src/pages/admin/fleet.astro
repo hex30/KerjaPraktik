@@ -1,6 +1,7 @@
 ---
 // File: src/pages/admin/fleet.astro
 import AdminLayout from "@layouts/AdminLayout.astro";
+import AdminPageHeader from "@features/admin/shared/AdminPageHeader.astro";
 import InputGroup from "@ui/InputGroup.astro";
 import Badge from "@ui/Badge.astro";
 import Button from "@ui/Button.astro";
@@ -15,12 +16,13 @@ const fleets = await adminContentService.getFleetsAdmin(token);
 
 <AdminLayout title="Manajemen Armada">
     <div class="flex flex-col gap-12">
+        <AdminPageHeader 
+            title="Daftar Armada Terdaftar"
+            description="Monitor status operasional dan edit data unit kendaraan Anda."
+        />
+
         <!-- Section A: Fleet Management Grid -->
         <section>
-            <header class="mb-8">
-                <h2 class="text-2xl font-black text-slate-900 tracking-tight">Daftar Armada Terdaftar</h2>
-                <p class="text-sm text-slate-500 mt-1 font-secondary">Monitor status operasional dan edit data unit kendaraan Anda.</p>
-            </header>
 
             {fleets.length === 0 && (
                 <div class="p-8 text-center border-2 border-dashed border-slate-200 rounded-3xl bg-slate-50">

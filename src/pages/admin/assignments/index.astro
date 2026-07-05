@@ -1,5 +1,6 @@
 ---
 import AdminLayout from "@layouts/AdminLayout.astro";
+import AdminPageHeader from "@features/admin/shared/AdminPageHeader.astro";
 import { adminBookingService } from "@services/adminBookingService";
 
 const token = Astro.cookies.get("token")?.value;
@@ -37,25 +38,10 @@ const formatCurrency = (amount: number) => {
 ---
 
 <AdminLayout title="Penugasan Armada - Admin Panel">
-    <div class="mb-8 relative">
-        <div
-            class="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent rounded-3xl -z-10"
-        >
-        </div>
-        <div class="p-6 md:p-8">
-            <h1
-                class="text-3xl md:text-4xl font-black text-slate-800 tracking-tight mb-2"
-            >
-                Penugasan Armada
-            </h1>
-            <p
-                class="text-slate-500 font-medium max-w-2xl text-sm md:text-base"
-            >
-                Kelola penugasan supir, pantau armada yang sedang bertugas, dan
-                tinjau riwayat tugas selesai.
-            </p>
-        </div>
-    </div>
+    <AdminPageHeader 
+        title="Penugasan Armada"
+        description="Kelola penugasan supir, pantau armada yang sedang bertugas, dan tinjau riwayat tugas selesai."
+    />
 
     <!-- Phase Tabs -->
     <div class="flex gap-2 overflow-x-auto pb-4 mb-6 hide-scrollbar">
@@ -112,15 +98,24 @@ const formatCurrency = (amount: number) => {
                                         )}
                                 </div>
                                 {activeTab === "completed" && (
-                                    <button 
-                                        type="button" 
-                                        class="btn-archive p-2 bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white rounded-xl transition-colors shrink-0" 
-                                        data-id={item.id} 
-                                        data-type={item.type} 
+                                    <button
+                                        type="button"
+                                        class="btn-archive p-2 bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white rounded-xl transition-colors shrink-0"
+                                        data-id={item.id}
+                                        data-type={item.type}
                                         title="Hapus dari daftar riwayat"
                                     >
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            class="h-5 w-5"
+                                            viewBox="0 0 20 20"
+                                            fill="currentColor"
+                                        >
+                                            <path
+                                                fill-rule="evenodd"
+                                                d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                                                clip-rule="evenodd"
+                                            />
                                         </svg>
                                     </button>
                                 )}
@@ -202,7 +197,10 @@ const formatCurrency = (amount: number) => {
                                                                 {f.plate_number}{" "}
                                                                 - {f.car_type}{" "}
                                                                 (Kapasitas:{" "}
-                                                                {f.seat_capacity})
+                                                                {
+                                                                    f.seat_capacity
+                                                                }
+                                                                )
                                                             </option>
                                                         ),
                                                 )}
@@ -445,14 +443,23 @@ const formatCurrency = (amount: number) => {
                     );
 
                     if (response?.status === "success") {
-                        (window as any).showFeedbackModal('success', 'Berhasil', "Penugasan berhasil disimpan!", window.location.href);
+                        (window as any).showFeedbackModal(
+                            "success",
+                            "Berhasil",
+                            "Penugasan berhasil disimpan!",
+                            window.location.href,
+                        );
                     } else {
                         throw new Error(
                             response?.message || "Gagal menugaskan supir",
                         );
                     }
                 } catch (error: any) {
-                    (window as any).showFeedbackModal('error', 'Gagal', error.message || "Terjadi kesalahan sistem.");
+                    (window as any).showFeedbackModal(
+                        "error",
+                        "Gagal",
+                        error.message || "Terjadi kesalahan sistem.",
+                    );
                     btn.innerHTML = originalText;
                     btn.disabled = false;
                 }
@@ -467,7 +474,11 @@ const formatCurrency = (amount: number) => {
                 const id = button.dataset.id;
                 const type = button.dataset.type;
 
-                const confirmed = await (window as any).showConfirmModal("Konfirmasi Penolakan", "Yakin ingin MENOLAK penugasan ini? Semua pesanan penumpang dan paket di dalamnya akan otomatis DIBATALKAN.", "danger");
+                const confirmed = await (window as any).showConfirmModal(
+                    "Konfirmasi Penolakan",
+                    "Yakin ingin MENOLAK penugasan ini? Semua pesanan penumpang dan paket di dalamnya akan otomatis DIBATALKAN.",
+                    "danger",
+                );
 
                 if (confirmed) {
                     const originalText = button.innerHTML;
@@ -483,14 +494,23 @@ const formatCurrency = (amount: number) => {
                         );
 
                         if (response?.status === "success") {
-                            (window as any).showFeedbackModal('success', 'Berhasil', "Penugasan berhasil ditolak dan dibatalkan.", window.location.href);
+                            (window as any).showFeedbackModal(
+                                "success",
+                                "Berhasil",
+                                "Penugasan berhasil ditolak dan dibatalkan.",
+                                window.location.href,
+                            );
                         } else {
                             throw new Error(
                                 response?.message || "Gagal menolak penugasan",
                             );
                         }
                     } catch (error: any) {
-                        (window as any).showFeedbackModal('error', 'Gagal', error.message || "Terjadi kesalahan sistem.");
+                        (window as any).showFeedbackModal(
+                            "error",
+                            "Gagal",
+                            error.message || "Terjadi kesalahan sistem.",
+                        );
                         button.innerHTML = originalText;
                         button.disabled = false;
                     }
@@ -506,7 +526,11 @@ const formatCurrency = (amount: number) => {
                 const id = button.dataset.id;
                 const type = button.dataset.type;
 
-                const confirmed = await (window as any).showConfirmModal("Konfirmasi Pembatalan Supir", "Yakin ingin membatalkan supir dari penugasan ini? Status jadwal akan dikembalikan menjadi 'Butuh Penugasan' tanpa membatalkan tiket penumpang.", "danger");
+                const confirmed = await (window as any).showConfirmModal(
+                    "Konfirmasi Pembatalan Supir",
+                    "Yakin ingin membatalkan supir dari penugasan ini? Status jadwal akan dikembalikan menjadi 'Butuh Penugasan' tanpa membatalkan tiket penumpang.",
+                    "danger",
+                );
 
                 if (confirmed) {
                     const originalText = button.innerHTML;
@@ -520,14 +544,23 @@ const formatCurrency = (amount: number) => {
                         );
 
                         if (response?.status === "success") {
-                            (window as any).showFeedbackModal('success', 'Berhasil', "Supir berhasil dihapus dari penugasan.", window.location.href);
+                            (window as any).showFeedbackModal(
+                                "success",
+                                "Berhasil",
+                                "Supir berhasil dihapus dari penugasan.",
+                                window.location.href,
+                            );
                         } else {
                             throw new Error(
                                 response?.message || "Gagal membatalkan supir",
                             );
                         }
                     } catch (error: any) {
-                        (window as any).showFeedbackModal('error', 'Gagal', error.message || "Terjadi kesalahan sistem.");
+                        (window as any).showFeedbackModal(
+                            "error",
+                            "Gagal",
+                            error.message || "Terjadi kesalahan sistem.",
+                        );
                         button.innerHTML = originalText;
                         button.disabled = false;
                     }
@@ -544,7 +577,10 @@ const formatCurrency = (amount: number) => {
                 const type = button.dataset.type;
                 const form = button.closest("form") as HTMLFormElement;
 
-                const confirmed = await (window as any).showConfirmModal("Konfirmasi Mulai Bertugas", "Yakin ingin menandai armada ini sebagai 'Sedang Bertugas' sekarang? Ketersediaan jadwal akan ditutup untuk pesanan baru.");
+                const confirmed = await (window as any).showConfirmModal(
+                    "Konfirmasi Mulai Bertugas",
+                    "Yakin ingin menandai armada ini sebagai 'Sedang Bertugas' sekarang? Ketersediaan jadwal akan ditutup untuk pesanan baru.",
+                );
 
                 if (confirmed) {
                     const formData = new FormData(form);
@@ -565,14 +601,23 @@ const formatCurrency = (amount: number) => {
                         );
 
                         if (response?.status === "success") {
-                            (window as any).showFeedbackModal('success', 'Berhasil', "Status berhasil diubah menjadi Sedang Bertugas!", window.location.href);
+                            (window as any).showFeedbackModal(
+                                "success",
+                                "Berhasil",
+                                "Status berhasil diubah menjadi Sedang Bertugas!",
+                                window.location.href,
+                            );
                         } else {
                             throw new Error(
                                 response?.message || "Gagal mengubah status",
                             );
                         }
                     } catch (error: any) {
-                        (window as any).showFeedbackModal('error', 'Gagal', error.message || "Terjadi kesalahan sistem.");
+                        (window as any).showFeedbackModal(
+                            "error",
+                            "Gagal",
+                            error.message || "Terjadi kesalahan sistem.",
+                        );
                         button.innerHTML = originalText;
                         button.disabled = false;
                     }
@@ -588,22 +633,36 @@ const formatCurrency = (amount: number) => {
                 const id = button.dataset.id;
                 const type = button.dataset.type;
 
-                const confirmed = await (window as any).showConfirmModal("Konfirmasi Hapus", "Yakin ingin menghapus tugas ini dari riwayat daftar? (Tenang saja, data pendapatan dan laporan tidak akan terhapus dari sistem database)", "danger");
+                const confirmed = await (window as any).showConfirmModal(
+                    "Konfirmasi Hapus",
+                    "Yakin ingin menghapus tugas ini dari riwayat daftar? (Tenang saja, data pendapatan dan laporan tidak akan terhapus dari sistem database)",
+                    "danger",
+                );
                 if (confirmed) {
                     const originalHtml = button.innerHTML;
                     button.innerHTML = `<svg class="animate-spin h-5 w-5 text-rose-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>`;
                     button.disabled = true;
 
                     try {
-                        const response = await apiFetch(`/api/admin/assignments/${type}/${id}`, { method: "DELETE" });
-                        
+                        const response = await apiFetch(
+                            `/api/admin/assignments/${type}/${id}`,
+                            { method: "DELETE" },
+                        );
+
                         if (response?.status === "success") {
                             window.location.reload();
                         } else {
-                            throw new Error(response?.message || "Gagal menghapus tugas dari daftar");
+                            throw new Error(
+                                response?.message ||
+                                    "Gagal menghapus tugas dari daftar",
+                            );
                         }
                     } catch (error: any) {
-                        (window as any).showFeedbackModal('error', 'Gagal', error.message || "Terjadi kesalahan sistem.");
+                        (window as any).showFeedbackModal(
+                            "error",
+                            "Gagal",
+                            error.message || "Terjadi kesalahan sistem.",
+                        );
                         button.innerHTML = originalHtml;
                         button.disabled = false;
                     }

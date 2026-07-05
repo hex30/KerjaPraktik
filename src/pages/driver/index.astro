@@ -1,6 +1,7 @@
 ---
 // File: src/pages/driver/index.astro
 import DriverLayout from "@layouts/DriverLayout.astro";
+import DriverPageHeader from "@features/driver/shared/DriverPageHeader.astro";
 import { driverService } from "@services/driverService";
 
 const token = Astro.cookies.get('token')?.value;
@@ -203,11 +204,15 @@ packageTasks.sort((a, b) => {
     const bCompleted = b.status === 'delivered';
     return (aCompleted === bCompleted) ? 0 : aCompleted ? 1 : -1;
 });
-
 ---
 
 <DriverLayout title="Manajemen Tugas">
     <div class="flex flex-col gap-10">
+        <DriverPageHeader 
+            title="Tugas Hari Ini"
+            description="Daftar perjalanan, sewa charter, dan kiriman paket yang ditugaskan kepada Anda."
+        />
+
         <!-- Section: Tugas Charter Hari Ini -->
         {charterTasks.length > 0 && (
         <section class="flex flex-col gap-4">

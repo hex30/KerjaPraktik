@@ -1,15 +1,16 @@
 ---
 // File: src/pages/admin/banner.astro
 import AdminLayout from "@layouts/AdminLayout.astro";
+import AdminPageHeader from "@features/admin/shared/AdminPageHeader.astro";
 import BannerManager from "@features/admin/content/BannerManager.astro";
 ---
 
 <AdminLayout title="Kelola Banner Utama">
     <div class="flex flex-col gap-8">
-        <header>
-            <h2 class="text-3xl font-black text-slate-900 tracking-tight">Manajemen Banner Utama</h2>
-            <p class="text-sm text-slate-500 mt-2 font-secondary">Atur daftar banner promosi yang akan ditampilkan pada halaman beranda pelanggan.</p>
-        </header>
+        <AdminPageHeader 
+            title="Manajemen Banner Utama"
+            description="Atur daftar banner promosi yang akan ditampilkan pada halaman beranda pelanggan."
+        />
 
         <BannerManager />
     </div>
