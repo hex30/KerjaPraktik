@@ -16,6 +16,33 @@ const rawTasks = await driverService.getSchedulesHistory(token);
 // Normalisasi tugas riwayat ke dalam flat array untuk kemudahan filter & pagination
 const allHistoryTasks: any[] = [];
 
+const formatAddress = (addressData: any) => {
+    if (!addressData) return 'Sesuai Titik Tujuan/Penjemputan';
+    
+    let addr = addressData;
+    if (typeof addressData === 'string') {
+        try {
+            addr = JSON.parse(addressData);
+            if (typeof addr === 'string') addr = JSON.parse(addr);
+        } catch (e) {
+            return addressData;
+        }
+    }
+    
+    if (typeof addr === 'object' && addr !== null) {
+        let parts = [];
+        if (addr.patokan) parts.push(`Patokan: ${addr.patokan}`);
+        if (addr.dusun && addr.dusun !== '-') parts.push(`Dusun ${addr.dusun}`);
+        if (addr.rt_rw && addr.rt_rw !== '-') parts.push(`RT/RW ${addr.rt_rw}`);
+        if (addr.desa && addr.desa !== '-') parts.push(`Desa ${addr.desa}`);
+        if (addr.kecamatan && addr.kecamatan !== '-') parts.push(`Kec. ${addr.kecamatan}`);
+        
+        return parts.length > 0 ? parts.join(', ') : (typeof addressData === 'string' ? addressData : JSON.stringify(addressData));
+    }
+
+    return String(addressData);
+};
+
 rawTasks.forEach((t: any) => {
     if (t.isCharter) {
         allHistoryTasks.push({
@@ -34,16 +61,18 @@ rawTasks.forEach((t: any) => {
         });
     } else {
         // RUTE
-        allHistoryTasks.push({
-            id: t.id,
-            type: 'RUTE',
-            title: `${t.origin} - ${t.destination}`,
-            date: t.departure_time,
-            plate: t.plate_number || 'Tidak Ada Plat',
-            car: t.car_type || 'Armada Rute',
-            passengers_count: t.passengers?.length || 0,
-            passengers: t.passengers || []
-        });
+        if (t.route_id || (t.passengers && t.passengers.length > 0)) {
+            allHistoryTasks.push({
+                id: t.id,
+                type: 'RUTE',
+                title: `${t.origin} - ${t.destination}`,
+                date: t.departure_time,
+                plate: t.plate_number || 'Tidak Ada Plat',
+                car: t.car_type || 'Armada Rute',
+                passengers_count: t.passengers?.length || 0,
+                passengers: t.passengers || []
+            });
+        }
         
         // Ekstrak paket dari jadwal rute ini
         t.packages?.forEach((p: any) => {
@@ -60,7 +89,7 @@ rawTasks.forEach((t: any) => {
                 sender_name: p.sender_name,
                 receiver_name: p.receiver_name,
                 receiver_phone: p.receiver_phone,
-                receiver_address: p.receiver_address,
+                receiver_address: formatAddress(p.receiver_address),
                 description: p.package_description,
                 weight: p.weight,
                 dimension: p.dimension
@@ -295,7 +324,7 @@ allHistoryTasks.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).get
                         <div>
                             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Penerima & Alamat</span>
                             <span class="text-xs font-black text-slate-700 block">${task.receiver_name}</span>
-                            <span class="text-[10px] text-slate-400 block mt-0.5 line-clamp-1">${task.receiver_address}</span>
+                            <span class="text-[10px] text-slate-400 block mt-0.5 line-clamp-1" title="${task.receiver_address}">${task.receiver_address}</span>
                         </div>
                         <div>
                             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Metode Bayar / Ongkir</span>
