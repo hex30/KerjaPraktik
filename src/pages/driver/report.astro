@@ -1,4 +1,4 @@
----
+﻿---
 // File: src/pages/driver/report.astro
 import DriverLayout from "@layouts/DriverLayout.astro";
 import Button from "@ui/Button.astro";
@@ -128,7 +128,7 @@ const uniqueFleets = allFleets.map((f: any) => ({
 </DriverLayout>
 
 <script>
-    import { apiFetch } from "../../services/api";
+    import { apiFetch } from "@services/api";
 
     const setupExpenseForm = () => {
         const form = document.getElementById("expense-form") as HTMLFormElement;

@@ -1,4 +1,4 @@
----
+﻿---
 // File: src/components/features/admin/bookings/PaymentPreviewModal.astro
 ---
 
@@ -142,7 +142,7 @@
     };
 
     // Global Delete Function for Admin
-    import { apiFetch } from "../../../../services/api";
+    import { apiFetch } from "@services/api";
 
     window.deleteOrderHistory = async (orderId: string, orderType: string) => {
         const confirmDelete = await (window as any).showConfirmModal(

@@ -1,0 +1,255 @@
+---
+import { formatRupiah } from "@utils/formatters";
+
+interface Props {
+    task: any;
+}
+
+const { task } = Astro.props;
+---
+<div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+    <!-- Header -->
+    <div class="p-6 border-b border-slate-100">
+        <div class="flex items-center gap-2 mb-3">
+            <div class="inline-flex items-center px-3 py-1 rounded-full bg-[#044751] text-white text-[10px] font-black uppercase tracking-widest">
+                CHARTER
+            </div>
+            {task.status === 'selesai' && (
+                <div class="inline-flex items-center px-3 py-1 rounded-full bg-emerald-500 text-white text-[10px] font-black uppercase tracking-widest">
+                    SELESAI
+                </div>
+            )}
+        </div>
+        <h3 class="text-xl font-black text-slate-900 tracking-tight leading-tight">
+            {task.route}
+        </h3>
+    </div>
+    
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-2 gap-4 p-6 border-b border-slate-100">
+        <div class="flex flex-col gap-1.5">
+            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tgl Berangkat</span>
+            <span class="text-sm font-bold text-slate-800">{task.date}</span>
+        </div>
+        <div class="flex flex-col gap-1.5">
+            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Armada</span>
+            <div class="inline-flex w-fit bg-slate-100 text-slate-700 px-2 py-1 rounded-md text-xs font-bold">
+                {task.plate_number} ({task.car_type})
+            </div>
+        </div>
+        <div class="flex flex-col gap-1.5 mt-2">
+            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Status Pemb.</span>
+            <div class={`inline-flex w-fit px-2 py-1 rounded-md text-xs font-black ${task.statusColor}`}>
+                {task.payment_status}
+            </div>
+        </div>
+        <div class="flex flex-col gap-1.5 mt-2">
+            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Harga Charter</span>
+            <span class="text-base font-black text-emerald-600">{formatRupiah(task.price)}</span>
+        </div>
+    </div>
+    
+    <!-- Data Details -->
+    <div class="p-6 hidden flex-col gap-5 mt-auto details-section">
+        <!-- Nama Pemesan -->
+        <div class="flex flex-col gap-1.5">
+            <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nama Pemesan</span>
+            <div class="flex items-center gap-3 mt-1">
+                <div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-black text-xs shrink-0">
+                    {task.initial}
+                </div>
+                <span class="text-sm font-bold text-slate-800">{task.passenger_name} ({task.phone || '-'})</span>
+            </div>
+        </div>
+        
+        <!-- Form Aksi -->
+        <div class="mt-2 p-5 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col gap-4">
+            <div class="flex flex-col gap-1.5">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Aksi Charter</label>
+                <div class="relative">
+                    <select id={`select-charter-${task.charter_id}`} disabled={task.status === 'selesai'} class="w-full bg-white border border-slate-200 rounded-xl px-4 py-3.5 text-sm font-bold text-slate-800 outline-none focus:ring-2 focus:ring-primary appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                        <option value="menunggu_penjemputan" selected={task.status === 'menunggu_penjemputan' || task.status === 'disetujui' || task.status === 'dibayar'}>Menunggu Penjemputan</option>
+                        <option value="dalam_penjemputan" selected={task.status === 'dalam_penjemputan'}>Sedang Menjemput</option>
+                        <option value="on_going" selected={task.status === 'on_going'}>Dalam Perjalanan</option>
+                        <option value="selesai" selected={task.status === 'selesai'}>Selesai / Sudah Sampai</option>
+                    </select>
+                    <div class="absolute inset-y-0 right-4 flex items-center pointer-events-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bukti Bayar Cash -->
+            {task.payment_method?.toLowerCase() === 'cash' && (
+                <div id={`proof-container-charter-${task.charter_id}`} class="hidden flex-col gap-2">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Foto Bukti Penagihan (Cash)</label>
+                    <div class="relative group cursor-pointer">
+                        <input type="file" accept="image/*" id={`file-charter-${task.charter_id}`} class="absolute inset-0 w-full h-full opacity-0 z-10 cursor-pointer" />
+                        <div class="w-full py-4 border border-dashed border-slate-200 rounded-xl bg-white flex flex-col items-center justify-center gap-1 group-hover:border-primary transition-colors" id={`file-preview-container-charter-${task.charter_id}`}>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-slate-300 group-hover:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                            <span class="text-[10px] font-bold text-slate-400" id={`file-text-charter-${task.charter_id}`}>Ambil Foto Bukti Penagihan</span>
+                        </div>
+                    </div>
+                </div>
+            )}
+            
+            {task.status !== 'selesai' && (
+                <button data-charter-id={task.charter_id} class="btn-save-charter w-full bg-[#044751] hover:bg-[#03363e] text-white py-3.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-md shadow-primary/20 active:scale-95 mt-2">
+                    SIMPAN
+                </button>
+            )}
+        </div>
+    </div>
+    
+    <!-- Toggle Button -->
+    {task.status !== 'selesai' && (
+        <button type="button" class="toggle-details-btn w-full py-3 flex justify-center items-center text-slate-300 hover:text-primary hover:bg-slate-50 transition-colors border-t border-slate-100 mt-auto">
+            <svg class="chevron-icon w-5 h-5 transition-transform duration-300" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+            </svg>
+        </button>
+    )}
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        // Toggle details
+        const toggleBtns = document.querySelectorAll(".toggle-details-btn");
+        toggleBtns.forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                const button = e.currentTarget as HTMLButtonElement;
+                const card = button.closest(".bg-white");
+                const details = card?.querySelector(".details-section");
+                const icon = button.querySelector(".chevron-icon");
+                
+                if (details && icon) {
+                    const isCurrentlyHidden = details.classList.contains("hidden");
+                    
+                    document.querySelectorAll(".details-section").forEach(otherDetails => {
+                        if (!otherDetails.classList.contains("hidden")) {
+                            otherDetails.classList.add("hidden");
+                            otherDetails.classList.remove("flex");
+                        }
+                    });
+                    
+                    document.querySelectorAll(".chevron-icon").forEach(otherIcon => {
+                        otherIcon.classList.remove("rotate-180");
+                    });
+                    
+                    if (isCurrentlyHidden) {
+                        details.classList.remove("hidden");
+                        details.classList.add("flex");
+                        icon.classList.add("rotate-180");
+                    }
+                }
+            });
+        });
+
+        // Charter specific logic
+        const charterSelects = document.querySelectorAll('select[id^="select-charter-"]');
+        charterSelects.forEach(select => {
+            select.addEventListener('change', (e) => {
+                const selectEl = e.currentTarget as HTMLSelectElement;
+                const charterId = selectEl.id.replace('select-charter-', '');
+                const proofContainer = document.getElementById(`proof-charter-container-${charterId}`);
+                if (proofContainer) {
+                    if (selectEl.value === 'selesai') {
+                        proofContainer.classList.remove('hidden');
+                        proofContainer.classList.add('flex');
+                        const fileInput = document.getElementById(`file-charter-${charterId}`) as HTMLInputElement;
+                        if (fileInput) fileInput.required = true;
+                    } else {
+                        proofContainer.classList.add('hidden');
+                        proofContainer.classList.remove('flex');
+                        const fileInput = document.getElementById(`file-charter-${charterId}`) as HTMLInputElement;
+                        if (fileInput) {
+                            fileInput.required = false;
+                            fileInput.value = '';
+                        }
+                        const textEl = document.getElementById(`file-charter-text-${charterId}`);
+                        if (textEl) textEl.textContent = "Ambil Foto Bukti Penagihan";
+                    }
+                }
+            });
+        });
+
+        const charterFileInputs = document.querySelectorAll('input[id^="file-charter-"]');
+        charterFileInputs.forEach(input => {
+            input.addEventListener('change', (e) => {
+                const inputEl = e.currentTarget as HTMLInputElement;
+                const charterId = inputEl.id.replace('file-charter-', '');
+                const textEl = document.getElementById(`file-charter-text-${charterId}`);
+                if (textEl) {
+                    if (inputEl.files && inputEl.files.length > 0) {
+                        textEl.textContent = inputEl.files[0].name;
+                    } else {
+                        textEl.textContent = "Ambil Foto Bukti Penagihan";
+                    }
+                }
+            });
+        });
+
+        const saveCharterBtns = document.querySelectorAll('.btn-save-charter');
+        saveCharterBtns.forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const button = e.currentTarget as HTMLButtonElement;
+                const charterId = button.getAttribute('data-charter-id');
+                if (!charterId) return;
+                
+                const selectEl = document.getElementById(`select-charter-${charterId}`) as HTMLSelectElement;
+                if (!selectEl) return;
+                
+                const newStatus = selectEl.value;
+                const originalText = button.innerHTML;
+                
+                const fileInput = document.getElementById(`file-charter-${charterId}`) as HTMLInputElement;
+                if (newStatus === 'selesai' && fileInput) {
+                    if (!fileInput.files || fileInput.files.length === 0) {
+                        window.showFeedbackModal('warning', 'Peringatan', 'Untuk pembayaran Cash, bukti penagihan berupa foto wajib diunggah ketika sewa selesai!');
+                        return;
+                    }
+                }
+                
+                button.disabled = true;
+                button.innerHTML = '<span class="flex justify-center items-center gap-2"><svg class="animate-spin h-4 w-4" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg> MENYIMPAN...</span>';
+                
+                try {
+                    const { apiFetch } = await import('@services/api');
+                    
+                    let options: any = {};
+                    if (newStatus === 'selesai' && fileInput && fileInput.files && fileInput.files.length > 0) {
+                        const formData = new FormData();
+                        formData.append('status', newStatus);
+                        formData.append('payment_proof', fileInput.files[0]);
+                        options = {
+                            method: 'PUT',
+                            body: formData
+                        };
+                    } else {
+                        options = {
+                            method: 'PUT',
+                            body: JSON.stringify({ status: newStatus })
+                        };
+                    }
+
+                    const res = await apiFetch(`/api/driver/schedules/charters/${charterId}/status`, options);
+                    
+                    if (typeof window !== 'undefined' && (window as any).showFeedbackModal) {
+                        (window as any).showFeedbackModal('success', 'Berhasil', 'Status charter berhasil diperbarui!', window.location.href);
+                    } else {
+                        alert('Status charter berhasil diperbarui!');
+                        window.location.reload();
+                    }
+                } catch (error: any) {
+                    if (typeof window !== 'undefined' && (window as any).showFeedbackModal) {
+                        (window as any).showFeedbackModal('error', 'Gagal', 'Gagal memperbarui status charter: ' + error.message);
+                    } else {
+                        alert('Gagal memperbarui status charter: ' + error.message);
+                    }
+                } finally {
+                    button.disabled = false;
+                    button.innerHTML = originalText;
+                }
+            });
+        });
+    });
+</script>

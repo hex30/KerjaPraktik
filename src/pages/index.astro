@@ -86,7 +86,7 @@ try {
     }
 
     promoData = {
-      image: p.image_url || p.image || "/images/dummy-promo.jpg",
+      image: p.image_url || p.image || "/images/default-promo.jpg",
       discount:
         discountValue > 0
           ? `${discountValue}% OFF`
@@ -104,7 +104,7 @@ try {
   } else {
     // Fallback jika tidak ada promo aktif
     promoData = {
-      image: "/images/dummy-promo.jpg",
+      image: "/images/default-promo.jpg",
       discount: "AMAN dan MUDAH",
       noteTitle: "INFO LAYANAN",
       noteDesc: "Kenyamanan Perjalanan Anda",

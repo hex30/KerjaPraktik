@@ -1,7 +1,7 @@
 ---
 // File: src/components/features/user/molecules/OrderItem.astro
 import type { UnifiedOrder } from "@services/userService";
-
+import { formatRupiah } from "@utils/formatters";
 interface Props {
     order: UnifiedOrder;
 }
@@ -138,14 +138,7 @@ const hasPromo = originalBasePrice > discountedBasePrice;
 const rawDiscount = hasPromo ? ((originalBasePrice - discountedBasePrice) / originalBasePrice) * 100 : 0;
 const discountPercentage = hasPromo ? Math.round(rawDiscount / 5) * 5 : 0;
 
-const formatCurrency = (val: number) => {
-    return new Intl.NumberFormat("id-ID", {
-        style: "currency",
-        currency: "IDR",
-    })
-        .format(val)
-        .replace(",00", "");
-};
+
 
 const displayId =
     order.id && order.id.length > 10
@@ -301,13 +294,13 @@ const displayId =
                                 <span class="tracking-wide relative z-10">-{discountPercentage}%</span>
                             </div>
                             <span class="text-xs text-rose-400 line-through font-secondary">
-                                {formatCurrency(originalBasePrice)}
+                                {formatRupiah(originalBasePrice)}
                             </span>
                         </div>
                     )
                 }
                 <span class="text-xs font-secondary font-medium text-primary">
-                    {formatCurrency(discountedBasePrice)}
+                    {formatRupiah(discountedBasePrice)}
                 </span>
                 {
                     meta.is_baggage_charge && (
@@ -316,7 +309,7 @@ const displayId =
                                 + Charge Bagasi
                             </span>
                             <span class="text-xs font-secondary font-medium">
-                                {formatCurrency(extraCharge)}
+                                {formatRupiah(extraCharge)}
                             </span>
                         </div>
                     )
@@ -327,7 +320,7 @@ const displayId =
                         Total
                     </span>
                     <span class="text-lg font-black text-slate-800">
-                        {formatCurrency(order.price)}
+                        {formatRupiah(order.price)}
                     </span>
                 </div>
             </div>

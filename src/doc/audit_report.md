@@ -77,13 +77,13 @@ Token memang di-reject BE, tapi endpoint tetap terekspos di production.
 
 ## 3. ISU PERFORMA
 
-### 3a. Finance: Fetch 200 transaksi sekaligus
+### 3a. [MOVED TO BE TODO] Finance: Fetch 200 transaksi sekaligus
 
 File: src/pages/admin/finance.astro (baris 26)
 FE meminta ?limit=200 lalu filter client-side.
 Sebaiknya: server-side pagination + filter.
 
-### 3b. Dashboard: Double query active duties
+### 3b. [MOVED TO BE TODO] Dashboard: Double query active duties
 
 File: backend-travel/src/controllers/dashboard.controller.js (baris 6-10)
 Endpoint /metrics memanggil getActiveDutiesList() (6 query batch)
@@ -223,3 +223,33 @@ PaymentPreviewModal.astro:
   Total confirm() yang perlu di-replace : ~14
   Data dummy masih tersisa              : 3 lokasi (dummy-promo.jpg, hardcode hari, test-api.ts)
   File test yang harus dihapus          : 1 (test-api.ts)
+
+---
+
+## 5. AUDIT KOMPONEN (FAT PAGES) & PATH ALIAS (UPDATE 5 JULI 2026)
+
+### 5a. [TODO] Path Alias (Import Relatif)
+Ditemukan beberapa file yang masih menggunakan import relatif (../../ dll) ketimbang menggunakan path alias (@components, @utils, @services, @styles, dsb):
+1. src/components/features/admin/bookings/PaymentPreviewModal.astro (import apiFetch)
+2. src/components/features/user/PaymentPopup.astro (import apiFetch)
+3. src/layouts/AdminLayout.astro (import global.css)
+4. src/layouts/DriverLayout.astro (import global.css)
+5. src/layouts/MainLayout.astro (import global.css)
+6. src/pages/admin/assignments/index.astro (import apiFetch)
+7. src/pages/admin/finance/expenses.astro (import apiFetch)
+8. src/pages/driver/report.astro (import apiFetch)
+9. src/pages/user/booking-history.astro (import apiFetch)
+
+### 5b. [TODO] Redundansi & Pendekatan Component-Based (Fat Pages)
+Ditemukan beberapa file Astro yang sangat masif (lebih dari 400 baris kode), yang menandakan bahwa pola pengembangan Component-Based Development belum sepenuhnya diterapkan di halaman tersebut:
+1. **src/components/features/reservation/route/RouteBookingForm.astro (987 baris)**
+   Sangat besar, logika pemilihan rute, kursi, dan detail penumpang tergabung menjadi satu kesatuan.
+2. **src/components/features/reservation/charter/CharterBookingForm.astro (779 baris)**
+   Sama seperti form route, ini merupakan monolithic form.
+3. **src/pages/admin/finance.astro (726 baris)**
+   Menyatukan layout dashboard, query API, modal konfirmasi, dan list transaksi di satu file.
+4. **src/pages/admin/assignments/index.astro (624 baris)** & **src/components/features/admin/content/PromoManager.astro (624 baris)**
+5. **src/components/features/reservation/package/PackageBookingForm.astro (601 baris)**
+6. **Lainnya:** dmin/finance/expenses.astro, OrderItem.astro, dan driver/history.astro.
+
+**Rekomendasi:** Melakukan ekstraksi komponen UI mandiri (misal: Card Transaksi, Modal, Form Input) ke dalam folder src/components/features/... seperti yang telah sukses dilakukan pada driver/index.astro.

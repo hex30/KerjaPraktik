@@ -1,4 +1,4 @@
----
+﻿---
 // File: src/pages/user/booking-history.astro
 import Layout from '@layouts/MainLayout.astro';
 import OrderItem from '@features/user/OrderItem.astro';
@@ -63,7 +63,7 @@ const orderHistory = await userService.getUserHistory(token);
 </Layout>
 
 <script>
-    import { apiFetch } from '../../services/api';
+    import { apiFetch } from "@services/api";
 
     declare global {
         interface Window {

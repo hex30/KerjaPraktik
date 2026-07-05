@@ -1,0 +1,518 @@
+import { authGuard } from "@utils/authGuard";
+import { charterService } from "@services/charterService";
+import { travelService } from "@services/travelService";
+
+export const setupBookingForm = async () => {
+    // Cek armada global
+    let isFleetAvailable = true;
+    try {
+        const fleetCheck = await travelService.checkFleetsAvailability();
+        if (fleetCheck && fleetCheck.data && fleetCheck.data.available === false) {
+            isFleetAvailable = false;
+            if (typeof (window as any).showGlobalFleetAlert === 'function') {
+                (window as any).showGlobalFleetAlert();
+            }
+        }
+    } catch (err) {
+        console.error("Gagal mengecek armada:", err);
+    }
+
+    const formStep1 = document.getElementById("form-booking-travel");
+    const selectArmada = document.getElementById(
+        "jenis_armada",
+    ) as HTMLSelectElement;
+
+    const fleetCards = document.querySelectorAll(".fleet-card-wrapper");
+    const btnExpand = document.getElementById("btn-expand-armada");
+    const btnCollapse = document.getElementById("btn-collapse-armada");
+    const extraCards = document.querySelectorAll(".extra-card");
+
+    // Element Input Form
+    const inputTanggalSewa = document.getElementById(
+        "tanggal_sewa",
+    ) as HTMLInputElement;
+    const inputTanggalKepulangan = document.getElementById(
+        "tanggal_kepulangan",
+    ) as HTMLInputElement;
+    const inputTujuan = document.getElementById(
+        "tujuan",
+    ) as HTMLInputElement;
+
+    const leftStep1 = document.getElementById("left-step-1");
+    const leftStep2 = document.getElementById("left-step-2");
+    const rightStep1 = document.getElementById("right-step-1");
+    const rightStep2 = document.getElementById("right-step-2");
+    const btnKembali = document.getElementById("btn-kembali-booking");
+
+    const summaryArmada = document.getElementById("summary-armada");
+    const summaryTanggal = document.getElementById("summary-tanggal");
+    const summaryTujuan = document.getElementById("summary-tujuan");
+
+    if (!formStep1 || !selectArmada) return;
+
+    // UX: Guest Overlay Setup
+    const guestOverlay = document.getElementById("guest-overlay-charter");
+    const guestAlertCard = document.getElementById(
+        "guest-alert-card-charter",
+    );
+    const restrictedContent = document.getElementById(
+        "restricted-content-charter",
+    );
+
+    if (guestAlertCard && guestAlertCard.parentElement !== document.body) {
+        document.body.appendChild(guestAlertCard);
+    }
+
+    const setupGuestOverlay = () => {
+        if (authGuard.isLoggedIn() && isFleetAvailable) {
+            guestOverlay?.classList.add("hidden");
+            guestAlertCard?.classList.add("hidden");
+            restrictedContent?.classList.remove("pointer-events-none");
+        } else {
+            guestOverlay?.classList.remove("hidden");
+            restrictedContent?.classList.add("pointer-events-none");
+
+            if (!authGuard.isLoggedIn()) {
+                if (guestAlertCard) {
+                    guestAlertCard.classList.remove("hidden");
+                    guestAlertCard.classList.add("flex");
+                    void guestAlertCard.offsetWidth;
+                    guestAlertCard.classList.remove("opacity-0");
+                    const inner = document.getElementById(
+                        "guest-alert-card-inner-charter",
+                    );
+                    inner?.classList.remove("scale-95");
+                }
+            } else {
+                guestAlertCard?.classList.add("hidden");
+                guestAlertCard?.classList.remove("flex");
+            }
+        }
+    };
+    setupGuestOverlay();
+
+    if (guestOverlay) {
+        guestOverlay.addEventListener("click", () => {
+            if (!authGuard.isLoggedIn()) {
+                if (guestAlertCard) {
+                    guestAlertCard.classList.remove("hidden");
+                    guestAlertCard.classList.add("flex");
+                    void guestAlertCard.offsetWidth;
+                    guestAlertCard.classList.remove("opacity-0");
+                    const inner = document.getElementById(
+                        "guest-alert-card-inner-charter",
+                    );
+                    inner?.classList.remove("scale-95");
+                }
+            } else if (!isFleetAvailable) {
+                if (typeof (window as any).showGlobalFleetAlert === 'function') {
+                    (window as any).showGlobalFleetAlert();
+                }
+            }
+        });
+    }
+
+    if (guestAlertCard) {
+        guestAlertCard.addEventListener("click", (e) => {
+            if (e.target === guestAlertCard) {
+                guestAlertCard.classList.add("opacity-0");
+                const inner = document.getElementById(
+                    "guest-alert-card-inner-charter",
+                );
+                inner?.classList.add("scale-95");
+                setTimeout(() => {
+                    guestAlertCard.classList.remove("flex");
+                    guestAlertCard.classList.add("hidden");
+                }, 300);
+            }
+        });
+    }
+
+    // Guest Interceptor (untuk form submit & button fallback)
+    const checkGuest = (e: Event) => {
+        if (!authGuard.isLoggedIn()) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (guestAlertCard) {
+                guestAlertCard.classList.remove("hidden");
+                guestAlertCard.classList.add("flex");
+                void guestAlertCard.offsetWidth;
+                guestAlertCard.classList.remove("opacity-0");
+                const inner = document.getElementById(
+                    "guest-alert-card-inner-charter",
+                );
+                inner?.classList.remove("scale-95");
+            }
+            return true;
+        }
+        if (!isFleetAvailable) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (typeof (window as any).showGlobalFleetAlert === 'function') {
+                (window as any).showGlobalFleetAlert();
+            }
+            return true;
+        }
+        return false;
+    };
+
+    // 1. LOGIKA PILIH KARTU ARMADA
+    const maintenanceList = JSON.parse(
+        localStorage.getItem("fleet_maintenance") || "[]",
+    );
+    fleetCards.forEach((card) => {
+        const fleetId = card.getAttribute("data-value");
+        if (fleetId && maintenanceList.includes(fleetId)) {
+            card.classList.add("hidden");
+            const option = selectArmada.querySelector(
+                `option[value="${fleetId}"]`,
+            );
+            if (option) (option as HTMLOptionElement).disabled = true;
+        }
+
+        card.addEventListener("click", (e) => {
+            if (checkGuest(e)) return;
+
+            const isAvailable =
+                card.getAttribute("data-available") === "true";
+            if (!isAvailable) {
+                if (typeof window !== 'undefined' && (window as any).showFeedbackModal) {
+                    (window as any).showFeedbackModal("warning", "Armada Penuh", "Mohon maaf, saat ini armada jenis ini sedang disewa seluruhnya (tidak tersedia). Silakan pilih armada lain.");
+                } else {
+                    alert(
+                        "Mohon maaf, saat ini armada jenis ini sedang disewa seluruhnya (tidak tersedia). Silakan pilih armada lain.",
+                    );
+                }
+                return;
+            }
+
+            const value = card.getAttribute("data-value");
+            if (!value) return;
+
+            fleetCards.forEach((c) => {
+                const ring = c.querySelector(".selected-ring");
+                const check = c.querySelector(".selected-check");
+                if (ring) {
+                    ring.classList.remove(
+                        "ring-4",
+                        "border-primary",
+                        "bg-primary/5",
+                    );
+                    ring.classList.add("border-transparent");
+                }
+                if (check) {
+                    check.classList.remove("opacity-100", "scale-100");
+                    check.classList.add("opacity-0", "scale-50");
+                }
+            });
+
+            const activeRing = card.querySelector(".selected-ring");
+            const activeCheck = card.querySelector(".selected-check");
+            if (activeRing) {
+                activeRing.classList.remove("border-transparent");
+                activeRing.classList.add(
+                    "ring-4",
+                    "border-primary",
+                    "bg-primary/5",
+                );
+            }
+            if (activeCheck) {
+                activeCheck.classList.remove("opacity-0", "scale-50");
+                activeCheck.classList.add("opacity-100", "scale-100");
+            }
+
+            selectArmada.value = value;
+
+            // Show PreviewSeatMap
+            const seatmapContainer = document.getElementById(
+                "preview-seatmap-container",
+            );
+            if (seatmapContainer) {
+                seatmapContainer.classList.remove("hidden");
+                const wrappers =
+                    seatmapContainer.querySelectorAll(".seatmap-wrapper");
+                wrappers.forEach((w) => w.classList.add("hidden"));
+
+                const activeSeatmap = seatmapContainer.querySelector(
+                    `.seatmap-wrapper[data-type="${value}"]`,
+                );
+                if (activeSeatmap) {
+                    activeSeatmap.classList.remove("hidden");
+                    activeSeatmap.classList.add("animate-fade-in");
+                }
+            }
+        });
+    });
+
+    selectArmada.addEventListener("change", (e) => {
+        const target = e.target as HTMLSelectElement;
+        const matchedCard = Array.from(fleetCards).find(
+            (c) => c.getAttribute("data-value") === target.value,
+        ) as HTMLElement;
+        if (matchedCard) {
+            if (matchedCard.classList.contains("hidden") && btnExpand)
+                btnExpand.click();
+            matchedCard.click();
+        }
+    });
+
+    // Removed Expand/Collapse Logic as we only show max 2 unique cards now
+
+    // 3. LOGIKA VALIDASI TANGGAL
+    const checkFleetCards = async () => {
+        const startDate = inputTanggalSewa?.value;
+        let endDate = inputTanggalKepulangan?.value;
+        
+        if (!startDate) return;
+        if (!endDate) endDate = startDate;
+        
+        try {
+            // Fetch dynamic availability from BE
+            const availability = await charterService.checkAvailability(startDate, endDate);
+            
+            fleetCards.forEach((card) => {
+                const carType = card.getAttribute("data-value");
+                // If carType is true in availability, it's available. If undefined or false, it's busy/locked.
+                const isAvailable = carType ? (availability[carType] === true) : false;
+                
+                const badge = card.querySelector(".badge-ketersediaan");
+                if (isAvailable) {
+                    card.classList.remove("opacity-80", "grayscale-[30%]", "cursor-not-allowed", "pointer-events-none");
+                    card.classList.add("cursor-pointer");
+                    card.setAttribute("data-available", "true");
+                    
+                    if (badge) {
+                        badge.textContent = "Tersedia";
+                        badge.className = "badge-ketersediaan bg-emerald-500/90 backdrop-blur-sm text-white text-xs font-bold px-3 py-2 rounded-full shadow-sm";
+                    }
+                } else {
+                    card.classList.add("opacity-80", "grayscale-[30%]", "cursor-not-allowed", "pointer-events-none");
+                    card.classList.remove("cursor-pointer");
+                    card.setAttribute("data-available", "false");
+                    
+                    // Deselect if it was previously selected
+                    if (selectArmada.value === carType) {
+                        selectArmada.value = "";
+                        card.classList.remove(
+                            "border-primary",
+                            "ring-2",
+                            "ring-primary",
+                            "bg-primary/5",
+                        );
+                        const checkIcon = card.querySelector(".selected-check");
+                        if (checkIcon) {
+                            checkIcon.classList.remove("opacity-100", "scale-100");
+                            checkIcon.classList.add("opacity-0", "scale-50");
+                        }
+                    }
+                    
+                    if (badge) {
+                        badge.textContent = "Sedang Disewa";
+                        badge.className = "badge-ketersediaan bg-red-500/90 backdrop-blur-sm text-white text-xs font-bold px-3 py-2 rounded-full shadow-sm";
+                    }
+                }
+            });
+        } catch (e) {
+            console.error("Gagal mengecek ketersediaan armada:", e);
+        }
+    };
+
+    if (inputTanggalSewa && inputTanggalKepulangan) {
+        const now = new Date();
+        const today = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString().split("T")[0];
+        inputTanggalSewa.min = today;
+        inputTanggalSewa.addEventListener("change", (e) => {
+            const target = e.target as HTMLInputElement;
+            const dateBerangkat = target.value;
+            inputTanggalKepulangan.min = dateBerangkat;
+            if (
+                inputTanggalKepulangan.value &&
+                inputTanggalKepulangan.value < dateBerangkat
+            ) {
+                inputTanggalKepulangan.value = "";
+            }
+            checkFleetCards();
+        });
+
+        inputTanggalKepulangan.addEventListener("change", checkFleetCards);
+    }
+
+    // 4. LOGIKA SUBMIT STEP 1 -> STEP 2
+    formStep1.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        
+        // Cek armada global saat submit (fallback)
+        try {
+            const fleetCheck = await travelService.checkFleetsAvailability();
+            if (fleetCheck && fleetCheck.data && fleetCheck.data.available === false) {
+                if (typeof (window as any).showGlobalFleetAlert === 'function') {
+                    (window as any).showGlobalFleetAlert();
+                }
+                return; // Berhenti
+            }
+        } catch (err) {
+            console.error("Gagal mengecek armada:", err);
+        }
+        
+        if (checkGuest(e)) return;
+
+        const formData = new FormData(formStep1 as HTMLFormElement);
+        const data = Object.fromEntries(formData.entries());
+
+        if (summaryArmada)
+            summaryArmada.textContent =
+                selectArmada.options[selectArmada.selectedIndex].text;
+        if (summaryTanggal)
+            summaryTanggal.textContent = data.tanggal_sewa as string;
+        if (summaryTujuan)
+            summaryTujuan.textContent = data.tujuan as string;
+
+        if (leftStep1 && leftStep2 && rightStep1 && rightStep2) {
+            leftStep1.classList.add("hidden");
+            leftStep1.classList.remove("block");
+            rightStep1.classList.add("hidden");
+            leftStep2.classList.remove("hidden");
+            rightStep2.classList.remove("hidden");
+            rightStep2.classList.add("block");
+        }
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    // 5. LOGIKA TOMBOL KEMBALI
+    if (btnKembali) {
+        btnKembali.addEventListener("click", (e) => {
+            if (checkGuest(e)) return;
+            if (leftStep1 && leftStep2 && rightStep1 && rightStep2) {
+                leftStep2.classList.add("hidden");
+                rightStep2.classList.remove("block");
+                rightStep2.classList.add("hidden");
+                leftStep1.classList.remove("hidden");
+                leftStep1.classList.add("block");
+                rightStep1.classList.remove("hidden");
+            }
+        });
+    }
+
+    // 6. FINAL SUBMISSION
+    const formStep2 = document.getElementById("form-data-diri-booking");
+    if (formStep2) {
+        formStep2.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            if (checkGuest(e)) return;
+
+            const submitBtn = formStep2.querySelector(
+                'button[type="submit"]',
+            ) as HTMLButtonElement | null;
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = "Memproses...";
+            }
+
+            try {
+                // Kumpulkan data dari kedua form
+                const formData1 = new FormData(
+                    formStep1 as HTMLFormElement,
+                );
+                const data1 = Object.fromEntries(formData1.entries());
+
+                const formData2 = new FormData(
+                    formStep2 as HTMLFormElement,
+                );
+                const data2 = Object.fromEntries(formData2.entries());
+
+                const payload = {
+                    destination: data1.tujuan as string,
+                    car_type: data1.jenis_armada as string,
+                    departure_date: data1.tanggal_sewa as string,
+                    return_date: data1.tanggal_kepulangan as string,
+                    full_name: data2.full_name as string,
+                    sub_district: data2.sub_district as string,
+                    village: data2.village as string,
+                    landmark: data2.landmark as string,
+                    notes: data2.notes as string || "",
+                    pickup_address: JSON.stringify({
+                        kecamatan: data2.sub_district || "-",
+                        desa: data2.village || "-",
+                        dusun: data2.hamlet || "-",
+                        rt_rw: `${data2.rt || "-"}/${data2.rw || "-"}`,
+                        patokan: data2.landmark || "-",
+                    }),
+                };
+
+                // dokumentasi: Mengirim data booking charter ke Backend API
+                await charterService.createCharterRequest(payload);
+
+                (window as any).showFeedbackModal(
+                    "success",
+                    "Pemesanan Berhasil",
+                    "Booking Charter Berhasil Diajukan! Tim admin kami akan mereview pesanan Anda.",
+                    "/user/booking-history",
+                );
+            } catch (error) {
+                console.error("Submit Charter Error:", error);
+                (window as any).showFeedbackModal(
+                    "error",
+                    "Pemesanan Gagal",
+                    "Gagal memproses pesanan Charter. Server sedang gangguan atau tidak terhubung.",
+                );
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = "Coba Lagi";
+                }
+            }
+        });
+    }
+
+    // 7. LOGIKA AUTO-FILL & AUTO-SCROLL UNTUK TAB
+    const params = new URLSearchParams(window.location.search);
+    const tujuanDariURL = params.get("tujuan");
+    const hashTarget = window.location.hash;
+
+    if (inputTujuan && tujuanDariURL) {
+        inputTujuan.value = tujuanDariURL;
+        inputTujuan.classList.add(
+            "ring-2",
+            "ring-emerald-400",
+            "bg-emerald-50",
+        );
+        setTimeout(() => {
+            inputTujuan.classList.remove(
+                "ring-2",
+                "ring-emerald-400",
+                "bg-emerald-50",
+            );
+        }, 1500);
+    }
+
+    if (hashTarget === "#booking-component") {
+        const targetElement = document.getElementById("booking-component");
+        if (targetElement) {
+            const tabBooking = document.getElementById("tab-btn-booking");
+            if (tabBooking) tabBooking.click();
+
+            const observer = new MutationObserver((mutations, obs) => {
+                if (targetElement.offsetParent !== null) {
+                    targetElement.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start",
+                    });
+                    obs.disconnect();
+                }
+            });
+
+            observer.observe(targetElement, {
+                attributes: true,
+                attributeFilter: ["class"],
+            });
+
+            setTimeout(() => {
+                targetElement.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start",
+                });
+                observer.disconnect();
+            }, 800);
+        }
+    }
+};
+
