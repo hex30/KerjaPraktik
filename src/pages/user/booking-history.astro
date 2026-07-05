@@ -72,8 +72,15 @@ const orderHistory = await userService.getUserHistory(token);
         }
     }
     
-    // Assign ke window object agar bisa dipanggil dari HTML onclick
     (window as any).selectPaymentMethod = async (orderId: string, type: string, method: string) => {
+        const methodName = method === 'cash' ? 'Tunai (Bayar di Tempat)' : 'Transfer (QRIS)';
+        const confirmed = await window.showConfirmModal(
+            'Konfirmasi Metode Pembayaran', 
+            `Apakah Anda yakin memilih metode pembayaran ${methodName}? Pilihan ini tidak dapat diubah.`
+        );
+
+        if (!confirmed) return;
+
         try {
             const token = localStorage.getItem('jwt_token') || document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
             let endpoint = '';
