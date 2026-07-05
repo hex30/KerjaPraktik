@@ -120,6 +120,26 @@ import FeedbackModal from "@components/ui/FeedbackModal.astro";
                     document.getElementById("reg_password") as HTMLInputElement
                 ).value;
 
+                const confirmPasswordInput = document.getElementById(
+                    "reg_confirm_password",
+                ) as HTMLInputElement;
+                const confirmPassword = confirmPasswordInput
+                    ? confirmPasswordInput.value
+                    : "";
+
+                if (password !== confirmPassword) {
+                    (window as any).showFeedbackModal(
+                        "error",
+                        "Pendaftaran Gagal",
+                        "Sepertinya Ada Perbedaan di Kata Sandi Anda.",
+                    );
+                    if (btnSubmit) {
+                        btnSubmit.disabled = false;
+                        btnSubmit.textContent = originalText;
+                    }
+                    return;
+                }
+
                 const phoneInput = document.getElementById(
                     "reg_telp",
                 ) as HTMLInputElement;
@@ -138,11 +158,12 @@ import FeedbackModal from "@components/ui/FeedbackModal.astro";
 
                     // Menampilkan Modal Berhasil
                     (window as any).showFeedbackModal(
-                        'success',
-                        'Pendaftaran Berhasil!',
-                        response.message || 'Akun Anda berhasil dibuat. Silakan masuk dengan kredensial baru Anda.'
+                        "success",
+                        "Pendaftaran Berhasil!",
+                        response.message ||
+                            "Akun Anda berhasil dibuat. Silakan masuk dengan kredensial baru Anda.",
                     );
-                    
+
                     registerForm.reset();
 
                     const loginLink = document.querySelector(
@@ -156,9 +177,9 @@ import FeedbackModal from "@components/ui/FeedbackModal.astro";
                     console.error("Gagal mendaftar", error);
                     // Menampilkan Modal Gagal
                     (window as any).showFeedbackModal(
-                        'error',
-                        'Pendaftaran Gagal',
-                        error.message || 'Pastikan pengisian data sesuai.'
+                        "error",
+                        "Pendaftaran Gagal",
+                        error.message || "Pastikan pengisian data sesuai.",
                     );
                 } finally {
                     if (btnSubmit) {
@@ -208,38 +229,43 @@ import FeedbackModal from "@components/ui/FeedbackModal.astro";
                     const token = response.data?.token || response.token;
                     const user = response.data?.user || response.user;
 
-                    if (!token || !user) throw new Error("Format respons tidak valid dari server.");
+                    if (!token || !user)
+                        throw new Error(
+                            "Format respons tidak valid dari server.",
+                        );
 
                     localStorage.setItem("jwt_token", token);
-                    localStorage.setItem(
-                        "user_data",
-                        JSON.stringify(user),
-                    );
+                    localStorage.setItem("user_data", JSON.stringify(user));
                     document.cookie = `token=${token}; path=/; max-age=86400; SameSite=Lax`;
 
                     // Role-Based Access Control (RBAC) Redirect
-                    const role = user.role?.toLowerCase() || 'customer';
+                    const role = user.role?.toLowerCase() || "customer";
                     let redirectTarget = "/";
-                    if (role === 'admin' || role === 'superadmin' || role === 'super_admin') {
+                    if (
+                        role === "admin" ||
+                        role === "superadmin" ||
+                        role === "super_admin"
+                    ) {
                         redirectTarget = "/admin";
-                    } else if (role === 'driver' || role === 'supir') {
+                    } else if (role === "driver" || role === "supir") {
                         redirectTarget = "/driver";
                     }
 
                     // Tampilkan modal sukses lalu redirect otomatis
                     (window as any).showFeedbackModal(
-                        'success',
-                        'Login Berhasil',
-                        response.message || 'Selamat datang kembali!',
-                        redirectTarget
+                        "success",
+                        "Login Berhasil",
+                        response.message || "Selamat datang kembali!",
+                        redirectTarget,
                     );
                 } catch (e) {
                     const error = e as any;
                     console.error("Gagal login:", error);
                     (window as any).showFeedbackModal(
-                        'error',
-                        'Login Gagal',
-                        error.message || 'Email atau Kata Sandi yang Anda masukkan salah.'
+                        "error",
+                        "Login Gagal",
+                        error.message ||
+                            "Email atau Kata Sandi yang Anda masukkan salah.",
                     );
                 } finally {
                     if (btnSubmit) {
@@ -251,10 +277,3 @@ import FeedbackModal from "@components/ui/FeedbackModal.astro";
         }
     });
 </script>
-
-
-
-
-
-
-
