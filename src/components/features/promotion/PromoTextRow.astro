@@ -9,12 +9,12 @@ interface Props {
 const { text, description, align = "left" } = Astro.props;
 ---
 
-<div class:list={["promo-text-row flex flex-col md:flex-row gap-3 md:gap-4 items-start md:items-center overflow-hidden", align === "right" ? "md:flex-row-reverse" : ""]}>
-    <h2 class="promo-headline text-primary uppercase tracking-tight leading-[0.9] break-words hyphens-auto" style="font-size: clamp(1.75rem, 5vw, 3.75rem); font-weight: 900;">
+<div class:list={["promo-text-row flex flex-col md:flex-row gap-3 md:gap-4 items-center overflow-hidden", align === "right" ? "md:flex-row-reverse" : ""]}>
+    <h2 class:list={["promo-headline text-center text-primary uppercase tracking-tight leading-[0.9] break-words hyphens-auto", align === "right" ? "md:text-right" : "md:text-left"]} style="font-size: clamp(1.75rem, 5vw, 3.75rem); font-weight: 900;">
         {text}
     </h2>
     {description && (
-        <p class="promo-desc font-secondary text-[10px] sm:text-xs text-text-secondary leading-tight md:leading-relaxed max-w-[220px] shrink-0">
+        <p class:list={["promo-desc font-secondary text-[10px] sm:text-xs text-text-secondary text-center leading-tight md:leading-relaxed max-w-[220px] shrink-0", align === "right" ? "md:text-right" : "md:text-left"]}>
             {description}
         </p>
     )}

@@ -1,26 +1,30 @@
 ---
 // File: src/pages/admin/content.astro
 import AdminLayout from "@layouts/AdminLayout.astro";
+import AdminPageHeader from "@features/admin/shared/AdminPageHeader.astro";
 import PromoManager from "@features/admin/content/PromoManager.astro";
 import { adminContentService } from "@services/adminContentService";
 
 // Ambil data promo aktif dari Backend (SSR)
 const promos = await adminContentService.getPromotions();
-const currentPromo = promos.length > 0 ? promos[0] : { 
-    id: "",
-    discount: "0", 
-    tagline: "Belum Ada Promo Aktif", 
-    description: "",
-    isActive: false 
-};
+const currentPromo =
+    promos.length > 0
+        ? promos[0]
+        : {
+              id: "",
+              discount: "0",
+              tagline: "Belum Ada Promo Aktif",
+              description: "",
+              isActive: false,
+          };
 ---
 
 <AdminLayout title="Kelola Konten Dinamis">
     <div class="flex flex-col gap-12">
-        <header class="flex flex-col gap-1">
-            <h1 class="text-3xl font-black text-slate-900 tracking-tight">Kelola Konten Dinamis</h1>
-            <p class="text-sm text-slate-400 font-medium">Atur promo aktif yang tampil di beranda pelanggan.</p>
-        </header>
+        <AdminPageHeader 
+            title="Kelola Konten Dinamis"
+            description="Atur promo aktif yang tampil di beranda pelanggan."
+        />
 
         <!-- Unified Promo Manager -->
         {/* @ts-ignore */}
@@ -30,65 +34,174 @@ const currentPromo = promos.length > 0 ? promos[0] : {
             <!-- Riwayat Promosi -->
             <section class="flex flex-col gap-6">
                 <div class="flex items-center justify-between px-2">
-                    <h2 class="text-sm font-bold text-slate-400 uppercase tracking-widest">Riwayat Promosi</h2>
-                    <span class="text-xs font-bold text-slate-400 bg-slate-100 px-3 py-1 rounded-full">{promos.length} Promo Tersimpan</span>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {promos.length === 0 ? (
-                        <div class="col-span-full bg-slate-50 border border-slate-100 rounded-2xl p-8 text-center flex flex-col items-center justify-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" /></svg>
-                            <p class="text-slate-500 font-bold text-sm">Belum ada promo yang ditambahkan.</p>
-                        </div>
-                    ) : (
-                        promos.map((promo: any) => (
-                            <div class="bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm flex flex-col gap-4 hover:shadow-md transition-shadow relative overflow-hidden group">
-                                {promo.isActive && (
-                                    <div class="absolute top-0 right-0 bg-sky-500 text-white text-[9px] font-black uppercase tracking-widest px-4 py-1.5 rounded-bl-xl z-20">
-                                        Promo Aktif
-                                    </div>
-                                )}
-                                {promo.image_url && (
-                                    <div class="absolute inset-0 z-0">
-                                        <img src={promo.image_url} alt={promo.tagline} class="w-full h-full object-cover opacity-10 group-hover:opacity-20 transition-opacity duration-500" />
-                                        <div class="absolute inset-0 bg-gradient-to-t from-white via-white/90 to-white/50"></div>
-                                    </div>
-                                )}
-                                <div class="flex items-start justify-between relative z-10">
-                                    <div class="flex flex-col gap-1 z-10">
-                                        <span class="text-2xl font-black text-primary">{promo.discount}% OFF</span>
-                                        <h3 class="text-sm font-bold text-slate-900">{promo.tagline}</h3>
-                                    </div>
-                                    <div class="w-10 h-10 rounded-full bg-primary/5 flex items-center justify-center z-10">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" /></svg>
-                                    </div>
-                                </div>
-                                <p class="text-xs text-slate-500 font-secondary line-clamp-2 z-10">
-                                    {promo.description || "Tidak ada deskripsi rinci untuk promo ini."}
-                                </p>
-                                <div class="flex gap-2 mt-2 z-10">
-                                    <button 
-                                        type="button"
-                                        class="edit-promo-btn flex-1 bg-slate-50 hover:bg-primary/10 hover:text-primary text-slate-600 text-[10px] font-black uppercase tracking-widest py-3 rounded-xl transition-colors"
-                                        data-promo={JSON.stringify(promo)}
-                                    >
-                                        Edit Data
-                                    </button>
-                                </div>
-                                {/* Background Decoration */}
-                                <div class="absolute -bottom-6 -right-6 w-32 h-32 bg-slate-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"></div>
-                            </div>
-                        ))
-                    )}
+                    <h2
+                        class="text-sm font-bold text-slate-400 uppercase tracking-widest"
+                    >
+                        Riwayat Promosi
+                    </h2>
+                    <span
+                        class="text-xs font-bold text-slate-400 bg-slate-100 px-3 py-1 rounded-full"
+                        >{promos.length} Promo Tersimpan</span
+                    >
                 </div>
 
-                <div class="bg-amber-50 border border-amber-100 p-6 md:p-8 rounded-2xl md:rounded-[2rem] flex flex-col md:flex-row gap-4 md:gap-6 items-start md:items-center mt-6">
-                    <div class="p-3 bg-amber-100 text-amber-600 rounded-xl md:rounded-2xl">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" /></svg>
+                <div
+                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                >
+                    {
+                        promos.length === 0 ? (
+                            <div class="col-span-full bg-slate-50 border border-slate-100 rounded-2xl p-8 text-center flex flex-col items-center justify-center gap-2">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    class="h-10 w-10 text-slate-300"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke="currentColor"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M20 12H4"
+                                    />
+                                </svg>
+                                <p class="text-slate-500 font-bold text-sm">
+                                    Belum ada promo yang ditambahkan.
+                                </p>
+                            </div>
+                        ) : (
+                            promos.map((promo: any, index: number) => (
+                                <div
+                                    class:list={[
+                                        "bg-white rounded-[2rem] p-6 border border-slate-100 shadow-sm flex flex-col gap-4 hover:shadow-md transition-shadow relative overflow-hidden group promo-card",
+                                        index > 0
+                                            ? "hidden md:flex extra-promo"
+                                            : "",
+                                    ]}
+                                >
+                                    {promo.isActive && (
+                                        <div class="absolute top-0 right-0 bg-sky-500 text-white text-[9px] font-black uppercase tracking-widest px-4 py-1.5 rounded-bl-xl z-20">
+                                            Promo Aktif
+                                        </div>
+                                    )}
+                                    {promo.image_url && (
+                                        <div class="absolute inset-0 z-0">
+                                            <img
+                                                src={promo.image_url}
+                                                alt={promo.tagline}
+                                                class="w-full h-full object-cover opacity-10 group-hover:opacity-20 transition-opacity duration-500"
+                                            />
+                                            <div class="absolute inset-0 bg-gradient-to-t from-white via-white/90 to-white/50" />
+                                        </div>
+                                    )}
+                                    <div class="flex items-start justify-between relative z-10">
+                                        <div class="flex flex-col gap-1 z-10">
+                                            <span class="text-2xl font-black text-primary">
+                                                {promo.discount}% OFF
+                                            </span>
+                                            <h3 class="text-sm font-bold text-slate-900">
+                                                {promo.tagline}
+                                            </h3>
+                                        </div>
+                                        <div class="w-10 h-10 rounded-full bg-primary/5 flex items-center justify-center z-10">
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                class="h-5 w-5 text-primary"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7"
+                                                />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <p class="text-xs text-slate-500 font-secondary line-clamp-2 z-10">
+                                        {promo.description ||
+                                            "Tidak ada deskripsi rinci untuk promo ini."}
+                                    </p>
+                                    <div class="flex gap-2 mt-2 z-10">
+                                        <button
+                                            type="button"
+                                            class="edit-promo-btn flex-1 bg-slate-50 hover:bg-primary/10 hover:text-primary text-slate-600 text-[10px] font-black uppercase tracking-widest py-3 rounded-xl transition-colors"
+                                            data-promo={JSON.stringify(promo)}
+                                        >
+                                            Edit Data
+                                        </button>
+                                    </div>
+                                    {/* Background Decoration */}
+                                    <div class="absolute -bottom-6 -right-6 w-32 h-32 bg-slate-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+                                </div>
+                            ))
+                        )
+                    }
+                </div>
+
+                {
+                    promos.length > 1 && (
+                        <div class="mt-4 flex justify-center md:hidden">
+                            <button
+                                id="toggle-promo-btn"
+                                class="flex w-full justify-center items-center gap-3 px-8 py-4 bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl text-slate-500 font-bold text-sm hover:border-primary hover:text-primary transition-all group"
+                            >
+                                <span id="promo-toggle-text">
+                                    Tampilkan Sisa Promo
+                                </span>
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    stroke-width="2.5"
+                                    stroke="currentColor"
+                                    class="w-4 h-4 transition-transform group-hover:translate-y-0.5"
+                                >
+                                    <path
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+                                    />
+                                </svg>
+                            </button>
+                        </div>
+                    )
+                }
+
+                <div
+                    class="bg-amber-50 border border-amber-100 p-6 md:p-8 rounded-2xl md:rounded-[2rem] flex flex-col md:flex-row gap-4 md:gap-6 items-start md:items-center mt-6"
+                >
+                    <div
+                        class="p-3 bg-amber-100 text-amber-600 rounded-xl md:rounded-2xl"
+                    >
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke-width="2.5"
+                            stroke="currentColor"
+                            class="w-6 h-6"
+                            ><path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
+                            ></path></svg
+                        >
                     </div>
                     <div>
-                        <p class="text-base font-black text-amber-900">Catatan Sinkronisasi Admin</p>
-                        <p class="text-sm text-amber-700 font-secondary mt-1 leading-relaxed">Pilih salah satu promo di atas dan centang "Tampilkan sebagai Promo Aktif Utama" untuk menampilkannya di halaman utama (Landing Page) pelanggan.</p>
+                        <p class="text-base font-black text-amber-900">
+                            Catatan Sinkronisasi Admin
+                        </p>
+                        <p
+                            class="text-sm text-amber-700 font-secondary mt-1 leading-relaxed"
+                        >
+                            Pilih salah satu promo di atas dan centang
+                            "Tampilkan sebagai Promo Aktif Utama" untuk
+                            menampilkannya di halaman utama (Landing Page)
+                            pelanggan.
+                        </p>
                     </div>
                 </div>
             </section>
@@ -96,8 +209,49 @@ const currentPromo = promos.length > 0 ? promos[0] : {
     </div>
 </AdminLayout>
 
+<script>
+    const setupPromoToggle = () => {
+        const toggleBtn = document.getElementById("toggle-promo-btn");
+        const extraPromos = document.querySelectorAll(".extra-promo");
 
+        toggleBtn?.addEventListener("click", () => {
+            if (extraPromos.length === 0) return;
+            const isHidden = extraPromos[0].classList.contains("hidden");
+            const toggleText = document.getElementById("promo-toggle-text");
 
+            extraPromos.forEach((promo) => {
+                if (isHidden) {
+                    promo.classList.remove("hidden");
+                    promo.classList.add("animate-fade-in");
+                } else {
+                    promo.classList.add("hidden");
+                }
+            });
 
+            if (toggleText) {
+                toggleText.textContent = isHidden
+                    ? "Sembunyikan Promo"
+                    : "Tampilkan Sisa Promo";
+            }
+        });
+    };
 
+    document.addEventListener("DOMContentLoaded", setupPromoToggle);
+    document.addEventListener("astro:page-load", setupPromoToggle);
+</script>
 
+<style>
+    .animate-fade-in {
+        animation: fadeIn 0.5s ease-out forwards;
+    }
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>

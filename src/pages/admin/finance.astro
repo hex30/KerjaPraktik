@@ -3,6 +3,8 @@
 import AdminLayout from "@layouts/AdminLayout.astro";
 import StatCard from "@features/admin/dashboard/StatCard.astro";
 
+import AdminPageHeader from "@features/admin/shared/AdminPageHeader.astro";
+
 // Data Keuangan Dinamis (Server-Side)
 const token = Astro.cookies.get("token")?.value;
 const API_BASE = import.meta.env.PUBLIC_API_URL || "http://localhost:5000";
@@ -46,26 +48,26 @@ const mockExpenseYearThis = summary.this_year_expense || 0;
 // Hitung growth
 let growth = 0;
 if (summary.last_month_income > 0) {
-    growth = ((summary.total_income - summary.last_month_income) / summary.last_month_income) * 100;
+    growth =
+        ((summary.total_income - summary.last_month_income) /
+            summary.last_month_income) *
+        100;
 }
 ---
 
 <AdminLayout title="Ringkasan Laporan">
-    <div id="finance-summary-data" data-summary={JSON.stringify(summary)} class="hidden"></div>
+    <div
+        id="finance-summary-data"
+        data-summary={JSON.stringify(summary)}
+        class="hidden"
+    >
+    </div>
     <div class="flex flex-col gap-10">
         <!-- HEADER PAGE -->
-        <header
-            class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+        <AdminPageHeader 
+            title="Ringkasan Laporan"
+            description="Informasi menyeluruh performa keuangan dan alokasi hasil supir."
         >
-            <div class="flex flex-col gap-1">
-                <h1 class="text-3xl font-black text-slate-900 tracking-tight">
-                    Ringkasan Laporan
-                </h1>
-                <p class="text-sm text-slate-400 font-medium">
-                    Informasi menyeluruh performa keuangan dan alokasi hasil
-                    supir.
-                </p>
-            </div>
 
             <!-- Download Button Dropdown Container -->
             <div
@@ -105,9 +107,7 @@ if (summary.last_month_income > 0) {
                             data-format="pdf"
                             class="download-option-btn w-full flex items-center gap-3 px-4 py-3 text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-[#044751] transition-all"
                         >
-                            <span
-                                class="p-1 bg-red-50 text-red-500 rounded-lg"
-                            >
+                            <span class="p-1 bg-red-50 text-red-500 rounded-lg">
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     class="h-4 w-4"
@@ -153,7 +153,7 @@ if (summary.last_month_income > 0) {
                     </div>
                 </div>
             </div>
-        </header>
+        </AdminPageHeader>
 
         <!-- SUMMARY STATS -->
         <section class="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-6xl">
@@ -166,10 +166,16 @@ if (summary.last_month_income > 0) {
                         class="text-[9px] font-black uppercase tracking-widest text-white/60"
                         >Estimasi Alokasi</span
                     >
-                    <h3 class="text-lg font-black mt-1">Gaji Supir Hari Ini (40%)</h3>
+                    <h3 class="text-lg font-black mt-1">
+                        Gaji Supir Hari Ini (40%)
+                    </h3>
                 </div>
                 <div class="mt-4">
-                    <span class="text-2xl font-black" id="stat-driver-salary">Rp {(summary.today_income * 0.4).toLocaleString("id-ID")}</span>
+                    <span class="text-2xl font-black" id="stat-driver-salary"
+                        >Rp {
+                            (summary.today_income * 0.4).toLocaleString("id-ID")
+                        }</span
+                    >
                     <p class="text-[10px] text-white/70 mt-1">
                         * 40% dari total pendapatan armada hari ini
                     </p>
@@ -183,7 +189,10 @@ if (summary.last_month_income > 0) {
                     value={`Rp ${summary.total_income.toLocaleString("id-ID")}`}
                     icon={`<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>`}
                     color="emerald"
-                    trend={{ value: `${Math.abs(growth).toFixed(1)}%`, isUp: growth >= 0 }}
+                    trend={{
+                        value: `${Math.abs(growth).toFixed(1)}%`,
+                        isUp: growth >= 0,
+                    }}
                 />
             </div>
 
@@ -222,7 +231,9 @@ if (summary.last_month_income > 0) {
         <section
             class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex flex-col gap-6"
         >
-            <div class="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-6">
+            <div
+                class="flex flex-col xl:flex-row items-start xl:items-center justify-between gap-6"
+            >
                 <div>
                     <h2 class="text-xl font-black text-slate-900">
                         Riwayat Transaksi
@@ -232,20 +243,37 @@ if (summary.last_month_income > 0) {
                         operasional.
                     </p>
                 </div>
-                
+
                 <!-- Filter Section -->
                 <div class="flex flex-wrap items-center gap-3">
-                    <select id="tx-filter-service" class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer">
+                    <select
+                        id="tx-filter-service"
+                        class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer"
+                    >
                         <option value="ALL">Semua Layanan</option>
                         <option value="Travel Reguler">Travel Reguler</option>
                         <option value="Sewa Charter">Sewa Charter</option>
-                        <option value="Pengiriman Paket">Pengiriman Paket</option>
+                        <option value="Pengiriman Paket"
+                            >Pengiriman Paket</option
+                        >
                     </select>
-                    <input type="date" id="tx-filter-date" class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer">
-                    <button type="button" id="tx-btn-apply" class="bg-[#044751] hover:bg-[#03363e] text-white px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest shadow-md shadow-primary/20 hover:scale-105 active:scale-95 transition-all">
+                    <input
+                        type="date"
+                        id="tx-filter-date"
+                        class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-sm font-bold text-slate-700 outline-none focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer"
+                    />
+                    <button
+                        type="button"
+                        id="tx-btn-apply"
+                        class="bg-[#044751] hover:bg-[#03363e] text-white px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest shadow-md shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
+                    >
                         Terapkan
                     </button>
-                    <button type="button" id="tx-btn-reset" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all">
+                    <button
+                        type="button"
+                        id="tx-btn-reset"
+                        class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all"
+                    >
                         Reset
                     </button>
                 </div>
@@ -310,7 +338,7 @@ if (summary.last_month_income > 0) {
                                         <tr
                                             class={`group hover:bg-slate-50/50 transition-all duration-300 whitespace-nowrap md:whitespace-normal tx-row ${index >= 5 ? "hidden opacity-0 max-h-0" : "opacity-100"}`}
                                             data-service-type={serviceType}
-                                            data-date={tx.created_at || ''}
+                                            data-date={tx.created_at || ""}
                                         >
                                             <td class="py-4 px-4 font-bold text-slate-900 text-sm">
                                                 #
@@ -465,11 +493,17 @@ if (summary.last_month_income > 0) {
             });
 
             const downloadReport = async (format: string) => {
-                const token = document.cookie.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
-                const API_BASE = import.meta.env.PUBLIC_API_URL || "http://localhost:5000";
-                const downloadBtn = document.getElementById("download-report-btn");
+                const token = document.cookie
+                    .split("; ")
+                    .find((row) => row.startsWith("token="))
+                    ?.split("=")[1];
+                const API_BASE =
+                    import.meta.env.PUBLIC_API_URL || "http://localhost:5000";
+                const downloadBtn = document.getElementById(
+                    "download-report-btn",
+                );
                 const originalContent = downloadBtn?.innerHTML;
-                
+
                 try {
                     if (downloadBtn) {
                         downloadBtn.setAttribute("disabled", "true");
@@ -477,52 +511,96 @@ if (summary.last_month_income > 0) {
                     }
 
                     // Ambil seluruh data transaksi
-                    const txRes = await fetch(`${API_BASE}/api/admin/cashflow/transactions?limit=1000`, {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    
-                    if (!txRes.ok) throw new Error("Gagal mengambil data transaksi");
+                    const txRes = await fetch(
+                        `${API_BASE}/api/admin/cashflow/transactions?limit=1000`,
+                        {
+                            headers: { Authorization: `Bearer ${token}` },
+                        },
+                    );
+
+                    if (!txRes.ok)
+                        throw new Error("Gagal mengambil data transaksi");
                     const allTx = (await txRes.json()).data || [];
 
                     // Ambil summary dari DOM
-                    const summaryDataEl = document.getElementById("finance-summary-data");
-                    const summary = summaryDataEl ? JSON.parse(summaryDataEl.getAttribute("data-summary") || "{}") : {};
+                    const summaryDataEl = document.getElementById(
+                        "finance-summary-data",
+                    );
+                    const summary = summaryDataEl
+                        ? JSON.parse(
+                              summaryDataEl.getAttribute("data-summary") ||
+                                  "{}",
+                          )
+                        : {};
 
                     if (format === "excel") {
                         // EXPORT EXCEL (CSV)
                         let csvContent = "\uFEFF"; // UTF-8 BOM
-                        csvContent += "ID Transaksi,Tanggal,Metode Pembayaran,Jenis Layanan,Keterangan,Tipe,Jumlah (IDR)\n";
+                        csvContent +=
+                            "ID Transaksi,Tanggal,Metode Pembayaran,Jenis Layanan,Keterangan,Tipe,Jumlah (IDR)\n";
 
                         allTx.forEach((tx: any) => {
                             let serviceType = "Operasional";
-                            const categoryLower = (tx.category || "").toLowerCase();
-                            if (categoryLower.includes("charter") || categoryLower.includes("sewa")) {
+                            const categoryLower = (
+                                tx.category || ""
+                            ).toLowerCase();
+                            if (
+                                categoryLower.includes("charter") ||
+                                categoryLower.includes("sewa")
+                            ) {
                                 serviceType = "Sewa Charter";
-                            } else if (categoryLower.includes("travel") || categoryLower.includes("rute") || categoryLower.includes("ticket")) {
+                            } else if (
+                                categoryLower.includes("travel") ||
+                                categoryLower.includes("rute") ||
+                                categoryLower.includes("ticket")
+                            ) {
                                 serviceType = "Travel Reguler";
-                            } else if (categoryLower.includes("package") || categoryLower.includes("shipment") || categoryLower.includes("paket")) {
+                            } else if (
+                                categoryLower.includes("package") ||
+                                categoryLower.includes("shipment") ||
+                                categoryLower.includes("paket")
+                            ) {
                                 serviceType = "Pengiriman Paket";
                             }
 
-                            const txId = "#" + tx.id.substring(0, 8).toUpperCase();
-                            const txDate = new Date(tx.created_at).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
-                            const method = (tx.payment_method || "TRANSFER").toUpperCase();
-                            const desc = (tx.description || "-").replace(/"/g, '""');
-                            const type = tx.type === "income" ? "Pemasukan (+)" : "Pengeluaran (-)";
+                            const txId =
+                                "#" + tx.id.substring(0, 8).toUpperCase();
+                            const txDate = new Date(
+                                tx.created_at,
+                            ).toLocaleDateString("id-ID", {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                            });
+                            const method = (
+                                tx.payment_method || "TRANSFER"
+                            ).toUpperCase();
+                            const desc = (tx.description || "-").replace(
+                                /"/g,
+                                '""',
+                            );
+                            const type =
+                                tx.type === "income"
+                                    ? "Pemasukan (+)"
+                                    : "Pengeluaran (-)";
                             const amount = tx.amount;
 
                             csvContent += `"${txId}","${txDate}","${method}","${serviceType}","${desc}","${type}",${amount}\n`;
                         });
 
-                        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+                        const blob = new Blob([csvContent], {
+                            type: "text/csv;charset=utf-8;",
+                        });
                         const url = URL.createObjectURL(blob);
                         const link = document.createElement("a");
                         link.setAttribute("href", url);
-                        link.setAttribute("download", `laporan_keuangan_${new Date().toISOString().slice(0, 10)}.csv`);
+                        link.setAttribute(
+                            "download",
+                            `laporan_keuangan_${new Date().toISOString().slice(0, 10)}.csv`,
+                        );
                         document.body.appendChild(link);
                         link.click();
                         document.body.removeChild(link);
-
                     } else if (format === "pdf") {
                         // EXPORT PDF
                         const loadScript = (url: string) => {
@@ -536,10 +614,14 @@ if (summary.last_month_income > 0) {
                         };
 
                         if (!(window as any).jspdf) {
-                            await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js");
+                            await loadScript(
+                                "https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js",
+                            );
                         }
                         if (!(window as any).jspdf.plugin?.autotable) {
-                            await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js");
+                            await loadScript(
+                                "https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js",
+                            );
                         }
 
                         const { jsPDF } = (window as any).jspdf;
@@ -549,14 +631,18 @@ if (summary.last_month_income > 0) {
                         doc.setFontSize(20);
                         doc.setTextColor(4, 71, 81); // Brand Primary
                         doc.text("LAPORAN KEUANGAN OPERASIONAL", 14, 22);
-                        
+
                         doc.setFontSize(12);
                         doc.setTextColor(100, 116, 139);
                         doc.text("PT. Rini Trans Putri", 14, 28);
-                        
+
                         doc.setFont("Helvetica", "normal");
                         doc.setFontSize(8);
-                        doc.text(`Dicetak pada: ${new Date().toLocaleString("id-ID")}`, 14, 34);
+                        doc.text(
+                            `Dicetak pada: ${new Date().toLocaleString("id-ID")}`,
+                            14,
+                            34,
+                        );
 
                         doc.setDrawColor(226, 232, 240);
                         doc.line(14, 38, 196, 38);
@@ -568,29 +654,68 @@ if (summary.last_month_income > 0) {
 
                         doc.setFont("Helvetica", "normal");
                         doc.setFontSize(9);
-                        doc.text(`Total Pendapatan: Rp ${(summary.total_income || 0).toLocaleString("id-ID")}`, 14, 52);
-                        doc.text(`Total Pengeluaran: Rp ${(summary.total_expense || 0).toLocaleString("id-ID")}`, 14, 57);
-                        
-                        const netProfit = (summary.total_income || 0) - (summary.total_expense || 0);
+                        doc.text(
+                            `Total Pendapatan: Rp ${(summary.total_income || 0).toLocaleString("id-ID")}`,
+                            14,
+                            52,
+                        );
+                        doc.text(
+                            `Total Pengeluaran: Rp ${(summary.total_expense || 0).toLocaleString("id-ID")}`,
+                            14,
+                            57,
+                        );
+
+                        const netProfit =
+                            (summary.total_income || 0) -
+                            (summary.total_expense || 0);
                         doc.setFont("Helvetica", "bold");
-                        doc.text(`Laba Bersih (Net Profit): Rp ${netProfit.toLocaleString("id-ID")}`, 14, 63);
+                        doc.text(
+                            `Laba Bersih (Net Profit): Rp ${netProfit.toLocaleString("id-ID")}`,
+                            14,
+                            63,
+                        );
 
                         const tableRows = allTx.map((tx: any) => {
                             let serviceType = "Operasional";
-                            const categoryLower = (tx.category || "").toLowerCase();
-                            if (categoryLower.includes("charter") || categoryLower.includes("sewa")) {
+                            const categoryLower = (
+                                tx.category || ""
+                            ).toLowerCase();
+                            if (
+                                categoryLower.includes("charter") ||
+                                categoryLower.includes("sewa")
+                            ) {
                                 serviceType = "Sewa Charter";
-                            } else if (categoryLower.includes("travel") || categoryLower.includes("rute") || categoryLower.includes("ticket")) {
+                            } else if (
+                                categoryLower.includes("travel") ||
+                                categoryLower.includes("rute") ||
+                                categoryLower.includes("ticket")
+                            ) {
                                 serviceType = "Travel Reguler";
-                            } else if (categoryLower.includes("package") || categoryLower.includes("shipment") || categoryLower.includes("paket")) {
+                            } else if (
+                                categoryLower.includes("package") ||
+                                categoryLower.includes("shipment") ||
+                                categoryLower.includes("paket")
+                            ) {
                                 serviceType = "Pengiriman Paket";
                             }
 
-                            const txId = "#" + tx.id.substring(0, 8).toUpperCase();
-                            const txDate = new Date(tx.created_at).toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" });
-                            const method = (tx.payment_method || "TRANSFER").toUpperCase();
+                            const txId =
+                                "#" + tx.id.substring(0, 8).toUpperCase();
+                            const txDate = new Date(
+                                tx.created_at,
+                            ).toLocaleDateString("id-ID", {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                            });
+                            const method = (
+                                tx.payment_method || "TRANSFER"
+                            ).toUpperCase();
                             const amountFormatted = `Rp ${Number(tx.amount).toLocaleString("id-ID")}`;
-                            const displayAmount = tx.type === "income" ? `+ ${amountFormatted}` : `- ${amountFormatted}`;
+                            const displayAmount =
+                                tx.type === "income"
+                                    ? `+ ${amountFormatted}`
+                                    : `- ${amountFormatted}`;
 
                             return [
                                 txId,
@@ -598,21 +723,32 @@ if (summary.last_month_income > 0) {
                                 method,
                                 serviceType,
                                 tx.description || "-",
-                                displayAmount
+                                displayAmount,
                             ];
                         });
 
                         (doc as any).autoTable({
                             startY: 70,
-                            head: [["ID Transaksi", "Tanggal", "Metode", "Layanan", "Keterangan", "Jumlah"]],
+                            head: [
+                                [
+                                    "ID Transaksi",
+                                    "Tanggal",
+                                    "Metode",
+                                    "Layanan",
+                                    "Keterangan",
+                                    "Jumlah",
+                                ],
+                            ],
                             body: tableRows,
                             theme: "striped",
                             headStyles: { fillColor: [4, 71, 81] },
                             styles: { fontSize: 8, font: "Helvetica" },
-                            columnStyles: { 5: { halign: "right" } }
+                            columnStyles: { 5: { halign: "right" } },
                         });
 
-                        doc.save(`laporan_keuangan_${new Date().toISOString().slice(0, 10)}.pdf`);
+                        doc.save(
+                            `laporan_keuangan_${new Date().toISOString().slice(0, 10)}.pdf`,
+                        );
                     }
 
                     if (downloadBtn && originalContent) {
@@ -620,7 +756,11 @@ if (summary.last_month_income > 0) {
                         downloadBtn.innerHTML = originalContent;
                     }
                 } catch (error: any) {
-                    (window as any).showFeedbackModal("error", "Gagal", "Gagal mengunduh laporan: " + error.message);
+                    (window as any).showFeedbackModal(
+                        "error",
+                        "Gagal",
+                        "Gagal mengunduh laporan: " + error.message,
+                    );
                     if (downloadBtn && originalContent) {
                         downloadBtn.removeAttribute("disabled");
                         downloadBtn.innerHTML = originalContent;
@@ -642,73 +782,79 @@ if (summary.last_month_income > 0) {
     };
 
     const setupTransactionFilter = () => {
-        const btnApply = document.getElementById('tx-btn-apply');
-        const btnReset = document.getElementById('tx-btn-reset');
-        const selectService = document.getElementById('tx-filter-service') as HTMLSelectElement;
-        const inputDate = document.getElementById('tx-filter-date') as HTMLInputElement;
-        const txRows = document.querySelectorAll('.tx-row');
-        const toggleBtn = document.getElementById('toggle-tx-btn');
-        const toggleText = document.getElementById('toggle-tx-text');
-        const toggleIcon = document.getElementById('toggle-tx-icon');
+        const btnApply = document.getElementById("tx-btn-apply");
+        const btnReset = document.getElementById("tx-btn-reset");
+        const selectService = document.getElementById(
+            "tx-filter-service",
+        ) as HTMLSelectElement;
+        const inputDate = document.getElementById(
+            "tx-filter-date",
+        ) as HTMLInputElement;
+        const txRows = document.querySelectorAll(".tx-row");
+        const toggleBtn = document.getElementById("toggle-tx-btn");
+        const toggleText = document.getElementById("toggle-tx-text");
+        const toggleIcon = document.getElementById("toggle-tx-icon");
 
         if (!btnApply || !btnReset) return;
 
-        btnApply.addEventListener('click', () => {
+        btnApply.addEventListener("click", () => {
             const svc = selectService.value;
             const dt = inputDate.value;
-            
-            // Sembunyikan tombol toggle karena sedang mode pencarian (tampilkan semua match)
-            if (toggleBtn) toggleBtn.style.display = 'none';
 
-            txRows.forEach(row => {
-                    const rowSvc = row.getAttribute('data-service-type');
-                    const rawDt = row.getAttribute('data-date');
-                    
-                    let match = true;
-                    const normalizedSvc = svc.trim().toLowerCase();
-                    const normalizedRowSvc = (rowSvc || '').trim().toLowerCase();
-                    
-                    if (svc !== 'ALL' && normalizedRowSvc !== normalizedSvc) match = false;
-                    
-                    if (dt && rawDt) {
-                        try {
-                            const d = new Date(rawDt);
-                            const localRowDt = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-                            if (localRowDt !== dt) match = false;
-                        } catch(e) {
-                            if (!rawDt.includes(dt)) match = false;
-                        }
-                    } else if (dt && !rawDt) {
-                        match = false;
+            // Sembunyikan tombol toggle karena sedang mode pencarian (tampilkan semua match)
+            if (toggleBtn) toggleBtn.style.display = "none";
+
+            txRows.forEach((row) => {
+                const rowSvc = row.getAttribute("data-service-type");
+                const rawDt = row.getAttribute("data-date");
+
+                let match = true;
+                const normalizedSvc = svc.trim().toLowerCase();
+                const normalizedRowSvc = (rowSvc || "").trim().toLowerCase();
+
+                if (svc !== "ALL" && normalizedRowSvc !== normalizedSvc)
+                    match = false;
+
+                if (dt && rawDt) {
+                    try {
+                        const d = new Date(rawDt);
+                        const localRowDt = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+                        if (localRowDt !== dt) match = false;
+                    } catch (e) {
+                        if (!rawDt.includes(dt)) match = false;
                     }
-                    
-                    if (match) {
-                    row.classList.remove('hidden', 'opacity-0', 'max-h-0');
-                    row.classList.add('opacity-100');
+                } else if (dt && !rawDt) {
+                    match = false;
+                }
+
+                if (match) {
+                    row.classList.remove("hidden", "opacity-0", "max-h-0");
+                    row.classList.add("opacity-100");
                 } else {
-                    row.classList.add('hidden', 'opacity-0', 'max-h-0');
-                    row.classList.remove('opacity-100');
+                    row.classList.add("hidden", "opacity-0", "max-h-0");
+                    row.classList.remove("opacity-100");
                 }
             });
         });
 
-        btnReset.addEventListener('click', () => {
-            selectService.value = 'ALL';
-            inputDate.value = '';
-            
+        btnReset.addEventListener("click", () => {
+            selectService.value = "ALL";
+            inputDate.value = "";
+
             if (toggleBtn) {
-                toggleBtn.style.display = 'flex';
-                if (toggleText) toggleText.textContent = "Lihat Semua Transaksi";
+                toggleBtn.style.display = "flex";
+                if (toggleText)
+                    toggleText.textContent = "Lihat Semua Transaksi";
                 if (toggleIcon) toggleIcon.classList.remove("rotate-180");
             }
-            
+
             txRows.forEach((row, idx) => {
                 if (idx < 5) {
-                    row.classList.remove('hidden', 'opacity-0', 'max-h-0');
-                    row.classList.add('opacity-100');
+                    row.classList.remove("hidden", "opacity-0", "max-h-0");
+                    row.classList.add("opacity-100");
                 } else {
-                    row.classList.add('hidden', 'opacity-0', 'max-h-0');
-                    row.classList.remove('opacity-100');
+                    row.classList.add("hidden", "opacity-0", "max-h-0");
+                    row.classList.remove("opacity-100");
                 }
             });
         });
@@ -717,7 +863,7 @@ if (summary.last_month_income > 0) {
     setupTransactionToggle();
     setupDownloadDropdown();
     setupTransactionFilter();
-    
+
     document.addEventListener("astro:page-load", () => {
         setupTransactionToggle();
         setupDownloadDropdown();

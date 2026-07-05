@@ -1,6 +1,7 @@
 ---
 // File: src/pages/driver/index.astro
 import DriverLayout from "@layouts/DriverLayout.astro";
+import DriverPageHeader from "@features/driver/shared/DriverPageHeader.astro";
 import { driverService } from "@services/driverService";
 
 const token = Astro.cookies.get('token')?.value;
@@ -203,11 +204,15 @@ packageTasks.sort((a, b) => {
     const bCompleted = b.status === 'delivered';
     return (aCompleted === bCompleted) ? 0 : aCompleted ? 1 : -1;
 });
-
 ---
 
 <DriverLayout title="Manajemen Tugas">
     <div class="flex flex-col gap-10">
+        <DriverPageHeader 
+            title="Tugas Hari Ini"
+            description="Daftar perjalanan, sewa charter, dan kiriman paket yang ditugaskan kepada Anda."
+        />
+
         <!-- Section: Tugas Charter Hari Ini -->
         {charterTasks.length > 0 && (
         <section class="flex flex-col gap-4">
@@ -381,9 +386,9 @@ packageTasks.sort((a, b) => {
                             <div class="p-6 hidden flex-col gap-5 mt-auto details-section">
                                 <!-- Address Wrapper -->
                                 <!-- Nama Penumpang & Kursi -->
-                                <div class="flex justify-between gap-6">
+                                <div class="flex flex-col md:flex-row justify-between gap-4 md:gap-6">
                                     <!-- Nama Penumpang -->
-                                    <div class="flex flex-col gap-1.5 w-1/2">
+                                    <div class="flex flex-col gap-1.5 w-full md:w-1/2">
                                         <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Nama Penumpang</span>
                                         <div class="flex items-center gap-3 mt-1">
                                             <div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-black text-xs shrink-0">
@@ -394,16 +399,16 @@ packageTasks.sort((a, b) => {
                                     </div>
                                     
                                     <!-- No. Kursi -->
-                                    <div class="flex flex-col gap-1.5 w-1/2">
+                                    <div class="flex flex-col gap-1.5 w-full md:w-1/2">
                                         <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">No. Kursi</span>
                                         <div class="inline-flex w-fit px-3 py-2 bg-slate-100 text-slate-700 rounded-md text-xs font-black mt-1">
                                             Kursi {task.seat_number || '-'}
                                         </div>
                                     </div>
                                 </div>
-                                <div class="flex justify-between gap-6">
+                                <div class="flex flex-col md:flex-row justify-between gap-4 md:gap-6">
                                     <!-- Penjemputan -->
-                                    <div class="flex flex-col gap-1.5 w-1/2">
+                                    <div class="flex flex-col gap-1.5 w-full md:w-1/2">
                                         <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Alamat Detail Penjemputan</span>
                                         <div class="flex flex-col gap-2 mt-1">
                                             {Array.isArray(task.pickup_address) ? task.pickup_address.map((item: any) => (
@@ -416,7 +421,7 @@ packageTasks.sort((a, b) => {
                                     </div>
                                     
                                     <!-- Tujuan -->
-                                    <div class="flex flex-col gap-1.5 w-1/2">
+                                    <div class="flex flex-col gap-1.5 w-full md:w-1/2">
                                         <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Alamat Detail Tujuan</span>
                                         <div class="flex flex-col gap-2 mt-1">
                                             {Array.isArray(task.dropoff_address) ? task.dropoff_address.map((item: any) => (
@@ -537,9 +542,9 @@ packageTasks.sort((a, b) => {
                             <!-- Data Details -->
                             <div class="p-6 hidden flex-col gap-5 mt-auto details-section">
                                 <!-- Address Wrapper -->
-                                <div class="flex justify-between gap-6">
+                                <div class="flex flex-col md:flex-row justify-between gap-4 md:gap-6">
                                     <!-- Penjemputan -->
-                                    <div class="flex flex-col gap-1.5 w-1/2">
+                                    <div class="flex flex-col gap-1.5 w-full md:w-1/2">
                                         <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Alamat Detail Pengirim</span>
                                         <div class="flex flex-col gap-2 mt-1">
                                             {Array.isArray(task.sender_address) ? task.sender_address.map((item: any) => (
@@ -552,7 +557,7 @@ packageTasks.sort((a, b) => {
                                     </div>
                                     
                                     <!-- Tujuan -->
-                                    <div class="flex flex-col gap-1.5 w-1/2">
+                                    <div class="flex flex-col gap-1.5 w-full md:w-1/2">
                                         <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Alamat Detail Penerima</span>
                                         <div class="flex flex-col gap-2 mt-1">
                                             {Array.isArray(task.receiver_address) ? task.receiver_address.map((item: any) => (
