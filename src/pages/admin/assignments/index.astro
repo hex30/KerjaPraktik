@@ -35,6 +35,12 @@ const formatCurrency = (amount: number) => {
         minimumFractionDigits: 0,
     }).format(amount);
 };
+
+const getDriverName = (driverId: string) => {
+    if (!driverId) return "-";
+    const driver = drivers.find((d: any) => d.id === driverId);
+    return driver ? driver.name : "Tanpa Nama";
+};
 ---
 
 <AdminLayout title="Penugasan Armada - Admin Panel">
@@ -327,28 +333,49 @@ const formatCurrency = (amount: number) => {
                                         </div>
                                     </form>
                                 ) : (
-                                    <div class="flex items-center gap-3 mt-2">
-                                        <div class="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
-                                            <svg
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                class="h-5 w-5 text-emerald-500"
-                                                viewBox="0 0 20 20"
-                                                fill="currentColor"
-                                            >
-                                                <path
-                                                    fill-rule="evenodd"
-                                                    d="M10 1.944A11.954 11.954 0 012.166 5C2.056 5.642 2 6.319 2 7c0 5.225 3.34 9.67 8 11.317C14.66 16.67 18 12.225 18 7c0-.682-.057-1.358-.166-2.001A11.954 11.954 0 0110 1.944zM11 14a1 1 0 11-2 0 1 1 0 012 0zm0-7a1 1 0 10-2 0v3a1 1 0 102 0V7z"
-                                                    clip-rule="evenodd"
-                                                />
-                                            </svg>
-                                        </div>
-                                        <div>
-                                            <div class="text-sm font-black text-slate-800">
-                                                {item.fleet_car_type || "TBD"}
+                                    <div class="flex flex-col gap-4 mt-2">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center shrink-0">
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    class="h-5 w-5 text-emerald-500"
+                                                    viewBox="0 0 20 20"
+                                                    fill="currentColor"
+                                                >
+                                                    <path
+                                                        fill-rule="evenodd"
+                                                        d="M10 1.944A11.954 11.954 0 012.166 5C2.056 5.642 2 6.319 2 7c0 5.225 3.34 9.67 8 11.317C14.66 16.67 18 12.225 18 7c0-.682-.057-1.358-.166-2.001A11.954 11.954 0 0110 1.944zM11 14a1 1 0 11-2 0 1 1 0 012 0zm0-7a1 1 0 10-2 0v3a1 1 0 102 0V7z"
+                                                        clip-rule="evenodd"
+                                                    />
+                                                </svg>
                                             </div>
-                                            <div class="text-xs font-bold text-slate-500">
-                                                {item.fleet_plate_number ||
-                                                    "Menunggu Alokasi"}
+                                            <div>
+                                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-0.5">Armada</span>
+                                                <div class="text-sm font-black text-slate-800">
+                                                    {item.fleet_car_type || "TBD"}
+                                                </div>
+                                                <div class="text-xs font-bold text-slate-500">
+                                                    {item.fleet_plate_number || "Menunggu Alokasi"}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex items-center gap-3 pt-4 border-t border-slate-100">
+                                            <div class="w-10 h-10 rounded-full bg-sky-50 border border-sky-100 flex items-center justify-center shrink-0">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-sky-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                                </svg>
+                                            </div>
+                                            <div>
+                                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-0.5">Supir Bertugas</span>
+                                                <div class="text-sm font-black text-slate-800">
+                                                    {getDriverName(item.driver_id)}
+                                                </div>
+                                                {item.driver_2_id && (
+                                                    <div class="text-xs font-bold text-slate-500 mt-0.5">
+                                                        Cad. {getDriverName(item.driver_2_id)}
+                                                    </div>
+                                                )}
                                             </div>
                                         </div>
                                     </div>

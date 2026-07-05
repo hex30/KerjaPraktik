@@ -3,6 +3,7 @@
 import AdminLayout from "@layouts/AdminLayout.astro";
 import InputGroup from "@ui/InputGroup.astro";
 import PaymentPreviewModal from "@features/admin/bookings/PaymentPreviewModal.astro";
+import AdminPageHeader from "@features/admin/shared/AdminPageHeader.astro";
 
 // Data Keuangan Dinamis (Server-Side)
 const token = Astro.cookies.get("token")?.value;
@@ -52,7 +53,6 @@ const getProofUrl = (url: string) => {
     }
     return `${API_BASE}${url.startsWith("/") ? "" : "/"}${url}`;
 };
-import AdminPageHeader from "@features/admin/shared/AdminPageHeader.astro";
 ---
 
 <AdminLayout title="Data Pengeluaran">
