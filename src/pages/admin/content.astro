@@ -17,6 +17,11 @@ const currentPromo = promos.length > 0 ? promos[0] : {
 
 <AdminLayout title="Kelola Konten Dinamis">
     <div class="flex flex-col gap-12">
+        <header class="flex flex-col gap-1">
+            <h1 class="text-3xl font-black text-slate-900 tracking-tight">Kelola Konten Dinamis</h1>
+            <p class="text-sm text-slate-400 font-medium">Atur promo aktif yang tampil di beranda pelanggan.</p>
+        </header>
+
         <!-- Unified Promo Manager -->
         {/* @ts-ignore */}
         <PromoManager />
