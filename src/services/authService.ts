@@ -40,6 +40,34 @@ export const authService = {
     }
   },
 
+  // dokumentasi: Fungsi untuk mengirim permintaan pemulihan kata sandi
+  async forgotPassword(email: string) {
+    try {
+      const response = await apiFetch('/api/auth/forgot-password', {
+        method: 'POST',
+        body: JSON.stringify({ email })
+      });
+      return response;
+    } catch (error) {
+      console.error("Forgot password failed:", error);
+      throw error;
+    }
+  },
+
+  // dokumentasi: Fungsi untuk mereset kata sandi dengan token baru
+  async resetPassword(payload: any) {
+    try {
+      const response = await apiFetch('/api/auth/reset-password', {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      });
+      return response;
+    } catch (error) {
+      console.error("Reset password failed:", error);
+      throw error;
+    }
+  },
+
   // dokumentasi: Fungsi untuk menghapus sesi dan token pengguna
   async logout() {
     // dokumentasi: Menghapus token JWT dan data user dari localStorage
