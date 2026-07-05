@@ -4,17 +4,34 @@ import FAQItem from "./FAQItem.astro";
 import SectionHeader from "./SectionHeader.astro";
 ---
 
-<section class="w-full py-20 bg-gradient-to-b from-white to-slate-50/50 font-main overflow-hidden">
-    <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-        
+<section
+    class="w-full py-20 bg-gradient-to-b from-white to-slate-50/50 font-main overflow-hidden"
+>
+    <div
+        class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-start"
+    >
         <!-- KOLOM KIRI -->
         <div class="lg:col-span-4 lg:sticky lg:top-0 space-y-6">
-            <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-100 text-primary rounded-full text-xs font-bold tracking-wide uppercase">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-3.5 h-3.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" /></svg>
+            <div
+                class="inline-flex items-center gap-2 px-3 py-1.5 bg-slate-100 text-primary rounded-full text-xs font-bold tracking-wide uppercase"
+            >
+                <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke-width="2.5"
+                    stroke="currentColor"
+                    class="w-3.5 h-3.5"
+                    ><path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z"
+                    ></path></svg
+                >
                 Pertanyaan Populer
             </div>
-            
-            <SectionHeader 
+
+            <SectionHeader
                 title="Punya Pertanyaan Tentang Layanan Kami?"
                 subtitle="Kami merangkum beberapa pertanyaan yang paling sering ditanyakan oleh pelanggan kami untuk membantu Anda menemukan informasi lebih cepat."
                 titleClass="text-3xl md:text-4xl font-black text-text-secondary tracking-tight leading-tight"
@@ -23,85 +40,149 @@ import SectionHeader from "./SectionHeader.astro";
 
         <!-- KOLOM KANAN -->
         <div class="lg:col-span-8 space-y-4">
-            
-            <FAQItem question="Bagaimana cara memesan perjalanan di Rini Trans Putri?">
-                Sangat mudah! Anda hanya perlu masuk ke akun Anda, pilih menu <strong class="text-text-secondary">Layanan</strong>, pilih rute atau paket perjalanan yang Anda inginkan, lalu lakukan pengisian data penumpang. Setelah itu, selesaikan pembayaran langsung di dalam website.
+            <FAQItem
+                question="Bagaimana cara memesan perjalanan di Rini Trans Putri?"
+            >
+                Sangat mudah! Anda hanya perlu masuk ke akun Anda, pilih menu <strong
+                    class="text-text-secondary">Layanan</strong
+                >, pilih rute atau paket perjalanan yang Anda inginkan, lalu
+                lakukan pengisian data penumpang. Setelah itu, selesaikan
+                pembayaran langsung di dalam website.
             </FAQItem>
 
-            <FAQItem question="Apakah saya bisa mengubah jadwal atau membatalkan pesanan?">
-                Bisa. Perubahan jadwal (*reschedule*) atau pembatalan dapat diproses maksimal <span class="text-primary font-bold">H-1 sebelum keberangkatan</span>. Anda dapat langsung membuka fitur <strong class="text-text-secondary">Chat Admin</strong> di website ini untuk dibantu prosesnya oleh tim CS kami secara instan.
+            <FAQItem
+                question="Apakah saya bisa mengubah jadwal atau membatalkan pesanan?"
+            >
+                Bisa. Perubahan jadwal (*reschedule*) atau pembatalan dapat
+                diproses maksimal <span class="text-primary font-bold"
+                    >H-1 sebelum keberangkatan</span
+                >. Anda dapat langsung membuka fitur <strong
+                    class="text-text-secondary">Chat Admin</strong
+                > di website ini untuk dibantu prosesnya oleh tim CS kami secara instan.
             </FAQItem>
 
-            <FAQItem question="Fasilitas apa saja yang saya dapatkan selama perjalanan?">
-                Semua armada kami dilengkapi dengan AC dingin standar kenyamanan maksimal, kursi *reclining seat* yang empuk, *charging port* USB di setiap baris kursi untuk mengisi daya baterai HP, air minum gratis, serta bagasi yang luas.
+            <FAQItem
+                question="Fasilitas apa saja yang saya dapatkan selama perjalanan?"
+            >
+                Semua armada kami dilengkapi dengan AC dingin standar kenyamanan
+                maksimal, kursi *reclining seat* yang empuk, *charging port* USB
+                di setiap baris kursi untuk mengisi daya baterai HP, air minum
+                gratis, serta bagasi yang luas.
             </FAQItem>
 
-            <FAQItem question="Metode pembayaran apa saja yang tersedia di website?">
-                Kami mendukung berbagai metode pembayaran otomatis, mulai dari <strong class="text-text-secondary">Transfer Bank (Virtual Account)</strong>, pembayaran instan via e-Wallet (OVO, Dana, LinkAja), hingga scan <strong class="text-text-secondary">QRIS</strong> yang praktis.
+            <FAQItem
+                question="Metode pembayaran apa saja yang tersedia di website?"
+            >
+                Kami mendukung berbagai metode pembayaran otomatis, mulai dari <strong
+                    class="text-text-secondary"
+                    >scan <strong class="text-text-secondary">QRIS</strong> yang praktis.
+                    dan pembayaran tunai
+                </strong>
             </FAQItem>
-
             <FAQItem question="Bagaimana regulasi penjemputan penumpang?">
-                Kami menerapkan sistem *door-to-door* atau titik kumpul (*pool-to-pool*) sesuai pilihan tiket Anda. Sopir kami akan menghubungi Anda melalui kontak telepon/WhatsApp terdaftar minimal <span class="text-primary font-bold">30 menit sebelum estimasi jam penjemputan</span> rute Anda.
+                Kami menerapkan sistem *door-to-door* atau titik kumpul
+                (*pool-to-pool*) sesuai pilihan tiket Anda. <span
+                    class="text-primary font-bold"
+                    >30 menit sebelum estimasi jam penjemputan</span
+                > rute Anda.
             </FAQItem>
-
         </div>
     </div>
-</section>
 
-<script>
-    const setupFAQ = () => {
-        const faqToggles = document.querySelectorAll('.faq-toggle');
+    <script>
+        const setupFAQ = () => {
+            const faqToggles = document.querySelectorAll(".faq-toggle");
 
-        faqToggles.forEach(toggle => {
-            toggle.addEventListener('click', (e) => {
-                const currentButton = e.currentTarget as HTMLButtonElement;
-                const currentItem = currentButton.parentElement as HTMLElement | null;
-                const currentContent = currentButton.nextElementSibling as HTMLElement | null;
-                const currentIcon = currentButton.querySelector('.faq-icon') as HTMLElement | null;
-                const currentIconWrapper = currentButton.querySelector('.faq-icon-wrapper') as HTMLElement | null;
+            faqToggles.forEach((toggle) => {
+                toggle.addEventListener("click", (e) => {
+                    const currentButton = e.currentTarget as HTMLButtonElement;
+                    const currentItem =
+                        currentButton.parentElement as HTMLElement | null;
+                    const currentContent =
+                        currentButton.nextElementSibling as HTMLElement | null;
+                    const currentIcon = currentButton.querySelector(
+                        ".faq-icon",
+                    ) as HTMLElement | null;
+                    const currentIconWrapper = currentButton.querySelector(
+                        ".faq-icon-wrapper",
+                    ) as HTMLElement | null;
 
-                if (!currentItem || !currentContent || !currentIcon || !currentIconWrapper) return;
+                    if (
+                        !currentItem ||
+                        !currentContent ||
+                        !currentIcon ||
+                        !currentIconWrapper
+                    )
+                        return;
 
-                document.querySelectorAll('.faq-item').forEach(item => {
-                    if (item !== currentItem) {
-                        const content = item.querySelector('.faq-content') as HTMLElement;
-                        const icon = item.querySelector('.faq-icon');
-                        const iconWrapper = item.querySelector('.faq-icon-wrapper');
-                        
-                        if (content) content.style.maxHeight = "0px";
-                        item.classList.remove('border-primary/30', 'bg-slate-50/20');
-                        if (icon) icon.classList.remove('rotate-180');
-                        if (iconWrapper) {
-                            iconWrapper.classList.remove('bg-primary', 'text-white');
-                            iconWrapper.classList.add('bg-slate-50', 'text-slate-400');
+                    document.querySelectorAll(".faq-item").forEach((item) => {
+                        if (item !== currentItem) {
+                            const content = item.querySelector(
+                                ".faq-content",
+                            ) as HTMLElement;
+                            const icon = item.querySelector(".faq-icon");
+                            const iconWrapper =
+                                item.querySelector(".faq-icon-wrapper");
+
+                            if (content) content.style.maxHeight = "0px";
+                            item.classList.remove(
+                                "border-primary/30",
+                                "bg-slate-50/20",
+                            );
+                            if (icon) icon.classList.remove("rotate-180");
+                            if (iconWrapper) {
+                                iconWrapper.classList.remove(
+                                    "bg-primary",
+                                    "text-white",
+                                );
+                                iconWrapper.classList.add(
+                                    "bg-slate-50",
+                                    "text-slate-400",
+                                );
+                            }
                         }
+                    });
+
+                    if (
+                        currentContent.style.maxHeight &&
+                        currentContent.style.maxHeight !== "0px"
+                    ) {
+                        currentContent.style.maxHeight = "0px";
+                        currentItem.classList.remove(
+                            "border-primary/30",
+                            "bg-slate-50/20",
+                        );
+                        currentIcon.classList.remove("rotate-180");
+                        currentIconWrapper.classList.remove(
+                            "bg-primary",
+                            "text-white",
+                        );
+                        currentIconWrapper.classList.add(
+                            "bg-slate-50",
+                            "text-slate-400",
+                        );
+                    } else {
+                        currentContent.style.maxHeight =
+                            currentContent.scrollHeight + "px";
+                        currentItem.classList.add(
+                            "border-primary/30",
+                            "bg-slate-50/20",
+                        );
+                        currentIcon.classList.add("rotate-180");
+                        currentIconWrapper.classList.remove(
+                            "bg-slate-50",
+                            "text-slate-400",
+                        );
+                        currentIconWrapper.classList.add(
+                            "bg-primary",
+                            "text-white",
+                        );
                     }
                 });
-
-                if (currentContent.style.maxHeight && currentContent.style.maxHeight !== "0px") {
-                    currentContent.style.maxHeight = "0px";
-                    currentItem.classList.remove('border-primary/30', 'bg-slate-50/20');
-                    currentIcon.classList.remove('rotate-180');
-                    currentIconWrapper.classList.remove('bg-primary', 'text-white');
-                    currentIconWrapper.classList.add('bg-slate-50', 'text-slate-400');
-                } else {
-                    currentContent.style.maxHeight = currentContent.scrollHeight + "px";
-                    currentItem.classList.add('border-primary/30', 'bg-slate-50/20');
-                    currentIcon.classList.add('rotate-180');
-                    currentIconWrapper.classList.remove('bg-slate-50', 'text-slate-400');
-                    currentIconWrapper.classList.add('bg-primary', 'text-white');
-                }
             });
-        });
-    };
+        };
 
-    document.addEventListener('DOMContentLoaded', setupFAQ);
-    document.addEventListener('astro:page-load', setupFAQ);
-</script>
-
-
-
-
-
-
-
+        document.addEventListener("DOMContentLoaded", setupFAQ);
+        document.addEventListener("astro:page-load", setupFAQ);
+    </script>
+</section>
