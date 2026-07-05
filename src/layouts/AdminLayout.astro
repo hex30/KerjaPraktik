@@ -3,6 +3,7 @@
 import AdminSidebar from "@features/admin/shared/AdminSidebar.astro";
 import FeedbackModal from "@components/ui/FeedbackModal.astro";
 import ConfirmModal from "@components/ui/ConfirmModal.astro";
+import riniLogo from "@assets/img/rini_trans_logo.png";
 import "../styles/global.css";
 
 interface Props {
@@ -24,16 +25,23 @@ const { title } = Astro.props;
         <div class="flex min-h-screen relative">
             <AdminSidebar />
             
-            <main class="flex-1 w-full lg:w-[calc(100%-18rem)] p-6 md:p-12 overflow-x-hidden min-h-screen">
-                <header class="mb-6 flex items-start gap-4 lg:hidden">
-                    <button id="admin-sidebar-toggle" class="p-2 -ml-2 text-slate-500 hover:bg-slate-100 rounded-lg transition-colors shrink-0 mt-1" aria-label="Toggle Sidebar">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" class="w-6 h-6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25H12" />
+            <main class="flex-1 w-full lg:w-[calc(100%-18rem)] overflow-x-hidden min-h-screen flex flex-col">
+                <!-- Mobile Header -->
+                <header class="lg:hidden flex items-center justify-between p-4 bg-white border-b border-slate-100 shrink-0 z-20">
+                    <div class="flex items-center gap-3">
+                        <img src={riniLogo.src} alt="Rini Trans Putri" class="h-8 w-auto" />
+                        <span class="font-black text-sm text-slate-800 tracking-tight">Admin RTP</span>
+                    </div>
+                    <button id="admin-sidebar-toggle" class="p-2 text-slate-600 hover:bg-slate-50 rounded-lg transition-colors" aria-label="Toggle Sidebar">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16" />
                         </svg>
                     </button>
                 </header>
                 
-                <slot />
+                <div class="p-6 md:p-12 w-full flex-1">
+                    <slot />
+                </div>
             </main>
         </div>
 

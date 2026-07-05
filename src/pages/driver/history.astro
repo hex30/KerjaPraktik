@@ -272,7 +272,7 @@ allHistoryTasks.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).get
                 `;
             } else if (task.type === 'CHARTER') {
                 bodyContent = `
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Pelanggan</span>
                             <span class="text-xs font-black text-slate-700 block">${task.customer_name}</span>
@@ -292,7 +292,7 @@ allHistoryTasks.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).get
                 `;
             } else if (task.type === 'PAKET') {
                 bodyContent = `
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-1">Penerima & Alamat</span>
                             <span class="text-xs font-black text-slate-700 block">${task.receiver_name}</span>
