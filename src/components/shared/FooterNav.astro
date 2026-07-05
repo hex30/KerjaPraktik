@@ -2,7 +2,7 @@
 // File: src/components/layout/molecules/FooterNav.astro
 interface Props {
     title: string;
-    links: { label: string; href: string }[];
+    links: { label: string; href: string; class?: string; "data-modal-target"?: string }[];
 }
 
 const { title, links } = Astro.props;
@@ -15,7 +15,11 @@ const { title, links } = Astro.props;
     <ul class="flex flex-col gap-2.5 font-secondary text-sm">
         {links.map((link) => (
             <li>
-                <a href={link.href} class="hover:text-sky-400 transition-colors">
+                <a 
+                    href={link.href} 
+                    class={`hover:text-sky-400 transition-colors ${link.class || ""}`}
+                    data-modal-target={link["data-modal-target"]}
+                >
                     {link.label}
                 </a>
             </li>

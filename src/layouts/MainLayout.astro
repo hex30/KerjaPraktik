@@ -5,6 +5,7 @@ import PageFooter from "@components/shared/PageFooter.astro";
 import FeedbackModal from "@components/ui/FeedbackModal.astro";
 import ConfirmModal from "@components/ui/ConfirmModal.astro";
 import GlobalFleetAlert from "@components/ui/GlobalFleetAlert.astro";
+import LegalModals from "@components/ui/LegalModals.astro";
 
 interface Props {
 	title: string;
@@ -29,6 +30,7 @@ const { title } = Astro.props;
 		<FeedbackModal />
 		<ConfirmModal />
 		<GlobalFleetAlert />
+		<LegalModals />
 		
 		<script>
 			// Global HTML5 Validation Override

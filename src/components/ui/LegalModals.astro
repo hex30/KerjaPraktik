@@ -1,0 +1,184 @@
+---
+// File: src/components/ui/LegalModals.astro
+---
+
+<!-- Modal Syarat & Ketentuan -->
+<div id="terms-modal" class="legal-modal fixed inset-0 z-[100] hidden items-center justify-center">
+    <div class="legal-modal-overlay absolute inset-0 bg-slate-900/60 backdrop-blur-sm cursor-pointer transition-opacity duration-300 opacity-0"></div>
+    <div class="relative bg-white w-full max-w-3xl max-h-[85vh] m-4 rounded-3xl shadow-2xl flex flex-col transform scale-95 opacity-0 transition-all duration-300">
+        <div class="p-6 sm:p-8 overflow-y-auto custom-scrollbar flex-1 rounded-3xl">
+            <h2 class="text-2xl sm:text-3xl font-black text-primary mb-6 text-center">Syarat dan Ketentuan</h2>
+            
+            <div class="prose prose-slate max-w-none text-text-secondary font-secondary text-sm sm:text-base">
+                <p class="mb-6 text-slate-500">Terakhir diperbarui: {new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                
+                <h3 class="text-lg font-bold text-slate-800 mt-6 mb-3">1. Pendahuluan</h3>
+                <p class="mb-3">Selamat datang di Rini Trans Putri. Dengan menggunakan layanan kami (website resmi dan layanan transportasi door-to-door), Anda menyatakan bahwa Anda telah membaca, memahami, dan menyetujui seluruh syarat dan ketentuan yang berlaku.</p>
+                
+                <h3 class="text-lg font-bold text-slate-800 mt-6 mb-3">2. Pemesanan Tiket</h3>
+                <ul class="list-disc pl-5 mb-4 space-y-2">
+                    <li>Pemesanan tiket dapat dilakukan melalui website resmi Rini Trans Putri.</li>
+                    <li>Harga yang tertera dapat berubah sewaktu-waktu tanpa pemberitahuan sebelumnya, kecuali untuk tiket yang sudah dilunasi.</li>
+                    <li>Tiket yang sudah dibeli dan dibayar tidak dapat dibatalkan atau di-refund (non-refundable) kecuali ada pembatalan perjalanan dari pihak manajemen.</li>
+                    <li>Perubahan jadwal (reschedule) hanya dapat dilakukan maksimal H-1 sebelum keberangkatan, bergantung pada ketersediaan kursi.</li>
+                </ul>
+
+                <h3 class="text-lg font-bold text-slate-800 mt-6 mb-3">3. Ketentuan Penjemputan (Door-to-Door)</h3>
+                <ul class="list-disc pl-5 mb-4 space-y-2">
+                    <li>Semua layanan kami beroperasi dengan sistem <strong>door-to-door</strong>. Penumpang akan dijemput langsung di lokasi penjemputan (rumah/kantor) dan diantar hingga ke alamat tujuan yang telah didaftarkan.</li>
+                    <li>Penumpang wajib bersiap di lokasi penjemputan minimal 30 menit sebelum estimasi kedatangan supir.</li>
+                    <li>Anak berusia 3 tahun ke atas wajib membeli tiket penuh.</li>
+                    <li>Penumpang dilarang membawa senjata tajam, narkotika, atau barang berbahaya lainnya ke dalam armada.</li>
+                </ul>
+
+                <h3 class="text-lg font-bold text-slate-800 mt-6 mb-3">4. Bagasi dan Barang Bawaan</h3>
+                <ul class="list-disc pl-5 mb-4 space-y-2">
+                    <li>Setiap penumpang berhak membawa bagasi maksimal 20kg.</li>
+                    <li>Barang berharga (laptop, perhiasan, uang tunai, dokumen penting) wajib dibawa ke dalam kabin dan menjadi tanggung jawab penumpang sepenuhnya.</li>
+                    <li>Manajemen tidak bertanggung jawab atas kehilangan, kerusakan, atau tertukarnya barang bawaan baik di kabin maupun di bagasi.</li>
+                </ul>
+
+                <h3 class="text-lg font-bold text-slate-800 mt-6 mb-3">5. Perubahan Kebijakan</h3>
+                <p class="mb-6">Manajemen Rini Trans Putri berhak untuk mengubah, memodifikasi, menambah, atau menghapus bagian mana pun dari Syarat dan Ketentuan ini sewaktu-waktu. Perubahan akan berlaku segera setelah dipublikasikan di situs ini.</p>
+                
+                <p class="text-center text-xs text-slate-400 mt-8 italic">Klik area luar (gelap) untuk menutup informasi ini.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Kebijakan Privasi -->
+<div id="privacy-modal" class="legal-modal fixed inset-0 z-[100] hidden items-center justify-center">
+    <div class="legal-modal-overlay absolute inset-0 bg-slate-900/60 backdrop-blur-sm cursor-pointer transition-opacity duration-300 opacity-0"></div>
+    <div class="relative bg-white w-full max-w-3xl max-h-[85vh] m-4 rounded-3xl shadow-2xl flex flex-col transform scale-95 opacity-0 transition-all duration-300">
+        <div class="p-6 sm:p-8 overflow-y-auto custom-scrollbar flex-1 rounded-3xl">
+            <h2 class="text-2xl sm:text-3xl font-black text-primary mb-6 text-center">Kebijakan Privasi</h2>
+            
+            <div class="prose prose-slate max-w-none text-text-secondary font-secondary text-sm sm:text-base">
+                <p class="mb-6 text-slate-500">Terakhir diperbarui: {new Date().toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                
+                <h3 class="text-lg font-bold text-slate-800 mt-6 mb-3">1. Pengumpulan Informasi</h3>
+                <p class="mb-3">Rini Trans Putri mengumpulkan informasi pribadi yang Anda berikan secara langsung saat mendaftar akun, melakukan pemesanan, atau menghubungi layanan pelanggan. Informasi ini mencakup, namun tidak terbatas pada:</p>
+                <ul class="list-disc pl-5 mb-4 space-y-2">
+                    <li>Nama lengkap.</li>
+                    <li>Alamat email.</li>
+                    <li>Nomor telepon / WhatsApp.</li>
+                    <li>Alamat penjemputan dan tujuan.</li>
+                </ul>
+                
+                <h3 class="text-lg font-bold text-slate-800 mt-6 mb-3">2. Penggunaan Informasi</h3>
+                <p class="mb-3">Informasi yang kami kumpulkan digunakan secara eksklusif untuk kepentingan layanan operasional kami, seperti:</p>
+                <ul class="list-disc pl-5 mb-4 space-y-2">
+                    <li>Memproses pemesanan, tiket, dan pembayaran Anda.</li>
+                    <li>Memberikan notifikasi terkait jadwal keberangkatan, penjemputan, atau penundaan.</li>
+                    <li>Merespons pertanyaan, keluhan, atau dukungan pelanggan.</li>
+                    <li>Meningkatkan layanan serta keamanan platform website kami.</li>
+                </ul>
+
+                <h3 class="text-lg font-bold text-slate-800 mt-6 mb-3">3. Keamanan Data Pribadi</h3>
+                <p class="mb-3">Kami berkomitmen untuk menjaga keamanan data Anda. Kami menerapkan berbagai standar keamanan dan prosedur organisasi untuk melindungi informasi pribadi Anda dari akses, manipulasi, penghancuran, atau pengungkapan yang tidak sah.</p>
+
+                <h3 class="text-lg font-bold text-slate-800 mt-6 mb-3">4. Berbagi Informasi dengan Pihak Ketiga</h3>
+                <p class="mb-3">Kami tidak menjual, menyewakan, atau memperdagangkan data pribadi Anda kepada pihak lain. Kami hanya dapat membagikan informasi Anda kepada pihak ketiga yang bekerja sama dengan kami (seperti penyedia layanan gateway pembayaran atau penyedia infrastruktur cloud) yang terikat dengan kewajiban menjaga kerahasiaan data.</p>
+
+                <h3 class="text-lg font-bold text-slate-800 mt-6 mb-3">5. Persetujuan dan Hak Pengguna</h3>
+                <p class="mb-6">Dengan menggunakan layanan kami, Anda menyetujui pengumpulan dan penggunaan informasi sebagaimana diuraikan di atas. Anda berhak untuk meminta pembaruan, koreksi, atau penghapusan data Anda dengan menghubungi layanan pelanggan kami.</p>
+                
+                <p class="text-center text-xs text-slate-400 mt-8 italic">Klik area luar (gelap) untuk menutup informasi ini.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #cbd5e1;
+        border-radius: 20px;
+    }
+</style>
+
+<script>
+    function setupLegalModals() {
+        const triggers = document.querySelectorAll('.legal-modal-trigger');
+        const modals = document.querySelectorAll('.legal-modal');
+        const overlays = document.querySelectorAll('.legal-modal-overlay');
+
+        function openModal(modalId: string) {
+            const modal = document.getElementById(modalId);
+            if (!modal) return;
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            setTimeout(() => {
+                const overlay = modal.querySelector('.legal-modal-overlay');
+                const content = modal.querySelector('.relative');
+                
+                if (overlay) {
+                    overlay.classList.remove('opacity-0');
+                    overlay.classList.add('opacity-100');
+                }
+                
+                if (content) {
+                    content.classList.remove('opacity-0', 'scale-95');
+                    content.classList.add('opacity-100', 'scale-100');
+                }
+            }, 10);
+            
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(modal: Element) {
+            const overlay = modal.querySelector('.legal-modal-overlay');
+            const content = modal.querySelector('.relative');
+            
+            if (overlay) {
+                overlay.classList.remove('opacity-100');
+                overlay.classList.add('opacity-0');
+            }
+            
+            if (content) {
+                content.classList.remove('opacity-100', 'scale-100');
+                content.classList.add('opacity-0', 'scale-95');
+            }
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        triggers.forEach(trigger => {
+            if (trigger.hasAttribute('data-modal-initialized')) return;
+            trigger.setAttribute('data-modal-initialized', 'true');
+            
+            trigger.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = trigger.getAttribute('data-modal-target');
+                if (target) {
+                    openModal(target);
+                }
+            });
+        });
+
+        overlays.forEach(overlay => {
+            if (overlay.hasAttribute('data-modal-initialized')) return;
+            overlay.setAttribute('data-modal-initialized', 'true');
+            
+            overlay.addEventListener('click', () => {
+                const modal = overlay.closest('.legal-modal');
+                if (modal) closeModal(modal);
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', setupLegalModals);
+    document.addEventListener('astro:page-load', setupLegalModals);
+</script>

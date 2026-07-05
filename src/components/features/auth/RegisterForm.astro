@@ -1,47 +1,108 @@
 ---
 // File: src/components/auth/RegisterForm.astro
-import InputGroup from '@ui/InputGroup.astro';
-import Button from '@ui/Button.astro';
+import InputGroup from "@ui/InputGroup.astro";
+import Button from "@ui/Button.astro";
 ---
 
-<div id="form-register" class="auth-form hidden transition-opacity duration-500">
+<div
+    id="form-register"
+    class="auth-form hidden transition-opacity duration-500"
+>
     <header class="mb-8">
         <h3 class="text-2xl font-black text-primary mb-2">Buat Akun Baru</h3>
-        <p class="font-secondary text-sm text-text-secondary">Daftar sekarang untuk kemudahan pemesanan.</p>
+        <p class="font-secondary text-sm text-text-secondary">
+            Daftar sekarang untuk kemudahan pemesanan.
+        </p>
     </header>
-    
+
     <form class="flex flex-col gap-5">
-        <InputGroup label="Nama Lengkap" id="reg_nama" name="nama" placeholder="Sesuai KTP" required={true} />
-        
+        <InputGroup
+            label="Nama Lengkap"
+            id="reg_nama"
+            name="nama"
+            placeholder="Sesuai KTP"
+            required={true}
+        />
+
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            <InputGroup label="Email" id="reg_email" name="email" type="email" placeholder="nama@email.com" required={true} />
-            <InputGroup label="No. WhatsApp" id="reg_telp" name="telp" type="tel" placeholder="08..." required={true} />
+            <InputGroup
+                label="Email"
+                id="reg_email"
+                name="email"
+                type="email"
+                placeholder="nama@email.com"
+                required={true}
+            />
+            <InputGroup
+                label="No. WhatsApp"
+                id="reg_telp"
+                name="telp"
+                type="tel"
+                placeholder="08..."
+                required={true}
+            />
         </div>
 
-        <InputGroup label="Kata Sandi" id="reg_password" name="password" type="password" placeholder="Minimal 8 karakter" required={true} />
-        <InputGroup label="Konfirmasi Kata Sandi" id="reg_confirm_password" name="confirm_password" type="password" placeholder="Ulangi kata sandi" required={true} />
+        <InputGroup
+            label="Kata Sandi"
+            id="reg_password"
+            name="password"
+            type="password"
+            placeholder="Minimal 6 karakter"
+            required={true}
+        />
+        <InputGroup
+            label="Konfirmasi Kata Sandi"
+            id="reg_confirm_password"
+            name="confirm_password"
+            type="password"
+            placeholder="Ulangi kata sandi"
+            required={true}
+        />
 
         <div class="flex items-start gap-3 mt-2">
-            <input type="checkbox" id="syarat" required class="mt-1 w-4 h-4 rounded border-slate-300 text-sky-500 focus:ring-sky-500" />
-            <label for="syarat" class="font-secondary text-xs text-text-secondary leading-relaxed">
-                Saya setuju dengan <a href="#" class="text-sky-500 font-bold hover:underline">Syarat & Ketentuan</a> serta <a href="#" class="text-sky-500 font-bold hover:underline">Kebijakan Privasi</a> yang berlaku.
+            <input
+                type="checkbox"
+                id="syarat"
+                required
+                class="mt-1 w-4 h-4 rounded border-slate-300 text-sky-500 focus:ring-sky-500"
+            />
+            <label
+                for="syarat"
+                class="font-secondary text-xs text-text-secondary leading-relaxed"
+            >
+                Saya setuju dengan <a
+                    href="#"
+                    class="text-sky-500 font-bold hover:underline legal-modal-trigger"
+                    data-modal-target="terms-modal"
+                    >Syarat & Ketentuan</a
+                > serta <a
+                    href="#"
+                    class="text-sky-500 font-bold hover:underline legal-modal-trigger"
+                    data-modal-target="privacy-modal"
+                    >Kebijakan Privasi</a
+                > yang berlaku.
             </label>
         </div>
 
-        <Button type="submit" class="w-full mt-2 bg-slate-900 hover:bg-slate-800" size="lg">
+        <Button
+            type="submit"
+            class="w-full mt-2 bg-slate-900 hover:bg-slate-800"
+            size="lg"
+        >
             Daftarkan Akun
         </Button>
 
         <div class="mt-2 text-center">
-            <button type="button" class="auth-toggle-link text-sm font-secondary text-slate-500 hover:text-sky-600 transition-colors focus:outline-none" data-target="form-login">
-                Sudah punya akun? <span class="font-bold text-sky-500">Masuk</span>
+            <button
+                type="button"
+                class="auth-toggle-link text-sm font-secondary text-slate-500 hover:text-sky-600 transition-colors focus:outline-none"
+                data-target="form-login"
+            >
+                Sudah punya akun? <span class="font-bold text-sky-500"
+                    >Masuk</span
+                >
             </button>
         </div>
     </form>
 </div>
-
-
-
-
-
-

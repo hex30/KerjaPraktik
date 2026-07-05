@@ -517,6 +517,8 @@ const getProofUrl = (url: string) => {
                                         txCat = "biaya_operasional_kantor";
                                     } else if (txCat === "other") {
                                         txCat = "lainnya";
+                                    } else if (txCat === "service") {
+                                        txCat = "perawatan_kendaraan";
                                     }
                                     return (
                                         <tr
