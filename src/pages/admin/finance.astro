@@ -44,9 +44,6 @@ try {
 
 // Formatting Helper
 const mockExpenseLastMonth = summary.last_month_expense || 0;
-const mockExpenseToday = summary.today_expense || 0;
-const mockIncomeYear = summary.this_year_income || 0;
-const mockExpenseYearThis = summary.this_year_expense || 0;
 
 // Hitung growth
 let growth = 0;
@@ -312,7 +309,7 @@ if (summary.last_month_income > 0) {
                                     // Determine Service Type / Kategori Layanan
                                     let serviceType = "Operasional";
                                     const categoryLower =
-                                        tx.category.toLowerCase();
+                                        (tx.category || "").toLowerCase();
                                     if (
                                         categoryLower.includes("charter") ||
                                         categoryLower.includes("sewa")
@@ -794,7 +791,7 @@ if (summary.last_month_income > 0) {
             "tx-filter-date",
         ) as HTMLInputElement;
         const txRows = document.querySelectorAll(".tx-row");
-        const toggleBtn = document.getElementById("toggle-tx-btn");
+        const toggleBtn = document.getElementById("toggle-tx-expand");
         const toggleText = document.getElementById("toggle-tx-text");
         const toggleIcon = document.getElementById("toggle-tx-icon");
 
