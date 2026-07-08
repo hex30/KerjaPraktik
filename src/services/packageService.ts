@@ -17,9 +17,10 @@ export interface PackageShipmentData {
 
 export const packageService = {
     // dokumentasi: Mengecek ketersediaan armada pada tanggal tertentu untuk paket
-    async checkAvailability(date: string) {
+    async checkAvailability(date: string, weight?: number) {
         try {
-            const response = await apiFetch(`/api/packages/availability?date=${date}`, {
+            const url = weight ? `/api/packages/availability?date=${date}&weight=${weight}` : `/api/packages/availability?date=${date}`;
+            const response = await apiFetch(url, {
                 method: 'GET'
             });
             return response.data;
