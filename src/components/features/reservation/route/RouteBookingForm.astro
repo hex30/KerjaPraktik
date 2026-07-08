@@ -272,6 +272,46 @@ try {
                                                 anda melebihi batas maximal dan
                                                 akan di hitung sebagai 1 orang.
                                             </p>
+                                </div>
+
+                                <!-- Dynamic Payload Exceeded Alert Card -->
+                                <div
+                                    id="payload-alert-card"
+                                    class="hidden animate-fade-in mt-4"
+                                >
+                                    <div
+                                        class="bg-red-50 border border-red-200 rounded-xl p-4 flex gap-4 items-start shadow-sm"
+                                    >
+                                        <div
+                                            class="bg-red-100 text-red-600 p-2 rounded-lg shrink-0"
+                                        >
+                                            <svg
+                                                xmlns="http://www.w3.org/2000/svg"
+                                                class="h-6 w-6"
+                                                fill="none"
+                                                viewBox="0 0 24 24"
+                                                stroke="currentColor"
+                                                stroke-width="2"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                                                ></path>
+                                            </svg>
+                                        </div>
+                                        <div class="flex flex-col gap-1">
+                                            <h4
+                                                class="font-bold text-red-800 text-sm"
+                                            >
+                                                Kapasitas Beban Terlampaui
+                                            </h4>
+                                            <p
+                                                id="payload-alert-text"
+                                                class="text-red-700 text-xs font-secondary leading-relaxed"
+                                            >
+                                                Beban kargo armada sudah penuh untuk tanggal ini.
+                                            </p>
                                         </div>
                                     </div>
                                 </div>
@@ -690,6 +730,8 @@ try {
         });
 
         let selectedRawDate = "";
+        let currentRouteWeight = 0;
+        let currentRouteMaxPayload = 0;
 
         dateContainer?.addEventListener("change", async (e) => {
             const target = e.target as HTMLInputElement;
@@ -716,6 +758,12 @@ try {
                         selectedRawDate,
                     );
                     const seatInfo = response.data || {};
+                    currentRouteWeight = seatInfo.total_weight || 0;
+                    currentRouteMaxPayload = seatInfo.max_payload || 0;
+
+                    // Trigger payload validation check
+                    checkLuggageAlert();
+
                     const lockedSeats = Array.isArray(
                         seatInfo.occupied_seats_list,
                     )
@@ -793,10 +841,30 @@ try {
             const weight = parseInt(beratBagasiInput.value) || 0;
             const dimension = dimensiBagasiSelect.value;
 
+            // 1. Warning bagasi standar
             if (weight >= 60 || dimension === "super_besar") {
                 luggageAlertCard.classList.remove("hidden");
             } else {
                 luggageAlertCard.classList.add("hidden");
+            }
+
+            // 2. Warning payload kargo
+            const payloadAlertCard = document.getElementById("payload-alert-card");
+            const payloadAlertText = document.getElementById("payload-alert-text");
+
+            if (payloadAlertCard && currentRouteMaxPayload > 0) {
+                const extraSeats = (weight >= 60 || dimension === "super_besar") ? 1 : 0;
+                const additionalWeight = (1 + extraSeats) * 110;
+                const remainingPayload = currentRouteMaxPayload - currentRouteWeight;
+
+                if (currentRouteWeight + additionalWeight > currentRouteMaxPayload) {
+                    if (payloadAlertText) {
+                        payloadAlertText.textContent = `Mohon maaf, sisa kapasitas kargo armada kami untuk tanggal ini adalah ${Math.max(0, remainingPayload)} kg. Berat bawaan Anda (dihitung ${additionalWeight} kg termasuk jatah kursi) melebihi batas kapasitas tersebut.`;
+                    }
+                    payloadAlertCard.classList.remove("hidden");
+                } else {
+                    payloadAlertCard.classList.add("hidden");
+                }
             }
         };
 
@@ -828,6 +896,21 @@ try {
                     "Pilih Kursi",
                     "Silakan pilih minimal 1 kursi yang tersedia untuk melanjutkan.",
                 );
+            }
+
+            // Cek apakah muatan payload terlampaui
+            if (currentRouteMaxPayload > 0) {
+                const weight = parseInt(beratBagasiInput.value) || 0;
+                const dimension = dimensiBagasiSelect.value;
+                const extraSeats = (weight >= 60 || dimension === "super_besar") ? 1 : 0;
+                const additionalWeight = (1 + extraSeats) * 110;
+                if (currentRouteWeight + additionalWeight > currentRouteMaxPayload) {
+                    return (window as any).showFeedbackModal(
+                        "warning",
+                        "Kapasitas Beban Terlampaui",
+                        `Mohon maaf, sisa kapasitas kargo armada untuk jadwal ini tidak mencukupi untuk bagasi Anda.`
+                    );
+                }
             }
 
             step1.classList.add("hidden");

@@ -213,6 +213,60 @@ packageTasks.sort((a, b) => {
             description="Daftar perjalanan, sewa charter, dan kiriman paket yang ditugaskan kepada Anda."
         />
 
+        <!-- Section: Ringkasan Armada & Muatan Kargo -->
+        {schedules.length > 0 && (
+            <section class="flex flex-col gap-4">
+                <h2 class="text-xl font-black text-slate-900 tracking-tight">Status Kapasitas Kargo Anda</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {schedules.map((schedule: any) => {
+                        const routeStr = schedule.origin && schedule.destination
+                            ? `${schedule.origin} ➔ ${schedule.destination}`
+                            : 'Charter / Pengiriman Khusus';
+                        const percent = Math.min(100, Math.round(((schedule.total_weight || 0) / (schedule.max_payload || 1450)) * 100));
+                        const isOverloaded = (schedule.total_weight || 0) >= (schedule.max_payload || 1450);
+                        const isNearLimit = (schedule.total_weight || 0) >= (schedule.max_payload || 1450) * 0.8;
+                        
+                        return (
+                            <div class="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col gap-3">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <h3 class="text-sm font-black text-slate-800 leading-tight">{routeStr}</h3>
+                                        <span class="text-[10px] font-bold text-slate-400">
+                                            {new Date(schedule.departure_time).toLocaleDateString('id-ID', { weekday: 'short', day: 'numeric', month: 'short' })}
+                                        </span>
+                                    </div>
+                                    <span class="px-2 py-1 bg-slate-100 rounded text-xs font-bold text-slate-700">
+                                        {schedule.plate_number || 'TBD'} ({schedule.car_type || 'TBD'})
+                                    </span>
+                                </div>
+                                
+                                <div class="space-y-1 mt-2">
+                                    <div class="flex justify-between items-center text-[10px] font-bold">
+                                        <span class="text-slate-400 uppercase tracking-widest">Beban Kargo Terpakai</span>
+                                        <span class={isOverloaded ? "text-red-500 font-black" : (isNearLimit ? "text-amber-500 font-black" : "text-slate-600 font-bold")}>
+                                            {schedule.total_weight || 0} / {schedule.max_payload || 1450} kg ({percent}%)
+                                        </span>
+                                    </div>
+                                    <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                                        <div 
+                                            class:list={[
+                                                "h-full rounded-full transition-all duration-500",
+                                                isOverloaded ? "bg-red-500" : (isNearLimit ? "bg-amber-500" : "bg-[#044751]")
+                                            ]}
+                                            style={`width: ${percent}%`}
+                                        ></div>
+                                    </div>
+                                    <div class="text-[9px] font-bold text-slate-400 text-right">
+                                        Sisa Kapasitas: {Math.max(0, (schedule.max_payload || 1450) - (schedule.total_weight || 0))} kg
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+            </section>
+        )}
+
         <!-- Section: Tugas Charter Hari Ini -->
         {charterTasks.length > 0 && (
         <section class="flex flex-col gap-4">
