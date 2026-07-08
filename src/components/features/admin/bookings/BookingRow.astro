@@ -202,7 +202,7 @@ if (isNew) {
                                 </div>
                                 {(item as any).is_group && isNew && (
                                     <p class="text-[9px] text-amber-600 font-semibold bg-amber-50 px-2 py-1 rounded-lg border border-amber-100">
-                                        ⚠ Ini adalah harga TOTAL untuk {(item.user.seat_number || '').split(',').length} kursi sekaligus. Sistem akan membaginya otomatis per kursi.
+                                        ⚠ Ini adalah harga TOTAL untuk {String(item.user.seat_number || '').split(',').length} kursi sekaligus. Sistem akan membaginya otomatis per kursi.
                                     </p>
                                 )}
                                 
