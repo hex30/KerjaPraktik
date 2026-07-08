@@ -31,6 +31,11 @@ export interface DriverPassenger {
   price: string | number;
   pickup_address: string;
   dropoff_address: string;
+  booking_code?: string;
+  ticket_passenger_name?: string;
+  baggage_weight?: number;
+  baggage_dimension?: string;
+  is_baggage_charge?: boolean;
 }
 
 export interface DriverPackage {
