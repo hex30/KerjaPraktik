@@ -24,6 +24,17 @@ import Button from "@ui/Button.astro";
             required={true}
         />
 
+        <InputGroup
+            label="NIK KTP"
+            id="reg_nik"
+            name="nik"
+            type="text"
+            placeholder="16 Digit NIK KTP Anda"
+            required={true}
+            maxlength="16"
+            pattern="\d{16}"
+        />
+
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <InputGroup
                 label="Email"

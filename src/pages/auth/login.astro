@@ -113,6 +113,9 @@ import FeedbackModal from "@components/ui/FeedbackModal.astro";
                 const nama = (
                     document.getElementById("reg_nama") as HTMLInputElement
                 ).value;
+                const nik = (
+                    document.getElementById("reg_nik") as HTMLInputElement
+                ).value;
                 const email = (
                     document.getElementById("reg_email") as HTMLInputElement
                 ).value;
@@ -126,6 +129,19 @@ import FeedbackModal from "@components/ui/FeedbackModal.astro";
                 const confirmPassword = confirmPasswordInput
                     ? confirmPasswordInput.value
                     : "";
+
+                if (!/^\d{16}$/.test(nik)) {
+                    (window as any).showFeedbackModal(
+                        "error",
+                        "Pendaftaran Gagal",
+                        "NIK harus terdiri dari 16 digit angka.",
+                    );
+                    if (btnSubmit) {
+                        btnSubmit.disabled = false;
+                        btnSubmit.textContent = originalText;
+                    }
+                    return;
+                }
 
                 if (password !== confirmPassword) {
                     (window as any).showFeedbackModal(
@@ -151,6 +167,7 @@ import FeedbackModal from "@components/ui/FeedbackModal.astro";
                         email: email,
                         password: password,
                         phone_number: phoneNumber,
+                        nik: nik,
                     };
 
                     // dokumentasi: Memanggil fungsi registrasi dari authService (Tahap 2 & 3)
