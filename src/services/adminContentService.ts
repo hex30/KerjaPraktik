@@ -34,6 +34,7 @@ export interface Fleet {
     plate_number: string;
     car_type: string;
     seat_capacity: number;
+    max_payload?: number;
     description: string;
     image_url: string;
     status: string;
