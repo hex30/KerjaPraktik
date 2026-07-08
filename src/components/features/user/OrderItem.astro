@@ -129,7 +129,9 @@ if (isNew) {
 
 // --- FORMATTING HARGA & EXTRA CHARGE ---
 // Jika ada charge bagasi, kita pisahkan dari harga final dan harga awal untuk visualisasi UI
-const extraCharge = meta.is_baggage_charge ? 250000 : 0;
+const extraCharge = typeof meta.extra_charge === "number"
+    ? meta.extra_charge
+    : (meta.is_baggage_charge ? 250000 : 0);
 const originalBasePrice = order.original_price
     ? order.original_price - extraCharge
     : 0;
@@ -148,9 +150,11 @@ const formatCurrency = (val: number) => {
 };
 
 const displayId =
-    order.id && order.id.length > 10
-        ? `${order.type === "travel" ? "TRV" : order.type === "charter" ? "CHR" : "PKG"}-${order.id.substring(0, 8).toUpperCase()}`
-        : `${order.id}`;
+    order.type === "travel" && meta?.booking_code
+        ? meta.booking_code
+        : (order.id && order.id.length > 10
+            ? `${order.type === "travel" ? "TRV" : order.type === "charter" ? "CHR" : "PKG"}-${order.id.substring(0, 8).toUpperCase()}`
+            : `${order.id}`);
 ---
 
 <div

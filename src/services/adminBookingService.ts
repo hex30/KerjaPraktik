@@ -123,28 +123,59 @@ export const adminBookingService = {
             const response = await apiFetch('/api/admin/master/travel-bookings', { method: 'GET', headers });
             if (!response?.data) return [];
             
-            return response.data.map((item: any) => ({
-                id: item.id || 'N/A',
-                user: {
-                    name: item.customer_name || 'Tanpa Nama',
-                    phone: item.customer_phone || '-',
-                    // Standard FE: Menuntut objek address_detail riil dari BE
-                    address_detail: parseAddressDetail(item.address_detail),
-                    destination_detail: parseAddressDetail(item.destination_detail),
-                    seat_number: item.seat_number || '-',
-                    luggage: item.baggage_weight ? `${item.baggage_weight}Kg (${item.baggage_dimension}) ${item.is_baggage_charge ? '[+Charge]' : ''}` : '-'
-                },
-                origin: item.origin || 'N/A',
-                destination: item.destination || 'N/A',
-                date: item.departure_date || item.created_at || new Date().toISOString(),
-                time: item.departure_time || '-',
-                status: item.booking_status || 'PENDING',
-                booking_status: item.booking_status,
-                payment_proof_url: item.payment_proof_url || null,
-                payment_method: item.payment_method || null,
-                price: item.price || null,
-                schedule_id: item.schedule_id || null
-            }));
+            // Group by booking_code
+            const grouped: { [code: string]: any[] } = {};
+            response.data.forEach((item: any) => {
+                const code = item.booking_code || item.id || 'N/A';
+                if (!grouped[code]) {
+                    grouped[code] = [];
+                }
+                grouped[code].push(item);
+            });
+
+            const result: TravelBookingAdmin[] = [];
+
+            Object.keys(grouped).forEach((code) => {
+                const items = grouped[code];
+                const first = items[0];
+
+                const totalPrice = items.reduce((sum, it) => sum + parseFloat(it.price || 0), 0);
+                const seats = items.map(it => it.seat_number).sort((a, b) => a - b).join(', ');
+                
+                // Compile combined passenger details
+                const passengerList = items.map(it => {
+                    const name = it.passenger_name || 'Tanpa Nama';
+                    const seat = it.seat_number || '-';
+                    const luggage = it.baggage_weight ? `${it.baggage_weight}Kg (${it.baggage_dimension})${it.is_baggage_charge ? ' [+Charge]' : ''}` : '-';
+                    return `${name} (Kursi ${seat}, Bagasi: ${luggage})`;
+                }).join('\n');
+
+                result.push({
+                    id: first.id || 'N/A',
+                    booking_code: code !== 'N/A' && code.startsWith('TRV') ? code : undefined,
+                    user: {
+                        name: first.customer_name || 'Tanpa Nama',
+                        phone: first.customer_phone || '-',
+                        address_detail: parseAddressDetail(first.address_detail),
+                        destination_detail: parseAddressDetail(first.destination_detail),
+                        seat_number: seats,
+                        luggage: passengerList,
+                    },
+                    origin: first.origin || 'N/A',
+                    destination: first.destination || 'N/A',
+                    date: first.departure_date || first.created_at || new Date().toISOString(),
+                    time: first.departure_time || '-',
+                    status: first.booking_status || 'PENDING',
+                    booking_status: first.booking_status,
+                    payment_proof_url: first.payment_proof_url || null,
+                    payment_method: first.payment_method || null,
+                    price: totalPrice,
+                    schedule_id: first.schedule_id || null,
+                    is_group: items.length > 1
+                } as any);
+            });
+
+            return result;
         } catch (error) {
             console.error("Gagal mengambil data pemesanan travel:", error);
             return [];
