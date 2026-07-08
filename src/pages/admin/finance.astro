@@ -155,6 +155,64 @@ if (summary.last_month_income > 0) {
             </div>
         </AdminPageHeader>
 
+        <!-- PANEL FILTER PERIODE -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col md:flex-row items-end md:items-center justify-between gap-4 max-w-6xl">
+            <div class="flex flex-col md:flex-row items-center gap-4 w-full md:w-auto">
+                <div class="flex flex-col gap-1 w-full md:w-48">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Pilih Rentang Waktu</label>
+                    <select
+                        id="dashboard-filter-preset"
+                        class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer w-full"
+                    >
+                        <option value="monthly">Bulan Ini</option>
+                        <option value="today">Hari Ini</option>
+                        <option value="weekly">Minggu Ini</option>
+                        <option value="yearly">Tahun Ini</option>
+                        <option value="specific-date">Tanggal Tertentu</option>
+                        <option value="custom-range">Rentang Tanggal</option>
+                    </select>
+                </div>
+
+                <!-- Input Tanggal Tertentu (Sembunyikan default) -->
+                <div id="wrapper-specific-date" class="hidden flex-col gap-1 w-full md:w-48">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Pilih Tanggal</label>
+                    <input
+                        type="date"
+                        id="filter-single-date"
+                        class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer w-full"
+                    />
+                </div>
+
+                <!-- Input Rentang Tanggal (Sembunyikan default) -->
+                <div id="wrapper-range-date-start" class="hidden flex-col gap-1 w-full md:w-48">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Tanggal Mulai</label>
+                    <input
+                        type="date"
+                        id="filter-start-date"
+                        class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer w-full"
+                    />
+                </div>
+                <div id="wrapper-range-date-end" class="hidden flex-col gap-1 w-full md:w-48">
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider">Tanggal Selesai</label>
+                    <input
+                        type="date"
+                        id="filter-end-date"
+                        class="bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-primary/20 transition-all cursor-pointer w-full"
+                    />
+                </div>
+            </div>
+
+            <div class="w-full md:w-auto">
+                <button
+                    type="button"
+                    id="btn-apply-period-filter"
+                    class="bg-[#044751] hover:bg-[#03363e] text-white px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest shadow-md shadow-primary/10 active:scale-95 transition-all w-full md:w-auto"
+                >
+                    Terapkan Filter
+                </button>
+            </div>
+        </div>
+
         <!-- SUMMARY STATS -->
         <section class="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-6xl">
             <!-- 1. Gaji Supir Hari Ini (2x2) -->
@@ -166,24 +224,24 @@ if (summary.last_month_income > 0) {
                         class="text-[9px] font-black uppercase tracking-widest text-white/60"
                         >Estimasi Alokasi</span
                     >
-                    <h3 class="text-lg font-black mt-1">
-                        Gaji Supir Hari Ini (40%)
+                    <h3 class="text-lg font-black mt-1" id="stat-driver-salary-title">
+                        Gaji Supir Bulan Ini (40%)
                     </h3>
                 </div>
                 <div class="mt-4">
                     <span class="text-2xl font-black" id="stat-driver-salary"
                         >Rp {
-                            (summary.today_income * 0.4).toLocaleString("id-ID")
+                            (summary.total_income * 0.4).toLocaleString("id-ID")
                         }</span
                     >
                     <p class="text-[10px] text-white/70 mt-1">
-                        * 40% dari total pendapatan armada hari ini
+                        * 40% dari total pendapatan armada periode ini
                     </p>
                 </div>
             </div>
 
             <!-- 2. Pemasukan Bulan Ini (1x1) -->
-            <div class="h-full">
+            <div class="h-full" id="card-current-income">
                 <StatCard
                     title="Pemasukan Bulan Ini"
                     value={`Rp ${summary.total_income.toLocaleString("id-ID")}`}
@@ -197,7 +255,7 @@ if (summary.last_month_income > 0) {
             </div>
 
             <!-- 3. Pemasukan Bulan Lalu (1x1) -->
-            <div class="h-full">
+            <div class="h-full" id="card-last-income">
                 <StatCard
                     title="Pemasukan Bulan Lalu"
                     value={`Rp ${summary.last_month_income.toLocaleString("id-ID")}`}
@@ -207,7 +265,7 @@ if (summary.last_month_income > 0) {
             </div>
 
             <!-- 4. Pengeluaran Bulan Ini (1x1) -->
-            <div class="h-full">
+            <div class="h-full" id="card-current-expense">
                 <StatCard
                     title="Pengeluaran Bulan Ini"
                     value={`Rp ${summary.total_expense.toLocaleString("id-ID")}`}
@@ -217,7 +275,7 @@ if (summary.last_month_income > 0) {
             </div>
 
             <!-- 5. Pengeluaran Bulan Lalu (1x1) -->
-            <div class="h-full">
+            <div class="h-full" id="card-last-expense">
                 <StatCard
                     title="Pengeluaran Bulan Lalu"
                     value={`Rp ${mockExpenseLastMonth.toLocaleString("id-ID")}`}
@@ -423,14 +481,343 @@ if (summary.last_month_income > 0) {
 </AdminLayout>
 
 <script>
+    let activeStartDate = "";
+    let activeEndDate = "";
+
+    const serviceTypeMap = (category: string) => {
+        let serviceType = "Operasional";
+        const categoryLower = (category || "").toLowerCase();
+        if (
+            categoryLower.includes("charter") ||
+            categoryLower.includes("sewa")
+        ) {
+            serviceType = "Sewa Charter";
+        } else if (
+            categoryLower.includes("travel") ||
+            categoryLower.includes("rute") ||
+            categoryLower.includes("ticket")
+        ) {
+            serviceType = "Travel Reguler";
+        } else if (
+            categoryLower.includes("package") ||
+            categoryLower.includes("shipment") ||
+            categoryLower.includes("paket")
+        ) {
+            serviceType = "Pengiriman Paket";
+        } else if (
+            categoryLower.includes("expense") ||
+            categoryLower.includes("pengeluaran")
+        ) {
+            serviceType = "Operasional";
+        }
+        return serviceType;
+    };
+
+    const updateTransactionTable = (txList: any[]) => {
+        const tableBody = document.getElementById("tx-table-body");
+        if (!tableBody) return;
+
+        // Filter type === 'income' to match original SSR table behavior
+        const incomes = txList.filter((t: any) => t.type === "income");
+
+        if (incomes.length === 0) {
+            tableBody.innerHTML = `
+                <tr class="text-center py-10">
+                    <td colspan="6" class="py-10 text-slate-400 text-sm font-secondary">
+                        Belum ada transaksi pada periode ini.
+                    </td>
+                </tr>
+            `;
+            // Hide expand button
+            const toggleBtn = document.getElementById("toggle-tx-expand");
+            if (toggleBtn) toggleBtn.style.display = "none";
+            return;
+        }
+
+        let rowsHtml = "";
+        incomes.forEach((tx: any, index: number) => {
+            const serviceType = serviceTypeMap(tx.category);
+            const txId = "#" + tx.id.substring(0, 8).toUpperCase();
+            const txDate = new Date(tx.created_at).toLocaleDateString("id-ID", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+            });
+            const method = (tx.payment_method || "TRANSFER").toUpperCase();
+            const amountFormatted = Number(tx.amount).toLocaleString("id-ID");
+            const isHidden = index >= 5 ? "hidden opacity-0 max-h-0" : "opacity-100";
+
+            let serviceBadgeClass = "bg-slate-100 text-slate-600";
+            if (serviceType === "Travel Reguler") {
+                serviceBadgeClass = "bg-sky-50 text-sky-600";
+            } else if (serviceType === "Sewa Charter") {
+                serviceBadgeClass = "bg-indigo-50 text-indigo-600";
+            } else if (serviceType === "Pengiriman Paket") {
+                serviceBadgeClass = "bg-amber-50 text-amber-600";
+            }
+
+            rowsHtml += `
+                <tr
+                    class="group hover:bg-slate-50/50 transition-all duration-300 whitespace-nowrap md:whitespace-normal tx-row ${isHidden}"
+                    data-service-type="${serviceType}"
+                    data-date="${tx.created_at || ""}"
+                >
+                    <td class="py-4 px-4 font-bold text-slate-900 text-sm">
+                        ${txId}
+                    </td>
+                    <td class="py-4 px-4 text-xs text-slate-500">
+                        ${txDate}
+                    </td>
+                    <td class="py-4 px-4">
+                        <span class="inline-flex px-2.5 py-1 bg-slate-100 text-slate-700 font-bold rounded-lg text-[10px] uppercase">
+                            ${method}
+                        </span>
+                    </td>
+                    <td class="py-4 px-4">
+                        <span class="inline-flex px-2.5 py-1 font-bold rounded-lg text-[10px] uppercase ${serviceBadgeClass}">
+                            ${serviceType}
+                        </span>
+                    </td>
+                    <td class="py-4 px-4 text-sm font-medium text-slate-700 max-w-xs truncate" title="${tx.description || ""}">
+                        ${tx.description || "-"}
+                    </td>
+                    <td class="py-4 px-4 text-right font-main font-black text-emerald-600">
+                        + Rp ${amountFormatted}
+                    </td>
+                </tr>
+            `;
+        });
+
+        tableBody.innerHTML = rowsHtml;
+
+        // Show or hide expand button depending on count
+        const toggleBtn = document.getElementById("toggle-tx-expand");
+        if (toggleBtn) {
+            if (incomes.length > 5) {
+                toggleBtn.style.display = "flex";
+                toggleBtn.textContent = "Lihat Seluruh Data Periode Ini";
+            } else {
+                toggleBtn.style.display = "none";
+            }
+        }
+    };
+
+    const setupDashboardPeriodFilter = () => {
+        const presetSelect = document.getElementById("dashboard-filter-preset") as HTMLSelectElement;
+        const btnApply = document.getElementById("btn-apply-period-filter");
+        
+        const wrapperSpecific = document.getElementById("wrapper-specific-date");
+        const wrapperRangeStart = document.getElementById("wrapper-range-date-start");
+        const wrapperRangeEnd = document.getElementById("wrapper-range-date-end");
+
+        const inputSingle = document.getElementById("filter-single-date") as HTMLInputElement;
+        const inputStart = document.getElementById("filter-start-date") as HTMLInputElement;
+        const inputEnd = document.getElementById("filter-end-date") as HTMLInputElement;
+
+        if (!presetSelect || !btnApply) return;
+
+        presetSelect.addEventListener("change", () => {
+            const val = presetSelect.value;
+            if (val === "specific-date") {
+                wrapperSpecific?.classList.remove("hidden");
+                wrapperSpecific?.classList.add("flex");
+                wrapperRangeStart?.classList.add("hidden");
+                wrapperRangeStart?.classList.remove("flex");
+                wrapperRangeEnd?.classList.add("hidden");
+                wrapperRangeEnd?.classList.remove("flex");
+            } else if (val === "custom-range") {
+                wrapperSpecific?.classList.add("hidden");
+                wrapperSpecific?.classList.remove("flex");
+                wrapperRangeStart?.classList.remove("hidden");
+                wrapperRangeStart?.classList.add("flex");
+                wrapperRangeEnd?.classList.remove("hidden");
+                wrapperRangeEnd?.classList.add("flex");
+            } else {
+                wrapperSpecific?.classList.add("hidden");
+                wrapperSpecific?.classList.remove("flex");
+                wrapperRangeStart?.classList.add("hidden");
+                wrapperRangeStart?.classList.remove("flex");
+                wrapperRangeEnd?.classList.add("hidden");
+                wrapperRangeEnd?.classList.remove("flex");
+            }
+        });
+
+        // Set default dates for single and range inputs
+        const todayStr = new Date().toISOString().slice(0, 10);
+        if (inputSingle) inputSingle.value = todayStr;
+        if (inputStart) inputStart.value = todayStr;
+        if (inputEnd) inputEnd.value = todayStr;
+
+        btnApply.addEventListener("click", async () => {
+            const token = document.cookie
+                .split("; ")
+                .find((row) => row.startsWith("token="))
+                ?.split("=")[1];
+            const API_BASE =
+                import.meta.env.PUBLIC_API_URL || "http://localhost:5000";
+
+            const preset = presetSelect.value;
+            let startDate = "";
+            let endDate = "";
+
+            const formatDate = (date: Date) => {
+                return date.getFullYear() + '-' + 
+                    String(date.getMonth() + 1).padStart(2, '0') + '-' + 
+                    String(date.getDate()).padStart(2, '0');
+            };
+
+            if (preset === "specific-date") {
+                if (!inputSingle.value) {
+                    alert("Pilih tanggal terlebih dahulu!");
+                    return;
+                }
+                startDate = inputSingle.value;
+                endDate = startDate;
+            } else if (preset === "custom-range") {
+                if (!inputStart.value || !inputEnd.value) {
+                    alert("Pilih tanggal mulai dan selesai terlebih dahulu!");
+                    return;
+                }
+                if (new Date(inputStart.value) > new Date(inputEnd.value)) {
+                    alert("Tanggal mulai tidak boleh melebihi tanggal selesai!");
+                    return;
+                }
+                startDate = inputStart.value;
+                endDate = inputEnd.value;
+            } else {
+                // Preset today, weekly, monthly, yearly
+                const today = new Date();
+                endDate = formatDate(today);
+
+                if (preset === "today") {
+                    startDate = endDate;
+                } else if (preset === "weekly") {
+                    const start = new Date(today);
+                    start.setDate(today.getDate() - 6);
+                    startDate = formatDate(start);
+                } else if (preset === "monthly") {
+                    const start = new Date(today.getFullYear(), today.getMonth(), 1);
+                    startDate = formatDate(start);
+                    const end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                    endDate = formatDate(end);
+                } else if (preset === "yearly") {
+                    const start = new Date(today.getFullYear(), 0, 1);
+                    startDate = formatDate(start);
+                    const end = new Date(today.getFullYear(), 11, 31);
+                    endDate = formatDate(end);
+                }
+            }
+
+            // Save active range
+            activeStartDate = startDate;
+            activeEndDate = endDate;
+
+            try {
+                btnApply.setAttribute("disabled", "true");
+                btnApply.textContent = "Loading...";
+
+                // Fetch new summary and transactions
+                const [sumRes, txRes] = await Promise.all([
+                    fetch(`${API_BASE}/api/admin/cashflow/summary?startDate=${startDate}&endDate=${endDate}`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    }),
+                    fetch(`${API_BASE}/api/admin/cashflow/transactions?limit=1000&startDate=${startDate}&endDate=${endDate}`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    })
+                ]);
+
+                if (!sumRes.ok || !txRes.ok) {
+                    throw new Error("Gagal mengambil data dari server");
+                }
+
+                const sumData = (await sumRes.json()).data;
+                const txData = (await txRes.json()).data || [];
+
+                // 1. Update finance-summary-data element attribute
+                const summaryEl = document.getElementById("finance-summary-data");
+                if (summaryEl) {
+                    summaryEl.setAttribute("data-summary", JSON.stringify(sumData));
+                }
+
+                // 2. Update Stats Cards titles and values
+                let periodTitle = "Bulan Ini";
+                let prevPeriodTitle = "Bulan Lalu";
+                if (preset === "today") {
+                    periodTitle = "Hari Ini";
+                    prevPeriodTitle = "Kemarin";
+                } else if (preset === "weekly") {
+                    periodTitle = "Minggu Ini";
+                    prevPeriodTitle = "Minggu Lalu";
+                } else if (preset === "yearly") {
+                    periodTitle = "Tahun Ini";
+                    prevPeriodTitle = "Tahun Lalu";
+                } else if (preset === "specific-date" || preset === "custom-range") {
+                    periodTitle = "Periode Ini";
+                    prevPeriodTitle = "Periode Lalu";
+                }
+
+                // Update Driver Salary Card
+                const driverSalaryVal = sumData.total_income * 0.4;
+                const driverSalaryTitleEl = document.getElementById("stat-driver-salary-title");
+                if (driverSalaryTitleEl) {
+                    driverSalaryTitleEl.textContent = `Gaji Supir ${periodTitle} (40%)`;
+                }
+                const driverSalaryValEl = document.getElementById("stat-driver-salary");
+                if (driverSalaryValEl) {
+                    driverSalaryValEl.textContent = `Rp ${driverSalaryVal.toLocaleString("id-ID")}`;
+                }
+
+                // Helper to update card value and title
+                const updateCard = (cardId: string, title: string, val: number) => {
+                    const card = document.getElementById(cardId);
+                    if (card) {
+                        const titleEl = card.querySelector("p");
+                        const valEl = card.querySelector("h3");
+                        if (titleEl) titleEl.textContent = title;
+                        if (valEl) valEl.textContent = `Rp ${val.toLocaleString("id-ID")}`;
+                    }
+                };
+
+                updateCard("card-current-income", `Pemasukan ${periodTitle}`, sumData.total_income);
+                updateCard("card-last-income", `Pemasukan ${prevPeriodTitle}`, sumData.last_month_income);
+                updateCard("card-current-expense", `Pengeluaran ${periodTitle}`, sumData.total_expense);
+                updateCard("card-last-expense", `Pengeluaran ${prevPeriodTitle}`, sumData.last_month_expense);
+
+                // Update Trend growth percentage in Current Income Card
+                const trendSpan = document.querySelector("#card-current-income span.text-xs");
+                if (trendSpan) {
+                    let growth = 0;
+                    if (sumData.last_month_income > 0) {
+                        growth = ((sumData.total_income - sumData.last_month_income) / sumData.last_month_income) * 100;
+                    }
+                    trendSpan.className = `text-xs font-bold px-2 py-1 rounded-full ${growth >= 0 ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"}`;
+                    trendSpan.innerHTML = `${growth >= 0 ? "↑" : "↓"} ${Math.abs(growth).toFixed(1)}%`;
+                }
+
+                // 3. Update Transaction Table
+                updateTransactionTable(txData);
+
+            } catch (error: any) {
+                (window as any).showFeedbackModal(
+                    "error",
+                    "Gagal",
+                    "Gagal memproses filter: " + error.message
+                );
+            } finally {
+                btnApply.removeAttribute("disabled");
+                btnApply.textContent = "Terapkan Filter";
+            }
+        });
+    };
+
     const setupTransactionToggle = () => {
         const toggleBtn = document.getElementById("toggle-tx-expand");
-        const rows = document.querySelectorAll(".tx-row");
         let isExpanded = false;
 
         if (toggleBtn) {
             toggleBtn.addEventListener("click", () => {
                 isExpanded = !isExpanded;
+                const rows = document.querySelectorAll(".tx-row");
 
                 rows.forEach((row, index) => {
                     if (index >= 5) {
@@ -451,10 +838,11 @@ if (summary.last_month_income > 0) {
 
                 toggleBtn.textContent = isExpanded
                     ? "Tutup Data Lengkap"
-                    : "Lihat Seluruh Data Bulan Ini";
+                    : "Lihat Seluruh Data Periode Ini";
             });
         }
     };
+
     const setupDownloadDropdown = () => {
         const btn = document.getElementById("download-report-btn");
         const menu = document.getElementById("download-options-menu");
@@ -510,13 +898,14 @@ if (summary.last_month_income > 0) {
                         downloadBtn.innerHTML = `<svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Memproses...`;
                     }
 
-                    // Ambil seluruh data transaksi
-                    const txRes = await fetch(
-                        `${API_BASE}/api/admin/cashflow/transactions?limit=1000`,
-                        {
-                            headers: { Authorization: `Bearer ${token}` },
-                        },
-                    );
+                    // Ambil seluruh data transaksi sesuai filter aktif
+                    let url = `${API_BASE}/api/admin/cashflow/transactions?limit=1000`;
+                    if (activeStartDate && activeEndDate) {
+                        url += `&startDate=${activeStartDate}&endDate=${activeEndDate}`;
+                    }
+                    const txRes = await fetch(url, {
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
 
                     if (!txRes.ok)
                         throw new Error("Gagal mengambil data transaksi");
@@ -540,29 +929,7 @@ if (summary.last_month_income > 0) {
                             "ID Transaksi,Tanggal,Metode Pembayaran,Jenis Layanan,Keterangan,Tipe,Jumlah (IDR)\n";
 
                         allTx.forEach((tx: any) => {
-                            let serviceType = "Operasional";
-                            const categoryLower = (
-                                tx.category || ""
-                            ).toLowerCase();
-                            if (
-                                categoryLower.includes("charter") ||
-                                categoryLower.includes("sewa")
-                            ) {
-                                serviceType = "Sewa Charter";
-                            } else if (
-                                categoryLower.includes("travel") ||
-                                categoryLower.includes("rute") ||
-                                categoryLower.includes("ticket")
-                            ) {
-                                serviceType = "Travel Reguler";
-                            } else if (
-                                categoryLower.includes("package") ||
-                                categoryLower.includes("shipment") ||
-                                categoryLower.includes("paket")
-                            ) {
-                                serviceType = "Pengiriman Paket";
-                            }
-
+                            const serviceType = serviceTypeMap(tx.category);
                             const txId =
                                 "#" + tx.id.substring(0, 8).toUpperCase();
                             const txDate = new Date(
@@ -594,9 +961,17 @@ if (summary.last_month_income > 0) {
                         const url = URL.createObjectURL(blob);
                         const link = document.createElement("a");
                         link.setAttribute("href", url);
+
+                        let filename = "laporan_keuangan";
+                        if (activeStartDate && activeEndDate) {
+                            filename += `_${activeStartDate}_ke_${activeEndDate}`;
+                        } else {
+                            filename += `_${new Date().toISOString().slice(0, 10)}`;
+                        }
+
                         link.setAttribute(
                             "download",
-                            `laporan_keuangan_${new Date().toISOString().slice(0, 10)}.csv`,
+                            `${filename}.csv`,
                         );
                         document.body.appendChild(link);
                         link.click();
@@ -636,10 +1011,35 @@ if (summary.last_month_income > 0) {
                         doc.setTextColor(100, 116, 139);
                         doc.text("PT. Rini Trans Putri", 14, 28);
 
+                        // Format period text
+                        let periodText = "Bulan Ini";
+                        if (activeStartDate && activeEndDate) {
+                            const formatIndo = (dStr: string) => {
+                                const d = new Date(dStr);
+                                return d.toLocaleDateString("id-ID", {
+                                    day: "numeric",
+                                    month: "long",
+                                    year: "numeric"
+                                });
+                            };
+                            periodText = `${formatIndo(activeStartDate)} s.d. ${formatIndo(activeEndDate)}`;
+                        } else {
+                            const today = new Date();
+                            const start = new Date(today.getFullYear(), today.getMonth(), 1);
+                            const formatIndo = (d: Date) => {
+                                return d.toLocaleDateString("id-ID", {
+                                    day: "numeric",
+                                    month: "long",
+                                    year: "numeric"
+                                });
+                            };
+                            periodText = `${formatIndo(start)} s.d. ${formatIndo(today)}`;
+                        }
+
                         doc.setFont("Helvetica", "normal");
                         doc.setFontSize(8);
                         doc.text(
-                            `Dicetak pada: ${new Date().toLocaleString("id-ID")}`,
+                            `Periode: ${periodText} | Dicetak pada: ${new Date().toLocaleString("id-ID")}`,
                             14,
                             34,
                         );
@@ -676,29 +1076,7 @@ if (summary.last_month_income > 0) {
                         );
 
                         const tableRows = allTx.map((tx: any) => {
-                            let serviceType = "Operasional";
-                            const categoryLower = (
-                                tx.category || ""
-                            ).toLowerCase();
-                            if (
-                                categoryLower.includes("charter") ||
-                                categoryLower.includes("sewa")
-                            ) {
-                                serviceType = "Sewa Charter";
-                            } else if (
-                                categoryLower.includes("travel") ||
-                                categoryLower.includes("rute") ||
-                                categoryLower.includes("ticket")
-                            ) {
-                                serviceType = "Travel Reguler";
-                            } else if (
-                                categoryLower.includes("package") ||
-                                categoryLower.includes("shipment") ||
-                                categoryLower.includes("paket")
-                            ) {
-                                serviceType = "Pengiriman Paket";
-                            }
-
+                            const serviceType = serviceTypeMap(tx.category);
                             const txId =
                                 "#" + tx.id.substring(0, 8).toUpperCase();
                             const txDate = new Date(
@@ -746,8 +1124,15 @@ if (summary.last_month_income > 0) {
                             columnStyles: { 5: { halign: "right" } },
                         });
 
+                        let pdfFilename = "laporan_keuangan";
+                        if (activeStartDate && activeEndDate) {
+                            pdfFilename += `_${activeStartDate}_ke_${activeEndDate}`;
+                        } else {
+                            pdfFilename += `_${new Date().toISOString().slice(0, 10)}`;
+                        }
+
                         doc.save(
-                            `laporan_keuangan_${new Date().toISOString().slice(0, 10)}.pdf`,
+                            `${pdfFilename}.pdf`,
                         );
                     }
 
@@ -790,7 +1175,6 @@ if (summary.last_month_income > 0) {
         const inputDate = document.getElementById(
             "tx-filter-date",
         ) as HTMLInputElement;
-        const txRows = document.querySelectorAll(".tx-row");
         const toggleBtn = document.getElementById("toggle-tx-expand");
         const toggleText = document.getElementById("toggle-tx-text");
         const toggleIcon = document.getElementById("toggle-tx-icon");
@@ -800,6 +1184,7 @@ if (summary.last_month_income > 0) {
         btnApply.addEventListener("click", () => {
             const svc = selectService.value;
             const dt = inputDate.value;
+            const txRows = document.querySelectorAll(".tx-row");
 
             // Sembunyikan tombol toggle karena sedang mode pencarian (tampilkan semua match)
             if (toggleBtn) toggleBtn.style.display = "none";
@@ -840,6 +1225,7 @@ if (summary.last_month_income > 0) {
         btnReset.addEventListener("click", () => {
             selectService.value = "ALL";
             inputDate.value = "";
+            const txRows = document.querySelectorAll(".tx-row");
 
             if (toggleBtn) {
                 toggleBtn.style.display = "flex";
@@ -863,10 +1249,12 @@ if (summary.last_month_income > 0) {
     setupTransactionToggle();
     setupDownloadDropdown();
     setupTransactionFilter();
+    setupDashboardPeriodFilter();
 
     document.addEventListener("astro:page-load", () => {
         setupTransactionToggle();
         setupDownloadDropdown();
         setupTransactionFilter();
+        setupDashboardPeriodFilter();
     });
 </script>
