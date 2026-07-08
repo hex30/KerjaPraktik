@@ -423,6 +423,21 @@ try {
                 <form id="form-data-diri-travel" class="flex flex-col gap-8">
                     <PassengerDataForm />
 
+                    <div id="additional-passengers-container" class="flex flex-col gap-6"></div>
+
+                    <!-- Panel Warning Payload Step 2 (Grup) -->
+                    <div id="payload-group-alert" class="hidden bg-red-50 border border-red-200 rounded-2xl p-4 flex gap-3 items-start shadow-sm">
+                        <div class="bg-red-100 text-red-600 p-1.5 rounded-lg shrink-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+                        <div class="flex flex-col gap-0.5">
+                            <h4 class="font-bold text-red-800 text-sm">Kapasitas Kargo Terlampaui</h4>
+                            <p id="payload-group-alert-text" class="text-red-700 text-xs font-secondary leading-tight"></p>
+                        </div>
+                    </div>
+
                     <div class="pt-4 border-t border-slate-100">
                         <Button
                             type="submit"
@@ -873,6 +888,53 @@ try {
             dimensiBagasiSelect.addEventListener("change", checkLuggageAlert);
         }
 
+        // 3. Warning payload kargo rombongan (Step 2)
+        const checkGroupPayloadLimit = () => {
+            const btnSubmit = form2.querySelector('button[type="submit"]') as HTMLButtonElement;
+            const groupAlert = document.getElementById("payload-group-alert");
+            const groupAlertText = document.getElementById("payload-group-alert-text");
+            
+            if (!groupAlert || !btnSubmit || currentRouteMaxPayload === 0) return;
+
+            const seatValues = (document.getElementById("input-selected-seats") as HTMLInputElement)?.value || "";
+            const seatsList = seatValues.split(",").map(s => s.trim()).filter(Boolean);
+
+            let accumWeight = 0;
+
+            // Passenger 1 (dari Input Step 1)
+            const w1 = parseFloat(beratBagasiInput?.value || "0") || 0;
+            const d1 = dimensiBagasiSelect?.value || "kecil";
+            const extra1 = (w1 >= 60 || d1 === "super_besar") ? 1 : 0;
+            accumWeight += (1 + extra1) * 110;
+
+            // Penumpang tambahan
+            for (let i = 1; i < seatsList.length; i++) {
+                const seat = seatsList[i];
+                const wInput = form2.querySelector(`[name="baggage_weight_${seat}"]`) as HTMLInputElement;
+                const dSelect = form2.querySelector(`[name="baggage_dimension_${seat}"]`) as HTMLSelectElement;
+                
+                const w = parseFloat(wInput?.value || "0") || 0;
+                const d = dSelect?.value || "kecil";
+                const extra = (w >= 60 || d === "super_besar") ? 1 : 0;
+                accumWeight += (1 + extra) * 110;
+            }
+
+            const remainingPayload = currentRouteMaxPayload - currentRouteWeight;
+
+            if (currentRouteWeight + accumWeight > currentRouteMaxPayload) {
+                if (groupAlertText) {
+                    groupAlertText.textContent = `Mohon maaf, sisa kapasitas kargo armada kami untuk tanggal ini adalah ${Math.max(0, remainingPayload)} kg. Total beban kargo rombongan Anda (dihitung ${accumWeight} kg termasuk jatah kursi) melebihi batas kapasitas tersebut.`;
+                }
+                groupAlert.classList.remove("hidden");
+                groupAlert.classList.add("flex");
+                btnSubmit.disabled = true;
+            } else {
+                groupAlert.classList.add("hidden");
+                groupAlert.classList.remove("flex");
+                btnSubmit.disabled = false;
+            }
+        };
+
         // Navigation Logic
         form1.addEventListener("submit", (e) => {
             e.preventDefault();
@@ -898,7 +960,18 @@ try {
                 );
             }
 
-            // Cek apakah muatan payload terlampaui
+            const seatsList = selectedSeats.split(",").map(s => s.trim()).filter(Boolean);
+
+            // Cek batas kursi (maksimal 4)
+            if (seatsList.length > 4) {
+                return (window as any).showFeedbackModal(
+                    "warning",
+                    "Batas Pemesanan",
+                    "Maksimal pemesanan tiket reguler dalam satu transaksi adalah 4 kursi. Untuk rombongan besar, silakan gunakan layanan Charter kami."
+                );
+            }
+
+            // Cek apakah muatan payload terlampaui (Untuk Penumpang 1)
             if (currentRouteMaxPayload > 0) {
                 const weight = parseInt(beratBagasiInput.value) || 0;
                 const dimension = dimensiBagasiSelect.value;
@@ -912,6 +985,95 @@ try {
                     );
                 }
             }
+
+            // Update main passenger form title with seat number
+            const mainFormHeader = document.querySelector("#form-data-diri-travel h3");
+            if (mainFormHeader) {
+                mainFormHeader.innerHTML = `<span class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm">1</span>Data Diri Penumpang 1 (Kursi ${seatsList[0]})`;
+            }
+
+            // Generate additional passenger cards
+            const additionalContainer = document.getElementById("additional-passengers-container");
+            if (additionalContainer) {
+                additionalContainer.innerHTML = "";
+                
+                for (let i = 1; i < seatsList.length; i++) {
+                    const seat = seatsList[i];
+                    const cardHTML = `
+                        <div class="bg-white rounded-[2rem] shadow-sm border border-slate-100 p-6 md:p-10 flex flex-col gap-6 font-main additional-passenger-card mt-6" data-seat="${seat}">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                                <h3 class="text-lg text-primary font-bold flex items-center gap-2">
+                                    <span class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center text-sm">${i + 1}</span>
+                                    Data Diri Penumpang ${i + 1} (Kursi ${seat})
+                                </h3>
+                                <button type="button" class="btn-autofill-additional text-xs font-bold text-primary hover:underline hover:text-primary-dark transition-colors">
+                                    Salin Data Pemesan
+                                </button>
+                            </div>
+
+                            <div class="flex flex-col gap-5">
+                                <div class="w-full relative">
+                                    <label class="font-secondary text-sm font-bold text-primary mb-2 block">Nama Lengkap</label>
+                                    <input type="text" name="passenger_name_${seat}" placeholder="Masukan Nama Lengkap Penumpang" required class="w-full bg-slate-100 border border-slate-200 rounded-lg px-4 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-slate-400" />
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                    <div class="flex flex-col gap-2 w-full">
+                                        <label class="font-secondary text-sm font-bold text-primary">Berat Bawaan</label>
+                                        <div class="relative flex items-center w-full">
+                                            <input type="number" name="baggage_weight_${seat}" placeholder="Contoh: 15" min="0" required class="baggage-weight-input w-full bg-slate-100 border border-slate-200 rounded-lg pl-4 pr-16 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all placeholder:text-slate-400" />
+                                            <div class="absolute right-1 top-1 bottom-1 bg-white border border-slate-200 rounded-md px-3 flex items-center justify-center pointer-events-none shadow-sm">
+                                                <span class="font-black text-primary text-xs tracking-wider">Kg</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex flex-col gap-2 w-full">
+                                        <label class="font-secondary text-sm font-bold text-primary">Ukuran Dominan</label>
+                                        <div class="relative">
+                                            <select name="baggage_dimension_${seat}" class="baggage-dimension-select w-full bg-slate-100 border border-slate-200 rounded-lg px-4 py-3 font-secondary text-sm text-text-secondary focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all appearance-none cursor-pointer">
+                                                <option value="kecil" selected>Kecil (Dokumen/Buku)</option>
+                                                <option value="sedang">Sedang (Ransel/Tas Jinjing)</option>
+                                                <option value="besar">Besar (Koper Sedang)</option>
+                                                <option value="super_besar">Super Besar (Koper Jumbo > 60 kg)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    additionalContainer.insertAdjacentHTML("beforeend", cardHTML);
+                }
+
+                // Add autofill behavior to new buttons
+                additionalContainer.querySelectorAll(".btn-autofill-additional").forEach(btn => {
+                    btn.addEventListener("click", (e) => {
+                        const card = (e.target as HTMLElement).closest(".additional-passenger-card");
+                        if (!card) return;
+                        const nameInput = card.querySelector('input[type="text"]') as HTMLInputElement;
+                        
+                        const userDataStr = localStorage.getItem("user_data");
+                        if (userDataStr && nameInput) {
+                            try {
+                                const user = JSON.parse(userDataStr);
+                                nameInput.value = user.full_name || user.username || user.name || user.nama || "";
+                            } catch (err) {
+                                console.error(err);
+                            }
+                        }
+                    });
+                });
+
+                // Add live change events to calculate accumulative payload warnings
+                additionalContainer.querySelectorAll(".baggage-weight-input, .baggage-dimension-select").forEach(el => {
+                    el.addEventListener("input", checkGroupPayloadLimit);
+                    el.addEventListener("change", checkGroupPayloadLimit);
+                });
+            }
+
+            // Initial calculation
+            checkGroupPayloadLimit();
 
             step1.classList.add("hidden");
             step2.classList.remove("hidden");
@@ -956,12 +1118,41 @@ try {
                             "input-selected-seats",
                         ) as HTMLInputElement
                     )?.value || "";
-                const firstSeat = parseInt(seatValues.split(",")[0]);
+                const seatsList = seatValues.split(",").map(s => s.trim()).filter(Boolean);
+
+                // Build passengers array
+                const passengersArray = [];
+                
+                // Passenger 1
+                const w1 = parseFloat(beratBagasiInput?.value || "0") || 0;
+                const d1 = dimensiBagasiSelect?.value || "kecil";
+                const name1 = data2.full_name || "Penumpang Utama";
+                passengersArray.push({
+                    seat_number: parseInt(seatsList[0], 10),
+                    passenger_name: name1,
+                    baggage_weight: w1,
+                    baggage_dimension: d1,
+                    baggage_description: `Bagasi Kursi ${seatsList[0]}`
+                });
+
+                // Additional passengers
+                for (let i = 1; i < seatsList.length; i++) {
+                    const seat = seatsList[i];
+                    const w = parseFloat(data2[`baggage_weight_${seat}`] || "0") || 0;
+                    const d = data2[`baggage_dimension_${seat}`] || "kecil";
+                    const name = data2[`passenger_name_${seat}`] || `Penumpang ${i + 1}`;
+                    passengersArray.push({
+                        seat_number: parseInt(seat, 10),
+                        passenger_name: name,
+                        baggage_weight: w,
+                        baggage_dimension: d,
+                        baggage_description: `Bagasi Kursi ${seat}`
+                    });
+                }
 
                 const bookingPayload: any = {
                     route_id: selectedRouteId,
                     departure_date: selectedRawDate,
-                    seat_number: firstSeat,
                     tujuan_kecamatan: data1.tujuan_kecamatan || "-",
                     pickup_address: JSON.stringify({
                         kecamatan: data2.sub_district || "-",
@@ -977,13 +1168,9 @@ try {
                         rt_rw: `${data1.tujuan_rt || "-"}/${data1.tujuan_rw || "-"}`,
                         patokan: data1.tujuan_patokan || "-",
                     }),
-                    baggage_description: "Bawaan Penumpang Reguler",
-                    baggage_weight:
-                        beratBagasiInput?.value &&
-                        parseFloat(beratBagasiInput.value) > 0
-                            ? parseFloat(beratBagasiInput.value)
-                            : 1,
-                    baggage_dimension: dimensiBagasiSelect?.value || "kecil",
+                    payment_method: data1.payment_method || undefined,
+                    promo_id: data1.promo_id || undefined,
+                    passengers: passengersArray
                 };
 
                 const token = localStorage.getItem("jwt_token");
@@ -996,7 +1183,7 @@ try {
 
                 const successMessage = `
                     <div class="flex flex-col gap-3 text-left">
-                        <p class="text-slate-600 text-sm mb-2 text-center">Pemesanan Anda telah berhasil dikirim ke sistem! Anda telah mengunci kursi ini.</p>
+                        <p class="text-slate-600 text-sm mb-2 text-center">Pemesanan Anda telah berhasil dikirim ke sistem! Rombongan Anda telah mengunci kursi ini.</p>
                         
                         <!-- Alert Card 2: Payment Timeout -->
                         <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex gap-3 items-start shadow-sm mt-1">
@@ -1022,40 +1209,6 @@ try {
                     "/user/booking-history",
                 );
             } catch (error: any) {
-                if (error.code === "NEAREST_DATE_OFFER") {
-                    const confirmed = await (window as any).showConfirmModal(
-                        "Pindah Jadwal",
-                        `${error.message}\n\nApakah Anda setuju untuk memindahkan jadwal ke tanggal terdekat: ${error.nearest_date}?`,
-                        "warning",
-                    );
-                    if (confirmed) {
-                        const dateSpan =
-                            document.getElementById("selected-raw-date");
-                        if (dateSpan) dateSpan.textContent = error.nearest_date;
-
-                        const schedSpan = document.getElementById(
-                            "selected-schedule-id",
-                        );
-                        if (schedSpan) {
-                            schedSpan.textContent =
-                                error.nearest_schedule_id || "";
-                        }
-
-                        // Resubmit the form by calling the same process
-                        btnSubmit.disabled = false;
-                        btnSubmit.textContent = originalText;
-                        setTimeout(() => btnSubmit.click(), 100);
-                        return;
-                    } else {
-                        (window as any).showFeedbackModal(
-                            "error",
-                            "Pemesanan Dibatalkan",
-                            "Pemesanan telah dibatalkan karena kursi tidak mencukupi untuk barang bawaan Anda.",
-                        );
-                        return;
-                    }
-                }
-
                 (window as any).showFeedbackModal(
                     "error",
                     "Pemesanan Gagal",

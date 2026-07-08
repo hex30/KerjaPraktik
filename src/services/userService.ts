@@ -29,20 +29,42 @@ export const userService = {
 
       // 2. Menerjemahkan respons Travel Reguler ke Skema Hibrida
       if (travelRes.status === 'fulfilled' && travelRes.value?.data) {
+        const groupedTravel: { [code: string]: any[] } = {};
         travelRes.value.data.forEach((item: any) => {
+          const code = item.booking_code || item.booking_id || item.id || 'N/A';
+          if (!groupedTravel[code]) {
+            groupedTravel[code] = [];
+          }
+          groupedTravel[code].push(item);
+        });
+
+        Object.keys(groupedTravel).forEach((code) => {
+          const items = groupedTravel[code];
+          const first = items[0];
+          
+          const totalPrice = items.reduce((sum, it) => sum + parseFloat(it.price || 0), 0);
+          const totalOriginalPrice = items.reduce((sum, it) => sum + parseFloat(it.original_price || it.price || 0), 0);
+          const seats = items.map(it => it.seat_number).sort((a, b) => a - b).join(', ');
+          const totalExtraCharge = items.reduce((sum, it) => sum + (it.is_baggage_charge ? 250000 : 0), 0);
+          
           mergedHistory.push({
-            id: item.booking_id || item.id || 'N/A',
+            id: first.booking_id || first.id || 'N/A', // Tetap gunakan UUID pertama untuk panggilan API
             type: 'travel',
-            title: `Perjalanan Rute: ${item.route_name || 'Reguler'}`,
-            date: item.departure_date || item.created_at || new Date().toISOString(),
-            price: item.price || item.total_price || 0,
-            original_price: item.original_price || undefined,
-            status: item.booking_status || item.status || 'PENDING',
+            title: `Perjalanan Rute: ${first.route_name || 'Reguler'}`,
+            date: first.departure_date || first.created_at || new Date().toISOString(),
+            price: totalPrice,
+            original_price: totalOriginalPrice,
+            status: first.booking_status || first.status || 'PENDING',
             meta: {
-              seat_number: item.seat_number,
-              payment_method: item.payment_method,
-              payment_proof_url: item.payment_proof_url,
-              ...item
+              booking_code: code !== 'N/A' && code.startsWith('TRV') ? code : undefined,
+              seat_number: seats,
+              payment_method: first.payment_method,
+              payment_proof_url: first.payment_proof_url,
+              is_group: items.length > 1,
+              passenger_names: items.map(it => it.passenger_name || 'Penumpang').join(', '),
+              extra_charge: totalExtraCharge,
+              bookings: items, // array mentah
+              ...first
             }
           });
         });
