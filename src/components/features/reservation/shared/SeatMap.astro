@@ -219,7 +219,7 @@ const boxClassBase =
 
     if (!section) return;
 
-    let selectedSeat: string | null = null;
+    let selectedSeats: string[] = [];
 
     // Remove old listener if exists to prevent duplicates on view transitions
     const newSection = section.cloneNode(true) as HTMLElement;
@@ -243,17 +243,24 @@ const boxClassBase =
       const seatNum = target.getAttribute("data-seat");
       if (!seatNum) return;
 
-      if (selectedSeat === seatNum) {
-        selectedSeat = null;
+      const index = selectedSeats.indexOf(seatNum);
+      if (index > -1) {
+        selectedSeats.splice(index, 1);
         target.setAttribute("data-selected", "false");
       } else {
-        if (selectedSeat) {
-          const prevBtn = newSection.querySelector(
-            `.seat-btn[data-seat="${selectedSeat}"]`,
-          );
-          if (prevBtn) prevBtn.setAttribute("data-selected", "false");
+        if (selectedSeats.length >= 4) {
+          if (typeof (window as any).showFeedbackModal === "function") {
+            (window as any).showFeedbackModal(
+              "warning",
+              "Batas Pemesanan",
+              "Maksimal pemesanan tiket reguler dalam satu transaksi adalah 4 kursi. Untuk kapasitas lebih besar, silakan gunakan layanan Charter kami."
+            );
+          } else {
+            alert("Maksimal pemesanan dalam satu transaksi adalah 4 kursi.");
+          }
+          return;
         }
-        selectedSeat = seatNum;
+        selectedSeats.push(seatNum);
         target.setAttribute("data-selected", "true");
       }
 
@@ -265,7 +272,9 @@ const boxClassBase =
         "input-selected-seats",
       ) as HTMLInputElement;
       if (activeHiddenInput) {
-        activeHiddenInput.value = selectedSeat || "";
+        // Sort seats numerically
+        selectedSeats.sort((a, b) => parseInt(a) - parseInt(b));
+        activeHiddenInput.value = selectedSeats.join(",");
         activeHiddenInput.dispatchEvent(new Event("change", { bubbles: true }));
       }
     };
