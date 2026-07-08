@@ -146,8 +146,11 @@ export const adminBookingService = {
                 const passengerList = items.map(it => {
                     const name = it.passenger_name || 'Tanpa Nama';
                     const seat = it.seat_number || '-';
-                    const luggage = it.baggage_weight ? `${it.baggage_weight}Kg (${it.baggage_dimension})${it.is_baggage_charge ? ' [+Charge]' : ''}` : '-';
-                    return `${name} (Kursi ${seat}, Bagasi: ${luggage})`;
+                    const desc = it.baggage_description ? ` - "${it.baggage_description}"` : '';
+                    const luggage = it.baggage_weight 
+                        ? `${it.baggage_weight}Kg (${it.baggage_dimension || 'normal'})${desc}${it.is_baggage_charge ? ' [+Charge]' : ''}` 
+                        : 'Tidak Ada / Normal';
+                    return `• ${name} (Kursi ${seat})\n  Bawaan: ${luggage}`;
                 }).join('\n');
 
                 result.push({
