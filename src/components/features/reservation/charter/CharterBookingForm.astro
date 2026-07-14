@@ -90,6 +90,7 @@ try {
                                             fleetData.map((unit) => (
                                                 <option
                                                     value={unit.car_type}
+                                                    data-price={unit.base_price}
                                                     disabled={
                                                         unit.availableUnits ===
                                                         0
@@ -119,6 +120,26 @@ try {
                                     type="date"
                                     required={false}
                                 />
+
+                                <!-- Ringkasan Estimasi Biaya Charter (Inline) -->
+                                <div id="charter-pricing-summary" class="hidden mt-4 p-4 rounded-xl bg-slate-100/60 border border-slate-200/40 animate-fade-in">
+                                    <div class="flex flex-col gap-3 font-main">
+                                        <div>
+                                            <h4 class="font-bold text-primary text-xs">Estimasi Biaya Sewa</h4>
+                                            <p id="charter-summary-details" class="text-[10px] text-slate-400 font-secondary mt-0.5">Pilih armada & tanggal...</p>
+                                        </div>
+                                        <div class="flex flex-col gap-1.5 pt-2 border-t border-slate-200/60">
+                                            <div id="charter-promo-row" class="hidden justify-between items-center text-[11px]">
+                                                <span id="charter-promo-badge" class="font-bold text-green-700 bg-green-50 border border-green-200 px-1.5 py-0.5 rounded-full"></span>
+                                                <span id="charter-original-price" class="text-slate-400 line-through font-secondary"></span>
+                                            </div>
+                                            <div class="flex justify-between items-center text-xs">
+                                                <span class="text-slate-500 font-bold">Total Pembayaran</span>
+                                                <span id="charter-total-price" class="text-sm font-black text-primary">Rp 0</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
 
                                 <Button
                                     type="submit"
@@ -480,6 +501,7 @@ try {
                 }
 
                 selectArmada.value = value;
+                selectArmada.dispatchEvent(new Event("change", { bubbles: true }));
 
                 // Show PreviewSeatMap
                 const seatmapContainer = document.getElementById(
@@ -772,6 +794,117 @@ try {
                 }, 800);
             }
         }
+
+        // ================= ESTIMASI BIAYA CHARTER =================
+        let activePromo: any = null;
+        const summaryCard = document.getElementById("charter-pricing-summary");
+        const summaryDetails = document.getElementById("charter-summary-details");
+        const promoRow = document.getElementById("charter-promo-row");
+        const promoBadge = document.getElementById("charter-promo-badge");
+        const originalPrice = document.getElementById("charter-original-price");
+        const totalPrice = document.getElementById("charter-total-price");
+
+        const currencyFormatter = new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR",
+            maximumFractionDigits: 0,
+        });
+
+        const loadActivePromo = async () => {
+            try {
+                const contentServiceModule = await import("@services/contentService");
+                const res = await contentServiceModule.contentService.getPromotions();
+                const promos = res?.data;
+                if (promos) {
+                    activePromo = promos.find((p: any) => 
+                        p.is_active && (p.target_service.includes("all") || p.target_service.includes("charter"))
+                    );
+                }
+                updateCharterPrice();
+            } catch (err) {
+                console.error("Gagal memuat promo charter:", err);
+            }
+        };
+
+        const calculateDays = (start: string, end: string) => {
+            if (!start) return 0;
+            if (!end) return 1;
+            
+            const startDate = new Date(start);
+            const endDate = new Date(end);
+            if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) return 1;
+            
+            const timeDiff = endDate.getTime() - startDate.getTime();
+            const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+            return Math.max(daysDiff + 1, 1);
+        };
+
+        const updateCharterPrice = () => {
+            if (!summaryCard) return;
+
+            const selectedOption = selectArmada.options[selectArmada.selectedIndex];
+            const carType = selectArmada.value;
+            const startDate = inputTanggalSewa?.value;
+            const endDate = inputTanggalKepulangan?.value;
+
+            if (!carType || !startDate) {
+                summaryCard.classList.add("hidden");
+                return;
+            }
+
+            const basePrice = parseFloat(selectedOption?.getAttribute("data-price") || "0");
+            const days = calculateDays(startDate, endDate);
+
+            const originalPriceVal = basePrice * days;
+            let finalPriceVal = originalPriceVal;
+            let discountAmount = 0;
+
+            if (activePromo) {
+                const discountPercentage = parseFloat(activePromo.discount_percentage || "0");
+                let discount = originalPriceVal * (discountPercentage / 100);
+
+                if (activePromo.max_discount && parseFloat(activePromo.max_discount) > 0) {
+                    const maxDiscount = parseFloat(activePromo.max_discount);
+                    if (discount > maxDiscount) {
+                        discount = maxDiscount;
+                    }
+                }
+                discountAmount = discount;
+                finalPriceVal = originalPriceVal - discountAmount;
+            }
+
+            if (summaryDetails) {
+                summaryDetails.textContent = `${carType} (${days} Hari Sewa)`;
+            }
+
+            if (activePromo && discountAmount > 0) {
+                if (promoBadge) {
+                    promoBadge.textContent = `Promo Aktif: ${activePromo.tagline} (-${parseFloat(activePromo.discount_percentage)}%)`;
+                }
+                if (originalPrice) {
+                    originalPrice.textContent = currencyFormatter.format(originalPriceVal);
+                }
+                promoRow?.classList.remove("hidden");
+                promoRow?.classList.add("flex");
+            } else {
+                promoRow?.classList.add("hidden");
+                promoRow?.classList.remove("flex");
+            }
+
+            if (totalPrice) {
+                totalPrice.textContent = currencyFormatter.format(finalPriceVal);
+            }
+
+            summaryCard.classList.remove("hidden");
+        };
+
+        // Listeners untuk perubahan input
+        selectArmada.addEventListener("change", updateCharterPrice);
+        inputTanggalSewa?.addEventListener("change", updateCharterPrice);
+        inputTanggalKepulangan?.addEventListener("change", updateCharterPrice);
+
+        // Load Promo & Inisialisasi awal
+        loadActivePromo();
     };
 
     document.addEventListener("DOMContentLoaded", setupBookingForm);
