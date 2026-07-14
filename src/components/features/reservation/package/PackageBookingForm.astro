@@ -667,7 +667,11 @@ import AlertCard from "@components/ui/AlertCard.astro";
 
                     if (activePromo && discountAmount > 0) {
                         if (promoBadge) {
-                            promoBadge.textContent = `Promo Aktif: ${activePromo.tagline} (-${parseFloat(activePromo.discount_percentage)}%)`;
+                            let maxDiscountText = "";
+                            if (activePromo.max_discount && parseFloat(activePromo.max_discount) > 0) {
+                                maxDiscountText = `, Maks ${currencyFormatter.format(parseFloat(activePromo.max_discount))}`;
+                            }
+                            promoBadge.textContent = `Promo Aktif: ${activePromo.tagline} (-${parseFloat(activePromo.discount_percentage)}%${maxDiscountText})`;
                         }
                         if (originalPrice) {
                             originalPrice.textContent = currencyFormatter.format(basePriceVal);

@@ -1340,7 +1340,11 @@ try {
 
             if (activePromo && discountAmount > 0) {
                 if (stickyPromoBadge) {
-                    stickyPromoBadge.textContent = `Promo Aktif: ${activePromo.tagline} (-${parseFloat(activePromo.discount_percentage)}%)`;
+                    let maxDiscountText = "";
+                    if (activePromo.max_discount && parseFloat(activePromo.max_discount) > 0) {
+                        maxDiscountText = `, Maks ${formatters.currency.format(parseFloat(activePromo.max_discount))}`;
+                    }
+                    stickyPromoBadge.textContent = `Promo Aktif: ${activePromo.tagline} (-${parseFloat(activePromo.discount_percentage)}%${maxDiscountText})`;
                 }
                 if (stickyOriginalPrice) {
                     stickyOriginalPrice.textContent = formatters.currency.format(originalPriceVal);
