@@ -78,8 +78,8 @@ export const userService = {
             type: 'charter',
             title: `Sewa Armada: ${item.car_type || 'Charter'}`,
             date: item.start_date || item.created_at || new Date().toISOString(),
-            price: item.total_price || 0,
-            original_price: item.original_price || undefined,
+            price: item.offered_price ? Number(item.offered_price) : 0,
+            original_price: item.original_price ? Number(item.original_price) : undefined,
             status: item.status || 'PENDING',
             meta: {
               pickup_address: item.pickup_address,
@@ -99,8 +99,8 @@ export const userService = {
             type: 'package',
             title: `Pengiriman Paket`,
             date: item.created_at || new Date().toISOString(),
-            price: item.total_price || item.price || 0,
-            original_price: item.original_price || undefined,
+            price: item.original_price ? (Number(item.original_price) - Number(item.discount_amount || 0)) : 0,
+            original_price: item.original_price ? Number(item.original_price) : undefined,
             status: (['dibatalkan', 'ditolak', 'REJECTED', 'selesai', 'COMPLETED'].includes(item.status)) ? item.status : ((item.transaction_status === 'menunggu_pembayaran' || item.transaction_status === 'menunggu_konfirmasi') ? item.transaction_status : (item.status || 'PENDING')),
             meta: {
               waybill_number: item.waybill_number,
