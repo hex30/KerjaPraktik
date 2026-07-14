@@ -76,6 +76,7 @@ try {
                                             label={`${route.origin} ➔ ${route.destination}`}
                                             days={days}
                                             data-origin={route.origin}
+                                            data-base-price={route.base_price}
                                         />
                                     );
                                 })
@@ -134,6 +135,39 @@ try {
                                     Pilih Kursi
                                 </h3>
                                 <SeatMap />
+
+                                <!-- Ringkasan Harga Tiket (Inline) -->
+                                <div id="sticky-price-bar" class="hidden mt-6 p-6 rounded-2xl bg-slate-50 border border-slate-100/80 animate-fade-in">
+                                    <div class="flex flex-col gap-4">
+                                        <div class="flex justify-between items-center pb-3 border-b border-slate-200/60">
+                                            <div>
+                                                <h4 class="font-bold text-primary text-sm">Estimasi Biaya</h4>
+                                                <p id="sticky-route-info" class="text-xs text-slate-400 font-secondary mt-0.5">Pilih rute & tanggal...</p>
+                                            </div>
+                                            <!-- Opsi Jumlah Kursi Manual (Tampil HANYA jika Guest) -->
+                                            <div id="guest-qty-container" class="hidden items-center gap-2">
+                                                <label class="text-xs text-slate-500 font-bold">Jumlah Kursi:</label>
+                                                <select id="guest-qty-select" class="bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs font-bold text-primary focus:outline-none cursor-pointer shadow-sm">
+                                                    <option value="1" selected>1 Kursi</option>
+                                                    <option value="2">2 Kursi</option>
+                                                    <option value="3">3 Kursi</option>
+                                                    <option value="4">4 Kursi</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="flex flex-col gap-2">
+                                            <div id="promo-row" class="hidden justify-between items-center text-xs">
+                                                <span id="sticky-promo-badge" class="font-bold text-green-700 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full"></span>
+                                                <span id="sticky-original-price" class="text-slate-400 line-through font-secondary"></span>
+                                            </div>
+                                            <div class="flex justify-between items-center">
+                                                <span class="text-sm text-slate-600 font-bold">Total Pembayaran</span>
+                                                <span id="sticky-total-price" class="text-lg font-black text-primary">Rp 0</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </section>
 
                             <section class="flex flex-col gap-5">
@@ -1077,6 +1111,7 @@ try {
 
             step1.classList.add("hidden");
             step2.classList.remove("hidden");
+            document.getElementById("sticky-price-bar")?.classList.add("hidden");
             window.scrollTo({ top: 0, behavior: "smooth" });
         });
 
@@ -1084,6 +1119,10 @@ try {
             if (checkGuest(e)) return;
             step2.classList.add("hidden");
             step1.classList.remove("hidden");
+            // Call updatePriceSummary if it is defined (we'll check via window/locally)
+            if (typeof (window as any).updatePriceSummary === "function") {
+                (window as any).updatePriceSummary();
+            }
         });
 
         // Final Submission
@@ -1220,6 +1259,118 @@ try {
                 btnSubmit.textContent = originalText;
             }
         });
+
+        // ================= PRICING SUMMARY CARD (INLINE) =================
+        let activePromo: any = null;
+        const stickyBar = document.getElementById("sticky-price-bar");
+        const stickyRouteInfo = document.getElementById("sticky-route-info");
+        const stickyPromoBadge = document.getElementById("sticky-promo-badge");
+        const guestQtyContainer = document.getElementById("guest-qty-container");
+        const guestQtySelect = document.getElementById("guest-qty-select") as HTMLSelectElement;
+        const stickyOriginalPrice = document.getElementById("sticky-original-price");
+        const stickyTotalPrice = document.getElementById("sticky-total-price");
+        const selectedSeatsInput = document.getElementById("input-selected-seats") as HTMLInputElement;
+        const promoRow = document.getElementById("promo-row");
+
+        const loadActivePromo = async () => {
+            try {
+                const contentServiceModule = await import("@services/contentService");
+                const res = await contentServiceModule.contentService.getPromotions();
+                const promos = res?.data;
+                if (promos) {
+                    activePromo = promos.find((p: any) => 
+                        p.is_active && (p.target_service.includes("all") || p.target_service.includes("travel"))
+                    );
+                }
+                updatePriceSummary();
+            } catch (err) {
+                console.error("Gagal memuat promo:", err);
+            }
+        };
+
+        const updatePriceSummary = () => {
+            if (!stickyBar) return;
+
+            const selectedRouteRadio = document.querySelector('input[name="rute"]:checked') as HTMLInputElement;
+            if (!selectedRouteRadio) {
+                stickyBar.classList.add("hidden");
+                return;
+            }
+
+            const basePrice = parseFloat(selectedRouteRadio.getAttribute("data-base-price") || "0");
+            const routeLabel = selectedRouteRadio.closest("label")?.querySelector("span")?.textContent || "Perjalanan Travel";
+
+            const isLoggedIn = authGuard.isLoggedIn();
+            let seatCount = 1;
+
+            if (isLoggedIn) {
+                guestQtyContainer?.classList.add("hidden");
+                guestQtyContainer?.classList.remove("flex");
+
+                const seatValues = selectedSeatsInput?.value || "";
+                const seatsList = seatValues.split(",").map(s => s.trim()).filter(Boolean);
+                seatCount = seatsList.length;
+            } else {
+                guestQtyContainer?.classList.remove("hidden");
+                guestQtyContainer?.classList.add("flex");
+                seatCount = parseInt(guestQtySelect?.value || "1", 10);
+            }
+
+            const originalPriceVal = basePrice * seatCount;
+            let finalPriceVal = originalPriceVal;
+            let discountAmount = 0;
+
+            if (activePromo) {
+                const discountPercentage = parseFloat(activePromo.discount_percentage || "0");
+                let discount = originalPriceVal * (discountPercentage / 100);
+
+                if (activePromo.max_discount && parseFloat(activePromo.max_discount) > 0) {
+                    const maxDiscount = parseFloat(activePromo.max_discount);
+                    if (discount > maxDiscount) {
+                        discount = maxDiscount;
+                    }
+                }
+                discountAmount = discount;
+                finalPriceVal = originalPriceVal - discountAmount;
+            }
+
+            if (stickyRouteInfo) {
+                stickyRouteInfo.textContent = `${routeLabel} (${seatCount} Kursi)`;
+            }
+
+            if (activePromo && discountAmount > 0) {
+                if (stickyPromoBadge) {
+                    stickyPromoBadge.textContent = `Promo Aktif: ${activePromo.tagline} (-${parseFloat(activePromo.discount_percentage)}%)`;
+                }
+                if (stickyOriginalPrice) {
+                    stickyOriginalPrice.textContent = formatters.currency.format(originalPriceVal);
+                }
+                promoRow?.classList.remove("hidden");
+                promoRow?.classList.add("flex");
+            } else {
+                promoRow?.classList.add("hidden");
+                promoRow?.classList.remove("flex");
+            }
+
+            if (stickyTotalPrice) {
+                stickyTotalPrice.textContent = formatters.currency.format(finalPriceVal);
+            }
+
+            stickyBar.classList.remove("hidden");
+        };
+
+        // Simpan ke window agar bisa diakses di luar lingkup fungsi ini
+        (window as any).updatePriceSummary = updatePriceSummary;
+
+        // Listeners
+        ruteRadios.forEach((radio) => {
+            radio.addEventListener("change", updatePriceSummary);
+        });
+        guestQtySelect?.addEventListener("change", updatePriceSummary);
+        selectedSeatsInput?.addEventListener("change", updatePriceSummary);
+
+        // Load Promo & Inisialisasi awal
+        loadActivePromo();
     };
 
     document.addEventListener("DOMContentLoaded", setupTravelFlow);
