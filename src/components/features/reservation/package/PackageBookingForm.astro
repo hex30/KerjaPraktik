@@ -193,6 +193,26 @@ import AlertCard from "@components/ui/AlertCard.astro";
                             </div>
                         </div>
 
+                        <!-- Ringkasan Estimasi Tarif Paket (Inline) -->
+                        <div id="package-pricing-summary" class="hidden mt-4 p-4 rounded-xl bg-slate-100/60 border border-slate-200/40 animate-fade-in">
+                            <div class="flex flex-col gap-3 font-main">
+                                <div>
+                                    <h4 class="font-bold text-primary text-xs">Estimasi Biaya Pengiriman</h4>
+                                    <p id="package-summary-details" class="text-[10px] text-slate-400 font-secondary mt-0.5">Lengkapi data tujuan...</p>
+                                </div>
+                                <div class="flex flex-col gap-1.5 pt-2 border-t border-slate-200/60">
+                                    <div id="package-promo-row" class="hidden justify-between items-center text-[11px]">
+                                        <span id="package-promo-badge" class="font-bold text-green-700 bg-green-50 border border-green-200 px-1.5 py-0.5 rounded-full"></span>
+                                        <span id="package-original-price" class="text-slate-400 line-through font-secondary"></span>
+                                    </div>
+                                    <div class="flex justify-between items-center text-xs">
+                                        <span id="package-total-label" class="text-slate-500 font-bold">Total Pembayaran</span>
+                                        <span id="package-total-price" class="text-sm font-black text-primary">Rp 0</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="pt-2">
                             <Button type="submit" size="lg">
                                 Pesan Pengiriman Sekarang
@@ -567,6 +587,132 @@ import AlertCard from "@components/ui/AlertCard.astro";
                     }
                 }
             });
+
+            // ================= ESTIMASI TARIF PAKET =================
+            const JABODETABEK_KECAMATAN = new Set([
+                "cempaka putih","gambir","johar baru","kemayoran","menteng","sawah besar","senen","tanah abang","cilincing","kelapa gading","koja","pademangan","penjaringan","tanjung priok","cengkareng","grogol petamburan","taman sari","tambora","kebon jeruk","kalideres","palmerah","kembangan","cilandak","jagakarsa","kebayoran baru","kebayoran lama","mampang prapatan","pancoran","pasar minggu","pesanggrahan","setiabudi","tebet","cakung","cipayung","ciracas","duren sawit","jatinegara","kramat jati","makasar","matraman","pasar rebo","pulo gadung","kepulauan seribu utara","kepulauan seribu selatan","bogor barat","bogor selatan","bogor tengah","bogor timur","bogor utara","tanah sareal","babakan madang","bojonggede","caringin","cariu","ciampea","ciawi","cibinong","cibungbulang","cigombong","cigudeg","cijeruk","cileungsi","ciomas","cisarua","ciseeng","citeureup","dramaga","gunung putri","gunung sindur","jasinga","jonggol","kemang","klapanunggal","leuwiliang","leuwisadeng","megamendung","nanggung","pamijahan","parung","parung panjang","ranca bungur","rumpin","sukajaya","sukamakmur","sukaraja","tajur halang","tamansari","tenjo","tenjolaya","tanjungsari","beji","bojongsari","cilodong","cimanggis","cinere","cipayung","limo","pancoran mas","sawangan","sukmajaya","tapos","batuceper","benda","cibodas","ciledug","cipondoh","jatiuwang","karangtengah","karawaci","larangan","neglasari","periuk","pinang","tangerang","ciputat","ciputat timur","pamulang","pondok aren","serpong","serpong utara","setu","balaraja","cikupa","cisauk","cisoka","curug","gunungkaler","jambe","jayanti","kelapa dua","kemiri","kosambi","kresek","kronjo","legok","mauk","mekarbaru","pagedangan","pakuhaji","panongan","pasar kemis","rajeg","sepatan","sepatan timur","sindang jaya","solear","sukadiri","sukamulya","teluknaga","tigaraksa","bantar gebang","bekasi barat","bekasi selatan","bekasi timur","bekasi utara","jatiasih","jatisampurna","medan satria","mustika jaya","pondok gede","pondok melati","rawalumbu","babelan","bojongmangu","cabangbungin","cibarusah","cibitung","cikarang barat","cikarang pusat","cikarang selatan","cikarang utara","cikarang timur","kedungwaringin","karangbahagia","muaragembong","pebayuran","serang baru","setu","sukakarya","sukawangi","sukatani","tarumajaya","tambun selatan","tambun utara","tambelang"
+            ]);
+
+            let activePromo: any = null;
+            const summaryCard = document.getElementById("package-pricing-summary");
+            const summaryDetails = document.getElementById("package-summary-details");
+            const promoRow = document.getElementById("package-promo-row");
+            const promoBadge = document.getElementById("package-promo-badge");
+            const originalPrice = document.getElementById("package-original-price");
+            const totalPrice = document.getElementById("package-total-price");
+            const totalLabel = document.getElementById("package-total-label");
+            const receiverKecamatanInput = document.getElementById("kecamatan_penerima") as HTMLInputElement;
+
+            const currencyFormatter = new Intl.NumberFormat("id-ID", {
+                style: "currency",
+                currency: "IDR",
+                maximumFractionDigits: 0,
+            });
+
+            const loadActivePromo = async () => {
+                try {
+                    const contentServiceModule = await import("@services/contentService");
+                    const res = await contentServiceModule.contentService.getPromotions();
+                    const promos = res?.data;
+                    if (promos) {
+                        activePromo = promos.find((p: any) => 
+                            p.is_active && (p.target_service.includes("all") || p.target_service.includes("package"))
+                        );
+                    }
+                    updatePackagePrice();
+                } catch (err) {
+                    console.error("Gagal memuat promo paket:", err);
+                }
+            };
+
+            const updatePackagePrice = () => {
+                if (!summaryCard) return;
+
+                const kecamatan = receiverKecamatanInput?.value?.trim()?.toLowerCase() || "";
+                
+                if (!kecamatan) {
+                    summaryCard.classList.add("hidden");
+                    return;
+                }
+
+                const isJabodetabek = JABODETABEK_KECAMATAN.has(kecamatan);
+
+                if (isJabodetabek) {
+                    const weight = parseFloat(weightInput?.value || "0") || 0;
+                    const dimension = dimensionSelect?.value || "";
+                    const isDouble = dimension === "besar" || dimension === "super_besar" || weight >= 60;
+                    const multiplier = isDouble ? 2 : 1;
+
+                    const basePriceVal = 250000 * multiplier;
+                    let finalPriceVal = basePriceVal;
+                    let discountAmount = 0;
+
+                    if (activePromo) {
+                        const discountPercentage = parseFloat(activePromo.discount_percentage || "0");
+                        let discount = basePriceVal * (discountPercentage / 100);
+
+                        if (activePromo.max_discount && parseFloat(activePromo.max_discount) > 0) {
+                            const maxDiscount = parseFloat(activePromo.max_discount);
+                            if (discount > maxDiscount) {
+                                discount = maxDiscount;
+                            }
+                        }
+                        discountAmount = discount;
+                        finalPriceVal = basePriceVal - discountAmount;
+                    }
+
+                    if (summaryDetails) {
+                        summaryDetails.textContent = `Tujuan: ${receiverKecamatanInput.value} (Wilayah Jabodetabek - ${multiplier} Kursi Bagasi)`;
+                    }
+
+                    if (activePromo && discountAmount > 0) {
+                        if (promoBadge) {
+                            promoBadge.textContent = `Promo Aktif: ${activePromo.tagline} (-${parseFloat(activePromo.discount_percentage)}%)`;
+                        }
+                        if (originalPrice) {
+                            originalPrice.textContent = currencyFormatter.format(basePriceVal);
+                            originalPrice.classList.remove("hidden");
+                        }
+                        promoRow?.classList.remove("hidden");
+                        promoRow?.classList.add("flex");
+                    } else {
+                        promoRow?.classList.add("hidden");
+                        promoRow?.classList.remove("flex");
+                    }
+
+                    if (totalLabel) {
+                        totalLabel.textContent = "Total Pembayaran";
+                    }
+                    if (totalPrice) {
+                        totalPrice.textContent = currencyFormatter.format(finalPriceVal);
+                    }
+                } else {
+                    if (summaryDetails) {
+                        summaryDetails.textContent = `Tujuan: ${receiverKecamatanInput.value} (Luar Jabodetabek)`;
+                    }
+                    
+                    promoRow?.classList.add("hidden");
+                    promoRow?.classList.remove("flex");
+
+                    if (totalLabel) {
+                        totalLabel.textContent = "Status Tarif";
+                    }
+                    if (totalPrice) {
+                        totalPrice.textContent = "Menunggu Konfirmasi Admin";
+                    }
+                }
+
+                summaryCard.classList.remove("hidden");
+            };
+
+            // Listeners
+            receiverKecamatanInput?.addEventListener("change", updatePackagePrice);
+            weightInput?.addEventListener("input", updatePackagePrice);
+            weightInput?.addEventListener("change", updatePackagePrice);
+            dimensionSelect?.addEventListener("change", updatePackagePrice);
+            
+            // Load Promo & Initial Call
+            loadActivePromo();
         };
 
         document.addEventListener("DOMContentLoaded", setupPackageListener);
